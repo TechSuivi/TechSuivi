@@ -1,0 +1,44 @@
+services:
+  web:
+    image: techsuivi/web:latest
+    container_name: web
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+    volumes:
+      - ./web/src/:/var/www/html
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  db:
+    image: mariadb:10.11
+    container_name: db
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db/techsuivi_db.sql:/docker-entrypoint-initdb.d/techsuivi_db.sql:ro
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: php_myadmin
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+
+  novnc:
+    image: techsuivi/novnc:latest
+    container_name: novnc
+    restart: unless-stopped
+    network_mode: host
+    # command: géré par entrypoint.sh
+    volumes:
+      - ./web/src/vnc_tokens:/tokens:ro
+
+volumes:
+  db_data:

@@ -49,13 +49,24 @@ cd TechSuivi
 ./install_auto.sh
 ```
 
-### Option 2: Installation personnalisée
+### Option 2: Installation personnalisée (Build local)
 ```bash
 git clone https://github.com/TechSuivi/TechSuivi.git
 cd TechSuivi
 ./install_interactive.sh
 ```
-*Permet de personnaliser les mots de passe et noms de base de données*
+
+### Option 3: Installation via Docker Hub (Production / Rapide)
+Si vous ne souhaitez pas modifier le code, c'est l'option la plus rapide.
+```bash
+# Récupérer uniquement le fichier de composition
+wget https://raw.githubusercontent.com/TechSuivi/TechSuivi/main/docker-compose.hub.yml -O docker-compose.yml
+# Récupérer la configuration DB
+mkdir db
+wget https://raw.githubusercontent.com/TechSuivi/TechSuivi/main/db/techsuivi_db.sql -O db/techsuivi_db.sql
+# Lancer
+docker compose up -d
+```
 
 L'application sera accessible sur **http://localhost:8080**
 
@@ -186,6 +197,13 @@ docker compose exec web php _tests/test_api_interventions.php
 3. **Committez** vos changements (`git commit -m 'Add some AmazingFeature'`)
 4. **Poussez** vers la branche (`git push origin feature/AmazingFeature`)
 5. Ouvrez une **Pull Request**
+
+### Configuration Docker Hub (Pour les mainteneurs)
+Pour que la mise à jour automatique des images fonctionne sur votre fork ou repo :
+1. Allez dans **Settings > Secrets and variables > Actions**.
+2. Ajoutez les secrets suivants :
+    - `DOCKER_USERNAME` : Votre identifiant Docker Hub.
+    - `DOCKER_TOKEN` : Votre token d'accès (profil > security > access tokens).
 
 ### Standards de code
 - Code en **français** (commentaires et variables)
