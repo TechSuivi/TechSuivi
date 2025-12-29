@@ -46,14 +46,14 @@
 ```bash
 git clone https://github.com/TechSuivi/TechSuivi.git
 cd TechSuivi
-./setup_auto.sh
+./install_auto.sh
 ```
 
 ### Option 2: Installation personnalisée
 ```bash
 git clone https://github.com/TechSuivi/TechSuivi.git
 cd TechSuivi
-./setup_interactive.sh
+./install_interactive.sh
 ```
 *Permet de personnaliser les mots de passe et noms de base de données*
 
@@ -88,15 +88,9 @@ MYSQL_DATABASE=techsuivi_db
 MYSQL_USER=techsuivi_user
 MYSQL_PASSWORD=votre_mot_de_passe
 
-# FTP (pour AutoIT)
-FTP_USER=ftpuser
-FTP_PASS=votre_mot_de_passe_ftp
-```
-
 ### Ports utilisés par defaut
 - **8080** - Application web
 - **8081** - PhpMyAdmin
-- **21** - Serveur FTP
 
 ---
 
@@ -106,17 +100,16 @@ FTP_PASS=votre_mot_de_passe_ftp
 TechSuivi/
 ├── 📄 README.md              # Documentation principale
 ├── 🐳 docker-compose.yml     # Configuration Docker
-├── ⚙️ setup.sh               # Script d'installation
-├── 📋 .env.example           # Template de configuration
+├── ⚙️ install_auto.sh      # Script d'installation
+├── 📄 .env                 # Fichier de configuration
 ├── 
-├── 🌐 web/                   # Application web PHP
-│   ├── src/                  # Code source
-│   ├── Dockerfile            # Image Docker personnalisée
+├── 🌐 web/                 # Application web PHP
+│   ├── src/                # Code source
+│   ├── Dockerfile          # Image Docker personnalisée
 │   └── ...
 ├── 
-├── 🗄️ db/                    # Base de données
-│   ├── init_complete.sql     # Structure initiale
-│   └── *.sql                 # Scripts de migration
+├── 🗄️ db/                  # Base de données
+│   └── techsuivi_db V3.sql # Structure initiale
 ├── 
 ├── 🤖 _Autoit/               # Scripts AutoIT
 │   └── script/TechSuivi V4/  # Scripts principaux
@@ -135,7 +128,6 @@ TechSuivi/
 |---------|-----|-------------|
 | **Application principale** | http://localhost:8080 | Interface de gestion |
 | **PhpMyAdmin** | http://localhost:8081 | Administration base de données |
-| **FTP** | localhost:21 | Échange de fichiers AutoIT |
 
 ### Identifiants par défaut
 ```
@@ -210,9 +202,8 @@ Ce projet est sous licence MIT. Voir le fichier [`LICENSE`](LICENSE) pour plus d
 
 ## 📞 Support
 
-- 🐛 **Bugs** : Ouvrez une [issue](https://github.com/VOTRE_USERNAME/TechSuivi/issues)
-- 💡 **Suggestions** : Utilisez les [discussions](https://github.com/VOTRE_USERNAME/TechSuivi/discussions)
-- 📧 **Contact** : [votre.email@example.com](mailto:votre.email@example.com)
+- 🐛 **Bugs** : Ouvrez une [issue](https://github.com/TechSuivi/TechSuivi/issues)
+- 💡 **Suggestions** : Utilisez les [discussions](https://github.com/TechSuivi/TechSuivi/discussions)
 
 ---
 
@@ -220,6 +211,6 @@ Ce projet est sous licence MIT. Voir le fichier [`LICENSE`](LICENSE) pour plus d
 
 **⭐ Si ce projet vous aide, n'hésitez pas à lui donner une étoile ! ⭐**
 
-Made with ❤️ by [Votre Nom](https://github.com/VOTRE_USERNAME)
+Made with ❤️ by [TechSuivi team](https://github.com/TechSuivi)
 
 </div>
