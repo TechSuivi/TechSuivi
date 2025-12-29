@@ -137,10 +137,10 @@ echo ""
 echo "8. Vérification de la base de données V3..."
 echo "📊 La base V3 est automatiquement importée par Docker au démarrage"
 
-if [ -f "db/techsuivi_db V3.sql" ]; then
+if [ -f "db/techsuivi_db.sql" ]; then
     echo "✅ Fichier de base V3 trouvé et configuré dans docker-compose.yml"
 else
-    echo "⚠️  Fichier db/techsuivi_db V3.sql non trouvé"
+    echo "⚠️  Fichier db/techsuivi_db.sql non trouvé"
     echo "💡 Assurez-vous que le fichier existe pour une installation complète"
 fi
 

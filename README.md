@@ -109,7 +109,7 @@ TechSuivi/
 │   └── ...
 ├── 
 ├── 🗄️ db/                  # Base de données
-│   └── techsuivi_db V3.sql # Structure initiale
+│   └── techsuivi_db.sql    # Structure initiale
 ├── 
 ├── 🤖 _Autoit/               # Scripts AutoIT
 │   └── script/TechSuivi V4/  # Scripts principaux

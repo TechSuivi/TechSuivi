@@ -21,7 +21,7 @@ services:
       - ./.env
     volumes:
       - db_data:/var/lib/mysql
-      - ./db/techsuivi_db V3.sql:/docker-entrypoint-initdb.d/techsuivi_db.sql:ro
+      - ./db/techsuivi_db.sql:/docker-entrypoint-initdb.d/techsuivi_db.sql:ro
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
