@@ -283,6 +283,7 @@ fix_permissions_auto() {
         "$base_dir/autoit/logiciels"
         "$base_dir/autoit/nettoyage"
         "$base_dir/autoit/personnalisation"
+        "web/src/vnc_tokens"
     )
     
     echo "   📁 Création des dossiers nécessaires..."
@@ -307,8 +308,8 @@ fix_permissions_auto() {
     
     # Correction via Docker si les conteneurs sont en cours d'exécution
     echo "   🐳 Correction des permissions via Docker..."
-    $DOCKER_COMPOSE_CMD exec -T web chown -R www-data:www-data /var/www/html/uploads 2>/dev/null || true
-    $DOCKER_COMPOSE_CMD exec -T web chmod -R 775 /var/www/html/uploads 2>/dev/null || true
+    $DOCKER_COMPOSE_CMD exec -T web chown -R www-data:www-data /var/www/html/uploads /var/www/html/vnc_tokens 2>/dev/null || true
+    $DOCKER_COMPOSE_CMD exec -T web chmod -R 775 /var/www/html/uploads /var/www/html/vnc_tokens 2>/dev/null || true
     
     echo "✅ Permissions corrigées avec succès"
 }
