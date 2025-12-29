@@ -40,7 +40,7 @@ try {
     }
     
     // Construire l'URL VNC
-    $vncHost = '192.168.10.248';
+    $vncHost = $_SERVER['SERVER_NAME'];
     // Calcul du port déterministe (Même algo que generate_vnc_tokens.php)
     $portHash = hexdec(substr(md5('inter_' . $intervention['id']), -4));
     $vncPort = 10000 + ($portHash % 20000);

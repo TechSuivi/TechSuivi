@@ -4,7 +4,7 @@
  * Accès : http://192.168.10.248/manual_vnc_check.php
  */
 
-$vncHost = '192.168.10.248';
+$vncHost = $_SERVER['SERVER_NAME'];
 $vncPort = 8080;
 $vncToken = 'test'; 
 

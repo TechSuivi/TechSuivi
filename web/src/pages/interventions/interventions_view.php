@@ -788,7 +788,7 @@ body.dark .client-info-box span {
                 error_log("Erreur génération tokens VNC: " . $e->getMessage());
             }
 
-            $vncHost = '192.168.10.248'; // IP du serveur Docker
+            $vncHost = $_SERVER['SERVER_NAME']; // IP du serveur Docker
             
             // Calcul du port déterministe (Même algo que generate_vnc_tokens.php)
             $portHash = hexdec(substr(md5('inter_' . $intervention['id']), -4));

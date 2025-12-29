@@ -65,7 +65,7 @@ if ($pdo) {
                 'intervention_id' => $entry['id'],
                 'id'        => 'inter_' . $entry['id'],
                 'label'     => $label,
-                'host'      => '192.168.10.248', // IP du serveur Docker
+                'host'      => $_SERVER['SERVER_NAME'], // IP du serveur Docker
                 'port'      => 8080,             // Port public unique de noVNC
                 'token'     => 'inter_' . $entry['id'],
                 'password'  => $entry['pass_vnc'] ?? '',
