@@ -1,0 +1,86 @@
+<?php
+/**
+ * Action AJAX pour ajouter un nouveau lien
+ * Retourne un JSON avec le succès ou les erreurs
+ */
+
+session_start();
+
+// Vérifier si l'utilisateur est connecté
+if (!isset($_SESSION['username'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Non autorisé - Connexion requise.']);
+    exit();
+}
+
+// Inclure la configuration centralisée de la base de données
+require_once __DIR__ . '/../config/database.php';
+try {
+    $pdo = getDatabaseConnection();
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Erreur de connexion à la base de données']);
+    exit();
+}
+
+header('Content-Type: application/json; charset=utf-8');
+
+// Vérification de la méthode HTTP
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'error' => 'Méthode non autorisée.']);
+    exit();
+}
+
+// Récupération des données du formulaire
+$nom = trim($_POST['nom'] ?? '');
+$description = trim($_POST['description'] ?? '');
+$url = trim($_POST['url'] ?? '');
+$show_on_login = isset($_POST['show_on_login']) ? 1 : 0;
+
+// Validation
+$errors = [];
+
+if (empty($nom)) {
+    $errors[] = "Le nom du lien est obligatoire.";
+}
+
+if (empty($url)) {
+    $errors[] = "L'URL est obligatoire.";
+} elseif (!filter_var($url, FILTER_VALIDATE_URL)) {
+    $errors[] = "Format d'URL invalide.";
+}
+
+if (!empty($errors)) {
+    echo json_encode(['success' => false, 'errors' => $errors]);
+    exit();
+}
+
+try {
+    $stmt = $pdo->prepare("
+        INSERT INTO liens (NOM, DESCRIPTION, URL, show_on_login) 
+        VALUES (:nom, :description, :url, :show_on_login)
+    ");
+    
+    $result = $stmt->execute([
+        ':nom' => $nom,
+        ':description' => $description,
+        ':url' => $url,
+        ':show_on_login' => $show_on_login
+    ]);
+    
+    if ($result) {
+        $newId = $pdo->lastInsertId();
+        $_SESSION['edit_message'] = "Lien ajouté avec succès via popup !"; // Message pour la session
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Lien ajouté avec succès !',
+            'id' => $newId
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Erreur lors de l\'ajout du lien.']);
+    }
+    
+} catch (PDOException $e) {
+    echo json_encode(['success' => false, 'error' => 'Erreur de base de données : ' . $e->getMessage()]);
+}

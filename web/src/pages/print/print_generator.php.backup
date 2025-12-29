@@ -1,0 +1,367 @@
+<?php
+// Empêcher l'accès direct au fichier
+if (!defined('TECHSUIVI_INCLUDED')) {
+    die('Accès direct non autorisé.');
+}
+
+// Inclure la navigation des paramètres
+require_once __DIR__ . '/../../components/settings_navigation.php';
+?>
+
+<h1>📄 Générateur de Feuilles Imprimables</h1>
+
+<div class="print-generator-container">
+    <div class="editor-panel">
+        <h2>Éditeur de Message</h2>
+        
+        <form id="printForm" method="post" action="pages/print/generate_pdf.php" target="_blank">
+            <!-- Zone de saisie du texte -->
+            <div class="form-group">
+                <label for="message_text">Message à imprimer :</label>
+                <textarea id="message_text" name="message_text" rows="6" placeholder="Saisissez votre message ici...
+Exemple : Fermeture exceptionnelle Samedi 19 Juillet"></textarea>
+            </div>
+            
+            <!-- Options de formatage -->
+            <div class="formatting-options">
+                <h3>Options de Formatage</h3>
+                
+                <div class="format-row">
+                    <div class="format-group">
+                        <label for="font_size">Taille de police :</label>
+                        <select id="font_size" name="font_size">
+                            <option value="12">12px</option>
+                            <option value="14">14px</option>
+                            <option value="16">16px</option>
+                            <option value="18">18px</option>
+                            <option value="24">24px</option>
+                            <option value="36" selected>36px</option>
+                            <option value="48">48px</option>
+                            <option value="72">72px</option>
+                        </select>
+                    </div>
+                    
+                    <div class="format-group">
+                        <label for="text_color">Couleur du texte :</label>
+                        <select id="text_color" name="text_color">
+                            <option value="#000000" selected>Noir</option>
+                            <option value="#FF0000">Rouge</option>
+                            <option value="#0000FF">Bleu</option>
+                            <option value="#008000">Vert</option>
+                            <option value="#FFA500">Orange</option>
+                            <option value="#800080">Violet</option>
+                            <option value="#FF1493">Rose</option>
+                            <option value="#8B4513">Marron</option>
+                            <option value="#808080">Gris</option>
+                            <option value="#FFD700">Or</option>
+                            <option value="#DC143C">Rouge foncé</option>
+                            <option value="#4169E1">Bleu royal</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="format-row">
+                    <div class="format-group">
+                        <label for="text_align">Alignement :</label>
+                        <select id="text_align" name="text_align">
+                            <option value="left">Gauche</option>
+                            <option value="center" selected>Centre</option>
+                            <option value="right">Droite</option>
+                        </select>
+                    </div>
+                    
+                    <div class="format-group">
+                        <label for="text_style">Style :</label>
+                        <select id="text_style" name="text_style">
+                            <option value="normal">Normal</option>
+                            <option value="bold" selected>Gras</option>
+                            <option value="italic">Italique</option>
+                            <option value="bold-italic">Gras + Italique</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Boutons d'action -->
+            <div class="action-buttons">
+                <button type="button" id="preview_btn" class="btn-preview">👁️ Prévisualiser</button>
+                <button type="submit" class="btn-generate">📄 Générer PDF</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="preview-panel">
+        <h2>Prévisualisation</h2>
+        <div class="preview-container">
+            <div id="preview_area" class="preview-area">
+                <div class="preview-page">
+                    <div id="preview_content" class="preview-content">
+                        Votre message apparaîtra ici...
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="preview-note">📏 Format A4 Paysage (297mm × 210mm)<br>
+        <small>✅ Prévisualisation fidèle - Les retours à la ligne correspondent exactement au PDF final</small><br>
+        <small>⚠️ Taille de police réduite pour l'affichage</small></p>
+    </div>
+</div>
+
+<!-- Inclusion du CSS spécifique au générateur -->
+<link rel="stylesheet" href="css/print_generator.css">
+
+<style>
+.print-generator-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.editor-panel, .preview-panel {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.editor-panel h2, .preview-panel h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    font-size: 18px;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.formatting-options {
+    margin-bottom: 25px;
+}
+
+.formatting-options h3 {
+    margin-bottom: 15px;
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+.format-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.format-group label {
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+
+.format-group select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 13px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-preview, .btn-generate {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-preview {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-preview:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.btn-generate {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.btn-generate:hover {
+    background-color: #23428a;
+    transform: translateY(-1px);
+}
+
+.preview-container {
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    overflow: visible;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 320px;
+}
+
+.preview-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.preview-page {
+    /* Dimensions A4 paysage proportionnelles pour l'affichage */
+    width: 420px;
+    height: 297px;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Marges proportionnelles - correspondant aux 20mm du PDF */
+    padding: 28px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.preview-content {
+    /* Dimensions contrôlées par JavaScript pour correspondre exactement au PDF */
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    /* Styles identiques au PDF */
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    line-height: 1.2;
+    word-break: break-word;
+    /* Largeur et max-width seront définies par JavaScript */
+    box-sizing: border-box;
+    margin: 0 auto;
+}
+
+.preview-note {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 10px;
+    font-style: italic;
+}
+
+/* Mode sombre */
+body.dark .preview-container {
+    background-color: #2c2c2c;
+    border-color: #555;
+}
+
+body.dark .preview-page {
+    background-color: white;
+    color: black;
+}
+
+body.dark .form-group textarea:focus,
+body.dark .format-group select:focus {
+    outline: 2px solid var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .print-generator-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .format-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-preview, .btn-generate {
+        width: 200px;
+    }
+    
+    .preview-page {
+        width: 350px;
+        height: 248px;
+        /* Maintenir les proportions des marges */
+        padding: 23px;
+    }
+    
+    .preview-container {
+        min-height: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .preview-page {
+        width: 300px;
+        height: 212px;
+        /* Maintenir les proportions des marges */
+        padding: 20px;
+    }
+    
+    .preview-container {
+        min-height: 240px;
+    }
+}
+
+@media (max-width: 480px) {
+    .preview-page {
+        width: 280px;
+        height: 198px;
+        /* Maintenir les proportions des marges */
+        padding: 19px;
+    }
+    
+    .preview-container {
+        min-height: 220px;
+    }
+}
+</style>
+
+<!-- Chargement du script avancé pour l'éditeur -->
+<script src="js/print_editor.js"></script>

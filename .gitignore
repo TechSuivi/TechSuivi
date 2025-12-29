@@ -1,0 +1,96 @@
+# Environnement et configuration
+.env
+.env.local
+.env.production
+.env.staging
+
+# Logs et fichiers temporaires
+*.log
+*.tmp
+temp/
+logs/
+
+# Fichiers de sauvegarde et uploads
+# Fichiers de sauvegarde et uploads
+web/src/uploads/*
+!web/src/uploads/**/.gitkeep
+web/src/vnc_tokens.txt
+web/src/Download/installeur_*.exe
+web/src/Download/Install/*.exe
+
+# Dossiers supprimés (ne pas remettre sur GitHub)
+_Site_web/
+scripts/
+tests/
+ftp/
+
+# Fichiers de test et debug
+test_*.php
+debug_*.php
+test_*.html
+test_*.sql
+*test*
+*debug*
+
+# Dépendances et cache
+node_modules/
+vendor/
+.composer/
+composer.lock
+package-lock.json
+
+# IDE et éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Système d'exploitation
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Docker
+.docker/
+docker-compose.override.yml
+
+# Base de données
+*.sqlite
+*.db
+
+# Fichiers de configuration locaux
+config/local.php
+config/database.local.php
+
+# Scripts de setup locaux (à garder en local uniquement)
+setup_fresh.sh
+setup_interactive.sh
+fix.sh
+test_db_connection.php
+
+# Fichiers de correction temporaires
+CORRECTION_*.md
+NETTOYAGE_*.md
+
+# Certificats et clés
+*.pem
+*.key
+*.crt
+*.p12
+
+# Archives et sauvegardes
+*.zip
+*.tar.gz
+*.rar
+backup_*.sql
+
+# Fichiers générés
+*.min.js
+*.min.css
+dist/
+build/

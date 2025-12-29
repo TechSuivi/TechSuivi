@@ -1,0 +1,665 @@
+<?php
+// Empêcher l'accès direct au fichier
+if (!defined('TECHSUIVI_INCLUDED')) {
+    die('Accès direct non autorisé.');
+}
+
+$recentMessages = [];
+$totalPendingMessages = 0;
+$recentInterventions = [];
+$totalPendingInterventions = 0;
+$recentAgendaItems = [];
+$totalPendingAgendaItems = 0;
+$errorMessage = '';
+
+if (isset($pdo)) {
+    try {
+        // Récupérer le nombre total de messages non terminés
+        $stmt = $pdo->query("SELECT COUNT(*) FROM helpdesk_msg WHERE FAIT = 0");
+        $totalPendingMessages = $stmt->fetchColumn();
+        
+        // Récupérer les 5 derniers messages non terminés avec le nom de la catégorie
+        $stmt = $pdo->query("
+            SELECT
+                hm.ID,
+                hm.TITRE,
+                hm.MESSAGE,
+                hm.DATE,
+                hm.CATEGORIE,
+                hc.CATEGORIE as CATEGORIE_NOM
+            FROM helpdesk_msg hm
+            LEFT JOIN helpdesk_cat hc ON hm.CATEGORIE = hc.ID
+            WHERE hm.FAIT = 0
+            ORDER BY hm.DATE DESC
+            LIMIT 5
+        ");
+        $recentMessages = $stmt->fetchAll();
+        
+        // Récupérer le nombre total d'interventions en cours
+        $stmt = $pdo->query("SELECT COUNT(*) FROM inter WHERE en_cours = 1");
+        $totalPendingInterventions = $stmt->fetchColumn();
+        
+        // Récupérer le nombre d'interventions affichées (les 5 dernières)
+        $totalDisplayedInterventions = min(5, $totalPendingInterventions);
+        
+        // Récupérer le nombre de messages récents (les 5 derniers)
+        $totalDisplayedMessages = min(5, $totalPendingMessages);
+        
+        // Récupérer les 5 dernières interventions encore en cours avec le nom du client
+        $stmt = $pdo->query("
+            SELECT
+                i.id,
+                i.id_client,
+                i.date,
+                i.en_cours,
+                i.info,
+                CONCAT(c.nom, ' ', c.prenom) as client_nom
+            FROM inter i
+            LEFT JOIN clients c ON i.id_client = c.ID
+            WHERE i.en_cours = 1
+            ORDER BY i.date DESC
+            LIMIT 5
+        ");
+        $recentInterventions = $stmt->fetchAll();
+        
+        // Récupérer le nombre total de tâches agenda en cours (non terminées)
+        $stmt = $pdo->query("SELECT COUNT(*) FROM agenda WHERE statut IN ('planifie', 'en_cours', 'reporte')");
+        $totalPendingAgendaItems = $stmt->fetchColumn();
+        
+        // Récupérer le nombre de tâches en retard
+        $stmt = $pdo->query("SELECT COUNT(*) FROM agenda WHERE date_planifiee < NOW() AND statut IN ('planifie', 'en_cours', 'reporte')");
+        $totalOverdueAgendaItems = $stmt->fetchColumn();
+        
+        // Récupérer le nombre de tâches urgentes
+        $stmt = $pdo->query("SELECT COUNT(*) FROM agenda WHERE priorite = 'urgente' AND statut IN ('planifie', 'en_cours', 'reporte')");
+        $totalUrgentAgendaItems = $stmt->fetchColumn();
+        
+        // Récupérer les 5 prochaines tâches agenda (non terminées) triées par date
+        $stmt = $pdo->query("
+            SELECT
+                id,
+                titre,
+                description,
+                date_planifiee,
+                priorite,
+                statut,
+                couleur
+            FROM agenda
+            WHERE statut IN ('planifie', 'en_cours', 'reporte')
+            ORDER BY date_planifiee ASC
+            LIMIT 5
+        ");
+        $recentAgendaItems = $stmt->fetchAll();
+        
+    } catch (PDOException $e) {
+        $errorMessage = "Erreur lors de la récupération des données : " . htmlspecialchars($e->getMessage());
+    }
+} else {
+    $errorMessage = "Erreur de configuration : la connexion à la base de données n'est pas disponible.";
+}
+?>
+
+<style>
+.dashboard-container {
+    max-width: 1200px;
+}
+
+.dashboard-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px 10px;
+    text-align: center;
+    min-width: 150px;
+    flex: 1;
+}
+
+body.dark .stat-card {
+    background-color: #2b2b2b;
+    border-color: #555;
+    color: var(--text-color-dark);
+}
+
+.stat-number {
+    font-size: 2em;
+    font-weight: bold;
+    color: var(--accent-color);
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 0.9em;
+    color: #6c757d;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+body.dark .stat-label {
+    color: #aaa;
+}
+
+.dashboard-columns {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.dashboard-column {
+    flex: 1;
+    min-width: 350px;
+}
+
+.recent-messages, .recent-interventions {
+    margin-top: 0;
+}
+
+.message-item, .intervention-item {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: box-shadow 0.2s;
+}
+
+body.dark .message-item, body.dark .intervention-item {
+    background-color: #2b2b2b;
+    border-color: #555;
+    color: var(--text-color-dark);
+}
+
+.message-item:hover, .intervention-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+body.dark .message-item:hover, body.dark .intervention-item:hover {
+    box-shadow: 0 2px 8px rgba(255,255,255,0.05);
+}
+
+.message-header, .intervention-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.message-title, .intervention-title {
+    font-weight: bold;
+    color: var(--accent-color);
+    margin: 0;
+    font-size: 1.1em;
+}
+
+.message-meta, .intervention-meta {
+    text-align: right;
+    font-size: 0.9em;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+body.dark .message-meta, body.dark .intervention-meta {
+    color: #aaa;
+}
+
+.message-category {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.intervention-status {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    display: inline-block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.intervention-status.en-cours {
+    background-color: #ff9800;
+    color: white;
+}
+
+.intervention-status.cloturee {
+    background-color: #4caf50;
+    color: white;
+}
+
+.message-content, .intervention-content {
+    color: #6c757d;
+    line-height: 1.5;
+    margin-top: 10px;
+    font-size: 0.95em;
+}
+
+body.dark .message-content, body.dark .intervention-content {
+    color: #ccc;
+}
+
+.message-actions, .intervention-actions {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.btn-view {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 5px 15px;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+}
+
+.btn-view:hover {
+    background-color: #23428a;
+    color: white;
+    text-decoration: none;
+}
+
+.no-messages {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+    font-style: italic;
+    font-size: 1.1em;
+}
+
+body.dark .no-messages {
+    color: #aaa;
+}
+.quick-actions {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0 30px 0;
+    flex-wrap: wrap;
+}
+
+.quick-action-btn {
+    background: linear-gradient(135deg, var(--accent-color), #23428a);
+    color: white;
+    padding: 12px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: none;
+    cursor: pointer;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    text-decoration: none;
+    color: white;
+    background: linear-gradient(135deg, #23428a, var(--accent-color));
+}
+
+.quick-action-btn:active {
+    transform: translateY(0);
+}
+
+.quick-action-btn.transaction {
+    background: linear-gradient(135deg, var(--accent-green), #45a049);
+}
+
+.quick-action-btn.transaction:hover {
+    background: linear-gradient(135deg, #45a049, var(--accent-green));
+}
+
+.quick-action-btn.cyber {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
+.quick-action-btn.cyber:hover {
+    background: linear-gradient(135deg, #138496, #17a2b8);
+}
+
+.quick-action-btn.agenda {
+    background: linear-gradient(135deg, #9b59b6, #8e44ad);
+}
+
+.quick-action-btn.agenda:hover {
+    background: linear-gradient(135deg, #8e44ad, #9b59b6);
+}
+
+.quick-action-icon {
+    font-size: 1.2em;
+}
+
+body.dark .quick-action-btn {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+body.dark .quick-action-btn:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+/* Styles spécifiques pour l'agenda dans le dashboard */
+.agenda-item-dashboard {
+    position: relative;
+    overflow: hidden;
+}
+
+.agenda-item-dashboard .priority-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.agenda-item-dashboard.overdue {
+    border-left: 4px solid #e74c3c;
+    background-color: #fdf2f2;
+}
+
+body.dark .agenda-item-dashboard.overdue {
+    background-color: #2d1b1b;
+    border-left-color: #e74c3c;
+}
+
+.agenda-status-badge {
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.status-planned { background: #3498db; color: white; }
+.status-progress { background: #f39c12; color: white; }
+.status-completed { background: #27ae60; color: white; }
+.status-postponed { background: #e67e22; color: white; }
+.status-cancelled { background: #e74c3c; color: white; }
+
+.recent-agenda {
+    margin-top: 0;
+}
+</style>
+
+<div class="dashboard-container">
+    <!-- Boutons d'actions rapides -->
+    <div class="quick-actions">
+        <a href="index.php?page=agenda_add" class="quick-action-btn agenda">
+            <span class="quick-action-icon">📅</span>
+            Nouvelle Tâche
+        </a>
+        <a href="index.php?page=transaction_add" class="quick-action-btn transaction">
+            <span class="quick-action-icon">💳</span>
+            Nouvelle Transaction
+        </a>
+        <a href="index.php?page=cyber_add" class="quick-action-btn cyber">
+            <span class="quick-action-icon">🖥️</span>
+            Nouvelle Session Cyber
+        </a>
+    </div>
+    
+    <?php if (!empty($errorMessage)): ?>
+        <p style="color: red;"><?= $errorMessage ?></p>
+    <?php else: ?>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-number"><?= $totalPendingInterventions ?></div>
+                <div class="stat-label">Interventions en cours</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><?= $totalDisplayedInterventions ?></div>
+                <div class="stat-label">Interventions en cours affichées</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><?= $totalPendingMessages ?></div>
+                <div class="stat-label">Messages en attente</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><?= $totalDisplayedMessages ?></div>
+                <div class="stat-label">Messages récents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><?= $totalPendingAgendaItems ?></div>
+                <div class="stat-label">Tâches planifiées</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><?= count($recentAgendaItems) ?></div>
+                <div class="stat-label">Prochaines tâches</div>
+            </div>
+        </div>
+
+        <div class="dashboard-columns">
+            <div class="dashboard-column">
+                <div class="recent-interventions">
+                    <h2>Interventions en cours</h2>
+                    
+                    <?php if (empty($recentInterventions)): ?>
+                        <div class="no-messages">
+                            <p>Aucune intervention en cours. Excellent travail ! 🎉</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($recentInterventions as $intervention): ?>
+                            <div class="intervention-item">
+                                <div class="intervention-header">
+                                    <div>
+                                        <span class="intervention-status <?= $intervention['en_cours'] ? 'en-cours' : 'cloturee' ?>">
+                                            <?= $intervention['en_cours'] ? 'En cours' : 'Clôturée' ?>
+                                        </span>
+                                        <h3 class="intervention-title">ID: <?= htmlspecialchars($intervention['id']) ?></h3>
+                                    </div>
+                                    <div class="intervention-meta">
+                                        <?= date('d/m/Y H:i', strtotime($intervention['date'])) ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="intervention-content">
+                                    <strong>Client:</strong> <?= htmlspecialchars($intervention['client_nom'] ?? 'Client inconnu') ?><br>
+                                    <?php
+                                    $content = htmlspecialchars($intervention['info']);
+                                    // Limiter à 100 caractères pour l'aperçu
+                                    if (strlen($content) > 100) {
+                                        $content = substr($content, 0, 100) . '...';
+                                    }
+                                    echo nl2br($content);
+                                    ?>
+                                </div>
+                                
+                                <div class="intervention-actions">
+                                    <a href="index.php?page=interventions_view&id=<?= htmlspecialchars($intervention['id']) ?>" class="btn-view">
+                                        Voir l'intervention
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <div class="dashboard-column">
+                <div class="recent-messages">
+                    <h2>Messages récents non terminés</h2>
+                    
+                    <?php if (empty($recentMessages)): ?>
+                        <div class="no-messages">
+                            <p>Aucun message en attente. Excellent travail ! 🎉</p>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($recentMessages as $message): ?>
+                            <div class="message-item">
+                                <div class="message-header">
+                                    <div>
+                                        <?php if (!empty($message['CATEGORIE_NOM'])): ?>
+                                            <span class="message-category"><?= htmlspecialchars($message['CATEGORIE_NOM']) ?></span>
+                                        <?php endif; ?>
+                                        <h3 class="message-title"><?= htmlspecialchars($message['TITRE']) ?></h3>
+                                    </div>
+                                    <div class="message-meta">
+                                        <?= date('d/m/Y H:i', strtotime($message['DATE'])) ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="message-content">
+                                    <?php
+                                    $content = htmlspecialchars($message['MESSAGE']);
+                                    // Limiter à 100 caractères pour l'aperçu (réduit pour 3 colonnes)
+                                    if (strlen($content) > 100) {
+                                        $content = substr($content, 0, 100) . '...';
+                                    }
+                                    echo nl2br($content);
+                                    ?>
+                                </div>
+                                
+                                <div class="message-actions">
+                                    <a href="index.php?page=messages&category=<?= $message['CATEGORIE'] ?>" class="btn-view">
+                                        Voir dans la catégorie
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                        
+                        <?php if ($totalPendingMessages > 5): ?>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <p>
+                                    <strong><?= $totalPendingMessages - 5 ?> message(s) supplémentaire(s)</strong> en attente.
+                                    <a href="index.php?page=messages" style="color: var(--accent-color); text-decoration: none;">
+                                        Voir tous les messages →
+                                    </a>
+                                </p>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+            
+            <div class="dashboard-column">
+                <div class="recent-agenda">
+                    <h2>Prochaines tâches planifiées</h2>
+                    
+                    <?php if (empty($recentAgendaItems)): ?>
+                        <div class="no-messages">
+                            <p>Aucune tâche planifiée. Créez votre première tâche ! 📅</p>
+                            <a href="index.php?page=agenda_add" style="color: var(--accent-color); text-decoration: none; font-weight: bold;">
+                                ➕ Créer une tâche
+                            </a>
+                        </div>
+                    <?php else: ?>
+                        <?php
+                        // Définir les fonctions helper une seule fois avant la boucle
+                        if (!function_exists('getAgendaPriorityClass')) {
+                            function getAgendaPriorityClass($priority) {
+                                switch ($priority) {
+                                    case 'urgente': return 'priority-urgent';
+                                    case 'haute': return 'priority-high';
+                                    case 'normale': return 'priority-normal';
+                                    case 'basse': return 'priority-low';
+                                    default: return 'priority-normal';
+                                }
+                            }
+                        }
+                        
+                        if (!function_exists('getAgendaStatusClass')) {
+                            function getAgendaStatusClass($status) {
+                                switch ($status) {
+                                    case 'planifie': return 'status-planned';
+                                    case 'en_cours': return 'status-progress';
+                                    case 'termine': return 'status-completed';
+                                    case 'reporte': return 'status-postponed';
+                                    case 'annule': return 'status-cancelled';
+                                    default: return 'status-planned';
+                                }
+                            }
+                        }
+                        
+                        if (!function_exists('getAgendaStatusLabel')) {
+                            function getAgendaStatusLabel($status) {
+                                switch ($status) {
+                                    case 'planifie': return 'Planifié';
+                                    case 'en_cours': return 'En cours';
+                                    case 'termine': return 'Terminé';
+                                    case 'reporte': return 'Reporté';
+                                    case 'annule': return 'Annulé';
+                                    default: return ucfirst($status);
+                                }
+                            }
+                        }
+                        ?>
+                        
+                        <?php foreach ($recentAgendaItems as $agendaItem): ?>
+                            <?php
+                            // Vérifier si la tâche est en retard
+                            $isOverdue = strtotime($agendaItem['date_planifiee']) < time() && $agendaItem['statut'] !== 'termine';
+                            ?>
+                            <div class="message-item agenda-item-dashboard <?= $isOverdue ? 'overdue' : '' ?>">
+                                <div class="priority-bar" style="background-color: <?= htmlspecialchars($agendaItem['couleur']) ?>"></div>
+                                
+                                <div class="message-header">
+                                    <div>
+                                        <span class="agenda-status-badge <?= getAgendaStatusClass($agendaItem['statut']) ?>">
+                                            <?= getAgendaStatusLabel($agendaItem['statut']) ?>
+                                        </span>
+                                        <h3 class="message-title"><?= htmlspecialchars($agendaItem['titre']) ?></h3>
+                                    </div>
+                                    <div class="message-meta">
+                                        <?php if ($isOverdue): ?>
+                                            <span style="color: #e74c3c; font-weight: bold;">⚠️ En retard</span><br>
+                                        <?php endif; ?>
+                                        📅 <?= date('d/m/Y H:i', strtotime($agendaItem['date_planifiee'])) ?>
+                                    </div>
+                                </div>
+                                
+                                <?php if (!empty($agendaItem['description'])): ?>
+                                    <div class="message-content">
+                                        <?php
+                                        $content = htmlspecialchars($agendaItem['description']);
+                                        // Limiter à 100 caractères pour l'aperçu
+                                        if (strlen($content) > 100) {
+                                            $content = substr($content, 0, 100) . '...';
+                                        }
+                                        echo nl2br($content);
+                                        ?>
+                                    </div>
+                                <?php endif; ?>
+                                
+                                <div class="message-actions">
+                                    <a href="index.php?page=agenda_edit&id=<?= $agendaItem['id'] ?>" class="btn-view">
+                                        ✏️ Modifier
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                        
+                        <?php if ($totalPendingAgendaItems > 5): ?>
+                            <div style="text-align: center; margin-top: 20px;">
+                                <p>
+                                    <strong><?= $totalPendingAgendaItems - 5 ?> tâche(s) supplémentaire(s)</strong> planifiées.
+                                    <a href="index.php?page=agenda_list" style="color: var(--accent-color); text-decoration: none;">
+                                        Voir toutes les tâches →
+                                    </a>
+                                </p>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+        
+    <?php endif; ?>
+</div>
