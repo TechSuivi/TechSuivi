@@ -10,7 +10,7 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.1.0',
+    'current_version' => '4.1.1',
     'release_date' => '2025-12-30',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
@@ -59,6 +59,16 @@ $contributors = [
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.1.1',
+        'date' => '2025-12-30',
+        'type' => 'Patch',
+        'changes' => [
+            'Fix CRON : Injection des variables d\'environnement Docker',
+            'Amélioration du démarrage du service cron dans le conteneur',
+            'Optimisation des permissions de logs cron'
+        ]
+    ],
     [
         'version' => '4.1.0',
         'date' => '2025-12-30',

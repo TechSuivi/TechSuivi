@@ -80,9 +80,18 @@ RUN echo '#!/bin/bash\n\
     # Initialiser PHPMailer au démarrage\n\
     /usr/local/bin/init-phpmailer.sh\n\
     \n\
-    # Configurer le cron TechSuivi\n\
-    echo "*/5 * * * * php /var/www/html/cron/advanced_scheduled_tasks.php >> /var/www/html/cron/advanced_cron.log 2>&1" | crontab -\n\
-    service cron start\n\
+    # Exporter les variables d\'environnement pour que le CRON puisse y accéder (DB_HOST, etc.)\n\
+    printenv | grep -v "no_proxy" > /etc/environment\n\
+    \n\
+    # Créer le fichier de log et donner les droits\n\
+    touch /var/www/html/cron/advanced_cron.log\n\
+    chown www-data:www-data /var/www/html/cron/advanced_cron.log\n\
+    \n\
+    # Configurer le cron TechSuivi (Chargement de /etc/environment avant PHP)\n\
+    echo "*/5 * * * * . /etc/environment; /usr/local/bin/php /var/www/html/cron/advanced_scheduled_tasks.php >> /var/www/html/cron/advanced_cron.log 2>&1" | crontab -\n\
+    \n\
+    # Démarrer le service cron\n\
+    cron\n\
     \n\
     # Démarrer Apache\n\
     exec apache2-foreground' > /usr/local/bin/start-techsuivi.sh \
