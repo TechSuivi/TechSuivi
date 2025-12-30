@@ -63,9 +63,30 @@ if (file_exists($sourceFile)) {
 }
 
 // 3. Mettre à jour la base de données
+$maxRetries = 20;
+$retryCount = 0;
+$pdo = null;
+
+echo "Tentative de connexion à la base de données (max 100s)...\n";
+
+while ($retryCount < $maxRetries) {
+    try {
+        $pdo = getDatabaseConnection();
+        echo "✓ Connecté à la base de données.\n";
+        break;
+    } catch (Exception $e) {
+        $retryCount++;
+        echo "  (Tentative $retryCount/$maxRetries) La base de données n'est pas encore prête : " . $e->getMessage() . "\n";
+        sleep(5);
+    }
+}
+
+if (!$pdo) {
+    echo "ERREUR : Impossible de se connecter à la base de données après $maxRetries tentatives. Abandon.\n";
+    exit(1);
+}
+
 try {
-    $pdo = getDatabaseConnection();
-    
     // Vérifier si l'entrée existe déjà
     $stmt = $pdo->prepare("SELECT ID FROM download WHERE NOM = 'Installeur TechSuivi' OR URL LIKE '/uploads/downloads/installeur_%'");
     $stmt->execute();
@@ -74,16 +95,15 @@ try {
     if ($existing) {
         $stmt = $pdo->prepare("UPDATE download SET NOM = 'Installeur TechSuivi', URL = :url, show_on_login = 1, DESCRIPTION = 'Logiciel d\'installation TechSuivi' WHERE ID = :id");
         $stmt->execute([':url' => $dbUrl, ':id' => $existing['ID']]);
-        echo "Entrée mise à jour dans la base de données (ID: {$existing['ID']})\n";
+        echo "✓ Entrée mise à jour dans la base de données (ID: {$existing['ID']})\n";
     } else {
         $stmt = $pdo->prepare("INSERT INTO download (NOM, DESCRIPTION, URL, show_on_login) VALUES ('Installeur TechSuivi', 'Logiciel d\'installation TechSuivi', :url, 1)");
         $stmt->execute([':url' => $dbUrl]);
-        echo "Nouvelle entrée créée dans la base de données.\n";
+        echo "✓ Nouvelle entrée créée dans la base de données.\n";
     }
     
 } catch (Exception $e) {
-    echo "ERREUR DB : " . $e->getMessage() . "\n";
-    // On ne bloque pas le démarrage du conteneur pour une erreur de DB (peut être en cours de boot)
+    echo "ERREUR lors de la mise à jour DB : " . $e->getMessage() . "\n";
 }
 
 echo "Initialisation terminée.\n";
