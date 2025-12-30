@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+$deletePhysicalFile = isset($_POST['delete_file']) && $_POST['delete_file'] === '1';
 
 if (!$id) {
     echo json_encode(['success' => false, 'error' => 'ID invalide.']);
@@ -37,11 +38,29 @@ if (!$id) {
 }
 
 try {
+    // 1. Récupérer les infos du fichier avant la suppression en base
+    $stmtSelect = $pdo->prepare("SELECT URL FROM download WHERE ID = :id");
+    $stmtSelect->execute([':id' => $id]);
+    $download = $stmtSelect->fetch(PDO::FETCH_ASSOC);
+    
+    // 2. Supprimer de la base de données
     $stmt = $pdo->prepare("DELETE FROM download WHERE ID = :id");
     $result = $stmt->execute([':id' => $id]);
     
     if ($result) {
         if ($stmt->rowCount() > 0) {
+            // 3. Supprimer le fichier physique si demandé et local
+            if ($deletePhysicalFile && $download && !empty($download['URL'])) {
+                $fileUrl = $download['URL'];
+                // Vérifier si c'est un fichier local (commence par /uploads/downloads/)
+                if (strpos($fileUrl, '/uploads/downloads/') === 0) {
+                    $filePath = __DIR__ . '/..' . $fileUrl;
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
+            }
+            
             $_SESSION['delete_message'] = "Téléchargement supprimé avec succès !";
             echo json_encode(['success' => true]);
         } else {

@@ -10,7 +10,7 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.2.0',
+    'current_version' => '4.2.1',
     'release_date' => '2025-12-30',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
@@ -59,6 +59,16 @@ $contributors = [
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.2.1',
+        'date' => '2025-12-30',
+        'type' => 'Patch',
+        'changes' => [
+            'Gestion des Téléchargements : Suppression optionnelle du fichier physique',
+            'Patch : Conservation du nom original du fichier uploadé (sanitisé)',
+            'Correction des permissions lors de la suppression'
+        ]
+    ],
     [
         'version' => '4.2.0',
         'date' => '2025-12-30',

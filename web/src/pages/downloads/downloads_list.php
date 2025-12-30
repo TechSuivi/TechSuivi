@@ -364,7 +364,7 @@ if (isset($pdo)) {
                             <span>✏️</span>
                             Modifier
                         </button>
-                        <button onclick="openDeleteConfirm(<?= htmlspecialchars((string)($download['ID'])) ?>)" 
+                        <button onclick="openDeleteConfirm(<?= htmlspecialchars((string)($download['ID'])) ?>, '<?= htmlspecialchars($download['URL'] ?? '') ?>')" 
                                 class="btn btn-delete" style="border:none; cursor:pointer;">
                             <span>🗑️</span>
                             Supprimer
@@ -614,7 +614,18 @@ if (isset($pdo)) {
         </div>
         <div class="modal-body">
             <p>Êtes-vous sûr de vouloir supprimer ce téléchargement ?</p>
-            <p style="font-size:0.9em; color:var(--text-muted);">Cette action est irréversible.</p>
+            
+            <div id="delete_file_option" style="margin-top: 15px; padding: 12px; background: #fff5f5; border: 1px solid #fed7d7; border-radius: 8px; display: none;">
+                <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; color: #c53030; font-weight: 500;">
+                    <input type="checkbox" id="confirm_delete_file" name="delete_file" value="1">
+                    <div>
+                        <div>Supprimer également le fichier sur le disque</div>
+                        <div style="font-size: 0.8em; font-weight: 400; color: #e53e3e;">Ceci supprimera définitivement le fichier dans /uploads/downloads/</div>
+                    </div>
+                </label>
+            </div>
+            
+            <p style="font-size:0.9em; color:var(--text-muted); margin-top: 15px;">Cette action est irréversible.</p>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirm()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-color);">Annuler</button>
@@ -773,9 +784,23 @@ function submitEditDownloadForm() {
 }
 
 // --- DELETE MODAL FUNCTIONS ---
-function openDeleteConfirm(id) {
+function openDeleteConfirm(id, url) {
     deleteTargetId = id;
-    document.getElementById('deleteConfirmModal').style.display = 'flex';
+    const modal = document.getElementById('deleteConfirmModal');
+    const fileOption = document.getElementById('delete_file_option');
+    const checkbox = document.getElementById('confirm_delete_file');
+    
+    // Reset checkbox
+    checkbox.checked = false;
+    
+    // Show option ONLY if it's a local file
+    if (url && url.startsWith('/uploads/downloads/')) {
+        fileOption.style.display = 'block';
+    } else {
+        fileOption.style.display = 'none';
+    }
+    
+    modal.style.display = 'flex';
 }
 
 function closeDeleteConfirm() {
@@ -793,6 +818,9 @@ function confirmDeleteAction() {
     
     const formData = new FormData();
     formData.append('id', deleteTargetId);
+    if (document.getElementById('confirm_delete_file').checked) {
+        formData.append('delete_file', '1');
+    }
     
     fetch('actions/downloads_delete_ajax.php', {
         method: 'POST',
