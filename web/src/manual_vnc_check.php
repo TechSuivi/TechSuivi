@@ -5,7 +5,7 @@
  */
 
 $vncHost = $_SERVER['SERVER_NAME'];
-$vncPort = 8080;
+$vncPort = 8085;
 $vncToken = 'test'; 
 
 // URL 1: Standard

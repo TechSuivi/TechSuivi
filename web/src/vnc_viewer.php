@@ -58,8 +58,8 @@ try {
     $vncPort = 10000 + ($portHash % 20000);
     
     $vncPassword = $intervention['pass_vnc'] ?? '';
-    // URL : Charge le viewer sur 8080, connecte le socket sur le port dédié
-    $vncUrl = "http://{$vncHost}:8080/vnc_lite.html?host={$vncHost}&port={$vncPort}&password={$vncPassword}&autoconnect=true&scale=true";
+    // URL : Charge le viewer sur 8085, connecte le socket sur le port dédié
+    $vncUrl = "http://{$vncHost}:8085/vnc_lite.html?host={$vncHost}&port={$vncPort}&password={$vncPassword}&autoconnect=true&scale=true";
     
 } catch (PDOException $e) {
     die('Erreur de base de données');
