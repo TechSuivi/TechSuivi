@@ -70,17 +70,11 @@ if ($source_type === 'url') {
         // Sécuriser le nom du fichier
         $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file['name']);
         
-        // Éviter d'écraser un fichier existant si besoin, ou utiliser un prefix unique
-        $uniqueFilename = time() . '_' . $filename;
-        $destination = $uploadDir . $uniqueFilename;
+        $destination = $uploadDir . $filename;
         
         if (move_uploaded_file($file['tmp_name'], $destination)) {
-            // Générer l'URL relative. On suppose que le script est dans /actions/
-            // L'URL finale doit être accessible depuis la racine du site
-            $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
-            
-            // Correction du chemin pour l'URL (on pointe vers /uploads/downloads/)
-            $url = "/uploads/downloads/" . $uniqueFilename;
+            // Générer l'URL relative
+            $url = "/uploads/downloads/" . $filename;
         } else {
             $errors[] = "Impossible de déplacer le fichier vers le dossier de destination.";
         }
