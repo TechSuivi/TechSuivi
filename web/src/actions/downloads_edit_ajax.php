@@ -45,7 +45,7 @@ if (empty($nom)) {
 }
 if (empty($url)) {
     $errors[] = "L'URL est obligatoire.";
-} elseif (!filter_var($url, FILTER_VALIDATE_URL)) {
+} elseif (!filter_var($url, FILTER_VALIDATE_URL) && strpos($url, '/uploads/downloads/') !== 0) {
     $errors[] = "URL invalide.";
 }
 
