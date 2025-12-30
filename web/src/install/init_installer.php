@@ -53,12 +53,14 @@ try {
 
         if ($foundSource && basename($foundSource) !== $newFileName) {
             if (rename($foundSource, $destFile)) {
+                chmod($destFile, 0644);
                 writeLog("✓ Mise à jour du nom (Changement d'URL) : $newFileName");
             } else {
                 writeLog("ERREUR : Impossible de renommer $foundSource");
             }
         } elseif (!$foundSource) {
             writeLog("⚠️ Aucun fichier installeur*.exe trouvé dans uploads/downloads/");
+            writeLog("Veuillez uploader 'installeur.exe' dans la page Téléchargements.");
         }
     }
 

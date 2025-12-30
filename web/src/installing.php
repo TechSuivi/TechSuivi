@@ -156,7 +156,7 @@ if (isset($_GET['check'])) {
         const logContent = document.getElementById('log-content');
         
         function checkStatus() {
-            fetch('installing.php?check=1')
+            fetch('installing.php?check=1&t=' + new Date().getTime())
                 .then(r => r.json())
                 .then(data => {
                     if (data.logs) {
@@ -170,11 +170,7 @@ if (isset($_GET['check'])) {
                         document.getElementById('status').style.color = "#fff";
                         
                         setTimeout(() => {
-                            document.body.style.opacity = '0';
-                            document.body.style.transition = 'opacity 0.5s ease';
-                            setTimeout(() => {
-                                window.location.href = 'index.php';
-                            }, 500);
+                            window.location.href = 'index.php';
                         }, 1000);
                     }
                 })
