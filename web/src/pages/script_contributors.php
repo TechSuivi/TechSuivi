@@ -10,8 +10,8 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.0.1',
-    'release_date' => '2024-11-04',
+    'current_version' => '4.1.0',
+    'release_date' => '2025-12-30',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
@@ -59,6 +59,18 @@ $contributors = [
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.1.0',
+        'date' => '2025-12-30',
+        'type' => 'Major Release',
+        'changes' => [
+            'Support complet QNAP NAS (Docker Hub)',
+            'Base de données auto-initialisée',
+            'Service CRON autonome (Interne au conteneur)',
+            'Patch VNC (Port 8085 pour éviter les conflits)',
+            'Optimisation réseau Docker'
+        ]
+    ],
     [
         'version' => '4.0.1',
         'date' => '2024-11-04',
