@@ -62,31 +62,30 @@ if (file_exists($sourceFile)) {
     }
 }
 
-// 3. Mettre à jour la base de données
-$maxRetries = 20;
-$retryCount = 0;
-$pdo = null;
-
-echo "Tentative de connexion à la base de données (max 100s)...\n";
-
-while ($retryCount < $maxRetries) {
-    try {
-        $pdo = getDatabaseConnection();
-        echo "✓ Connecté à la base de données.\n";
-        break;
-    } catch (Exception $e) {
-        $retryCount++;
-        echo "  (Tentative $retryCount/$maxRetries) La base de données n'est pas encore prête : " . $e->getMessage() . "\n";
-        sleep(5);
-    }
-}
-
-if (!$pdo) {
-    echo "ERREUR : Impossible de se connecter à la base de données après $maxRetries tentatives. Abandon.\n";
-    exit(1);
-}
-
 try {
+    // 3. Mettre à jour la base de données
+    $maxRetries = 30; // Augmenté à 30 (150s) pour les NAS plus lents
+    $retryCount = 0;
+    $pdo = null;
+
+    echo "Tentative de connexion à la base de données (max 150s)...\n";
+
+    while ($retryCount < $maxRetries) {
+        try {
+            $pdo = getDatabaseConnection();
+            echo "✓ Connecté à la base de données.\n";
+            break;
+        } catch (Exception $e) {
+            $retryCount++;
+            echo "  (Tentative $retryCount/$maxRetries) La base de données n'est pas encore prête...\n";
+            sleep(5);
+        }
+    }
+
+    if (!$pdo) {
+        throw new Exception("Impossible de se connecter à la base de données après $maxRetries tentatives.");
+    }
+
     // Vérifier si l'entrée existe déjà
     $stmt = $pdo->prepare("SELECT ID FROM download WHERE NOM = 'Installeur TechSuivi' OR URL LIKE '/uploads/downloads/installeur_%'");
     $stmt->execute();
@@ -103,18 +102,19 @@ try {
     }
     
 } catch (Exception $e) {
-    echo "ERREUR lors de la mise à jour DB : " . $e->getMessage() . "\n";
-}
+    echo "ERREUR : " . $e->getMessage() . "\n";
+} finally {
+    echo "Initialisation terminée.\n";
 
-echo "Initialisation terminée.\n";
-
-// 4. Libérer le verrou d'installation
-$lockFile = __DIR__ . '/../install_in_progress.lock';
-if (file_exists($lockFile)) {
-    if (unlink($lockFile)) {
-        echo "✓ Verrou d'installation supprimé. L'application est maintenant accessible.\n";
-    } else {
-        echo "ERREUR : Impossible de supprimer le verrou d'installation $lockFile\n";
+    // 4. Libérer le verrou d'installation (Quoi qu'il arrive, pour ne pas bloquer l'utilisateur)
+    $lockFile = __DIR__ . '/../install_in_progress.lock';
+    if (file_exists($lockFile)) {
+        if (unlink($lockFile)) {
+            echo "✓ Verrou d'installation supprimé. L'application est maintenant accessible.\n";
+        } else {
+            echo "ERREUR CRITIQUE : Impossible de supprimer le verrou d'installation $lockFile\n";
+            echo "Veuillez vérifier les permissions du dossier /var/www/html/\n";
+        }
     }
 }
 ?>
