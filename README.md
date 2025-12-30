@@ -56,6 +56,51 @@ cd TechSuivi
 ./install_interactive.sh
 ```
 
+
+### Option 3: Docker
+```yaml
+services:
+  web:
+    image: techsuivi/web:latest
+    container_name: web
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=techsuivi_db
+      - DB_USER=techsuivi_user
+      - DB_PASS=votre_mot_de_passe            # <--- MODIFIEZ ICI
+      - APP_URL=http://192.168.10.100        # <--- METTRE L'IP DE VOTRE NAS
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: always
+
+  db:
+    image: techsuivi/db:latest
+    container_name: db
+    environment:
+      - MARIADB_DATABASE=techsuivi_db
+      - MARIADB_USER=techsuivi_user
+      - MARIADB_PASSWORD=votre_mot_de_passe     # <--- DOIT ETRE LE MEME QUE DB_PASS
+      - MARIADB_ROOT_PASSWORD=votre_root_pass   # <--- CHOISISSEZ UN PASS ROOT
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+
+  novnc:
+    image: techsuivi/novnc:latest
+    container_name: novnc
+    restart: always
+    network_mode: host
+
+volumes:
+  db_data:
+```
+
+
+
 ### Option 3: Installation via Docker Hub (Production / Rapide)
 Si vous ne souhaitez pas modifier le code, c'est l'option la plus rapide.
 Retrouvez les images sur [Docker Hub](https://hub.docker.com/u/techsuivi).
