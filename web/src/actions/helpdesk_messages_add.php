@@ -8,8 +8,16 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
+// Suppress visible errors for API response cleanliness
+error_reporting(0);
+ini_set('display_errors', 0);
+
 // Inclure la configuration centralisée de la base de données
 require_once __DIR__ . '/../config/database.php';
+
+// Clean any previous output (including BOM or whitespace)
+if (ob_get_length()) ob_clean();
+
 try {
     $pdo = getDatabaseConnection();
 } catch (Exception $e) {
@@ -60,4 +68,3 @@ if (empty($categorie) || !is_numeric($categorie)) {
 }
 
 echo json_encode($response);
-?>

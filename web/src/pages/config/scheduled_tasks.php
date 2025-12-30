@@ -63,56 +63,7 @@ try {
     )";
     $pdo->exec($createMailLogsTableSQL);
     
-    // Insérer des données d'exemple si la table est vide
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM scheduled_tasks");
-    $result = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if ($result['count'] == 0) {
-        $sampleData = [
-            [
-                'name' => 'Rapport quotidien des interventions',
-                'task_type' => 'report',
-                'frequency_type' => 'daily',
-                'frequency_value' => '08:00',
-                'recipients' => '["admin@techsuivi.com"]',
-                'content_template' => 'Voici le rapport quotidien des interventions du {{date}}.',
-                'is_active' => 1
-            ],
-            [
-                'name' => 'Notification interventions urgentes',
-                'task_type' => 'notification',
-                'frequency_type' => 'daily',
-                'frequency_value' => '16:00',
-                'recipients' => '["support@techsuivi.com"]',
-                'content_template' => 'Des interventions urgentes nécessitent votre attention.',
-                'is_active' => 1
-            ],
-            [
-                'name' => 'Rappel sauvegarde hebdomadaire',
-                'task_type' => 'backup_reminder',
-                'frequency_type' => 'weekly',
-                'frequency_value' => 'sunday:20:00',
-                'recipients' => '["admin@techsuivi.com"]',
-                'content_template' => 'N\'oubliez pas d\'effectuer la sauvegarde hebdomadaire.',
-                'is_active' => 1
-            ]
-        ];
-        
-        $insertSQL = "INSERT INTO scheduled_tasks (name, task_type, frequency_type, frequency_value, recipients, content_template, is_active) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $pdo->prepare($insertSQL);
-        
-        foreach ($sampleData as $data) {
-            $stmt->execute([
-                $data['name'],
-                $data['task_type'],
-                $data['frequency_type'],
-                $data['frequency_value'] ?? null,
-                $data['recipients'],
-                $data['content_template'],
-                $data['is_active']
-            ]);
-        }
-    }
+    // Pas d'insertion de données d'exemple
 } catch (Exception $e) {
     echo "<div class='alert alert-danger'>Erreur lors de la création de la table : " . htmlspecialchars($e->getMessage()) . "</div>";
 }

@@ -122,6 +122,7 @@ if ($clientId <= 0) {
 }
 ?>
 
+</style>
 <style>
 /* Modern Purple Theme for Client View */
 .client-view-page {
@@ -364,6 +365,7 @@ table td:nth-child(5) {
     color: var(--text-muted);
 }
 </style>
+<!-- Modals CSS is now included in index.php -->
 <style>
 /* New Dashboard Grid Layout */
 .dashboard-grid {
@@ -486,11 +488,11 @@ table td:nth-child(5) {
                     <table>
                         <thead>
                             <tr>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">Date</th>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">Titre</th>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">Statut</th>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">Priorité</th>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); text-align: center;">Actions</th>
+                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 14%;">Date</th>
+                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 50%;">Titre</th>
+                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 12%;">Statut</th>
+                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 14%;">Priorité</th>
+                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 10%; text-align: center;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -576,11 +578,11 @@ table td:nth-child(5) {
                     <table>
                         <thead>
                             <tr>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">Date</th>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">Catégorie</th>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">Titre</th>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">Statut</th>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); text-align: center;">Actions</th>
+                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 14%;">Date</th>
+                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 14%;">Catégorie</th>
+                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 50%;">Titre</th>
+                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 12%;">Statut</th>
+                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 10%; text-align: center;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -644,11 +646,11 @@ table td:nth-child(5) {
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Date</th>
-                                <th>Statut</th>
-                                <th>Description</th>
-                                <th>Actions</th>
+                                <th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 8%;">ID</th>
+<th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 14%;">Date</th>
+<th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 12%;">Statut</th>
+<th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 56%;">Description</th>
+<th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 10%;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -673,8 +675,8 @@ table td:nth-child(5) {
                                         <?= htmlspecialchars(substr(strip_tags($inter['info']), 0, 100)) ?>
                                         <?php if (strlen(strip_tags($inter['info'])) > 100) echo '...'; ?>
                                     </td>
-                                    <td>
-                                        <a href="index.php?page=interventions_view&id=<?= $inter['id'] ?>" class="btn-action">Voir</a>
+                                    <td style="text-align: center;">
+                                        <a href="index.php?page=interventions_view&id=<?= $inter['id'] ?>" class="btn-action" style="background-color: #3498db; display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px;" title="Voir l'intervention">👁️</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -704,11 +706,11 @@ table td:nth-child(5) {
                     <table>
                         <thead>
                             <tr>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">Date</th>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">Description</th>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">Type</th>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">Montant</th>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">Acompte/Solde</th>
+                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 14%;">Date</th>
+                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 44%;">Description</th>
+                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 14%;">Type</th>
+                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 14%;">Montant</th>
+                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 14%;">Acompte/Solde</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -757,268 +759,12 @@ table td:nth-child(5) {
 
 
 <!-- Modal d'édition de client -->
-<div id="editClientModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>✏️ Modifier le client</h2>
-            <span class="modal-close" onclick="closeEditClientModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div id="editClientAlerts"></div>
-            <form id="editClientForm">
-                <input type="hidden" id="edit_client_id" name="id" value="<?= htmlspecialchars($client['ID']) ?>">
-                
-                <!-- Nom et Prénom sur la même ligne -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit_nom">Nom *</label>
-                        <input type="text" id="edit_nom" name="nom" class="form-control" required value="<?= htmlspecialchars($client['nom'] ?? '') ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_prenom">Prénom</label>
-                        <input type="text" id="edit_prenom" name="prenom" class="form-control" value="<?= htmlspecialchars($client['prenom'] ?? '') ?>">
-                    </div>
-                </div>
-                
-                <!-- Email sur toute la largeur -->
-                <div class="form-group">
-                    <label for="edit_mail">Email</label>
-                    <input type="email" id="edit_mail" name="mail" class="form-control" value="<?= htmlspecialchars($client['mail'] ?? '') ?>">
-                </div>
-                
-                <!-- Adresse 1 sur toute la largeur -->
-                <div class="form-group">
-                    <label for="edit_adresse1">Adresse 1</label>
-                    <input type="text" id="edit_adresse1" name="adresse1" class="form-control" value="<?= htmlspecialchars($client['adresse1'] ?? '') ?>">
-                </div>
-                
-                <!-- Adresse 2 sur toute la largeur -->
-                <div class="form-group">
-                    <label for="edit_adresse2">Adresse 2 (complément)</label>
-                    <input type="text" id="edit_adresse2" name="adresse2" class="form-control" value="<?= htmlspecialchars($client['adresse2'] ?? '') ?>">
-                </div>
-                
-                <!-- Code Postal et Ville sur la même ligne -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit_cp">Code Postal</label>
-                        <input type="text" id="edit_cp" name="cp" class="form-control" value="<?= htmlspecialchars($client['cp'] ?? '') ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_ville">Ville</label>
-                        <input type="text" id="edit_ville" name="ville" class="form-control" value="<?= htmlspecialchars($client['ville'] ?? '') ?>">
-                    </div>
-                </div>
-                
-                <!-- Téléphone et Portable sur la même ligne -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit_telephone">Téléphone</label>
-                        <input type="tel" id="edit_telephone" name="telephone" class="form-control" value="<?= htmlspecialchars($client['telephone'] ?? '') ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_portable">Portable</label>
-                        <input type="tel" id="edit_portable" name="portable" class="form-control" value="<?= htmlspecialchars($client['portable'] ?? '') ?>">
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeEditClientModal()">
-                <span>✕</span>
-                Annuler
-            </button>
-            <button type="button" class="btn btn-primary" onclick="submitEditClientForm()" style="background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);">
-                <span>✓</span>
-                Enregistrer
-            </button>
-        </div>
-    </div>
-</div>
+<?php include 'includes/modals/edit_client.php'; ?>
 
 <!-- Modal de confirmation de suppression -->
-<div id="deleteClientModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 450px;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
-            <h2>🗑️ Confirmer la suppression</h2>
-            <span class="modal-close" onclick="closeDeleteClientModal()">&times;</span>
-        </div>
-        <div class="modal-body" style="text-align: center; padding: 30px;">
-            <div id="deleteClientAlerts"></div>
-            <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
-            <p style="font-size: 1.1em; margin-bottom: 10px;">
-                Êtes-vous sûr de vouloir supprimer le client
-            </p>
-            <p style="font-size: 1.3em; font-weight: bold; color: #e74c3c; margin-bottom: 15px;">
-                <?= htmlspecialchars($client['nom'] . ' ' . $client['prenom']) ?>
-            </p>
-            <p style="color: var(--text-muted); font-size: 0.9em;">
-                Cette action est irréversible.
-            </p>
-        </div>
-        <div class="modal-footer" style="justify-content: center;">
-            <button type="button" class="btn btn-secondary" onclick="closeDeleteClientModal()">
-                <span>✕</span>
-                Annuler
-            </button>
-            <button type="button" class="btn btn-primary" onclick="executeDeleteClient()" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
-                <span>🗑️</span>
-                Supprimer
-            </button>
-        </div>
-    </div>
-</div>
+<?php include 'includes/modals/delete_client.php'; ?>
 
-<style>
-/* Modal Styles */
-.modal-overlay {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    animation: fadeIn 0.2s ease;
-}
 
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.modal-content {
-    background: var(--card-bg);
-    margin: 3% auto;
-    padding: 0;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 600px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    animation: slideInModal 0.3s ease;
-    border: 1px solid var(--border-color);
-}
-
-@keyframes slideInModal {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 12px 12px 0 0;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.2em;
-    font-weight: 500;
-}
-
-.modal-close {
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-.modal-close:hover {
-    opacity: 1;
-}
-
-.modal-body {
-    padding: 20px;
-    max-height: 65vh;
-    overflow-y: auto;
-}
-
-.modal-footer {
-    padding: 15px 20px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-/* Form Styles for Modal */
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 15px;
-}
-
-.form-row .form-group {
-    margin-bottom: 0;
-}
-
-@media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    .modal-content {
-        margin: 5% auto;
-        width: 95%;
-    }
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    font-size: 0.9em;
-}
-
-.form-control {
-    width: 100%;
-    padding: 10px 12px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 0.95em;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #8e44ad;
-    box-shadow: 0 0 0 4px rgba(142, 68, 173, 0.1);
-}
-
-.alert-modal {
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-}
-
-.alert-modal.success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-modal.error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-</style>
 
 <script src="../js/awesomplete.min.js"></script>
 <link rel="stylesheet" href="../css/awesomplete.css" />
@@ -1027,9 +773,21 @@ table td:nth-child(5) {
 function openEditClientModal() {
     document.getElementById('editClientModal').style.display = 'block';
     document.getElementById('editClientAlerts').innerHTML = '';
+    // Populate form with existing data
+    document.getElementById('client_edit_id').value = "<?= htmlspecialchars($client['ID']) ?>";
+    document.getElementById('client_edit_nom').value = "<?= htmlspecialchars($client['nom'] ?? '') ?>";
+    document.getElementById('client_edit_prenom').value = "<?= htmlspecialchars($client['prenom'] ?? '') ?>";
+    document.getElementById('client_edit_mail').value = "<?= htmlspecialchars($client['mail'] ?? '') ?>";
+    document.getElementById('client_edit_adresse1').value = "<?= htmlspecialchars($client['adresse1'] ?? '') ?>";
+    document.getElementById('client_edit_adresse2').value = "<?= htmlspecialchars($client['adresse2'] ?? '') ?>";
+    document.getElementById('client_edit_cp').value = "<?= htmlspecialchars($client['cp'] ?? '') ?>";
+    document.getElementById('client_edit_ville').value = "<?= htmlspecialchars($client['ville'] ?? '') ?>";
+    document.getElementById('client_edit_telephone').value = "<?= htmlspecialchars($client['telephone'] ?? '') ?>";
+    document.getElementById('client_edit_portable').value = "<?= htmlspecialchars($client['portable'] ?? '') ?>";
+    
     // Focus sur le champ nom
     setTimeout(() => {
-        document.getElementById('edit_nom').focus();
+        document.getElementById('client_edit_nom').focus();
     }, 100);
 }
 
@@ -1040,6 +798,8 @@ function closeEditClientModal() {
 // ===== SUPPRESSION DU CLIENT =====
 function confirmDeleteClient() {
     document.getElementById('deleteClientAlerts').innerHTML = '';
+    document.getElementById('client_delete_name').textContent = "<?= htmlspecialchars($client['nom'] . ' ' . $client['prenom']) ?>";
+    document.getElementById('client_delete_id').value = "<?= (int)$client['ID'] ?>";
     document.getElementById('deleteClientModal').style.display = 'block';
 }
 
@@ -1048,7 +808,7 @@ function closeDeleteClientModal() {
 }
 
 function executeDeleteClient() {
-    const clientId = <?= (int)$client['ID'] ?>;
+    const clientId = document.getElementById('client_delete_id').value;
     const alertsDiv = document.getElementById('deleteClientAlerts');
     
     // Envoyer la requête de suppression
@@ -1096,8 +856,8 @@ window.addEventListener('keydown', function(event) {
 
 // ===== FORMATAGE DES NUMÉROS DE TÉLÉPHONE =====
 document.addEventListener('DOMContentLoaded', function() {
-    const telInput = document.getElementById('edit_telephone');
-    const portableInput = document.getElementById('edit_portable');
+    const telInput = document.getElementById('client_edit_telephone');
+    const portableInput = document.getElementById('client_edit_portable');
     
     function formatPhoneNumber(inputElement) {
         let value = inputElement.value.replace(/\D/g, '');
@@ -1132,9 +892,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ===== AUTOCOMPLÉTION D'ADRESSE =====
-    const adresse1Input = document.getElementById('edit_adresse1');
-    const cpInput = document.getElementById('edit_cp');
-    const villeInput = document.getElementById('edit_ville');
+    const adresse1Input = document.getElementById('client_edit_adresse1');
+    const cpInput = document.getElementById('client_edit_cp');
+    const villeInput = document.getElementById('client_edit_ville');
     
     if (window.Awesomplete && adresse1Input) {
         let addressFetchTimeout;
@@ -1198,10 +958,10 @@ function submitEditClientForm() {
     const alertsDiv = document.getElementById('editClientAlerts');
     
     // Validation côté client
-    const nom = document.getElementById('edit_nom').value.trim();
-    const telephone = document.getElementById('edit_telephone').value.trim();
-    const portable = document.getElementById('edit_portable').value.trim();
-    const mail = document.getElementById('edit_mail').value.trim();
+    const nom = document.getElementById('client_edit_nom').value.trim();
+    const telephone = document.getElementById('client_edit_telephone').value.trim();
+    const portable = document.getElementById('client_edit_portable').value.trim();
+    const mail = document.getElementById('client_edit_mail').value.trim();
     
     let errors = [];
     
@@ -1265,63 +1025,11 @@ function submitEditClientForm() {
 
 
 <!-- Modal Visualisation Agenda -->
-<div id="viewAgendaModal" class="modal-overlay" style="display: none; z-index: 1000;">
-    <div class="modal-content" style="max-width: 600px;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">
-            <h3 class="modal-title" id="viewAgendaTitle" style="margin: 0;">Titre de l'événement</h3>
-            <span class="close-modal" onclick="closeViewAgendaModal()" style="font-size: 24px; cursor: pointer;">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                    <span id="viewAgendaDate" style="font-size: 0.9em; color: var(--text-muted);">Date</span>
-                    <div style="display: flex; gap: 10px;">
-                        <span id="viewAgendaStatus" class="badge" style="padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">Statut</span>
-                        <span id="viewAgendaPriority" style="font-weight: 600; font-size: 0.9em;">Priorité</span>
-                    </div>
-                </div>
-                <div id="viewAgendaDescription" style="white-space: pre-wrap; line-height: 1.6; color: var(--text-color); background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); min-height: 100px;">
-                    Description...
-                </div>
-            </div>
-            
-            <div style="text-align: right; margin-top: 20px;">
-                <button type="button" class="btn btn-secondary" onclick="closeViewAgendaModal()">Fermer</button>
-            </div>
-        </div>
-    </div>
-</div>
+<?php include 'includes/modals/view_agenda.php'; ?>
 
 
 <!-- Modal Visualisation Message -->
-<div id="viewMessageModal" class="modal-overlay" style="display: none; z-index: 1000;">
-    <div class="modal-content" style="max-width: 600px;">
-        <div class="modal-header">
-            <h3 class="modal-title" id="viewMessageTitle" style="margin: 0;">Titre du message</h3>
-            <span class="close-modal" onclick="closeViewMessageModal()" style="font-size: 24px; cursor: pointer;">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div style="margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9em; margin-bottom: 15px;">
-                    <span id="viewMessageDate">Content Date</span>
-                    <span id="viewMessageCategory" class="badge" style="background:#ddd; padding:2px 6px; border-radius:4px;">Catégorie</span>
-                </div>
-                <div id="viewMessageContent" style="white-space: pre-wrap; line-height: 1.6; color: var(--text-color); background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
-                    Contenu du message...
-                </div>
-            </div>
-            
-            <div id="viewMessageReplies" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); display: none;">
-                <h4 style="font-size: 1.1em; margin-bottom: 15px;">Réponses</h4>
-                <div id="viewMessageRepliesList"></div>
-            </div>
-
-            <div style="text-align: right; margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-                <button type="button" class="btn btn-secondary" onclick="closeViewMessageModal()">Fermer</button>
-            </div>
-        </div>
-    </div>
-</div>
+<?php include 'includes/modals/view_message.php'; ?>
 
 <script>
 function openViewMessageModal(btn) {

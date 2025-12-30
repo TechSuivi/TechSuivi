@@ -685,9 +685,8 @@ function getPriorityLabel($priority) {
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    max-width: 400px;
+    /* Removed restrictive width and alignment */
     width: 90%;
-    text-align: center;
     border: 1px solid var(--border-color);
     animation: slideUp 0.3s ease;
 }
@@ -960,87 +959,7 @@ function getPriorityLabel($priority) {
 <!-- ========================================== -->
 <!-- MODAL AJOUT ÉVÉNEMENT (POPUP) -->
 <!-- ========================================== -->
-<div id="addAgendaModal" class="custom-modal" style="display: none;">
-    <div class="modal-content" style="max-width: 700px; padding: 0; text-align: left;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h2 class="modal-title" style="color: white; margin: 0; font-size: 1.2em;">📅 Nouvel événement</h2>
-            <span onclick="closeAddAgendaModal()" style="cursor: pointer; font-size: 1.5em; opacity: 0.8;">&times;</span>
-        </div>
-        
-        <div class="modal-body" style="padding: 20px; overflow-y: visible; max-height: 80vh;">
-            <div id="agendaAlerts"></div>
-            
-            <form id="addAgendaForm">
-                <!-- Client Search -->
-                <div class="form-group">
-                    <label for="agenda_client_search">Client (Facultatif)</label>
-                    <div style="display: flex; gap: 8px; align-items: flex-start;">
-                        <div class="client-search-container" style="flex: 1;">
-                            <input type="text" id="agenda_client_search" class="form-control" autocomplete="off" placeholder="Rechercher un client (nom, email...)">
-                            <input type="hidden" id="agenda_id_client" name="id_client">
-                            <div id="agenda_client_suggestions" class="client-suggestions"></div>
-                        </div>
-                        <button type="button" class="btn" onclick="openNestedClientModal()" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; border: none; padding: 0 20px; white-space: nowrap; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; font-weight: 600; cursor: pointer;" title="Créer un nouveau client">
-                            <span>➕</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="agenda_titre">Titre de l'événement *</label>
-                    <input type="text" id="agenda_titre" name="titre" class="form-control" required placeholder="Ex: Réunion client...">
-                </div>
-
-                <div class="form-group">
-                    <label for="agenda_desc">Description</label>
-                    <textarea id="agenda_desc" name="description" class="form-control" rows="3" placeholder="Détails..."></textarea>
-                </div>
-
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label for="agenda_date">Date et Heure *</label>
-                        <input type="datetime-local" id="agenda_date" name="date_planifiee" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="agenda_rappel">Rappel (minutes)</label>
-                        <input type="number" id="agenda_rappel" name="rappel_minutes" class="form-control" value="0" min="0">
-                        <small class="form-hint" style="color: var(--text-muted); font-size: 0.8em;">0 = Aucun rappel</small>
-                    </div>
-                </div>
-
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label for="agenda_priorite">Priorité</label>
-                        <select id="agenda_priorite" name="priorite" class="form-control">
-                            <option value="basse">🟢 Basse</option>
-                            <option value="normale" selected>🔵 Normale</option>
-                            <option value="haute">🟠 Haute</option>
-                            <option value="urgente">🔴 Urgente</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="agenda_couleur">Couleur</label>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="color" id="agenda_couleur" name="couleur" value="#3498db" class="form-control" style="width: 50px; padding: 2px; height: 38px;">
-                            <!-- Presets -->
-                            <div class="priority-color" style="background:#3498db; width:25px; height:25px; border-radius:50%; cursor:pointer;" onclick="setAgendaColor('#3498db')"></div>
-                            <div class="priority-color" style="background:#e74c3c; width:25px; height:25px; border-radius:50%; cursor:pointer;" onclick="setAgendaColor('#e74c3c')"></div>
-                            <div class="priority-color" style="background:#2ecc71; width:25px; height:25px; border-radius:50%; cursor:pointer;" onclick="setAgendaColor('#2ecc71')"></div>
-                            <div class="priority-color" style="background:#f39c12; width:25px; height:25px; border-radius:50%; cursor:pointer;" onclick="setAgendaColor('#f39c12')"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <input type="hidden" name="statut" value="planifie">
-            </form>
-        </div>
-        
-        <div class="modal-footer" style="padding: 15px 20px; background: var(--input-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px;">
-            <button type="button" class="btn btn-secondary" onclick="closeAddAgendaModal()">Annuler</button>
-            <button type="button" class="btn btn-primary" onclick="submitAddAgendaForm()">Enregistrer</button>
-        </div>
-    </div>
-</div>
+<?php include 'includes/modals/add_agenda.php'; ?>
 
 <!-- Formulaire caché pour les actions -->
 <form id="actionForm" method="POST" style="display: none;">
@@ -1049,8 +968,8 @@ function getPriorityLabel($priority) {
 </form>
 
 <!-- Custom Modal -->
-<div id="confirmationModal" class="custom-modal">
-    <div class="modal-content">
+<div id="confirmationModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="text-align: center; max-width: 400px; margin: 0 auto;">
         <span id="modalIcon" class="modal-icon">⚠️</span>
         <h3 id="modalTitle" class="modal-title">Confirmation</h3>
         <p id="modalMessage" class="modal-message">Êtes-vous sûr ?</p>
@@ -1064,81 +983,8 @@ function getPriorityLabel($priority) {
 <!-- ========================================== -->
 <!-- MODAL AJOUT CLIENT (NESTED) -->
 <!-- ========================================== -->
-<div id="nestedClientModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 650px;">
-        <div class="modal-header">
-            <h2>➕ Nouveau client</h2>
-            <span class="modal-close" onclick="closeNestedClientModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div id="nestedClientAlerts"></div>
-            <form id="nestedClientForm">
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div class="form-group">
-                        <label for="nested_nom">Nom *</label>
-                        <input type="text" id="nested_nom" name="nom" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="nested_prenom">Prénom</label>
-                        <input type="text" id="nested_prenom" name="prenom" class="form-control">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="nested_mail">Email</label>
-                    <input type="email" id="nested_mail" name="mail" class="form-control">
-                </div>
-                
-                <div class="form-group">
-                    <label for="nested_adresse1">Adresse 1</label>
-                    <input type="text" id="nested_adresse1" name="adresse1" class="form-control" data-minchars="3" data-autofirst>
-                </div>
-                
-                <div class="form-group">
-                    <label for="nested_adresse2">Adresse 2 (complément)</label>
-                    <input type="text" id="nested_adresse2" name="adresse2" class="form-control">
-                </div>
-                
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div class="form-group">
-                        <label for="nested_cp">Code Postal</label>
-                        <input type="text" id="nested_cp" name="cp" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="nested_ville">Ville</label>
-                        <input type="text" id="nested_ville" name="ville" class="form-control">
-                    </div>
-                </div>
-                
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                    <div class="form-group">
-                        <label for="nested_telephone">Téléphone</label>
-                        <input type="tel" id="nested_telephone" name="telephone" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="nested_portable">Portable</label>
-                        <input type="tel" id="nested_portable" name="portable" class="form-control">
-                    </div>
-                </div>
-            </form>
-            
-            <div id="nestedDuplicateCheckSection" style="display: none; margin-top: 15px; padding: 15px; background: var(--hover-bg); border-radius: 8px;">
-                <h4 style="margin: 0 0 10px 0;">⚠️ Doublons potentiels :</h4>
-                <div id="nestedDuplicatesContainer" style="max-height: 150px; overflow-y: auto;"></div>
-            </div>
-        </div>
-        <div class="modal-footer" style="padding: 15px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 12px;">
-            <button type="button" class="btn btn-secondary" onclick="closeNestedClientModal()">
-                <span>✕</span>
-                Annuler
-            </button>
-            <button type="button" class="btn btn-primary" onclick="submitNestedClientForm()" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
-                <span>✓</span>
-                Créer le client
-            </button>
-        </div>
-    </div>
-</div>
+<?php include 'includes/modals/add_client.php'; ?>
+
 
 <style>
 /* Styles Modal (Copied from dashboard.php for consistency) */
@@ -1338,164 +1184,9 @@ function initClientSearch() {
 }
 
 // ===== GESTION MODAL CLIENT NESTED =====
-function openNestedClientModal() {
-    document.getElementById('nestedClientModal').style.display = 'flex';
-    document.getElementById('nestedClientForm').reset();
-    document.getElementById('nestedClientAlerts').innerHTML = '';
-    
-    const dupSection = document.getElementById('nestedDuplicateCheckSection');
-    const dupContainer = document.getElementById('nestedDuplicatesContainer');
-    if (dupSection) dupSection.style.display = 'none';
-    if (dupContainer) dupContainer.innerHTML = '';
-    
-    if (typeof initNestedAddressAutocomplete === 'function') {
-        initNestedAddressAutocomplete();
-    }
-}
+// ===== GESTION MODAL CLIENT NESTED (Via Shared add_client.php) =====
+// La logique a été déplacée dans 'includes/modals/add_client.php'
 
-function closeNestedClientModal() {
-    document.getElementById('nestedClientModal').style.display = 'none';
-}
-
-function submitNestedClientForm() {
-    const form = document.getElementById('nestedClientForm');
-    const alertsDiv = document.getElementById('nestedClientAlerts');
-    const formData = new FormData(form);
-    
-    alertsDiv.innerHTML = '';
-    
-    if (!formData.get('nom')) {
-        alertsDiv.innerHTML = '<div class="alert alert-error">Le nom est obligatoire.</div>';
-        return;
-    }
-    
-    fetch('actions/client_add.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alertsDiv.innerHTML = '<div class="alert alert-success">Client créé !</div>';
-            
-            // Sélectionner le nouveau client dans la modal parente
-            document.getElementById('agenda_id_client').value = data.client_id;
-            document.getElementById('agenda_client_search').value = `${formData.get('nom')} ${formData.get('prenom') || ''}`.trim();
-            
-            setTimeout(() => {
-                closeNestedClientModal();
-            }, 1000);
-        } else {
-            alertsDiv.innerHTML = `<div class="alert alert-error">${data.message || 'Erreur inconnue'}</div>`;
-        }
-    })
-    .catch(error => {
-        alertsDiv.innerHTML = '<div class="alert alert-error">Erreur communication serveur</div>';
-    });
-}
-
-// ===== UTILS CLIENT (DUPLICATE CHECK & PHONE FORMAT) =====
-document.addEventListener('DOMContentLoaded', function() {
-    const nestedTel = document.getElementById('nested_telephone');
-    const nestedPortable = document.getElementById('nested_portable');
-    const nestedNom = document.getElementById('nested_nom');
-    const nestedPrenom = document.getElementById('nested_prenom');
-    
-    function formatNestedPhone(input) {
-        let val = input.value.replace(/\D/g, '');
-        let formatted = '';
-        for(let i=0; i<val.length && i<10; i++) {
-            if(i>0 && i%2===0) formatted += ' ';
-            formatted += val[i];
-        }
-        input.value = formatted;
-    }
-    
-    if(nestedTel) nestedTel.addEventListener('input', function() { formatNestedPhone(this); checkNestedDuplicates(); });
-    if(nestedPortable) nestedPortable.addEventListener('input', function() { formatNestedPhone(this); checkNestedDuplicates(); });
-    if(nestedNom) nestedNom.addEventListener('input', checkNestedDuplicates);
-    if(nestedPrenom) nestedPrenom.addEventListener('input', checkNestedDuplicates);
-    
-    let checkTimeout;
-    function checkNestedDuplicates() {
-        const nom = nestedNom ? nestedNom.value.trim() : '';
-        const prenom = nestedPrenom ? nestedPrenom.value.trim() : '';
-        const telephone = nestedTel ? nestedTel.value.replace(/\s/g,'') : '';
-        const portable = nestedPortable ? nestedPortable.value.replace(/\s/g,'') : '';
-        
-        if (!nom && !telephone && !portable) {
-            document.getElementById('nestedDuplicateCheckSection').style.display = 'none';
-            return;
-        }
-        
-        clearTimeout(checkTimeout);
-        checkTimeout = setTimeout(() => {
-            fetch('utils/check_duplicate_client.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nom, prenom, telephone, portable })
-            })
-            .then(res => res.json())
-            .then(data => {
-                const section = document.getElementById('nestedDuplicateCheckSection');
-                const container = document.getElementById('nestedDuplicatesContainer');
-                
-                if (data.duplicates && data.duplicates.length > 0) {
-                    let html = '';
-                    data.duplicates.forEach(dup => {
-                        html += `<div style="padding: 8px; border-bottom: 1px solid var(--border-color); font-size: 0.9em;">
-                            <strong>${dup.nom} ${dup.prenom || ''}</strong><br>
-                            ${dup.telephone ? 'Tel: ' + dup.telephone : ''} ${dup.portable ? 'Port: ' + dup.portable : ''}
-                        </div>`;
-                    });
-                    container.innerHTML = html;
-                    section.style.display = 'block';
-                } else {
-                    section.style.display = 'none';
-                }
-            });
-        }, 500);
-    }
-    
-    if (window.Awesomplete) initNestedAddressAutocomplete();
-});
-
-function initNestedAddressAutocomplete() {
-    const adresseInput = document.getElementById('nested_adresse1');
-    if (adresseInput && window.Awesomplete && !adresseInput.classList.contains('awesomplete-processed')) {
-        adresseInput.classList.add('awesomplete-processed');
-        const awesomplete = new Awesomplete(adresseInput, { minChars: 3, maxItems: 10, autoFirst: true });
-        
-        let addressesData = {};
-        
-        adresseInput.addEventListener('input', function() {
-            const query = this.value;
-            if (query.length >= 3) {
-                fetch(`api/get_addresses.php?q=${encodeURIComponent(query)}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data && data.features) {
-                        const list = [];
-                        addressesData = {};
-                        data.features.forEach(f => {
-                            list.push(f.properties.label);
-                            addressesData[f.properties.label] = f.properties;
-                        });
-                        awesomplete.list = list;
-                    }
-                });
-            }
-        });
-        
-        adresseInput.addEventListener('awesomplete-selectcomplete', function(e) {
-            const data = addressesData[e.text.value];
-            if (data) {
-                if (data.postcode) document.getElementById('nested_cp').value = data.postcode;
-                if (data.city) document.getElementById('nested_ville').value = data.city;
-            }
-        });
-    }
-}
 // ===== GESTION MODAL AGENDA =====
 function openAddAgendaModal() {
     initClientSearch();

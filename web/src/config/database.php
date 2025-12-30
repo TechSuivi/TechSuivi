@@ -124,4 +124,3 @@ function getDatabaseConnection() {
 
 // Variables globales pour la compatibilité avec le code existant
 // Ces variables seront disponibles dans tous les fichiers qui incluent ce fichier
-?>

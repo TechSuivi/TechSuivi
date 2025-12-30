@@ -152,7 +152,7 @@ if (isset($pdo)) {
     color: var(--text-color);
     font-size: 0.95em;
     transition: all 0.2s;
-    box-sizing: border-box; /* Ensure padding doesn't affect width */
+    box-sizing: border-box;
 }
 
 textarea.form-control {
@@ -182,7 +182,6 @@ body.dark .form-control option {
 body.dark .controls-card,
 body.dark .stat-badge,
 body.dark .message-card,
-body.dark .modal-content,
 body.dark .page-btn {
     background-color: #2b2b2b;
     border-color: #444;
@@ -192,9 +191,7 @@ body.dark .page-title,
 body.dark .form-label,
 body.dark .stat-label,
 body.dark .message-title,
-body.dark .message-content,
-body.dark .modal-title,
-body.dark .close-modal {
+body.dark .message-content {
     color: #ecf0f1;
 }
 
@@ -342,7 +339,7 @@ body.dark .page-btn:hover:not(.active):not(:disabled) {
 }
 
 .reply-form {
-    display: none; /* Removed inline form styles */
+    display: none;
 }
 
 /* Buttons */
@@ -358,17 +355,6 @@ body.dark .page-btn:hover:not(.active):not(:disabled) {
     gap: 6px;
     text-decoration: none;
     font-size: 0.9em;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--emerald-start) 0%, var(--emerald-end) 100%);
-    color: white;
-    box-shadow: 0 2px 6px var(--emerald-shadow);
-}
-
-.btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px var(--emerald-shadow);
 }
 
 /* Header Button Specifics */
@@ -412,60 +398,6 @@ body.dark .page-btn:hover:not(.active):not(:disabled) {
     transform: scale(1.1);
 }
 
-/* Modal */
-.custom-modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    backdrop-filter: blur(5px);
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.2s ease;
-}
-
-.modal-content {
-    background-color: var(--card-bg);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    max-width: 500px;
-    width: 90%;
-    border: 1px solid var(--border-color);
-    animation: slideUp 0.3s ease;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-}
-
-.modal-title {
-    font-size: 1.3em;
-    font-weight: 600;
-    color: var(--emerald-end);
-    margin: 0;
-}
-
-.close-modal {
-    font-size: 1.5em;
-    color: var(--text-muted);
-    cursor: pointer;
-    line-height: 1;
-}
-
-.close-modal:hover {
-    color: var(--text-color);
-}
-
 /* Pagination */
 .pagination {
     display: flex;
@@ -498,9 +430,6 @@ body.dark .page-btn:hover:not(.active):not(:disabled) {
     background: var(--hover-bg);
     border-color: var(--emerald-start);
 }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
 
 <div class="page-header">
@@ -608,87 +537,15 @@ body.dark .page-btn:hover:not(.active):not(:disabled) {
     
 <?php endif; ?>
 
-<!-- Modal de réponse -->
-<div id="replyMessageModal" class="custom-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Répondre au message</h2>
-            <span class="close-modal" id="closeReplyMessageModal">&times;</span>
-        </div>
-        <div id="replyMessageAlert"></div>
-        <div style="margin-bottom: 15px; padding: 10px; background: var(--input-bg); border-radius: 6px; border-left: 3px solid var(--emerald-end);">
-            <strong id="replyMessageTitle" style="display: block; margin-bottom: 5px;"></strong>
-            <div id="replyMessagePreview" style="font-size: 0.9em; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
-        </div>
-        <form id="replyMessageForm">
-            <input type="hidden" id="replyMessageId" name="message_id">
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" for="replyContent">Votre réponse</label>
-                <textarea id="replyContent" name="message" rows="6" required class="form-control" placeholder="Écrivez votre réponse ici..."></textarea>
-            </div>
-            <div style="text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn-modern" style="background: transparent; border: 1px solid var(--border-color);" id="cancelReplyMessage">Annuler</button>
-                <button type="submit" class="btn-modern btn-primary">Envoyer la réponse</button>
-            </div>
-        </form>
-    </div>
-</div>
+<!-- Modal de réponse (Shared) -->
+<?php include 'includes/modals/reply_message.php'; ?>
 
-<!-- Modal d'ajout de message -->
-<div id="addMessageModal" class="custom-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Nouveau message</h2>
-            <span class="close-modal" id="closeAddMessageModal">&times;</span>
-        </div>
-        <div id="addMessageAlert"></div>
-        <form id="addMessageForm">
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label class="form-label" for="messageCategory">Catégorie</label>
-                <select id="messageCategory" name="categorie" required class="form-control">
-                    <?php if (!empty($selectedCategory) && $selectedCategory !== 'all'): ?>
-                        <option value="<?= htmlspecialchars($selectedCategory) ?>" selected><?= htmlspecialchars($selectedCategoryName) ?></option>
-                    <?php else: ?>
-                        <option value="" selected disabled>-- Choisir une catégorie --</option>
-                    <?php endif; ?>
-                    <?php foreach ($categories as $category): ?>
-                        <?php if ($category['ID'] != $selectedCategory): ?>
-                            <option value="<?= $category['ID'] ?>"><?= htmlspecialchars($category['CATEGORIE']) ?></option>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            
-            <!-- Client Search for Message -->
-            <div class="form-group">
-                <label for="msg_client_search" class="form-label">Client (Facultatif)</label>
-                <div style="display: flex; gap: 8px; align-items: flex-start;">
-                    <div class="client-search-container" style="flex: 1;">
-                        <input type="text" id="msg_client_search" class="form-control" autocomplete="off" placeholder="Rechercher un client (nom, email...)">
-                        <input type="hidden" id="msg_id_client" name="id_client">
-                        <div id="msg_client_suggestions" class="client-suggestions" style="position: absolute; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; width: 100%; max-height: 200px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-top: 5px;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label class="form-label" for="messageTitre">Titre</label>
-                <input type="text" id="messageTitre" name="titre" required class="form-control" placeholder="Sujet du message">
-            </div>
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" for="messageContent">Message</label>
-                <textarea id="messageContent" name="message" rows="6" required class="form-control" placeholder="Détails de votre demande..."></textarea>
-            </div>
-            <div style="text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn-modern" style="background: transparent; border: 1px solid var(--border-color);" id="cancelAddMessage">Annuler</button>
-                <button type="submit" class="btn-modern btn-primary">Ajouter le message</button>
-            </div>
-        </form>
-    </div>
-</div>
+<!-- Modal d'ajout de message (Shared) -->
+<?php include 'includes/modals/add_message.php'; ?>
+<?php include 'includes/modals/add_client.php'; ?>
 
 <!-- Modal de confirmation -->
-<div id="confirmationModal" class="custom-modal">
+<div id="confirmationModal" class="modal-overlay" style="display: none;">
     <div class="modal-content" style="max-width: 400px; text-align: center;">
         <div style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
         <h3 style="margin-top: 0; color: var(--text-color);">Confirmation</h3>
@@ -708,15 +565,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Buttons & Elements
     const addMessageBtn = document.getElementById('addMessageBtn');
-    const closeAddMessageModal = document.getElementById('closeAddMessageModal');
-    const cancelAddMessage = document.getElementById('cancelAddMessage');
-    const addMessageForm = document.getElementById('addMessageForm');
+    const closeAddMessageModal = document.getElementById('closeAddMessageModal'); // Not used in shared modal click listener
+    const cancelAddMessage = document.getElementById('cancelAddMessage'); // Not used in shared modal
+    const addMessageForm = document.getElementById('msg_add_form');
     
     // Reply Modal
     const replyMessageModal = document.getElementById('replyMessageModal');
-    const closeReplyMessageModal = document.getElementById('closeReplyMessageModal');
-    const cancelReplyMessage = document.getElementById('cancelReplyMessage');
-    const replyMessageForm = document.getElementById('replyMessageForm');
+    const closeReplyMessageModal = document.getElementById('closeReplyMessageModal'); // Not in shared
+    const cancelReplyMessage = document.getElementById('cancelReplyMessage'); // Not in shared
+    const replyMessageForm = document.getElementById('msg_reply_form');
     
     // Search & Filters
     const searchInput = document.getElementById('searchInput');
@@ -748,7 +605,7 @@ document.addEventListener('DOMContentLoaded', function() {
             initMessageClientSearch();
             openModal(addMessageModal);
             setTimeout(() => {
-                document.getElementById('messageTitre').focus();
+                document.getElementById('msg_add_titre').focus();
             }, 100);
         });
     }
@@ -768,17 +625,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.target === confirmModal) closeConfirmModal();
         
         // Hide suggestions
-        const suggestions = document.getElementById('msg_client_suggestions');
-        const searchInput = document.getElementById('msg_client_search');
+        const suggestions = document.getElementById('msg_add_client_suggestions');
+        const searchInput = document.getElementById('msg_add_client_search');
         if (suggestions && e.target !== searchInput && e.target !== suggestions) {
             suggestions.style.display = 'none';
         }
     });
     
     // --- Client Search Logic ---
-    const clientSearch = document.getElementById('msg_client_search');
-    const clientId = document.getElementById('msg_id_client');
-    const suggestions = document.getElementById('msg_client_suggestions');
+    const clientSearch = document.getElementById('msg_add_client_search');
+    const clientId = document.getElementById('msg_add_id_client');
+    const suggestions = document.getElementById('msg_add_client_suggestions');
     let clientSearchTimeout;
     
     if (clientSearch) {
@@ -860,103 +717,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Add Message Form Submit
-    if (addMessageForm) {
-        addMessageForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Envoi...';
-            
-            fetch('actions/helpdesk_messages_add.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeModal(addMessageModal);
-                    this.reset();
-                    loadMessages(); 
-                } else {
-                    document.getElementById('addMessageAlert').innerHTML = 
-                        `<div class="alert alert-error">${data.message}</div>`;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('addMessageAlert').innerHTML = 
-                    `<div class="alert alert-error">Erreur de communication</div>`;
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            });
-        });
-    }
+    // Add Message Form Submit logic moved to function
+    // if (addMessageForm) { addMessageForm.addEventListener(...) } removed.
 
     // Reply Message Modal Listeners
-    if (closeReplyMessageModal) {
-        closeReplyMessageModal.addEventListener('click', () => closeModal(replyMessageModal));
-    }
-    
-    if (cancelReplyMessage) {
-        cancelReplyMessage.addEventListener('click', () => closeModal(replyMessageModal));
-    }
 
-    if (replyMessageForm) {
-        replyMessageForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Envoi...';
-            
-            fetch('actions/helpdesk_reponses_add.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeModal(replyMessageModal);
-                    this.reset();
-                    loadMessages();
-                } else {
-                    document.getElementById('replyMessageAlert').innerHTML = 
-                        `<div class="alert alert-error">${data.message}</div>`;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('replyMessageAlert').innerHTML = 
-                    `<div class="alert alert-error">Erreur de communication</div>`;
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            });
-        });
-    }
+    // Reply Message Form Submit logic moved to global function submitReplyMessageForm()
+    // Listener removed.
 
     // --- Functions ---
-
+    // Moved to global scope at the end
+    // Global Helpers
     function openModal(modal) {
-        modal.style.display = 'flex';
-        // Reset alerts
-        const alert = modal.querySelector('#addMessageAlert');
-        if (alert) alert.innerHTML = '';
+        if (modal) {
+            modal.style.display = 'flex';
+            // Reset alerts
+            const alert = modal.querySelector('#msg_add_alert');
+            if (alert) alert.innerHTML = '';
+        }
     }
 
     function closeModal(modal) {
-        modal.style.display = 'none';
+        if (modal) modal.style.display = 'none';
     }
 
     // Global functions for inline onclick handlers
@@ -1003,20 +785,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     window.openReplyModal = function(id, title, messageSnippet) {
-        document.getElementById('replyMessageId').value = id;
-        document.getElementById('replyMessageTitle').textContent = title;
-        document.getElementById('replyMessagePreview').textContent = messageSnippet;
+        document.getElementById('msg_reply_id').value = id;
+        document.getElementById('msg_reply_title').textContent = title;
+        document.getElementById('msg_reply_preview').textContent = messageSnippet;
         
         // Reset form and alerts
-        document.getElementById('replyMessageForm').reset();
-        document.getElementById('replyMessageAlert').innerHTML = '';
+        document.getElementById('msg_reply_form').reset();
+        const alertDiv = document.getElementById('msg_reply_alert');
+        if(alertDiv) alertDiv.innerHTML = '';
         
         const modal = document.getElementById('replyMessageModal');
-        modal.style.display = 'flex';
+        openModal(modal); // Use openModal helper
         
         // Focus textarea
         setTimeout(() => {
-            document.getElementById('replyContent').focus();
+            document.getElementById('msg_reply_content').focus();
         }, 100);
     };
 
@@ -1247,9 +1030,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function initMessageClientSearch() {
         if (messageSearchInitialized) return;
         
-        const clientSearch = document.getElementById('msg_client_search');
-        const clientId = document.getElementById('msg_id_client');
-        const suggestions = document.getElementById('msg_client_suggestions');
+        const clientSearch = document.getElementById('msg_add_client_search');
+        const clientId = document.getElementById('msg_add_id_client');
+        const suggestions = document.getElementById('msg_add_client_suggestions');
         let searchTimeout;
         
         if (clientSearch) {
@@ -1311,5 +1094,118 @@ document.addEventListener('DOMContentLoaded', function() {
             messageSearchInitialized = true;
         }
     }
+    // initMessageClientSearch ends here
+
+    // Global function for Shared Modal
+    window.submitAddMessageForm = function() {
+        const form = document.getElementById('msg_add_form');
+        if (!form) return;
+        
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[onclick="submitAddMessageForm()"]');
+        const originalText = submitBtn ? submitBtn.textContent : 'Ajouter';
+        
+        if(submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Envoi...';
+        }
+        
+        // Clear previous alerts
+        const alertDiv = document.getElementById('msg_add_alert');
+        if(alertDiv) alertDiv.innerHTML = '';
+        
+        fetch('actions/helpdesk_messages_add.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(text => {
+            try {
+                // Robust JSON parsing: clean BOM and find JSON object
+                let cleanText = text.trim();
+                // Remove BOM if present
+                if (cleanText.charCodeAt(0) === 0xFEFF) {
+                    cleanText = cleanText.slice(1);
+                }
+                
+                // Extract JSON part if there is noise
+                const firstBrace = cleanText.indexOf('{');
+                const lastBrace = cleanText.lastIndexOf('}');
+                if (firstBrace !== -1 && lastBrace !== -1) {
+                    cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+                }
+
+                const data = JSON.parse(cleanText);
+                if (data.success) {
+                    document.getElementById('addMessageModal').style.display = 'none';
+                    form.reset();
+                    loadMessages();
+                    if(document.getElementById('msg_add_id_client')) document.getElementById('msg_add_id_client').value = '';
+                } else {
+                    if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">${data.message}</div>`;
+                }
+            } catch (e) {
+                console.error('JS Error:', e);
+                console.log('Raw Response:', text);
+                if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">Erreur JS: ${e.message}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">Erreur de communication</div>`;
+        })
+        .finally(() => {
+            if(submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    };
+
+    window.submitReplyMessageForm = function() {
+        const form = document.getElementById('msg_reply_form');
+        if (!form) return;
+        
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[onclick="submitReplyMessageForm()"]');
+        const originalText = submitBtn ? submitBtn.textContent : 'Envoyer';
+        
+        if(submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Envoi...';
+        }
+        
+        const alertDiv = document.getElementById('msg_reply_alert');
+        if(alertDiv) alertDiv.innerHTML = '';
+        
+        fetch('actions/helpdesk_reponses_add.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('replyMessageModal').style.display = 'none';
+                form.reset();
+                loadMessages();
+            } else {
+                if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">Erreur de communication</div>`;
+        })
+        .finally(() => {
+            if(submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    };
+    
+    // ===== GESTION MODAL CLIENT NESTED (Via Shared add_client.php) =====
+    // La logique a été déplacée dans 'includes/modals/add_client.php'
+
 });
 </script>

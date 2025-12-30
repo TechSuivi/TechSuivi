@@ -108,8 +108,11 @@ if (!in_array($page, $allowedPages)) {
     <meta charset="UTF-8">
     <title>TechSuivi - Tableau de bord</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/awesomplete.css?v=1.1"> <!-- Autocomplete CSS -->
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="js/awesomplete.min.js?v=1.1"></script> <!-- Autocomplete JS -->
 </head>
 <body class="dark">
     <div class="sidebar">

@@ -501,59 +501,7 @@ body.dark .btn-sm-action:hover {
     background: #444;
 }
 
-/* Modal */
-.custom-modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    backdrop-filter: blur(5px);
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.2s ease;
-}
 
-.modal-content {
-    background-color: var(--card-bg);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    max-width: 500px;
-    width: 90%;
-    border: 1px solid var(--border-color);
-    animation: slideUp 0.3s ease;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 15px;
-}
-
-.modal-title {
-    font-size: 1.3em;
-    font-weight: 600;
-    color: var(--emerald-end);
-    margin: 0;
-}
-
-.close-modal {
-    font-size: 1.5em;
-    color: var(--text-muted);
-    cursor: pointer;
-    line-height: 1;
-}
-
-.close-modal:hover {
-    color: var(--text-color);
-}
 
 .form-group {
     margin-bottom: 15px;
@@ -691,7 +639,7 @@ body.dark .btn-sm-action:hover {
         <div class="quick-actions-grid">
             <!-- CLIENTS -->
             <div class="action-btn-group btn-client">
-                <a href="index.php?page=add_client" class="action-btn btn-client btn-add" title="Nouveau Client">
+                <a href="#" class="action-btn btn-client btn-add" title="Nouveau Client" onclick="event.preventDefault(); openNestedClientModal('quick_add');">
                     <span>➕</span>
                 </a>
                 <a href="index.php?page=clients" class="action-btn btn-client btn-main" title="Liste des clients">
@@ -1042,81 +990,6 @@ body.dark .btn-sm-action:hover {
     </div>
 </div>
 
-<!-- Modal d'ajout de client (nested) -->
-<div id="nestedClientModal" class="modal-overlay" style="display: none; z-index: 1100;">
-    <div class="modal-content" style="max-width: 650px;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
-            <h2>➕ Nouveau client</h2>
-            <span class="modal-close" onclick="closeNestedClientModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div id="nestedClientAlerts"></div>
-            <form id="nestedClientForm">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nested_nom">Nom *</label>
-                        <input type="text" id="nested_nom" name="nom" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="nested_prenom">Prénom</label>
-                        <input type="text" id="nested_prenom" name="prenom" class="form-control">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="nested_mail">Email</label>
-                    <input type="email" id="nested_mail" name="mail" class="form-control">
-                </div>
-                
-                <div class="form-group">
-                    <label for="nested_adresse1">Adresse 1</label>
-                    <input type="text" id="nested_adresse1" name="adresse1" class="form-control" data-minchars="3" data-autofirst>
-                </div>
-                
-                <div class="form-group">
-                    <label for="nested_adresse2">Adresse 2 (complément)</label>
-                    <input type="text" id="nested_adresse2" name="adresse2" class="form-control">
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nested_cp">Code Postal</label>
-                        <input type="text" id="nested_cp" name="cp" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="nested_ville">Ville</label>
-                        <input type="text" id="nested_ville" name="ville" class="form-control">
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nested_telephone">Téléphone</label>
-                        <input type="tel" id="nested_telephone" name="telephone" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="nested_portable">Portable</label>
-                        <input type="tel" id="nested_portable" name="portable" class="form-control">
-                    </div>
-                </div>
-            </form>
-            
-            <div id="nestedDuplicateCheckSection" style="display: none; margin-top: 15px; padding: 15px; background: var(--hover-bg); border-radius: 8px;">
-                <h4 style="margin: 0 0 10px 0;">⚠️ Doublons potentiels :</h4>
-                <div id="nestedDuplicatesContainer" style="max-height: 150px; overflow-y: auto;"></div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeNestedClientModal()">
-                <span>✕</span>
-                Annuler
-            </button>
-            <button type="button" class="btn btn-primary" onclick="submitNestedClientForm()" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
-                <span>✓</span>
-                Créer le client
-            </button>
-        </div>
-    </div>
 </div>
 
 <style>
@@ -1451,75 +1324,11 @@ function submitAddInterventionForm() {
     });
 }
 
-// ===== GESTION MODAL CLIENT NESTED =====
-function openNestedClientModal(source = 'intervention') {
-    nestedClientSource = source;
-    document.getElementById('nestedClientModal').style.display = 'block';
-    document.getElementById('nestedClientForm').reset();
-    document.getElementById('nestedClientAlerts').innerHTML = '';
-    
-    const dupSection = document.getElementById('nestedDuplicateCheckSection');
-    const dupContainer = document.getElementById('nestedDuplicatesContainer');
-    if (dupSection) dupSection.style.display = 'none';
-    if (dupContainer) dupContainer.innerHTML = '';
-    
-    if (typeof initNestedAddressAutocomplete === 'function') {
-        initNestedAddressAutocomplete();
-    }
-}
+// ===== GESTION MODAL CLIENT NESTED (Via Shared add_client.php) =====
+// La logique a été déplacée directement dans 'includes/modals/add_client.php'
+// Pour éviter la duplication et les incohérences.
 
-function closeNestedClientModal() {
-    document.getElementById('nestedClientModal').style.display = 'none';
-    const dupSection = document.getElementById('nestedDuplicateCheckSection');
-    const dupContainer = document.getElementById('nestedDuplicatesContainer');
-    if (dupSection) dupSection.style.display = 'none';
-    if (dupContainer) dupContainer.innerHTML = '';
-}
 
-function submitNestedClientForm() {
-    const form = document.getElementById('nestedClientForm');
-    const alertsDiv = document.getElementById('nestedClientAlerts');
-    const formData = new FormData(form);
-    
-    alertsDiv.innerHTML = '';
-    
-    if (!formData.get('nom')) {
-        alertsDiv.innerHTML = '<div class="alert-modal error">Le nom est obligatoire.</div>';
-        return;
-    }
-    
-    fetch('actions/client_add.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alertsDiv.innerHTML = '<div class="alert-modal success">Client créé !</div>';
-            
-            // Sélectionner le nouveau client dans la modal parente
-            if (nestedClientSource === 'agenda') {
-                 document.getElementById('agenda_id_client').value = data.client_id;
-                 document.getElementById('agenda_client_search').value = `${formData.get('nom')} ${formData.get('prenom') || ''}`.trim();
-            } else if (nestedClientSource === 'message') {
-                 document.getElementById('msg_id_client').value = data.client_id;
-                 document.getElementById('msg_client_search').value = `${formData.get('nom')} ${formData.get('prenom') || ''}`.trim();
-            } else { // intervention
-                 document.getElementById('interv_id_client').value = data.client_id;
-                 document.getElementById('interv_client_search').value = `${formData.get('nom')} ${formData.get('prenom') || ''}`.trim();
-            }
-            
-            setTimeout(() => {
-                closeNestedClientModal();
-            }, 1000);
-        } else {
-            alertsDiv.innerHTML = `<div class="alert-modal error">${data.message || 'Erreur inconnue'}</div>`;
-        }
-    })
-    .catch(error => {
-        alertsDiv.innerHTML = '<div class="alert-modal error">Erreur communication serveur</div>';
-    });
-}
 
 // ===== AUTOCOMPLÉTION CLIENT =====
 document.addEventListener('DOMContentLoaded', function() {
@@ -1571,11 +1380,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Init Awesomplete logic
-    const nestedTel = document.getElementById('nested_telephone');
-    const nestedPortable = document.getElementById('nested_portable');
-    const nestedNom = document.getElementById('nested_nom');
-    const nestedPrenom = document.getElementById('nested_prenom');
+    // Init Awesomplete logic for Shared Modal
+    const nestedTel = document.getElementById('client_add_telephone');
+    const nestedPortable = document.getElementById('client_add_portable');
+    const nestedNom = document.getElementById('client_add_nom');
+    const nestedPrenom = document.getElementById('client_add_prenom');
     
     function formatNestedPhone(input) {
         let val = input.value.replace(/\D/g, '');
@@ -1600,7 +1409,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const portable = nestedPortable ? nestedPortable.value.replace(/\s/g,'') : '';
         
         if (!nom && !telephone && !portable) {
-            document.getElementById('nestedDuplicateCheckSection').style.display = 'none';
+            document.getElementById('duplicateCheckSection').style.display = 'none';
             return;
         }
         
@@ -1613,8 +1422,8 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(res => res.json())
             .then(data => {
-                const section = document.getElementById('nestedDuplicateCheckSection');
-                const container = document.getElementById('nestedDuplicatesContainer');
+                const section = document.getElementById('duplicateCheckSection');
+                const container = document.getElementById('duplicatesContainer');
                 
                 if (data.duplicates && data.duplicates.length > 0) {
                     let html = '';
@@ -1638,7 +1447,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initNestedAddressAutocomplete() {
-    const adresseInput = document.getElementById('nested_adresse1');
+    const adresseInput = document.getElementById('client_add_adresse1');
     if (adresseInput && window.Awesomplete && !adresseInput.classList.contains('awesomplete-processed')) {
         adresseInput.classList.add('awesomplete-processed');
         const awesomplete = new Awesomplete(adresseInput, { minChars: 3, maxItems: 10, autoFirst: true });
@@ -1667,174 +1476,25 @@ function initNestedAddressAutocomplete() {
         adresseInput.addEventListener('awesomplete-selectcomplete', function(e) {
             const data = addressesData[e.text.value];
             if (data) {
-                if (data.postcode) document.getElementById('nested_cp').value = data.postcode;
-                if (data.city) document.getElementById('nested_ville').value = data.city;
+                if (data.postcode) document.getElementById('client_add_cp').value = data.postcode;
+                if (data.city) document.getElementById('client_add_ville').value = data.city;
             }
         });
     }
 }
 </script>
 
-<!-- Modal de réponse -->
-<div id="replyMessageModal" class="custom-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Répondre au message</h2>
-            <span class="close-modal" id="closeReplyMessageModal">&times;</span>
-        </div>
-        <div id="replyMessageAlert"></div>
-        <div style="margin-bottom: 15px; padding: 10px; background: var(--input-bg); border-radius: 6px; border-left: 3px solid #27ae60;">
-            <strong id="replyMessageTitle" style="display: block; margin-bottom: 5px;"></strong>
-            <div id="replyMessagePreview" style="font-size: 0.9em; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></div>
-        </div>
-        <form id="replyMessageForm">
-            <input type="hidden" id="replyMessageId" name="message_id">
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" for="replyContent">Votre réponse</label>
-                <textarea id="replyContent" name="message" rows="6" required class="form-control" placeholder="Écrivez votre réponse ici..."></textarea>
-            </div>
-            <div style="text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn-modern" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-color);" id="cancelReplyMessage">Annuler</button>
-                <button type="submit" class="btn-modern btn-primary">Envoyer la réponse</button>
-            </div>
-        </form>
-    </div>
-</div>
+<!-- Modal de réponse (Shared) -->
+<?php include 'includes/modals/reply_message.php'; ?>
 
-<!-- Modal d'ajout de message -->
-<div id="addMessageModal" class="custom-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 class="modal-title">Nouveau message</h2>
-            <span class="close-modal" id="closeAddMessageModal">&times;</span>
-        </div>
-        <div id="addMessageAlert"></div>
-        <form id="addMessageForm">
-            <div class="form-group">
-                <label class="form-label" for="messageCategory">Catégorie</label>
-                <select id="messageCategory" name="categorie" required class="form-control">
-                    <option value="">-- Sélectionner une catégorie --</option>
-                    <?php foreach ($messageCategories as $category): ?>
-                        <option value="<?= $category['ID'] ?>"><?= htmlspecialchars($category['CATEGORIE']) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <!-- Client Search for Message -->
-            <div class="form-group">
-                <label for="msg_client_search">Client (Facultatif)</label>
-                <div style="display: flex; gap: 8px; align-items: flex-start;">
-                    <div class="client-search-container" style="flex: 1;">
-                        <input type="text" id="msg_client_search" class="form-control" autocomplete="off" placeholder="Rechercher un client (nom, email...)">
-                        <input type="hidden" id="msg_id_client" name="id_client">
-                        <div id="msg_client_suggestions" class="client-suggestions"></div>
-                    </div>
-                    <button type="button" class="btn" onclick="openNestedClientModal('message')" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; border: none; padding: 0 15px; height: 42px; border-radius: 8px; cursor: pointer;">
-                        <span>➕</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="messageTitre">Titre</label>
-                <input type="text" id="messageTitre" name="titre" required class="form-control" placeholder="Sujet du message">
-            </div>
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" for="messageContent">Message</label>
-                <textarea id="messageContent" name="message" rows="6" required class="form-control" placeholder="Détails de votre demande..."></textarea>
-            </div>
-            <div style="text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn-modern" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-color);" id="cancelAddMessage">Annuler</button>
-                <button type="submit" class="btn-modern btn-primary">Ajouter le message</button>
-            </div>
-        </form>
-    </div>
-</div>
+<!-- Modal d'ajout de message (Shared) -->
+<?php $categories = $messageCategories; include 'includes/modals/add_message.php'; ?>
 
 <!-- ========================================== -->
 <!-- MODAL AJOUT AGENDA (POPUP) -->
 <!-- ========================================== -->
-<div id="addAgendaModal" class="custom-modal" style="display: none;">
-    <div class="modal-content" style="max-width: 700px; padding: 0; text-align: left;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h2 class="modal-title" style="color: white; margin: 0; font-size: 1.2em;">📅 Nouvel événement</h2>
-            <span onclick="closeAddAgendaModal()" style="cursor: pointer; font-size: 1.5em; opacity: 0.8;">&times;</span>
-        </div>
-        
-        <div class="modal-body" style="padding: 20px; overflow-y: visible; max-height: 80vh;">
-            <div id="agendaAlerts"></div>
-            
-            <form id="addAgendaForm">
-                <!-- Client Search -->
-                <div class="form-group">
-                    <label for="agenda_client_search">Client (Facultatif)</label>
-                    <div style="display: flex; gap: 8px; align-items: flex-start;">
-                        <div class="client-search-container" style="flex: 1;">
-                            <input type="text" id="agenda_client_search" class="form-control" autocomplete="off" placeholder="Rechercher un client (nom, email...)">
-                            <input type="hidden" id="agenda_id_client" name="id_client">
-                            <div id="agenda_client_suggestions" class="client-suggestions"></div>
-                        </div>
-                        <button type="button" class="btn" onclick="openNestedClientModal('agenda')" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; border: none; padding: 0 20px; white-space: nowrap; height: 42px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; font-weight: 600; cursor: pointer;" title="Créer un nouveau client">
-                            <span>➕</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="agenda_titre">Titre de l'événement *</label>
-                    <input type="text" id="agenda_titre" name="titre" class="form-control" required placeholder="Ex: Réunion client...">
-                </div>
-
-                <div class="form-group">
-                    <label for="agenda_desc">Description</label>
-                    <textarea id="agenda_desc" name="description" class="form-control" rows="3" placeholder="Détails..."></textarea>
-                </div>
-
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label for="agenda_date">Date et Heure *</label>
-                        <input type="datetime-local" id="agenda_date" name="date_planifiee" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="agenda_rappel">Rappel (minutes)</label>
-                        <input type="number" id="agenda_rappel" name="rappel_minutes" class="form-control" value="0" min="0">
-                        <small class="form-hint" style="color: var(--text-muted); font-size: 0.8em;">0 = Aucun rappel</small>
-                    </div>
-                </div>
-
-                <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label for="agenda_priorite">Priorité</label>
-                        <select id="agenda_priorite" name="priorite" class="form-control">
-                            <option value="basse">🟢 Basse</option>
-                            <option value="normale" selected>🔵 Normale</option>
-                            <option value="haute">🟠 Haute</option>
-                            <option value="urgente">🔴 Urgente</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="agenda_couleur">Couleur</label>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="color" id="agenda_couleur" name="couleur" value="#3498db" class="form-control" style="width: 50px; padding: 2px; height: 38px;">
-                            <!-- Presets -->
-                            <div class="priority-color" style="background:#3498db; width:25px; height:25px; border-radius:50%; cursor:pointer;" onclick="setAgendaColor('#3498db')"></div>
-                            <div class="priority-color" style="background:#e74c3c; width:25px; height:25px; border-radius:50%; cursor:pointer;" onclick="setAgendaColor('#e74c3c')"></div>
-                            <div class="priority-color" style="background:#2ecc71; width:25px; height:25px; border-radius:50%; cursor:pointer;" onclick="setAgendaColor('#2ecc71')"></div>
-                            <div class="priority-color" style="background:#f39c12; width:25px; height:25px; border-radius:50%; cursor:pointer;" onclick="setAgendaColor('#f39c12')"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <input type="hidden" name="statut" value="planifie">
-            </form>
-        </div>
-        
-        <div class="modal-footer" style="padding: 15px 20px; background: var(--input-bg); border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px;">
-            <button type="button" class="btn btn-secondary" onclick="closeAddAgendaModal()">Annuler</button>
-            <button type="button" class="btn btn-primary" onclick="submitAddAgendaForm()">Enregistrer</button>
-        </div>
-    </div>
-</div>
+<!-- Modal Ajout Agenda (Shared) -->
+<?php include 'includes/modals/add_agenda.php'; ?>
 
 <script>
 // ===== GESTION MODAL AGENDA =====
@@ -1961,21 +1621,102 @@ function submitAddAgendaForm() {
         alertsDiv.innerHTML = '<div class="alert alert-error">Erreur de communication avec le serveur.</div>';
     });
 }
+
+    function closeModal(modal) {
+        if (modal) modal.style.display = 'none';
+    }
+
+    function openModal(modal) {
+        if (modal) modal.style.display = 'flex';
+    }
+
+function submitAddMessageForm() {
+    const form = document.getElementById('msg_add_form');
+    // If we can't find the form, maybe it's not loaded
+    if (!form) {
+        console.error("submitAddMessageForm: msg_add_form not found");
+        return;
+    }
+    const alertsDiv = document.getElementById('msg_add_alert');
+    const formData = new FormData(form);
+    const submitBtn = form.querySelector('button[onclick="submitAddMessageForm()"]');
+
+    const originalText = submitBtn ? submitBtn.textContent : 'Ajouter';
+    
+    if(submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Envoi...';
+    }
+    
+    fetch('actions/helpdesk_messages_add.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.text())
+    .then(text => {
+        try {
+            // Robust JSON parsing: clean BOM and find JSON object
+            let cleanText = text.trim();
+            // Remove BOM if present
+            if (cleanText.charCodeAt(0) === 0xFEFF) {
+                cleanText = cleanText.slice(1);
+            }
+            
+            // Extract JSON part if there is noise
+            const firstBrace = cleanText.indexOf('{');
+            const lastBrace = cleanText.lastIndexOf('}');
+            if (firstBrace !== -1 && lastBrace !== -1) {
+                cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+            }
+
+            const data = JSON.parse(cleanText);
+            if (data.success) {
+                closeModal(document.getElementById('addMessageModal'));
+                form.reset();
+                // Reload page or dashboard
+                if (typeof loadDashboardData === 'function') {
+                    loadDashboardData();
+                } else {
+                    window.location.reload(); 
+                }
+            } else {
+                if(alertsDiv) alertsDiv.innerHTML = 
+                    `<div class="alert alert-error">${data.message}</div>`;
+            }
+        } catch (e) {
+            console.error('JS Error:', e);
+            console.log('Raw Response:', text);
+            if(alertsDiv) alertsDiv.innerHTML = 
+                `<div class="alert alert-error">Erreur JS: ${e.message}</div>`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if(alertsDiv) alertsDiv.innerHTML = 
+            `<div class="alert alert-error">Erreur de communication</div>`;
+    })
+    .finally(() => {
+        if(submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    });
+}
 </script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const replyMessageModal = document.getElementById('replyMessageModal');
-    const closeReplyMessageModal = document.getElementById('closeReplyMessageModal');
-    const cancelReplyMessage = document.getElementById('cancelReplyMessage');
-    const replyMessageForm = document.getElementById('replyMessageForm');
+    const closeReplyMessageModal = document.getElementById('closeReplyMessageModal'); // Not in shared
+    const cancelReplyMessage = document.getElementById('cancelReplyMessage'); // Not in shared
+    const replyMessageForm = document.getElementById('msg_reply_form');
     
     // Add Message Modal
     const addMessageModal = document.getElementById('addMessageModal');
     const addMessageBtn = document.getElementById('addMessageBtn');
-    const closeAddMessageModal = document.getElementById('closeAddMessageModal');
-    const cancelAddMessage = document.getElementById('cancelAddMessage');
-    const addMessageForm = document.getElementById('addMessageForm');
+    const closeAddMessageModal = document.getElementById('closeAddMessageModal'); // Not in shared
+    const cancelAddMessage = document.getElementById('cancelAddMessage'); // Not in shared
+    const addMessageForm = document.getElementById('msg_add_form');
 
     // Close modals on outside click
     window.addEventListener('click', (e) => {
@@ -1991,80 +1732,94 @@ document.addEventListener('DOMContentLoaded', function() {
         cancelReplyMessage.addEventListener('click', () => closeModal(replyMessageModal));
     }
 
-    if (replyMessageForm) {
-        replyMessageForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Envoi...';
-            
-            fetch('actions/helpdesk_reponses_add.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeModal(replyMessageModal);
-                    this.reset();
-                    // alert('Réponse envoyée avec succès !');
-                    location.reload(); 
-                } else {
-                    document.getElementById('replyMessageAlert').innerHTML = 
-                        `<div class="alert alert-error">${data.message}</div>`;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('replyMessageAlert').innerHTML = 
-                    `<div class="alert alert-error">Erreur de communication</div>`;
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            });
-        });
-    }
+    // Reply Message Form Submit logic moved to function submitReplyMessageForm()
+    // Listener removed.
 
-    function closeModal(modal) {
-        modal.style.display = 'none';
-    }
+    // Functions moved to global scope
 
-    window.openReplyModal = function(id, title, messageSnippet) {
-        document.getElementById('replyMessageId').value = id;
-        document.getElementById('replyMessageTitle').textContent = title;
-        document.getElementById('replyMessagePreview').textContent = messageSnippet;
+function submitReplyMessageForm() {
+    const form = document.getElementById('msg_reply_form');
+    // If we can't find the form, maybe it's not loaded
+    if (!form) {
+        console.error("submitReplyMessageForm: msg_reply_form not found");
+        return;
+    }
+    const alertsDiv = document.getElementById('msg_reply_alert');
+    const formData = new FormData(form);
+    const submitBtn = form.querySelector('button[onclick="submitReplyMessageForm()"]');
+
+    const originalText = submitBtn ? submitBtn.textContent : 'Envoyer';
+    
+    if(submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Envoi...';
+    }
+    
+    fetch('actions/helpdesk_reponses_add.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeModal(document.getElementById('replyMessageModal'));
+            form.reset();
+            // Reload page or dashboard
+            if (typeof loadDashboardData === 'function') {
+                loadDashboardData();
+            } else {
+                window.location.reload(); 
+            }
+        } else {
+            if(alertsDiv) alertsDiv.innerHTML = 
+                `<div class="alert alert-error">${data.message}</div>`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        if(alertsDiv) alertsDiv.innerHTML = 
+            `<div class="alert alert-error">Erreur de communication</div>`;
+    })
+    .finally(() => {
+        if(submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    });
+}
+
+    function openReplyModal(id, title, messageSnippet) {
+        document.getElementById('msg_reply_id').value = id;
+        document.getElementById('msg_reply_title').textContent = title;
+        document.getElementById('msg_reply_preview').textContent = messageSnippet;
         
         // Reset form and alerts
-        document.getElementById('replyMessageForm').reset();
-        document.getElementById('replyMessageAlert').innerHTML = '';
+        document.getElementById('msg_reply_form').reset();
+        const alertDiv = document.getElementById('msg_reply_alert');
+        if(alertDiv) alertDiv.innerHTML = '';
         
         const modal = document.getElementById('replyMessageModal');
         modal.style.display = 'flex';
         
         // Focus textarea
         setTimeout(() => {
-            document.getElementById('replyContent').focus();
+            const el = document.getElementById('msg_reply_content');
+            if(el) el.focus();
         }, 100);
     };
     
     // Add Message Modal Listeners
     if (addMessageBtn) {
-        addMessageBtn.addEventListener('click', function() {
-            addMessageForm.reset();
-            document.getElementById('addMessageAlert').innerHTML = '';
-            document.getElementById('msg_id_client').value = ''; // Reset client ID
-            
-            // Re-init search if needed
-            initMessageClientSearch();
-
-            addMessageModal.style.display = 'flex';
+        addMessageBtn.addEventListener('click', () => {
+            initMessageClientSearch(); // Make sure this function exists or is found
+            addMessageForm.reset(); // Reset the form
+            const alertEl = document.getElementById('msg_add_alert'); // Corrected ID from include
+            if(alertEl) alertEl.innerHTML = ''; 
+            document.getElementById('msg_add_id_client').value = ''; // Reset client ID
+            openModal(addMessageModal);
             setTimeout(() => {
-                document.getElementById('messageTitre').focus();
+                const el = document.getElementById('msg_add_titre');
+                if(el) el.focus();
             }, 100);
         });
     }
@@ -2076,100 +1831,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cancelAddMessage) {
         cancelAddMessage.addEventListener('click', () => closeModal(addMessageModal));
     }
-    
-    if (addMessageForm) {
-        addMessageForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.textContent;
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Envoi...';
-            
-            fetch('actions/helpdesk_messages_add.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    closeModal(addMessageModal);
-                    this.reset();
-                    location.reload();
-                } else {
-                    document.getElementById('addMessageAlert').innerHTML = 
-                        `<div class="alert alert-error">${data.message}</div>`;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('addMessageAlert').innerHTML = 
-                    `<div class="alert alert-error">Erreur de communication</div>`;
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            });
-        });
-    }
+    // Add Message Form Submit logic moved to global function submitAddMessageForm()
+    // Listener removed.
 });
 </script>
 
-<!-- Modal Visualisation Message -->
-<div id="viewMessageModal" class="modal-overlay" style="display: none; z-index: 1000;">
-    <div class="modal-content" style="max-width: 600px;">
-        <div class="modal-header">
-            <h3 class="modal-title" id="viewMessageTitle">Titre du message</h3>
-            <span class="close-modal" onclick="closeViewMessageModal()">&times;</span>
-        </div>
-        <div style="margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; color: var(--text-muted); font-size: 0.9em; margin-bottom: 15px;">
-                <span id="viewMessageDate">Content Date</span>
-                <span id="viewMessageCategory" class="badge badge-green">Catégorie</span>
-            </div>
-            <div id="viewMessageContent" style="white-space: pre-wrap; line-height: 1.6; color: var(--text-color); background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
-                Contenu du message...
-            </div>
-        </div>
-        
-        <div id="viewMessageReplies" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-color); display: none;">
-            <h4 style="font-size: 1.1em; margin-bottom: 15px;">Réponses</h4>
-            <div id="viewMessageRepliesList"></div>
-        </div>
+<!-- Modal Ajout Client (Shared) -->
+<?php include 'includes/modals/add_client.php'; ?>
 
-        <div style="text-align: right; margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-            <button id="viewMessageDeleteBtn" class="btn-modern" style="background-color: #e74c3c; color: white; border: none;">Supprimer</button>
-            <button id="viewMessageToggleBtn" class="btn-modern btn-primary"></button>
-            <button type="button" class="btn-modern" onclick="closeViewMessageModal()" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-color);">Fermer</button>
-        </div>
-    </div>
-</div>
+<!-- Modal Visualisation Message -->
+<?php include 'includes/modals/view_message.php'; ?>
 
 <!-- Modal Visualisation Agenda -->
-<div id="viewAgendaModal" class="modal-overlay" style="display: none; z-index: 1000;">
-    <div class="modal-content" style="max-width: 500px;">
-        <div class="modal-header">
-            <h3 class="modal-title" id="viewAgendaTitle">Titre de l'événement</h3>
-            <span class="close-modal" onclick="closeViewAgendaModal()">&times;</span>
-        </div>
-        <div style="margin-bottom: 20px;">
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <span id="viewAgendaDate" class="badge badge-blue">Date</span>
-                <span id="viewAgendaStatus" class="badge badge-orange">Statut</span>
-                <span id="viewAgendaPriority" class="badge badge-red">Priorité</span>
-            </div>
-            <div id="viewAgendaDescription" style="white-space: pre-wrap; line-height: 1.6; color: var(--text-color); background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
-                Description...
-            </div>
-        </div>
-        <div style="text-align: right; margin-top: 20px;">
-            <a id="viewAgendaEditLink" href="#" class="btn-modern btn-primary">Modifier</a>
-            <button type="button" class="btn-modern" onclick="closeViewAgendaModal()" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-color); margin-left: 10px;">Fermer</button>
-        </div>
-    </div>
-</div>
+<?php include 'includes/modals/view_agenda.php'; ?>
 
 <script>
     // Injecter les données PHP dans JS
@@ -2212,6 +1886,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Configurer les boutons d'action
         const deleteBtn = document.getElementById('viewMessageDeleteBtn');
         const toggleBtn = document.getElementById('viewMessageToggleBtn');
+
+        // Unhide buttons for dashboard
+        deleteBtn.style.display = 'block';
+        toggleBtn.style.display = 'block';
+
         
         // Supprimer : redirection vers le script de suppression
         deleteBtn.onclick = function() {
@@ -2284,7 +1963,9 @@ document.addEventListener('DOMContentLoaded', function() {
             descEl.style.display = 'block'; // Always show, even if empty
         }
         
-        document.getElementById('viewAgendaEditLink').href = 'index.php?page=agenda_edit&id=' + item.id;
+        const editLink = document.getElementById('viewAgendaEditLink');
+        editLink.href = 'index.php?page=agenda_edit&id=' + item.id;
+        editLink.style.display = 'inline-flex'; // Unhide edit link
 
         const modal = document.getElementById('viewAgendaModal');
         modal.style.display = 'flex';
@@ -2305,9 +1986,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function initMessageClientSearch() {
         if (messageSearchInitialized) return;
         
-        const clientSearch = document.getElementById('msg_client_search');
-        const clientId = document.getElementById('msg_id_client');
-        const suggestions = document.getElementById('msg_client_suggestions');
+        const clientSearch = document.getElementById('msg_add_client_search'); // Corrected ID
+        const clientId = document.getElementById('msg_add_id_client'); // Corrected ID
+        const suggestions = document.getElementById('msg_add_client_suggestions'); // Corrected ID
         let searchTimeout;
         
         if (clientSearch) {

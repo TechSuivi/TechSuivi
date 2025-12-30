@@ -279,154 +279,17 @@ table th a {
     font-size: 0.95em;
 }
 
-/* Modal Styles */
-.modal-overlay {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.modal-content {
-    background: var(--card-bg);
-    margin: 3% auto;
-    padding: 0;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 600px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    animation: slideIn 0.3s ease;
-    border: 1px solid var(--border-color);
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 12px 12px 0 0;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.2em;
-    font-weight: 500;
-}
-
-.modal-close {
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
-.modal-close:hover {
-    opacity: 1;
-}
-
-.modal-body {
-    padding: 20px;
-    max-height: 65vh;
-    overflow-y: auto;
-}
-
-.modal-footer {
-    padding: 15px 20px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-/* Form Styles for Modal */
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.form-row .form-group {
-    margin-bottom: 0;
-}
-
-@media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-    .modal-content {
-        margin: 5% auto;
-        width: 95%;
-    }
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-    font-size: 0.9em;
-}
-
-.form-control {
-    width: 100%;
-    padding: 10px 12px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 0.95em;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #8e44ad;
-    box-shadow: 0 0 0 4px rgba(142, 68, 173, 0.1);
-}
-
-.alert {
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    animation: slideIn 0.3s ease;
-}
-
-.alert-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
+</style>
+<link rel="stylesheet" href="css/modals.css">
+<!-- Check: if this path is incorrect relative to index.php, we might need 'css/modals.css' if index.php is in web/. Assuming typical structure where index.php includes pages. -->
+<!-- Adjusted path based on user typical structure observation: index.php likely in web/ root. So 'src/css/modals.css' or 'css/modals.css'? Checked style.css view earlier, it is in web/src/css/style.css. Usage in dashboard: 'css/awesomplete.css'.
+Let's try 'src/css/modals.css' first, IF index.php is in web/.
+Wait, if index.php is in web/, and style.css is in web/src/css, then src/css/modals.css is correct.
+Dashboard.php (Line 985) used 'css/awesomplete.css' ?? That implies index.php is in web/src/ ???
+Let's look at file path again: /TechSuivi/web/src/pages/dashboard.php.
+If index.php is in /TechSuivi/web/index.php, then src/css/modals.css is correct.
+If index.php is in /TechSuivi/web/src/index.php, then css/modals.css is correct.
+Let's assume 'src/css/modals.css' for now since style.css is in src/css. -->
 </style>
 
 <div class="client-page">
@@ -468,171 +331,10 @@ table th a {
     </div>
 
     <!-- Modal d'ajout de client -->
-    <div id="addClientModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>➕ Ajouter un nouveau client</h2>
-                <span class="modal-close" onclick="closeAddClientModal()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div id="addClientAlerts"></div>
-                <form id="addClientForm">
-                    <!-- Nom et Prénom sur la même ligne -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="modal_nom">Nom *</label>
-                            <input type="text" id="modal_nom" name="nom" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="modal_prenom">Prénom</label>
-                            <input type="text" id="modal_prenom" name="prenom" class="form-control">
-                        </div>
-                    </div>
-                    
-                    <!-- Email sur toute la largeur -->
-                    <div class="form-group">
-                        <label for="modal_mail">Email</label>
-                        <input type="email" id="modal_mail" name="mail" class="form-control">
-                    </div>
-                    
-                    <!-- Adresse 1 sur toute la largeur -->
-                    <div class="form-group">
-                        <label for="modal_adresse1">Adresse 1</label>
-                        <input type="text" id="modal_adresse1" name="adresse1" class="form-control" data-minchars="3" data-autofirst>
-                    </div>
-                    
-                    <!-- Adresse 2 sur toute la largeur -->
-                    <div class="form-group">
-                        <label for="modal_adresse2">Adresse 2 (complément)</label>
-                        <input type="text" id="modal_adresse2" name="adresse2" class="form-control">
-                    </div>
-                    
-                    <!-- Code Postal et Ville sur la même ligne -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="modal_cp">Code Postal</label>
-                            <input type="text" id="modal_cp" name="cp" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="modal_ville">Ville</label>
-                            <input type="text" id="modal_ville" name="ville" class="form-control">
-                        </div>
-                    </div>
-                    
-                    <!-- Téléphone et Portable sur la même ligne -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="modal_telephone">Téléphone</label>
-                            <input type="tel" id="modal_telephone" name="telephone" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="modal_portable">Portable</label>
-                            <input type="tel" id="modal_portable" name="portable" class="form-control">
-                        </div>
-                    </div>
-                </form>
-                
-                <!-- Section de vérification des doublons -->
-                <div id="duplicateCheckSection" style="display: none; margin-top: 15px; padding: 15px; background: var(--hover-bg); border-radius: 8px;">
-                    <h4 style="margin: 0 0 10px 0;">⚠️ Doublons potentiels :</h4>
-                    <div id="duplicatesContainer" style="max-height: 150px; overflow-y: auto;"></div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeAddClientModal()">
-                    <span>✕</span>
-                    Annuler
-                </button>
-                <button type="button" class="btn btn-primary" onclick="submitAddClientForm()">
-                    <span>✓</span>
-                    Ajouter le client
-                </button>
-            </div>
-        </div>
-    </div>
+    <?php include 'includes/modals/add_client.php'; ?>
 
     <!-- Modal d'édition de client -->
-    <div id="editClientModal" class="modal-overlay" style="display: none;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>✏️ Modifier le client</h2>
-                <span class="modal-close" onclick="closeEditClientModal()">&times;</span>
-            </div>
-            <div class="modal-body">
-                <div id="editClientAlerts"></div>
-                <div id="editClientLoading" style="text-align: center; padding: 20px; display: none;">
-                    <p>Chargement des données...</p>
-                </div>
-                <form id="editClientForm" style="display: none;">
-                    <input type="hidden" id="edit_client_id" name="id">
-                    
-                    <!-- Nom et Prénom sur la même ligne -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit_nom">Nom *</label>
-                            <input type="text" id="edit_nom" name="nom" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="edit_prenom">Prénom</label>
-                            <input type="text" id="edit_prenom" name="prenom" class="form-control">
-                        </div>
-                    </div>
-                    
-                    <!-- Email sur toute la largeur -->
-                    <div class="form-group">
-                        <label for="edit_mail">Email</label>
-                        <input type="email" id="edit_mail" name="mail" class="form-control">
-                    </div>
-                    
-                    <!-- Adresse 1 sur toute la largeur -->
-                    <div class="form-group">
-                        <label for="edit_adresse1">Adresse 1</label>
-                        <input type="text" id="edit_adresse1" name="adresse1" class="form-control">
-                    </div>
-                    
-                    <!-- Adresse 2 sur toute la largeur -->
-                    <div class="form-group">
-                        <label for="edit_adresse2">Adresse 2 (complément)</label>
-                        <input type="text" id="edit_adresse2" name="adresse2" class="form-control">
-                    </div>
-                    
-                    <!-- Code Postal et Ville sur la même ligne -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit_cp">Code Postal</label>
-                            <input type="text" id="edit_cp" name="cp" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="edit_ville">Ville</label>
-                            <input type="text" id="edit_ville" name="ville" class="form-control">
-                        </div>
-                    </div>
-                    
-                    <!-- Téléphone et Portable sur la même ligne -->
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="edit_telephone">Téléphone</label>
-                            <input type="tel" id="edit_telephone" name="telephone" class="form-control">
-                        </div>
-                        <div class="form-group">
-                            <label for="edit_portable">Portable</label>
-                            <input type="tel" id="edit_portable" name="portable" class="form-control">
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeEditClientModal()">
-                    <span>✕</span>
-                    Annuler
-                </button>
-                <button type="button" class="btn btn-primary" onclick="submitEditClientForm()">
-                    <span>✓</span>
-                    Enregistrer
-                </button>
-            </div>
-        </div>
-    </div>
+    <?php include 'includes/modals/edit_client.php'; ?>
 
     <?php if (empty($clients) && $totalClients == 0): ?>
         <p class="info-text">Aucun client trouvé <?= !empty($searchTerm) ? 'pour la recherche "' . htmlspecialchars($searchTerm) . '"' : 'dans la base de données' ?>.</p>
@@ -793,7 +495,7 @@ function openAddClientModal() {
     document.getElementById('duplicateCheckSection').style.display = 'none';
     // Focus sur le champ nom
     setTimeout(() => {
-        document.getElementById('modal_nom').focus();
+        document.getElementById('client_add_nom').focus();
     }, 100);
 }
 
@@ -817,37 +519,35 @@ function openEditClientModal(clientId) {
     const alerts = document.getElementById('editClientAlerts');
     
     modal.style.display = 'block';
-    loading.style.display = 'block';
-    form.style.display = 'none';
+    modal.style.display = 'block';
+    
     alerts.innerHTML = '';
     
     // Charger les données du client
     fetch('api/client_get.php?id=' + clientId)
         .then(response => response.json())
         .then(data => {
-            loading.style.display = 'none';
             if (data.success) {
                 const client = data.client;
-                document.getElementById('edit_client_id').value = client.ID;
-                document.getElementById('edit_nom').value = client.nom || '';
-                document.getElementById('edit_prenom').value = client.prenom || '';
-                document.getElementById('edit_mail').value = client.mail || '';
-                document.getElementById('edit_adresse1').value = client.adresse1 || '';
-                document.getElementById('edit_adresse2').value = client.adresse2 || '';
-                document.getElementById('edit_cp').value = client.cp || '';
-                document.getElementById('edit_ville').value = client.ville || '';
-                document.getElementById('edit_telephone').value = client.telephone || '';
-                document.getElementById('edit_portable').value = client.portable || '';
+                document.getElementById('client_edit_id').value = client.ID;
+                document.getElementById('client_edit_nom').value = client.nom || '';
+                document.getElementById('client_edit_prenom').value = client.prenom || '';
+                document.getElementById('client_edit_mail').value = client.mail || '';
+                document.getElementById('client_edit_adresse1').value = client.adresse1 || '';
+                document.getElementById('client_edit_adresse2').value = client.adresse2 || '';
+                document.getElementById('client_edit_cp').value = client.cp || '';
+                document.getElementById('client_edit_ville').value = client.ville || '';
+                document.getElementById('client_edit_telephone').value = client.telephone || '';
+                document.getElementById('client_edit_portable').value = client.portable || '';
                 
                 // Formater les numéros de téléphone
-                formatEditPhoneNumber(document.getElementById('edit_telephone'));
-                formatEditPhoneNumber(document.getElementById('edit_portable'));
+                formatEditPhoneNumber(document.getElementById('client_edit_telephone'));
+                formatEditPhoneNumber(document.getElementById('client_edit_portable'));
                 
-                form.style.display = 'block';
                 
                 // Focus sur le champ nom
                 setTimeout(() => {
-                    document.getElementById('edit_nom').focus();
+                    document.getElementById('client_edit_nom').focus();
                 }, 100);
             } else {
                 alerts.innerHTML = `<div class="alert alert-error">
@@ -857,7 +557,8 @@ function openEditClientModal(clientId) {
             }
         })
         .catch(error => {
-            loading.style.display = 'none';
+        })
+        .catch(error => {
             console.error('Erreur:', error);
             alerts.innerHTML = `<div class="alert alert-error">
                 <span>⚠️</span>
@@ -885,8 +586,8 @@ function formatEditPhoneNumber(inputElement) {
 
 // Ajouter les événements de formatage pour les champs de la modal d'édition
 document.addEventListener('DOMContentLoaded', function() {
-    const editTelInput = document.getElementById('edit_telephone');
-    const editPortableInput = document.getElementById('edit_portable');
+    const editTelInput = document.getElementById('client_edit_telephone');
+    const editPortableInput = document.getElementById('client_edit_portable');
     
     if (editTelInput) {
         editTelInput.addEventListener('input', function() { formatEditPhoneNumber(this); });
@@ -901,10 +602,10 @@ function submitEditClientForm() {
     const alertsDiv = document.getElementById('editClientAlerts');
     
     // Validation côté client
-    const nom = document.getElementById('edit_nom').value.trim();
-    const telephone = document.getElementById('edit_telephone').value.trim();
-    const portable = document.getElementById('edit_portable').value.trim();
-    const mail = document.getElementById('edit_mail').value.trim();
+    const nom = document.getElementById('client_edit_nom').value.trim();
+    const telephone = document.getElementById('client_edit_telephone').value.trim();
+    const portable = document.getElementById('client_edit_portable').value.trim();
+    const mail = document.getElementById('client_edit_mail').value.trim();
     
     let errors = [];
     
@@ -967,8 +668,8 @@ function submitEditClientForm() {
 
 // ===== FORMATAGE DES NUMÉROS DE TÉLÉPHONE =====
 function initPhoneFormatting() {
-    const telInput = document.getElementById('modal_telephone');
-    const portableInput = document.getElementById('modal_portable');
+    const telInput = document.getElementById('client_add_telephone');
+    const portableInput = document.getElementById('client_add_portable');
     
     function formatPhoneNumber(inputElement) {
         let value = inputElement.value.replace(/\D/g, '');
@@ -1003,9 +704,9 @@ function initPhoneFormatting() {
 
 // ===== AUTOCOMPLÉTION D'ADRESSE =====
 function initAddressAutocomplete() {
-    const adresse1Input = document.getElementById('modal_adresse1');
-    const cpInput = document.getElementById('modal_cp');
-    const villeInput = document.getElementById('modal_ville');
+    const adresse1Input = document.getElementById('client_add_adresse1');
+    const cpInput = document.getElementById('client_add_cp');
+    const villeInput = document.getElementById('client_add_ville');
     
     if (!window.Awesomplete || !adresse1Input) {
         console.warn("Awesomplete n'est pas chargé ou le champ adresse n'existe pas.");
@@ -1067,7 +768,7 @@ function initAddressAutocomplete() {
 
 // ===== VÉRIFICATION DES DOUBLONS =====
 function initDuplicateCheck() {
-    const nomInput = document.getElementById('modal_nom');
+    const nomInput = document.getElementById('client_add_nom');
     let checkTimeout;
     
     if (nomInput) {
@@ -1122,10 +823,10 @@ function submitAddClientForm() {
     const alertsDiv = document.getElementById('addClientAlerts');
     
     // Validation côté client
-    const nom = document.getElementById('modal_nom').value.trim();
-    const telephone = document.getElementById('modal_telephone').value.trim();
-    const portable = document.getElementById('modal_portable').value.trim();
-    const mail = document.getElementById('modal_mail').value.trim();
+    const nom = document.getElementById('client_add_nom').value.trim();
+    const telephone = document.getElementById('client_add_telephone').value.trim();
+    const portable = document.getElementById('client_add_portable').value.trim();
+    const mail = document.getElementById('client_add_mail').value.trim();
     
     let errors = [];
     
