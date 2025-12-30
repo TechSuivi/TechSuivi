@@ -42,3 +42,12 @@ jobs:
           tags: |
             techsuivi/novnc:latest
             techsuivi/novnc:${{ github.sha }}
+
+      - name: Build and push Database image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./db
+          push: true
+          tags: |
+            techsuivi/db:latest
+            techsuivi/db:${{ github.sha }}
