@@ -31,23 +31,34 @@ try {
         $installUrl = $appUrl . "/Download/Install/";
         $hex = strtoupper(bin2hex($installUrl));
         $newFileName = "installeur_" . $hex . ".exe";
-        $sourceFile = __DIR__ . '/../uploads/downloads/installeur.exe';
         $destFile = __DIR__ . '/../uploads/downloads/' . $newFileName;
         $dbUrl = '/uploads/downloads/' . $newFileName;
 
         writeLog("URL App : $appUrl");
         writeLog("HEX : $hex");
 
-        // 2. Renommer le fichier physique
-        if (file_exists($sourceFile)) {
-            $files = glob(__DIR__ . '/../uploads/downloads/installeur_*.exe');
-            foreach ($files as $f) { if (is_file($f)) unlink($f); }
-            
-            if (copy($sourceFile, $destFile)) {
-                writeLog("✓ Installeur renommé : $newFileName");
-            } else {
-                writeLog("ERREUR : Impossible de copier l'installeur.");
+        // 2. Rechercher et renommer le fichier physique si nécessaire
+        $allInstallers = glob(__DIR__ . '/../uploads/downloads/installeur*.exe');
+        $foundSource = null;
+
+        foreach ($allInstallers as $file) {
+            if (basename($file) === $newFileName) {
+                $foundSource = $file;
+                writeLog("✓ Installeur déjà au bon nom : $newFileName");
+                break;
             }
+            // Si on trouve un installeur avec un autre HEX ou le nom de base
+            $foundSource = $file; 
+        }
+
+        if ($foundSource && basename($foundSource) !== $newFileName) {
+            if (rename($foundSource, $destFile)) {
+                writeLog("✓ Mise à jour du nom (Changement d'URL) : $newFileName");
+            } else {
+                writeLog("ERREUR : Impossible de renommer $foundSource");
+            }
+        } elseif (!$foundSource) {
+            writeLog("⚠️ Aucun fichier installeur*.exe trouvé dans uploads/downloads/");
         }
     }
 
