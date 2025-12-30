@@ -59,10 +59,12 @@ cd TechSuivi
 
 ### Option 3: Docker
 ```yaml
+version: '3'
+
 services:
   web:
     image: techsuivi/web:latest
-    container_name: web
+    container_name: ts_web
     ports:
       - "80:80"
     depends_on:
@@ -71,32 +73,38 @@ services:
       - DB_HOST=db
       - DB_NAME=techsuivi_db
       - DB_USER=techsuivi_user
-      - DB_PASS=votre_mot_de_passe            # <--- MODIFIEZ ICI
-      - APP_URL=http://192.168.10.100        # <--- METTRE L'IP DE VOTRE NAS
+      - DB_PASS=votre_password_ici
+      - APP_URL=http://192.168.10.100        # <--- INDISPENSABLE pour l'installeur
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ts_uploads:/var/www/html/uploads
+      - ts_vnc_tokens:/var/www/html/vnc_tokens
     restart: always
 
   db:
     image: techsuivi/db:latest
-    container_name: db
+    container_name: ts_db
+    restart: always
     environment:
+      - MARIADB_ROOT_PASSWORD=votre_root_password_ici
       - MARIADB_DATABASE=techsuivi_db
       - MARIADB_USER=techsuivi_user
-      - MARIADB_PASSWORD=votre_mot_de_passe     # <--- DOIT ETRE LE MEME QUE DB_PASS
-      - MARIADB_ROOT_PASSWORD=votre_root_pass   # <--- CHOISISSEZ UN PASS ROOT
+      - MARIADB_PASSWORD=votre_password_ici
     volumes:
-      - db_data:/var/lib/mysql
-    restart: always
+      - ts_db_data:/var/lib/mysql
 
   novnc:
     image: techsuivi/novnc:latest
-    container_name: novnc
-    restart: always
+    container_name: ts_novnc
+    restart: unless-stopped
     network_mode: host
+    volumes:
+      - ts_vnc_tokens:/tokens
 
 volumes:
-  db_data:
+  ts_db_data:
+  ts_uploads:
+  ts_vnc_tokens:
 ```
 
 
