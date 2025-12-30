@@ -8,112 +8,98 @@
 
 require_once __DIR__ . '/../config/database.php';
 
-echo "--- Initialisation de l'installeur TechSuivi ---\n";
+$logFile = __DIR__ . '/../install.log';
+if (file_exists($logFile)) unlink($logFile); // On repart sur un log neuf
 
-// 1. Déterminer l'URL de base
-$appUrl = getenv('APP_URL');
-
-if (empty($appUrl)) {
-    echo "ATTENTION : La variable d'environnement APP_URL n'est pas définie.\n";
-    echo "L'installeur ne pourra pas se configurer automatiquement sans l'URL de votre NAS.\n";
-    echo "Veuillez définir APP_URL (ex: http://192.168.10.100) dans votre configuration Docker.\n";
-    exit(0);
+function writeLog($msg) {
+    global $logFile;
+    echo $msg . "\n";
+    file_put_contents($logFile, $msg . "\n", FILE_APPEND);
 }
 
-$appUrl = rtrim($appUrl, '/');
-$installUrl = $appUrl . "/Download/Install/";
-$hex = strtoupper(bin2hex($installUrl));
-$newFileName = "installeur_" . $hex . ".exe";
-
-$sourceFile = __DIR__ . '/../uploads/downloads/installeur.exe';
-$destFile = __DIR__ . '/../uploads/downloads/' . $newFileName;
-$dbUrl = '/uploads/downloads/' . $newFileName;
-
-echo "URL de l'application : $appUrl\n";
-echo "URL d'installation cible : $installUrl\n";
-echo "HEX généré : $hex\n";
-echo "Nouveau nom de fichier : $newFileName\n";
-
-// 2. Renommer le fichier physique
-if (file_exists($sourceFile)) {
-    // Supprimer les anciens installeurs renommés pour éviter le désordre
-    $files = glob(__DIR__ . '/../uploads/downloads/installeur_*.exe');
-    foreach ($files as $file) {
-        if (is_file($file)) unlink($file);
-    }
-    
-    if (copy($sourceFile, $destFile)) {
-        echo "Fichier renommé avec succès : $newFileName\n";
-    } else {
-        echo "ERREUR : Impossible de copier le fichier vers $newFileName\n";
-        exit(1);
-    }
-} else {
-    // Si le fichier source n'existe pas, on vérifie s'il y a déjà un fichier renommé
-    $existingFiles = glob(__DIR__ . '/../uploads/downloads/installeur_*.exe');
-    if (!empty($existingFiles)) {
-        $destFile = $existingFiles[0];
-        $newFileName = basename($destFile);
-        $dbUrl = '/uploads/downloads/' . $newFileName;
-        echo "Utilisation de l'installeur existant : $newFileName\n";
-    } else {
-        echo "ERREUR : Fichier installeur.exe non trouvé dans uploads/downloads/\n";
-        exit(0);
-    }
-}
+writeLog("--- Initialisation de l'installeur TechSuivi ---");
 
 try {
+    // 1. Déterminer l'URL de base
+    $appUrl = getenv('APP_URL');
+
+    if (empty($appUrl)) {
+        writeLog("ATTENTION : La variable d'environnement APP_URL n'est pas définie.");
+        writeLog("Veuillez définir APP_URL dans votre configuration Docker.");
+    } else {
+        $appUrl = rtrim($appUrl, '/');
+        $installUrl = $appUrl . "/Download/Install/";
+        $hex = strtoupper(bin2hex($installUrl));
+        $newFileName = "installeur_" . $hex . ".exe";
+        $sourceFile = __DIR__ . '/../uploads/downloads/installeur.exe';
+        $destFile = __DIR__ . '/../uploads/downloads/' . $newFileName;
+        $dbUrl = '/uploads/downloads/' . $newFileName;
+
+        writeLog("URL App : $appUrl");
+        writeLog("HEX : $hex");
+
+        // 2. Renommer le fichier physique
+        if (file_exists($sourceFile)) {
+            $files = glob(__DIR__ . '/../uploads/downloads/installeur_*.exe');
+            foreach ($files as $f) { if (is_file($f)) unlink($f); }
+            
+            if (copy($sourceFile, $destFile)) {
+                writeLog("✓ Installeur renommé : $newFileName");
+            } else {
+                writeLog("ERREUR : Impossible de copier l'installeur.");
+            }
+        }
+    }
+
     // 3. Mettre à jour la base de données
-    $maxRetries = 30; // Augmenté à 30 (150s) pour les NAS plus lents
+    $maxRetries = 30;
     $retryCount = 0;
     $pdo = null;
 
-    echo "Tentative de connexion à la base de données (max 150s)...\n";
+    writeLog("Attente de la base de données (max 150s)...");
 
     while ($retryCount < $maxRetries) {
         try {
             $pdo = getDatabaseConnection();
-            echo "✓ Connecté à la base de données.\n";
+            writeLog("✓ Base de données connectée.");
             break;
         } catch (Exception $e) {
             $retryCount++;
-            echo "  (Tentative $retryCount/$maxRetries) La base de données n'est pas encore prête...\n";
+            writeLog("  ($retryCount/$maxRetries) En attente...");
             sleep(5);
         }
     }
 
     if (!$pdo) {
-        throw new Exception("Impossible de se connecter à la base de données après $maxRetries tentatives.");
+        throw new Exception("Base de données inaccessible après $maxRetries tentatives.");
     }
 
-    // Vérifier si l'entrée existe déjà
     $stmt = $pdo->prepare("SELECT ID FROM download WHERE NOM = 'Installeur TechSuivi' OR URL LIKE '/uploads/downloads/installeur_%'");
     $stmt->execute();
     $existing = $stmt->fetch();
     
     if ($existing) {
-        $stmt = $pdo->prepare("UPDATE download SET NOM = 'Installeur TechSuivi', URL = :url, show_on_login = 1, DESCRIPTION = 'Logiciel d\'installation TechSuivi' WHERE ID = :id");
+        $stmt = $pdo->prepare("UPDATE download SET NOM = 'Installeur TechSuivi', URL = :url, show_on_login = 1 WHERE ID = :id");
         $stmt->execute([':url' => $dbUrl, ':id' => $existing['ID']]);
-        echo "✓ Entrée mise à jour dans la base de données (ID: {$existing['ID']})\n";
+        writeLog("✓ Liaison DB mise à jour.");
     } else {
-        $stmt = $pdo->prepare("INSERT INTO download (NOM, DESCRIPTION, URL, show_on_login) VALUES ('Installeur TechSuivi', 'Logiciel d\'installation TechSuivi', :url, 1)");
+        $stmt = $pdo->prepare("INSERT INTO download (NOM, DESCRIPTION, URL, show_on_login) VALUES ('Installeur TechSuivi', 'Installer TechSuivi', :url, 1)");
         $stmt->execute([':url' => $dbUrl]);
-        echo "✓ Nouvelle entrée créée dans la base de données.\n";
+        writeLog("✓ Liaison DB créée.");
     }
     
 } catch (Exception $e) {
-    echo "ERREUR : " . $e->getMessage() . "\n";
+    writeLog("❌ ERREUR : " . $e->getMessage());
 } finally {
-    echo "Initialisation terminée.\n";
+    writeLog("--- Initialisation terminée ---");
 
-    // 4. Libérer le verrou d'installation (Quoi qu'il arrive, pour ne pas bloquer l'utilisateur)
+    // 4. Libérer le verrou d'installation
     $lockFile = __DIR__ . '/../install_in_progress.lock';
     if (file_exists($lockFile)) {
         if (unlink($lockFile)) {
-            echo "✓ Verrou d'installation supprimé. L'application est maintenant accessible.\n";
+            writeLog("✓ Système prêt.");
         } else {
-            echo "ERREUR CRITIQUE : Impossible de supprimer le verrou d'installation $lockFile\n";
-            echo "Veuillez vérifier les permissions du dossier /var/www/html/\n";
+            writeLog("❌ Erreur suppression verrou.");
         }
     }
 }

@@ -13,7 +13,11 @@ if (!file_exists($lockFile)) {
 // Action AJAX pour vérifier l'état
 if (isset($_GET['check'])) {
     header('Content-Type: application/json');
-    echo json_encode(['ready' => !file_exists($lockFile)]);
+    $logContent = file_exists(__DIR__ . '/install.log') ? file_get_contents(__DIR__ . '/install.log') : 'Initialisation en cours...';
+    echo json_encode([
+        'ready' => !file_exists($lockFile),
+        'logs' => $logContent
+    ]);
     exit();
 }
 ?>
@@ -31,6 +35,8 @@ if (isset($_GET['check'])) {
             --accent-color: #0984e3;
             --card-bg: #ffffff;
             --shadow: 0 10px 30px rgba(0,0,0,0.1);
+            --log-bg: #f1f2f6;
+            --log-text: #2f3542;
         }
 
         body.dark {
@@ -38,6 +44,8 @@ if (isset($_GET['check'])) {
             --text-color: #dfe6e9;
             --card-bg: #1e272e;
             --shadow: 0 10px 30px rgba(0,0,0,0.3);
+            --log-bg: #2f3542;
+            --log-text: #dfe6e9;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -56,11 +64,11 @@ if (isset($_GET['check'])) {
         .container {
             text-align: center;
             background: var(--card-bg);
-            padding: 3rem;
+            padding: 2.5rem;
             border-radius: 20px;
             box-shadow: var(--shadow);
-            max-width: 500px;
-            width: 90%;
+            max-width: 600px;
+            width: 95%;
             animation: fadeIn 0.8s ease-out;
         }
 
@@ -70,10 +78,10 @@ if (isset($_GET['check'])) {
         }
 
         .logo {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 800;
             color: var(--accent-color);
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -81,13 +89,13 @@ if (isset($_GET['check'])) {
         }
 
         .spinner {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border: 5px solid rgba(9, 132, 227, 0.1);
             border-top: 5px solid var(--accent-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 2rem auto;
+            margin: 1.5rem auto;
         }
 
         @keyframes spin {
@@ -95,27 +103,34 @@ if (isset($_GET['check'])) {
             100% { transform: rotate(360deg); }
         }
 
-        h1 { font-size: 1.5rem; margin-bottom: 1rem; }
-        p { color: #636e72; line-height: 1.6; margin-bottom: 1.5rem; }
+        h1 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+        p { color: #636e72; line-height: 1.4; margin-bottom: 1rem; font-size: 0.95rem; }
         body.dark p { color: #a4b0be; }
+
+        .log-area {
+            background: var(--log-bg);
+            color: var(--log-text);
+            padding: 1rem;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            border: 1px solid rgba(0,0,0,0.05);
+            white-space: pre-wrap;
+        }
 
         .status-badge {
             background: rgba(9, 132, 227, 0.1);
             color: var(--accent-color);
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 50px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             display: inline-block;
-        }
-
-        /* Dark mode switch (optional visual only) */
-        .theme-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            font-size: 1.2rem;
-            cursor: pointer;
+            margin-top: 1rem;
         }
     </style>
 </head>
@@ -128,34 +143,47 @@ if (isset($_GET['check'])) {
         <div class="spinner"></div>
         
         <h1>Installation en cours</h1>
-        <p>TechSuivi prépare votre environnement... Nous configurons la base de données et l'installeur pour votre NAS.</p>
+        <p>TechSuivi prépare votre environnement... Votre NAS finalise la configuration.</p>
         
+        <div class="log-area" id="log-content">Initialisation...</div>
+
         <div class="status-badge" id="status">
             Patientez quelques instants...
         </div>
     </div>
 
     <script>
-        // Vérification automatique de l'état
+        const logContent = document.getElementById('log-content');
+        
         function checkStatus() {
             fetch('installing.php?check=1')
                 .then(r => r.json())
                 .then(data => {
+                    if (data.logs) {
+                        logContent.innerText = data.logs;
+                        logContent.scrollTop = logContent.scrollHeight;
+                    }
+                    
                     if (data.ready) {
-                        document.body.style.opacity = '0';
-                        document.body.style.transition = 'opacity 0.5s ease';
+                        document.getElementById('status').innerText = "✓ Installation terminée !";
+                        document.getElementById('status').style.backgroundColor = "#27ae60";
+                        document.getElementById('status').style.color = "#fff";
+                        
                         setTimeout(() => {
-                            window.location.href = 'index.php';
-                        }, 500);
+                            document.body.style.opacity = '0';
+                            document.body.style.transition = 'opacity 0.5s ease';
+                            setTimeout(() => {
+                                window.location.href = 'index.php';
+                            }, 500);
+                        }, 1000);
                     }
                 })
-                .catch(e => console.error("Erreur de vérification:", e));
+                .catch(e => console.error("Erreur check:", e));
         }
 
-        // Vérifier toutes le 3 secondes
         setInterval(checkStatus, 3000);
+        checkStatus(); // Premier check immédiat
         
-        // Appliquer le thème sombre si besoin
         if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches && !document.cookie.includes('theme=')) {
             document.body.classList.add('dark');
         }
