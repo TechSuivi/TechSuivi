@@ -73,9 +73,21 @@ RUN echo '#!/bin/bash\n\
     SOCKET="/var/run/docker.sock"\n\
     if [ -e "$SOCKET" ]; then\n\
     GID=$(stat -c "%g" "$SOCKET")\n\
-    echo "Socket Docker trouvé avec GID $GID. Mise à jour du groupe docker..."\n\
+    echo "Socket Docker trouvé avec GID $GID."\n\
+    \n\
+    # Vérifier si un groupe avec ce GID existe déjà\n\
+    EXISTING_GROUP=$(getent group $GID | cut -d: -f1)\n\
+    if [ -n "$EXISTING_GROUP" ]; then\n\
+    echo "Le groupe $EXISTING_GROUP utilise déjà le GID $GID. Ajout de www-data à ce groupe..."\n\
+    usermod -aG "$EXISTING_GROUP" www-data || true\n\
+    else\n\
+    echo "Mise à jour du groupe docker vers le GID $GID..."\n\
     groupmod -g $GID docker || true\n\
     usermod -aG docker www-data || true\n\
+    fi\n\
+    \n\
+    # Solution de repli : ouvrir les droits du socket dans le conteneur\n\
+    chmod 666 "$SOCKET" || true\n\
     fi\n\
     \n\
     # Initialiser PHPMailer au démarrage\n\
