@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // Récupération des données du formulaire
 $nom = trim($_POST['nom'] ?? '');
 $description = trim($_POST['description'] ?? '');
+$source_type = $_POST['source_type'] ?? 'url';
 $url = trim($_POST['url'] ?? '');
 $show_on_login = isset($_POST['show_on_login']) ? 1 : 0;
 
@@ -45,10 +46,45 @@ if (empty($nom)) {
     $errors[] = "Le nom du fichier est obligatoire.";
 }
 
-if (empty($url)) {
-    $errors[] = "L'URL est obligatoire.";
-} elseif (!filter_var($url, FILTER_VALIDATE_URL)) {
-    $errors[] = "Format d'URL invalide.";
+if ($source_type === 'url') {
+    if (empty($url)) {
+        $errors[] = "L'URL est obligatoire.";
+    } elseif (!filter_var($url, FILTER_VALIDATE_URL)) {
+        $errors[] = "Format d'URL invalide.";
+    }
+} else {
+    // Gestion de l'upload
+    if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
+        $errors[] = "Erreur lors de l'upload du fichier (Code: " . ($_FILES['file']['error'] ?? 'Inconnu') . ").";
+    } else {
+        $file = $_FILES['file'];
+        
+        // Créer le dossier s'il n'existe pas
+        $uploadDir = __DIR__ . '/../uploads/downloads/';
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0775, true);
+            // S'assurer que les permissions sont OK pour www-data
+            chmod($uploadDir, 0775);
+        }
+        
+        // Sécuriser le nom du fichier
+        $filename = preg_replace('/[^a-zA-Z0-9._-]/', '_', $file['name']);
+        
+        // Éviter d'écraser un fichier existant si besoin, ou utiliser un prefix unique
+        $uniqueFilename = time() . '_' . $filename;
+        $destination = $uploadDir . $uniqueFilename;
+        
+        if (move_uploaded_file($file['tmp_name'], $destination)) {
+            // Générer l'URL relative. On suppose que le script est dans /actions/
+            // L'URL finale doit être accessible depuis la racine du site
+            $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]";
+            
+            // Correction du chemin pour l'URL (on pointe vers /uploads/downloads/)
+            $url = "/uploads/downloads/" . $uniqueFilename;
+        } else {
+            $errors[] = "Impossible de déplacer le fichier vers le dossier de destination.";
+        }
+    }
 }
 
 if (!empty($errors)) {

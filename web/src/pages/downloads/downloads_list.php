@@ -500,8 +500,28 @@ if (isset($pdo)) {
                 </div>
 
                 <div class="form-group">
+                    <label>Source du fichier <span class="required">*</span></label>
+                    <div style="display: flex; gap: 20px; margin-bottom: 10px; background: var(--input-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                            <input type="radio" name="source_type" value="url" checked onclick="toggleSourceType('url')">
+                            <span>Lien externe (URL)</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+                            <input type="radio" name="source_type" value="upload" onclick="toggleSourceType('upload')">
+                            <span>Upload direct</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="source_url_group" class="form-group">
                     <label for="dl_url">URL du téléchargement <span class="required">*</span></label>
-                    <input type="url" id="dl_url" name="url" class="form-control" required placeholder="https://...">
+                    <input type="url" id="dl_url" name="url" class="form-control" placeholder="https://...">
+                </div>
+
+                <div id="source_upload_group" class="form-group" style="display: none;">
+                    <label for="dl_file">Choisir un fichier <span class="required">*</span></label>
+                    <input type="file" id="dl_file" name="file" class="form-control" style="padding: 8px;">
+                    <p style="font-size: 0.8em; color: var(--text-muted); margin-top: 5px;">Taille max: <?= ini_get('upload_max_filesize') ?></p>
                 </div>
 
                 <div class="form-group">
@@ -616,7 +636,29 @@ function openAddDownloadModal() {
     form.reset();
     alerts.innerHTML = '';
     
+    // Reset toggle
+    toggleSourceType('url');
+    
     setTimeout(() => { document.getElementById('dl_nom').focus(); }, 100);
+}
+
+function toggleSourceType(type) {
+    const urlGroup = document.getElementById('source_url_group');
+    const uploadGroup = document.getElementById('source_upload_group');
+    const urlInput = document.getElementById('dl_url');
+    const fileInput = document.getElementById('dl_file');
+    
+    if (type === 'url') {
+        urlGroup.style.display = 'block';
+        uploadGroup.style.display = 'none';
+        urlInput.required = true;
+        fileInput.required = false;
+    } else {
+        urlGroup.style.display = 'none';
+        uploadGroup.style.display = 'block';
+        urlInput.required = false;
+        fileInput.required = true;
+    }
 }
 
 function closeAddDownloadModal() {
@@ -630,8 +672,18 @@ function submitAddDownloadForm() {
     
     alertsDiv.innerHTML = '';
     
-    if (!formData.get('nom') || !formData.get('url')) {
-        alertsDiv.innerHTML = '<div class="alert alert-error">Le nom et l\'URL sont obligatoires.</div>';
+    if (!formData.get('nom')) {
+        alertsDiv.innerHTML = '<div class="alert alert-error">Le nom du fichier est obligatoire.</div>';
+        return;
+    }
+    
+    const sourceType = formData.get('source_type');
+    if (sourceType === 'url' && !formData.get('url')) {
+        alertsDiv.innerHTML = '<div class="alert alert-error">L\'URL est obligatoire.</div>';
+        return;
+    }
+    if (sourceType === 'upload' && (!formData.get('file') || formData.get('file').size === 0)) {
+        alertsDiv.innerHTML = '<div class="alert alert-error">Veuillez sélectionner un fichier à uploader.</div>';
         return;
     }
     
