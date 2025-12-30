@@ -66,7 +66,7 @@ if ($pdo) {
                 'id'        => 'inter_' . $entry['id'],
                 'label'     => $label,
                 'host'      => $_SERVER['SERVER_NAME'], // IP du serveur Docker
-                'port'      => 8080,             // Port public unique de noVNC
+                'port'      => 8085,             // Port public unique de noVNC
                 'token'     => 'inter_' . $entry['id'],
                 'password'  => $entry['pass_vnc'] ?? '',
             ];
@@ -220,12 +220,12 @@ if ($pdo) {
 
             // URL noVNC : On utilise le port dédié (qui pointe directement vers le bon VNC)
             // Plus besoin de token dans l'URL car le port EST le sélecteur
-            // On charge le viewer JS depuis le serveur 8080 (fichiers statiques) mais on connecte le Websocket au port dédié
+            // On charge le viewer JS depuis le serveur 8085 (fichiers statiques) mais on connecte le Websocket au port dédié
             // Note: vnc_lite.html permet "path" ou "port". Ici on hack l'URL pour pointer le websocket vers le bon port
             
             // vnc_lite.html?host=192.168.10.248&port=60XX
             // Utilisation de scale=true au lieu de resize=scale pour adapter l'image à l'iframe
-            $vncUrl = "http://{$host}:8080/vnc_lite.html?host={$host}&port={$vncPort}&password={$password}&autoconnect=true&scale=true";
+            $vncUrl = "http://{$host}:8085/vnc_lite.html?host={$host}&port={$vncPort}&password={$password}&autoconnect=true&scale=true";
         ?>
         <div class="vnc-content-card" style="overflow: hidden;">
             <h2 style="margin-top: 0; margin-bottom: 5px; font-size: 1.1em;">

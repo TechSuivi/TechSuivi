@@ -6,10 +6,10 @@ TOKEN_FILE="/tokens/tokens.txt"
 
 echo "=== Démarrage Multi-Port VNC Proxy ==="
 
-# 1. Lancer un serveur web simple pour servir les fichiers statiques (vnc.html, etc.) sur le port 8080
-echo "[-] Démarrage serveur web statique sur 8080..."
+# 1. Lancer un serveur web simple pour servir les fichiers statiques (vnc.html, etc.) sur le port 8085
+echo "[-] Démarrage serveur web statique sur 8085..."
 cd $WEB_ROOT
-python3 -m http.server 8080 &
+python3 -m http.server 8085 &
 
 # 2. Boucle principale de surveillance
 # Vérifie le fichier tokens toutes les 5 secondes et recharge si changé

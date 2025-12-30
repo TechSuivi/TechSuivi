@@ -13,7 +13,7 @@ RUN git clone https://github.com/novnc/noVNC.git /opt/novnc
 WORKDIR /opt/novnc
 
 # Port d'écoute
-EXPOSE 8080
+EXPOSE 8085
 
 # Copier le script d'entrée
 COPY entrypoint.sh /entrypoint.sh

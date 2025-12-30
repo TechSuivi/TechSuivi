@@ -796,8 +796,8 @@ body.dark .client-info-box span {
             
             $vncPassword = $intervention['pass_vnc'] ?? '';
             
-            // URL : Charge le viewer sur 8080, connecte le socket sur le port dédié
-            $vncUrl = "http://{$vncHost}:8080/vnc_lite.html?host={$vncHost}&port={$vncPort}&password={$vncPassword}&autoconnect=true&scale=true";
+            // URL : Charge le viewer sur 8085, connecte le socket sur le port dédié
+            $vncUrl = "http://{$vncHost}:8085/vnc_lite.html?host={$vncHost}&port={$vncPort}&password={$vncPassword}&autoconnect=true&scale=true";
         ?>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
             <!-- Colonne Gauche : Informations -->

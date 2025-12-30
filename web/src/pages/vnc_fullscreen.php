@@ -47,7 +47,7 @@ try {
     
     $vncPassword = $intervention['pass_vnc'] ?? '';
     // URL noVNC : On utilise vnc.html (version complète) pour avoir les menus
-    $vncUrl = "http://{$vncHost}:8080/vnc.html?host={$vncHost}&port={$vncPort}&password={$vncPassword}&autoconnect=true&resize=scale";
+    $vncUrl = "http://{$vncHost}:8085/vnc.html?host={$vncHost}&port={$vncPort}&password={$vncPassword}&autoconnect=true&resize=scale";
     
     
 } catch (PDOException $e) {
