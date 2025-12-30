@@ -114,7 +114,7 @@ function getDatabaseConnection() {
         Vérifiez :
         1. Que Docker est démarré : docker compose ps
         2. Que la base de données est accessible
-        3. Que les paramètres dans .env sont corrects
+        3. Que les paramètres de configuration (env ou .env) sont corrects
         4. Que le conteneur de base de données est actif
         ");
     }
