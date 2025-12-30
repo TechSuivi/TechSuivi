@@ -107,4 +107,14 @@ try {
 }
 
 echo "Initialisation terminée.\n";
+
+// 4. Libérer le verrou d'installation
+$lockFile = __DIR__ . '/../install_in_progress.lock';
+if (file_exists($lockFile)) {
+    if (unlink($lockFile)) {
+        echo "✓ Verrou d'installation supprimé. L'application est maintenant accessible.\n";
+    } else {
+        echo "ERREUR : Impossible de supprimer le verrou d'installation $lockFile\n";
+    }
+}
 ?>

@@ -69,6 +69,10 @@ RUN mkdir -p /var/www/html/uploads/backups \
 # Script de démarrage personnalisé
 RUN echo '#!/bin/bash\n\
     \n\
+    # Créer le fichier de verrouillage d'installation\n\
+    touch /var/www/html/install_in_progress.lock\n\
+    chown www-data:www-data /var/www/html/install_in_progress.lock\n\
+    \n\
     # Adaptation dynamique du GID du groupe docker au socket monté\n\
     SOCKET="/var/run/docker.sock"\n\
     if [ -e "$SOCKET" ]; then\n\

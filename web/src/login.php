@@ -1,5 +1,12 @@
 <?php
 session_start();
+
+// Vérifier si une installation est en cours
+if (file_exists(__DIR__ . '/install_in_progress.lock')) {
+    header('Location: installing.php');
+    exit();
+}
+
 if (isset($_SESSION['username'])) {
     header('Location: index.php');
     exit();
