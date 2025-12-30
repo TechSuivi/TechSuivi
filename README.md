@@ -58,6 +58,7 @@ cd TechSuivi
 
 ### Option 3: Installation via Docker Hub (Production / Rapide)
 Si vous ne souhaitez pas modifier le code, c'est l'option la plus rapide.
+Retrouvez les images sur [Docker Hub](https://hub.docker.com/u/techsuivi).
 ```bash
 # Récupérer uniquement le fichier de composition
 wget https://raw.githubusercontent.com/TechSuivi/TechSuivi/main/docker-compose.hub.yml -O docker-compose.yml
