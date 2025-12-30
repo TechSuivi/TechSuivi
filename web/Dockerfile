@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     iputils-ping \
+    cron \
     && rm -rf /var/lib/apt/lists/*
 
 # Installer Composer
@@ -78,6 +79,10 @@ RUN echo '#!/bin/bash\n\
     \n\
     # Initialiser PHPMailer au démarrage\n\
     /usr/local/bin/init-phpmailer.sh\n\
+    \n\
+    # Configurer le cron TechSuivi\n\
+    echo "*/5 * * * * php /var/www/html/cron/advanced_scheduled_tasks.php >> /var/www/html/cron/advanced_cron.log 2>&1" | crontab -\n\
+    service cron start\n\
     \n\
     # Démarrer Apache\n\
     exec apache2-foreground' > /usr/local/bin/start-techsuivi.sh \
