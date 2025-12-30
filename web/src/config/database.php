@@ -35,59 +35,57 @@ function loadEnv($path) {
 }
 
 // Charger les variables d'environnement
-// Essayer plusieurs chemins possibles pour le fichier .env
-$possiblePaths = [
-   __DIR__ . '/../.env',           // Depuis config/
-  //  __DIR__ . '/../../.env',           // Depuis config/
- //   __DIR__ . '/../../../.env',        // Depuis web/src/config/
- //   '/var/www/.env',                   // Chemin Docker
- //   '/TechSuivi/.env'                  // Chemin absolu
-];
-
 $env = [];
 $envLoaded = false;
 
-foreach ($possiblePaths as $envPath) {
-    if (file_exists($envPath)) {
-        try {
-            $env = loadEnv($envPath);
-            $envLoaded = true;
-            break;
-        } catch (Exception $e) {
-            continue;
+// 1. D'abord, vérifier si les variables sont déjà définies dans l'environnement (ex: Docker Compose)
+$requiredVars = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
+$allEnvSet = true;
+foreach ($requiredVars as $var) {
+    $val = getenv($var);
+    if ($val !== false && !empty($val)) {
+        $env[$var] = $val;
+    } else {
+        $allEnvSet = false;
+    }
+}
+
+if ($allEnvSet) {
+    $envLoaded = true;
+} else {
+    // 2. Sinon, essayer de charger depuis un fichier .env
+    $possiblePaths = [
+        __DIR__ . '/../.env',           // Depuis config/
+        '/var/www/html/.env'            // Chemin standard dans le conteneur
+    ];
+
+    foreach ($possiblePaths as $envPath) {
+        if (file_exists($envPath)) {
+            try {
+                $env = loadEnv($envPath);
+                $envLoaded = true;
+                break;
+            } catch (Exception $e) {
+                continue;
+            }
         }
     }
 }
 
-
-
-// Si aucun fichier .env n'est trouvé, arrêter avec une erreur claire
+// Si aucune configuration n'est trouvée, arrêter avec une erreur claire
 if (!$envLoaded) {
-    throw new Exception("❌ Fichier .env introuvable !
+    throw new Exception("❌ Configuration de base de données introuvable !
 
-Chemins vérifiés :
-- " . implode("\n- ", $possiblePaths) . "
-
-Le fichier .env est OBLIGATOIRE et doit contenir :
-DB_HOST=db
-DB_NAME=TechSuivi
-DB_USER=monuser
-DB_PASS=motdepasseuser");
+Vous devez soit :
+1. Définir les variables d'environnement (DB_HOST, DB_NAME, DB_USER, DB_PASS) dans votre docker-compose.yml
+2. Ou créer un fichier .env contenant ces variables.");
 }
 
-// Vérifier que toutes les variables requises sont présentes
-$requiredVars = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'];
-foreach ($requiredVars as $var) {
-    if (!isset($env[$var]) || empty($env[$var])) {
-        throw new Exception("❌ Variable $var manquante dans le fichier .env !");
-    }
-}
-
-// Configuration de la base de données EXCLUSIVEMENT depuis le fichier .env
-$host = $env['DB_HOST'];   // OBLIGATOIRE depuis .env
-$dbName = $env['DB_NAME']; // OBLIGATOIRE depuis .env
-$dbUser = $env['DB_USER']; // OBLIGATOIRE depuis .env
-$dbPass = $env['DB_PASS']; // OBLIGATOIRE depuis .env
+// Configuration finale
+$host = $env['DB_HOST'];
+$dbName = $env['DB_NAME'];
+$dbUser = $env['DB_USER'];
+$dbPass = $env['DB_PASS'];
 
 // Fonction pour créer une connexion PDO
 function getDatabaseConnection() {
