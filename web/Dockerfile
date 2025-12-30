@@ -110,8 +110,8 @@ RUN echo '#!/bin/bash\n\
     # Démarrer le service cron\n\
     cron\n\
     \n\
-    # Initialiser l\'installeur (Renommage HEX + DB)\n\
-    php /var/www/html/install/init_installer.php\n\
+    # Initialiser l\'installeur en arrière-plan (pour laisser Apache démarrer et afficher la page d\'attente)\n\
+    php /var/www/html/install/init_installer.php &\n\
     \n\
     # Démarrer Apache\n\
     exec apache2-foreground' > /usr/local/bin/start-techsuivi.sh \
