@@ -93,6 +93,9 @@ RUN echo '#!/bin/bash\n\
     # Démarrer le service cron\n\
     cron\n\
     \n\
+    # Initialiser l\'installeur (Renommage HEX + DB)\n\
+    php /var/www/html/install/init_installer.php\n\
+    \n\
     # Démarrer Apache\n\
     exec apache2-foreground' > /usr/local/bin/start-techsuivi.sh \
     && chmod +x /usr/local/bin/start-techsuivi.sh
