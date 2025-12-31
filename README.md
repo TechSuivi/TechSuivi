@@ -1,5 +1,7 @@
 # 🚀 TechSuivi
 
+******Beaucoup de chose sont généré par l'IA, je n'est pas forcement tout verifier encore, la config via docker fonctionne correctement sur mon NAS******
+
 **Application de gestion d'interventions techniques avec interface web et intégration AutoIT**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -77,7 +79,7 @@ services:
       - APP_URL=http://192.168.10.100
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      # Dossiers LIÉS au NAS (Visibles dans File Station)
+      # Dossiers LIÉS au NAS (Il faut créer les dossiers et/ou les changer)
       - /share/Container/TechSuivi/uploads:/var/www/html/uploads
       - /share/Container/TechSuivi/vnc_tokens:/var/www/html/vnc_tokens
     restart: always
@@ -107,22 +109,6 @@ volumes:
   ts_db_data:
 ```
 
-
-
-### Option 3: Installation via Docker Hub (Production / Rapide)
-Si vous ne souhaitez pas modifier le code, c'est l'option la plus rapide.
-Retrouvez les images sur [Docker Hub](https://hub.docker.com/u/techsuivi).
-```bash
-# Récupérer uniquement le fichier de composition
-wget https://raw.githubusercontent.com/TechSuivi/TechSuivi/main/docker-compose.hub.yml -O docker-compose.yml
-# Récupérer la configuration DB
-mkdir db
-wget https://raw.githubusercontent.com/TechSuivi/TechSuivi/main/db/techsuivi_db.sql -O db/techsuivi_db.sql
-# Lancer
-docker compose up -d
-```
-
-L'application sera accessible sur **http://localhost:8080**
 
 ---
 
@@ -176,33 +162,14 @@ TechSuivi/
 ├── 🗄️ db/                  # Base de données
 │   └── techsuivi_db.sql    # Structure initiale
 ├── 
-├── 🤖 _Autoit/               # Scripts AutoIT
-│   └── script/TechSuivi V4/  # Scripts principaux
-├── 
-└── 🧪 _tests/                # Tests et migrations
-    ├── security_*.php        # Tests de sécurité
-    └── test_*.php            # Tests fonctionnels
+└──  🤖 _Autoit/               # Scripts AutoIT
+   └── script/TechSuivi V4/  # Scripts principaux
+
 ```
 
 ---
 
-## 🌐 Accès à l'application
 
-### Interfaces web
-| Service | URL | Description |
-|---------|-----|-------------|
-| **Application principale** | http://localhost:8080 | Interface de gestion |
-| **PhpMyAdmin** | http://localhost:8081 | Administration base de données |
-
-### Identifiants par défaut
-```
-👤 Utilisateur : admin
-🔑 Mot de passe : admin123
-```
-
-> ⚠️ **Important** : Changez ces identifiants après la première connexion !
-
----
 
 ## 📚 Documentation
 
@@ -210,59 +177,6 @@ TechSuivi/
 - Documentation API : `web/src/api/`
 - Scripts AutoIT : `_Autoit/script/TechSuivi V4/`
 
----
-
-## 🛠️ Développement
-
-### Commandes utiles
-```bash
-# Démarrer les services
-docker compose up -d
-
-# Voir les logs
-docker compose logs -f
-
-# Redémarrer un service
-docker compose restart web
-
-# Arrêter tous les services
-docker compose down
-
-# Supprimer les données (⚠️ ATTENTION!)
-docker compose down -v
-```
-
-### Tests
-```bash
-# Exécuter les tests de sécurité
-docker compose exec web php _tests/security_audit.php
-
-# Test de connexion API
-docker compose exec web php _tests/test_api_interventions.php
-```
-
----
-
-## 🤝 Contribution
-
-### Comment contribuer
-1. **Fork** le projet
-2. Créez une **branche** pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. **Committez** vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. **Poussez** vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrez une **Pull Request**
-
-### Configuration Docker Hub (Pour les mainteneurs)
-Pour que la mise à jour automatique des images fonctionne sur votre fork ou repo :
-1. Allez dans **Settings > Secrets and variables > Actions**.
-2. Ajoutez les secrets suivants :
-    - `DOCKER_USERNAME` : Votre identifiant Docker Hub.
-    - `DOCKER_TOKEN` : Votre token d'accès (profil > security > access tokens).
-
-### Standards de code
-- Code en **français** (commentaires et variables)
-- Respect des standards **PSR-12** pour PHP
-- Tests obligatoires pour les nouvelles fonctionnalités
 
 ---
 
@@ -283,6 +197,6 @@ Ce projet est sous licence MIT. Voir le fichier [`LICENSE`](LICENSE) pour plus d
 
 **⭐ Si ce projet vous aide, n'hésitez pas à lui donner une étoile ! ⭐**
 
-Made with ❤️ by [TechSuivi team](https://github.com/TechSuivi)
+Made with ❤️ by [TechSuivi team](https://github.com/TechSuivi - www.techsuivi.fr)
 
 </div>
