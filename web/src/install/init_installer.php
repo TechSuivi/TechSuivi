@@ -55,13 +55,23 @@ try {
         $masterFile = '/usr/local/share/installeur.exe';
         if (!$foundSource && file_exists($masterFile)) {
             writeLog("Restauration de l'installeur depuis l'image Docker...");
-            $restoredFile = __DIR__ . '/../uploads/downloads/installeur.exe';
+            
+            // Assurer que le dossier de destination existe (cas des volumes vides)
+            $destDir = __DIR__ . '/../uploads/downloads';
+            if (!is_dir($destDir)) {
+                writeLog("Création du dossier $destDir...");
+                mkdir($destDir, 0775, true);
+            }
+            
+            $restoredFile = $destDir . '/installeur.exe';
             if (copy($masterFile, $restoredFile)) {
                 chmod($restoredFile, 0666); // Droits rw pour tous
                 $foundSource = $restoredFile;
                 writeLog("✓ Installeur restauré avec succès.");
             } else {
-                writeLog("ERREUR : Échec de la restauration depuis le master.");
+                writeLog("ERREUR : Échec de la restauration. Vérifiez les permissions du dossier uploads.");
+                writeLog("Source: $masterFile");
+                writeLog("Dest: $restoredFile");
             }
         }
 
