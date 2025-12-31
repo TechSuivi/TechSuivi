@@ -408,6 +408,25 @@ body.dark .warning-box code {
     background: #2d2d2d;
     color: #ff79c6;
 }
+    .page-disabled-overlay {
+        position: relative;
+        opacity: 0.5;
+        pointer-events: none;
+        filter: grayscale(100%);
+        user-select: none;
+    }
+    
+    .construction-banner {
+        background: #fff3cd;
+        border: 2px dashed #ffc107;
+        color: #856404;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        font-weight: bold;
+        font-size: 1.2em;
+    }
 </style>
 
 <div class="oauth2-page">
@@ -418,219 +437,229 @@ body.dark .warning-box code {
         </h1>
     </div>
 
-    <?php if ($message): ?>
-        <div class="alert <?= $messageType === 'success' ? 'alert-success' : 'alert-error' ?>">
-            <span style="font-size: 1.5em;"><?= $messageType === 'success' ? '✅' : '⚠️' ?></span>
-            <div><?= htmlspecialchars($message) ?></div>
-        </div>
-    <?php endif; ?>
-
-    <div class="info-card">
-        <h5>ℹ️ Pourquoi OAuth2 ?</h5>
-        <p>Les fournisseurs d'email modernes (Gmail, Outlook) exigent maintenant OAuth2 au lieu des mots de passe d'application pour des raisons de sécurité. Cette méthode est plus sûre et recommandée.</p>
-        <ul>
-            <li><strong>Gmail :</strong> Nécessite OAuth2 depuis mai 2022</li>
-            <li><strong>Outlook :</strong> Désactive progressivement l'authentification basique</li>
-        </ul>
+    <!-- Banner "Non Fonctionnel" -->
+    <div class="construction-banner">
+        ⚠️ Fonctionnalité actuellement désactivée / En cours de validation
+        <br>
+        <small style="font-weight: normal; font-size: 0.8em;">Cette page est rendue inaccessible pour le moment.</small>
     </div>
 
-    <div class="tabs">
-        <button class="tab-button active" data-tab="google">
-            <span>🔴</span> Google/Gmail
-        </button>
-        <button class="tab-button" data-tab="outlook">
-            <span>🔵</span> Outlook/Hotmail
-        </button>
-        <button class="tab-button" data-tab="status">
-            <span>📊</span> État des Configurations
-        </button>
-    </div>
-
-    <!-- Configuration Google -->
-    <div class="tab-content active" id="tab-google">
-        <div class="config-card">
-            <h3 style="margin-top: 0;">🔴 Configuration Google OAuth2</h3>
-            
-            <div class="warning-box">
-                <h6>⚠️ Étapes préalables :</h6>
-                <ol>
-                    <li>Aller sur <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
-                    <li>Créer un projet ou sélectionner un projet existant</li>
-                    <li>Activer l'API Gmail</li>
-                    <li>Créer des identifiants OAuth 2.0</li>
-                    <li>Ajouter l'URI de redirection : <code><?= $redirect_uri_google ?></code></li>
-                </ol>
+    <!-- Contenu grisé -->
+    <div class="page-disabled-overlay">
+        <?php if ($message): ?>
+            <div class="alert <?= $messageType === 'success' ? 'alert-success' : 'alert-error' ?>">
+                <span style="font-size: 1.5em;"><?= $messageType === 'success' ? '✅' : '⚠️' ?></span>
+                <div><?= htmlspecialchars($message) ?></div>
             </div>
+        <?php endif; ?>
 
-            <form method="POST">
-                <input type="hidden" name="provider" value="google">
-                
-                <div class="form-group">
-                    <label for="google_client_id">Client ID *</label>
-                    <input type="text" class="form-control" id="google_client_id" name="client_id" 
-                           value="<?= htmlspecialchars($configsByProvider['google']['client_id'] ?? '') ?>"
-                           placeholder="123456789-abcdefghijklmnop.apps.googleusercontent.com" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="google_client_secret">Client Secret *</label>
-                    <input type="password" class="form-control" id="google_client_secret" name="client_secret" 
-                           value="<?= htmlspecialchars($configsByProvider['google']['client_secret'] ?? '') ?>"
-                           placeholder="GOCSPX-..." required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="google_redirect_uri">URI de Redirection *</label>
-                    <input type="url" class="form-control" id="google_redirect_uri" name="redirect_uri" 
-                           value="<?= $redirect_uri_google ?>" readonly>
-                    <small class="form-text">Cette URL doit être ajoutée dans votre configuration Google Cloud Console</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="google_scopes">Scopes</label>
-                    <input type="text" class="form-control" id="google_scopes" name="scopes" 
-                           value="<?= htmlspecialchars($configsByProvider['google']['scopes'] ?? 'https://www.googleapis.com/auth/gmail.send') ?>"
-                           placeholder="https://www.googleapis.com/auth/gmail.send">
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="google_active" name="is_active" 
-                           <?= isset($configsByProvider['google']) && $configsByProvider['google']['is_active'] ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="google_active">
-                        Activer cette configuration
-                    </label>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <span>💾</span> Sauvegarder Google OAuth2
-                </button>
-            </form>
+        <div class="info-card">
+            <h5>ℹ️ Pourquoi OAuth2 ?</h5>
+            <p>Les fournisseurs d'email modernes (Gmail, Outlook) exigent maintenant OAuth2 au lieu des mots de passe d'application pour des raisons de sécurité. Cette méthode est plus sûre et recommandée.</p>
+            <ul>
+                <li><strong>Gmail :</strong> Nécessite OAuth2 depuis mai 2022</li>
+                <li><strong>Outlook :</strong> Désactive progressivement l'authentification basique</li>
+            </ul>
         </div>
-    </div>
 
-    <!-- Configuration Outlook -->
-    <div class="tab-content" id="tab-outlook">
-        <div class="config-card">
-            <h3 style="margin-top: 0;">🔵 Configuration Outlook OAuth2</h3>
-            
-            <div class="warning-box">
-                <h6>⚠️ Étapes préalables :</h6>
-                <ol>
-                    <li>Aller sur <a href="https://portal.azure.com/" target="_blank">Azure Portal</a></li>
-                    <li>Aller dans "App registrations" → "New registration"</li>
-                    <li>Configurer l'application avec l'URI de redirection : <code><?= $redirect_uri_outlook ?></code></li>
-                    <li>Aller dans "API permissions" → Ajouter "Mail.Send" pour Microsoft Graph</li>
-                    <li>Créer un "Client secret" dans "Certificates & secrets"</li>
-                </ol>
+        <div class="tabs">
+            <button class="tab-button active" data-tab="google">
+                <span>🔴</span> Google/Gmail
+            </button>
+            <button class="tab-button" data-tab="outlook">
+                <span>🔵</span> Outlook/Hotmail
+            </button>
+            <button class="tab-button" data-tab="status">
+                <span>📊</span> État des Configurations
+            </button>
+        </div>
+
+        <!-- Configuration Google -->
+        <div class="tab-content active" id="tab-google">
+            <div class="config-card">
+                <h3 style="margin-top: 0;">🔴 Configuration Google OAuth2</h3>
+                
+                <div class="warning-box">
+                    <h6>⚠️ Étapes préalables :</h6>
+                    <ol>
+                        <li>Aller sur <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                        <li>Créer un projet ou sélectionner un projet existant</li>
+                        <li>Activer l'API Gmail</li>
+                        <li>Créer des identifiants OAuth 2.0</li>
+                        <li>Ajouter l'URI de redirection : <code><?= $redirect_uri_google ?></code></li>
+                    </ol>
+                </div>
+
+                <form method="POST">
+                    <input type="hidden" name="provider" value="google">
+                    
+                    <div class="form-group">
+                        <label for="google_client_id">Client ID *</label>
+                        <input type="text" class="form-control" id="google_client_id" name="client_id" 
+                               value="<?= htmlspecialchars($configsByProvider['google']['client_id'] ?? '') ?>"
+                               placeholder="123456789-abcdefghijklmnop.apps.googleusercontent.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="google_client_secret">Client Secret *</label>
+                        <input type="password" class="form-control" id="google_client_secret" name="client_secret" 
+                               value="<?= htmlspecialchars($configsByProvider['google']['client_secret'] ?? '') ?>"
+                               placeholder="GOCSPX-..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="google_redirect_uri">URI de Redirection *</label>
+                        <input type="url" class="form-control" id="google_redirect_uri" name="redirect_uri" 
+                               value="<?= $redirect_uri_google ?>" readonly>
+                        <small class="form-text">Cette URL doit être ajoutée dans votre configuration Google Cloud Console</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="google_scopes">Scopes</label>
+                        <input type="text" class="form-control" id="google_scopes" name="scopes" 
+                               value="<?= htmlspecialchars($configsByProvider['google']['scopes'] ?? 'https://www.googleapis.com/auth/gmail.send') ?>"
+                               placeholder="https://www.googleapis.com/auth/gmail.send">
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="google_active" name="is_active" 
+                               <?= isset($configsByProvider['google']) && $configsByProvider['google']['is_active'] ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="google_active">
+                            Activer cette configuration
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <span>💾</span> Sauvegarder Google OAuth2
+                    </button>
+                </form>
             </div>
-
-            <form method="POST">
-                <input type="hidden" name="provider" value="outlook">
-                
-                <div class="form-group">
-                    <label for="outlook_client_id">Application (client) ID *</label>
-                    <input type="text" class="form-control" id="outlook_client_id" name="client_id" 
-                           value="<?= htmlspecialchars($configsByProvider['outlook']['client_id'] ?? '') ?>"
-                           placeholder="12345678-1234-1234-1234-123456789012" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="outlook_client_secret">Client Secret *</label>
-                    <input type="password" class="form-control" id="outlook_client_secret" name="client_secret" 
-                           value="<?= htmlspecialchars($configsByProvider['outlook']['client_secret'] ?? '') ?>"
-                           placeholder="..." required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="outlook_tenant_id">Directory (tenant) ID</label>
-                    <input type="text" class="form-control" id="outlook_tenant_id" name="tenant_id" 
-                           value="<?= htmlspecialchars($configsByProvider['outlook']['tenant_id'] ?? 'common') ?>"
-                           placeholder="common (ou votre tenant ID spécifique)">
-                    <small class="form-text">Utilisez "common" pour les comptes personnels et professionnels</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="outlook_redirect_uri">URI de Redirection *</label>
-                    <input type="url" class="form-control" id="outlook_redirect_uri" name="redirect_uri" 
-                           value="<?= $redirect_uri_outlook ?>" readonly>
-                    <small class="form-text">Cette URL doit être ajoutée dans votre configuration Azure</small>
-                </div>
-                
-                <div class="form-group">
-                    <label for="outlook_scopes">Scopes</label>
-                    <input type="text" class="form-control" id="outlook_scopes" name="scopes" 
-                           value="<?= htmlspecialchars($configsByProvider['outlook']['scopes'] ?? 'https://graph.microsoft.com/Mail.Send') ?>"
-                           placeholder="https://graph.microsoft.com/Mail.Send">
-                </div>
-                
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="outlook_active" name="is_active" 
-                           <?= isset($configsByProvider['outlook']) && $configsByProvider['outlook']['is_active'] ? 'checked' : '' ?>>
-                    <label class="form-check-label" for="outlook_active">
-                        Activer cette configuration
-                    </label>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <span>💾</span> Sauvegarder Outlook OAuth2
-                </button>
-            </form>
         </div>
-    </div>
 
-    <!-- État des configurations -->
-    <div class="tab-content" id="tab-status">
-        <div class="config-card">
-            <h3 style="margin-top: 0;">📊 État des Configurations OAuth2</h3>
-            
-            <?php if (empty($configs)): ?>
-                <div class="alert" style="background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;">
-                    <span style="font-size: 1.5em;">ℹ️</span>
-                    <div>Aucune configuration OAuth2 trouvée. Configurez au moins un fournisseur pour utiliser l'authentification moderne.</div>
+        <!-- Configuration Outlook -->
+        <div class="tab-content" id="tab-outlook">
+            <div class="config-card">
+                <h3 style="margin-top: 0;">🔵 Configuration Outlook OAuth2</h3>
+                
+                <div class="warning-box">
+                    <h6>⚠️ Étapes préalables :</h6>
+                    <ol>
+                        <li>Aller sur <a href="https://portal.azure.com/" target="_blank">Azure Portal</a></li>
+                        <li>Aller dans "App registrations" → "New registration"</li>
+                        <li>Configurer l'application avec l'URI de redirection : <code><?= $redirect_uri_outlook ?></code></li>
+                        <li>Aller dans "API permissions" → Ajouter "Mail.Send" pour Microsoft Graph</li>
+                        <li>Créer un "Client secret" dans "Certificates & secrets"</li>
+                    </ol>
                 </div>
-            <?php else: ?>
-                <table class="status-table">
-                    <thead>
-                        <tr>
-                            <th>Fournisseur</th>
-                            <th>Client ID</th>
-                            <th>État</th>
-                            <th>Dernière Mise à Jour</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($configs as $config): ?>
+
+                <form method="POST">
+                    <input type="hidden" name="provider" value="outlook">
+                    
+                    <div class="form-group">
+                        <label for="outlook_client_id">Application (client) ID *</label>
+                        <input type="text" class="form-control" id="outlook_client_id" name="client_id" 
+                               value="<?= htmlspecialchars($configsByProvider['outlook']['client_id'] ?? '') ?>"
+                               placeholder="12345678-1234-1234-1234-123456789012" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outlook_client_secret">Client Secret *</label>
+                        <input type="password" class="form-control" id="outlook_client_secret" name="client_secret" 
+                               value="<?= htmlspecialchars($configsByProvider['outlook']['client_secret'] ?? '') ?>"
+                               placeholder="..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outlook_tenant_id">Directory (tenant) ID</label>
+                        <input type="text" class="form-control" id="outlook_tenant_id" name="tenant_id" 
+                               value="<?= htmlspecialchars($configsByProvider['outlook']['tenant_id'] ?? 'common') ?>"
+                               placeholder="common (ou votre tenant ID spécifique)">
+                        <small class="form-text">Utilisez "common" pour les comptes personnels et professionnels</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outlook_redirect_uri">URI de Redirection *</label>
+                        <input type="url" class="form-control" id="outlook_redirect_uri" name="redirect_uri" 
+                               value="<?= $redirect_uri_outlook ?>" readonly>
+                        <small class="form-text">Cette URL doit être ajoutée dans votre configuration Azure</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outlook_scopes">Scopes</label>
+                        <input type="text" class="form-control" id="outlook_scopes" name="scopes" 
+                               value="<?= htmlspecialchars($configsByProvider['outlook']['scopes'] ?? 'https://graph.microsoft.com/Mail.Send') ?>"
+                               placeholder="https://graph.microsoft.com/Mail.Send">
+                    </div>
+                    
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="outlook_active" name="is_active" 
+                               <?= isset($configsByProvider['outlook']) && $configsByProvider['outlook']['is_active'] ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="outlook_active">
+                            Activer cette configuration
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <span>💾</span> Sauvegarder Outlook OAuth2
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- État des configurations -->
+        <div class="tab-content" id="tab-status">
+            <div class="config-card">
+                <h3 style="margin-top: 0;">📊 État des Configurations OAuth2</h3>
+                
+                <?php if (empty($configs)): ?>
+                    <div class="alert" style="background: #e3f2fd; border: 1px solid #90caf9; color: #1976d2;">
+                        <span style="font-size: 1.5em;">ℹ️</span>
+                        <div>Aucune configuration OAuth2 trouvée. Configurez au moins un fournisseur pour utiliser l'authentification moderne.</div>
+                    </div>
+                <?php else: ?>
+                    <table class="status-table">
+                        <thead>
                             <tr>
-                                <td>
-                                    <span><?= $config['provider'] === 'google' ? '🔴' : '🔵' ?></span>
-                                    <?= ucfirst($config['provider']) ?>
-                                </td>
-                                <td>
-                                    <code><?= substr(htmlspecialchars($config['client_id']), 0, 30) ?>...</code>
-                                </td>
-                                <td>
-                                    <?php if ($config['is_active']): ?>
-                                        <span class="badge badge-success">
-                                            ✓ Actif
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="badge badge-secondary">
-                                            ⏸ Inactif
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><?= date('d/m/Y H:i', strtotime($config['updated_at'])) ?></td>
-                                <td>
-                                    <button class="btn btn-primary btn-sm" onclick="testOAuth2('<?= $config['provider'] ?>')">
-                                        <span>🧪</span> Tester
-                                    </button>
-                                </td>
+                                <th>Fournisseur</th>
+                                <th>Client ID</th>
+                                <th>État</th>
+                                <th>Dernière Mise à Jour</th>
+                                <th>Actions</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php endif; ?>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($configs as $config): ?>
+                                <tr>
+                                    <td>
+                                        <span><?= $config['provider'] === 'google' ? '🔴' : '🔵' ?></span>
+                                        <?= ucfirst($config['provider']) ?>
+                                    </td>
+                                    <td>
+                                        <code><?= substr(htmlspecialchars($config['client_id']), 0, 30) ?>...</code>
+                                    </td>
+                                    <td>
+                                        <?php if ($config['is_active']): ?>
+                                            <span class="badge badge-success">
+                                                ✓ Actif
+                                            </span>
+                                        <?php else: ?>
+                                            <span class="badge badge-secondary">
+                                                ⏸ Inactif
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?= date('d/m/Y H:i', strtotime($config['updated_at'])) ?></td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm" onclick="testOAuth2('<?= $config['provider'] ?>')">
+                                            <span>🧪</span> Tester
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>
