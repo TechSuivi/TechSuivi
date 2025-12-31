@@ -82,7 +82,9 @@ if (isset($pdo)) {
                 i.info,
                 i.ip_vnc,
                 i.pass_vnc,
-                CONCAT(c.nom, ' ', c.prenom) as client_nom
+                CONCAT(c.nom, ' ', c.prenom) as client_nom,
+                c.telephone as client_telephone,
+                c.portable as client_portable
             FROM inter i
             LEFT JOIN clients c ON i.id_client = c.ID
             WHERE i.en_cours = 1
@@ -746,8 +748,16 @@ body.dark .btn-sm-action:hover {
                     <?php foreach ($recentInterventions as $inter): ?>
                         <div class="activity-card card-inter">
                             <div class="card-header-row">
-                                <h4 class="card-title">#<?= $inter['id'] ?> - <?= htmlspecialchars($inter['client_nom'] ?? 'Inconnu') ?></h4>
+                                <h4 class="card-title">#<?= $inter['id'] ?></h4>
                                 <span class="badge badge-blue">En cours</span>
+                            </div>
+                            <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 5px;">
+                                👤 <a href="index.php?page=clients_view&id=<?= $inter['id_client'] ?>" style="color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-muted); transition: color 0.2s;"><?= htmlspecialchars($inter['client_nom'] ?? 'Inconnu') ?></a>
+                                <?php if (!empty($inter['client_telephone'])): ?>
+                                    <span style="margin-left: 8px;">📞 <?= htmlspecialchars($inter['client_telephone']) ?></span>
+                                <?php elseif (!empty($inter['client_portable'])): ?>
+                                    <span style="margin-left: 8px;">📱 <?= htmlspecialchars($inter['client_portable']) ?></span>
+                                <?php endif; ?>
                             </div>
                             <div class="card-content">
                                 <?= nl2br(htmlspecialchars(substr($inter['info'], 0, 80))) . (strlen($inter['info']) > 80 ? '...' : '') ?>
@@ -848,23 +858,23 @@ body.dark .btn-sm-action:hover {
                         <div class="activity-card card-agenda" style="<?= $isOverdue ? 'border-left-color: #e74c3c;' : '' ?>">
                             <div class="card-header-row">
                                 <h4 class="card-title"><?= htmlspecialchars($task['titre']) ?></h4>
-                                <?php if (!empty($task['client_nom'])): ?>
-                                    <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 5px;">
-                                        👤 <a href="index.php?page=clients_view&id=<?= $task['id_client'] ?>" style="color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-muted); transition: color 0.2s;"><?= htmlspecialchars($task['client_nom'] . ' ' . $task['client_prenom']) ?></a>
-                                        <?php if (!empty($task['client_telephone'])): ?>
-                                            <span style="margin-left:8px;">📞 <?= htmlspecialchars($task['client_telephone']) ?></span>
-                                        <?php endif; ?>
-                                        <?php if (!empty($task['client_portable'])): ?>
-                                            <span style="margin-left:8px;">📱 <?= htmlspecialchars($task['client_portable']) ?></span>
-                                        <?php endif; ?>
-                                    </div>
-                                <?php endif; ?>
                                 <?php if ($isOverdue): ?>
                                     <span class="badge badge-red">Retard</span>
                                 <?php else: ?>
                                     <span class="badge badge-orange"><?= ucfirst($task['statut']) ?></span>
                                 <?php endif; ?>
                             </div>
+                            <?php if (!empty($task['client_nom'])): ?>
+                                <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 5px;">
+                                    👤 <a href="index.php?page=clients_view&id=<?= $task['id_client'] ?>" style="color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-muted); transition: color 0.2s;"><?= htmlspecialchars($task['client_nom'] . ' ' . $task['client_prenom']) ?></a>
+                                    <?php if (!empty($task['client_telephone'])): ?>
+                                        <span style="margin-left:8px;">📞 <?= htmlspecialchars($task['client_telephone']) ?></span>
+                                    <?php endif; ?>
+                                    <?php if (!empty($task['client_portable'])): ?>
+                                        <span style="margin-left:8px;">📱 <?= htmlspecialchars($task['client_portable']) ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                             <?php if (!empty($task['description'])): ?>
                                 <div class="card-content">
                                     <?= nl2br(htmlspecialchars(substr($task['description'], 0, 80))) . (strlen($task['description']) > 80 ? '...' : '') ?>
