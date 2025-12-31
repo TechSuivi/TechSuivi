@@ -144,6 +144,37 @@ window.onclick = function(event) {
         closeLogsModal();
     }
 }
+
+function uploadRustdeskKeys(input) {
+    if (input.files.length === 0) return;
+
+    const formData = new FormData();
+    // On attend id_ed25519 et id_ed25519.pub
+    for (let i = 0; i < input.files.length; i++) {
+        formData.append('key_files[]', input.files[i]);
+    }
+    formData.append('action', 'upload_keys');
+
+    showAlert('info', 'Envoi des clés en cours...');
+
+    fetch('ajax/rustdesk_keys.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('success', data.message);
+            input.value = ''; // Reset input
+        } else {
+            let detail = data.details ? ' (' + data.details.join(', ') + ')' : '';
+            showAlert('danger', data.message + detail);
+        }
+    })
+    .catch(err => {
+        showAlert('danger', 'Erreur réseau : ' + err);
+    });
+}
 </script>
 
 <style>

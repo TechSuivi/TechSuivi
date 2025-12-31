@@ -163,6 +163,27 @@ switch ($action) {
                         <tr><td><strong>Arrêtés :</strong></td><td style="color: #dc3545;">● <?= htmlspecialchars($dockerInfo['stats']['stopped']) ?></td></tr>
                     </table>
                 </div>
+                </div>
+
+                <!-- CARTE GESTION RUSTDESK -->
+                <div class="info-card">
+                    <h4>🔐 Gestion Rustdesk</h4>
+                    <p class="text-muted" style="font-size: 0.9em; margin-bottom: 15px;">
+                        Sauvegardez ou restaurez l'identité (ID/Key) de votre serveur Rustdesk.
+                    </p>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="ajax/rustdesk_keys.php?action=download_keys" target="_blank" class="btn-action" style="text-decoration: none; display: inline-flex; align-items: center; color: inherit;">
+                            📥 Sauvegarder les clés (.zip)
+                        </a>
+
+                        <button class="btn-action" onclick="document.getElementById('rustdeskKeyInput').click()" style="display: inline-flex; align-items: center;">
+                            📤 Restaurer les clés
+                        </button>
+                        
+                        <input type="file" id="rustdeskKeyInput" multiple style="display: none;" onchange="uploadRustdeskKeys(this)">
+                    </div>
+                </div>
             </div>
 
             <?php if (!empty($dockerInfo['containers'])): ?>

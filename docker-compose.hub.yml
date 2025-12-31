@@ -1,44 +1,76 @@
+version: '3'
+
 services:
   web:
     image: techsuivi/web:latest
-    container_name: web
+    container_name: ts_web
     ports:
       - "80:80"
     depends_on:
       - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=techsuivi_db
+      - DB_USER=techsuivi_user
+      - DB_PASS=votre_password_ici # ⚠️ À modifier
+      - APP_URL=http://192.168.10.100 # ⚠️ Vérifiez votre IP
     volumes:
-      - ./web/src/:/var/www/html
       - /var/run/docker.sock:/var/run/docker.sock
+      # 👇 Dossiers PERSISTANTS (Visibles dans File Station)
+      - /share/Container/TechSuivi/uploads:/var/www/html/uploads
+      # 👇 Volume DOCKER pour les tokens (Interne)
+      - ts_vnc_tokens:/var/www/html/vnc_tokens
+      # 👇 Volume DOCKER pour les clés Rustdesk (Pour le Backup/Restore)
+      - ts_rustdesk_data:/var/www/rustdesk_data
+    restart: always
 
   db:
-    image: mariadb:10.11
-    container_name: db
+    image: techsuivi/db:latest
+    container_name: ts_db
     restart: always
-    env_file:
-      - ./.env
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./db/techsuivi_db.sql:/docker-entrypoint-initdb.d/techsuivi_db.sql:ro
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: php_myadmin
-    restart: always
-    depends_on:
-      - db
-    ports:
-      - "8081:80"
     environment:
-      PMA_HOST: db
+      - MARIADB_ROOT_PASSWORD=votre_root_password_ici # ⚠️ À modifier
+      - MARIADB_DATABASE=techsuivi_db
+      - MARIADB_USER=techsuivi_user
+      - MARIADB_PASSWORD=votre_password_ici # ⚠️ À modifier
+    volumes:
+      - ts_db_data:/var/lib/mysql
 
   novnc:
     image: techsuivi/novnc:latest
-    container_name: novnc
+    container_name: ts_novnc
     restart: unless-stopped
     network_mode: host
-    # command: géré par entrypoint.sh
     volumes:
-      - ./web/src/vnc_tokens:/tokens:ro
+      # 👇 Le même volume DOCKER, en lecture seule pour NoVNC
+      - ts_vnc_tokens:/tokens:ro
+
+  # 👇 Service Rustdesk ID (HBBS) - Adapté de votre config
+  hbbs:
+    image: rustdesk/rustdesk-server:latest
+    container_name: ts_hbbs
+    command: hbbs
+    environment:
+      - ALWAYS_USE_RELAY=Y
+    volumes:
+      - ts_rustdesk_data:/root # 👈 Volume géré par TechSuivi (Backup/Restore)
+    network_mode: "host" # ⚠️ Mode Host demandé
+    depends_on:
+      - hbbr
+    restart: unless-stopped
+
+  # 👇 Service Rustdesk Relay (HBBR) - Adapté de votre config
+  hbbr:
+    image: rustdesk/rustdesk-server:latest
+    container_name: ts_hbbr
+    command: hbbr
+    volumes:
+      - ts_rustdesk_relay:/root # 👈 Volume dédié au Relay
+    network_mode: "host" # ⚠️ Mode Host demandé
+    restart: unless-stopped
 
 volumes:
-  db_data:
+  ts_db_data:
+  ts_vnc_tokens:
+  ts_rustdesk_data: # Clés HBBS (Sauvegardées via Web UI)
+  ts_rustdesk_relay: # Données HBBR
