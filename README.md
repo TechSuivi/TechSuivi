@@ -42,14 +42,14 @@
 - [Docker](https://www.docker.com/) et Docker Compose
 - Git
 
-### Option 1: Installation rapide (Recommandée)
+### Option 1: Installation rapide 
 ```bash
 git clone https://github.com/TechSuivi/TechSuivi.git
 cd TechSuivi
 ./install_auto.sh
 ```
 
-### Option 2: Installation personnalisée (Build local)
+### Option 2: Installation personnalisée (Non testé)
 ```bash
 git clone https://github.com/TechSuivi/TechSuivi.git
 cd TechSuivi
@@ -57,7 +57,7 @@ cd TechSuivi
 ```
 
 
-### Option 3: Docker
+### Option 3: Docker (Recommandée)
 ```yaml
 version: '3'
 
@@ -74,11 +74,12 @@ services:
       - DB_NAME=techsuivi_db
       - DB_USER=techsuivi_user
       - DB_PASS=votre_password_ici
-      - APP_URL=http://192.168.10.100        # <--- INDISPENSABLE pour l'installeur
+      - APP_URL=http://192.168.10.100
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ts_uploads:/var/www/html/uploads
-      - ts_vnc_tokens:/var/www/html/vnc_tokens
+      # Dossiers LIÉS au NAS (Visibles dans File Station)
+      - /share/Container/TechSuivi/uploads:/var/www/html/uploads
+      - /share/Container/TechSuivi/vnc_tokens:/var/www/html/vnc_tokens
     restart: always
 
   db:
@@ -99,12 +100,11 @@ services:
     restart: unless-stopped
     network_mode: host
     volumes:
-      - ts_vnc_tokens:/tokens
+      - /share/Container/TechSuivi/vnc_tokens:/tokens
 
+# Déclaration du volume de base de données
 volumes:
   ts_db_data:
-  ts_uploads:
-  ts_vnc_tokens:
 ```
 
 
