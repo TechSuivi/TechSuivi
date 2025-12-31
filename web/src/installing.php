@@ -4,20 +4,23 @@
  */
 $lockFile = __DIR__ . '/install_in_progress.lock';
 
-// Si le verrou n'existe plus, on redirige vers l'accueil
-if (!file_exists($lockFile)) {
-    header('Location: index.php');
-    exit();
-}
-
-// Action AJAX pour vérifier l'état
+// Action AJAX pour vérifier l'état (DOIT ÊTRE AVANT LA REDIRECTION)
 if (isset($_GET['check'])) {
     header('Content-Type: application/json');
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Pragma: no-cache");
+    
     $logContent = file_exists(__DIR__ . '/install.log') ? file_get_contents(__DIR__ . '/install.log') : 'Initialisation en cours...';
     echo json_encode([
         'ready' => !file_exists($lockFile),
         'logs' => $logContent
     ]);
+    exit();
+}
+
+// Si le verrou n'existe plus et qu'on n'est pas en AJAX, on redirige
+if (!file_exists($lockFile)) {
+    header('Location: index.php');
     exit();
 }
 ?>
