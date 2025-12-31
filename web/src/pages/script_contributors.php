@@ -154,7 +154,7 @@ $technologies = [
                 <h4>🏷️ Projet</h4>
                 <table class="info-table">
                     <tr><td><strong>Nom :</strong></td><td><?= htmlspecialchars($projectInfo['name']) ?></td></tr>
-                    <tr><td><strong>Version actuelle :</strong></td><td><span class="version-badge"><?= htmlspecialchars($projectInfo['current_version']) ?></span></td></tr>
+                    <tr><td><strong>Version actuelle :</strong></td><td><span class="version-badge" id="currentVersionDisplay"><?= htmlspecialchars($projectInfo['current_version']) ?></span> <button onclick="checkVersion()" style="background:none;border:none;cursor:pointer;font-size:1.2em;" title="Vérifier MAJ">🔄</button></td></tr>
                     <tr><td><strong>Date de release :</strong></td><td><?= htmlspecialchars($projectInfo['release_date']) ?></td></tr>
                     <tr><td><strong>Statut :</strong></td><td><span class="status-active"><?= htmlspecialchars($projectInfo['status']) ?></span></td></tr>
                     <tr><td><strong>Licence :</strong></td><td><?= htmlspecialchars($projectInfo['license']) ?></td></tr>
@@ -395,3 +395,51 @@ body.dark .contributor-role {
     }
 }
 </style>
+
+<script>
+function checkVersion() {
+    const btn = document.querySelector('button[title="Vérifier MAJ"]');
+    if(!btn) return;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '⏳';
+    btn.disabled = true;
+
+    // Utilisation de l'API GitHub pour éviter le cache
+    fetch('https://api.github.com/repos/TechSuivi/TechSuivi/contents/web/src/pages/script_contributors.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.content) {
+                const text = atob(data.content); // Décodage Base64
+                const match = text.match(/'current_version'\s*=>\s*'([^']+)'/);
+                if (match && match[1]) {
+                    const remoteVersion = match[1];
+                    const currentVersion = document.getElementById('currentVersionDisplay').innerText.trim();
+                    if (remoteVersion === currentVersion) {
+                        alert("✅ Vous êtes à jour ! (Version " + currentVersion + ")");
+                    } else {
+                        alert("⚠️ Une mise à jour est disponible !\nActuelle : " + currentVersion + "\nDisponible : " + remoteVersion);
+                    }
+                } else alert("❌ Format de version non reconnu.");
+            } else alert("❌ Impossible de lire le fichier distant.");
+        })
+        .catch(err => {
+            console.error(err);
+            // Fallback
+             fetch('https://raw.githubusercontent.com/TechSuivi/TechSuivi/main/web/src/pages/script_contributors.php')
+                .then(r => r.text())
+                .then(text => {
+                     const match = text.match(/'current_version'\s*=>\s*'([^']+)'/);
+                     if (match && match[1]) {
+                        const remoteVersion = match[1];
+                        const currentVersion = document.getElementById('currentVersionDisplay').innerText.trim();
+                        if (remoteVersion === currentVersion) alert("✅ Vous êtes à jour !");
+                        else alert("⚠️ Mise à jour dispo : " + remoteVersion);
+                     }
+                });
+        })
+        .finally(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+}
+</script>
