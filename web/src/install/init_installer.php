@@ -51,19 +51,38 @@ try {
             $foundSource = $file; 
         }
 
+        // 54b. AUTO-CRÉATION DES DOSSIERS UPLOADS (Indispensable si volume monté)
+        $requiredDirs = [
+            '/../uploads/downloads',
+            '/../uploads/temp',
+            '/../uploads/documents',
+            '/../uploads/interventions',
+            '/../uploads/stock',
+            '/../uploads/backups',
+            '/../uploads/autoit/logiciels',
+            '/../uploads/autoit/nettoyage',
+            '/../vnc_tokens'
+        ];
+
+        foreach ($requiredDirs as $dir) {
+            $fullPath = __DIR__ . $dir;
+            if (!is_dir($fullPath)) {
+                writeLog("Création du dossier manquant : $dir");
+                mkdir($fullPath, 0777, true);
+                chmod($fullPath, 0777); // Force permissions larges
+                // Assurer la propriété à www-data (car init tourne souvent en root au démarrage)
+                chown($fullPath, 'www-data'); 
+                chgrp($fullPath, 'www-data');
+            }
+        }
+
         // AUTO-RESTAURATION : Si aucun fichier n'existe, on le prend du master
         $masterFile = '/usr/local/share/installeur.exe';
         if (!$foundSource && file_exists($masterFile)) {
             writeLog("Restauration de l'installeur depuis l'image Docker...");
             
-            // Assurer que le dossier de destination existe (cas des volumes vides)
-            $destDir = __DIR__ . '/../uploads/downloads';
-            if (!is_dir($destDir)) {
-                writeLog("Création du dossier $destDir...");
-                mkdir($destDir, 0775, true);
-            }
-            
-            $restoredFile = $destDir . '/installeur.exe';
+            // Le dossier est déjà créé par la boucle ci-dessus
+            $restoredFile = __DIR__ . '/../uploads/downloads/installeur.exe';
             if (copy($masterFile, $restoredFile)) {
                 chmod($restoredFile, 0666); // Droits rw pour tous
                 $foundSource = $restoredFile;
