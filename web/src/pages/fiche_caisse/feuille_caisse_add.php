@@ -613,8 +613,48 @@ body.dark div[style*="background-color: #fce4ec"] {
     margin: 0;
 }
 
-.feuille-caisse-input[type=number] {
+body.dark .feuille-caisse-input[type=number] {
     -moz-appearance: textfield;
+}
+
+/* Surcharges pour les styles inline en mode sombre */
+body.dark div[style*="background-color: #d4edda"] {
+    background-color: #1c4532 !important;
+    color: #9ae6b4 !important;
+    border-color: #276749 !important;
+}
+
+body.dark div[style*="background-color: #f8d7da"] {
+    background-color: #63171b !important;
+    color: #feb2b2 !important;
+    border-color: #9b2c2c !important;
+}
+
+body.dark div[style*="background-color: #fff3cd"] {
+    background-color: #744210 !important;
+    color: #fbd38d !important;
+    border-color: #975a16 !important;
+}
+
+body.dark div[style*="background-color: #e7f3ff"] {
+    background-color: #2a4a6b !important;
+    color: #bee3f8 !important;
+    border-color: #2b6cb0 !important;
+}
+
+body.dark div[style*="background-color: #e3f2fd"] {
+    background-color: #2a4365 !important;
+    color: #63b3ed !important;
+}
+
+body.dark div[style*="background-color: #e8f5e8"] {
+    background-color: #22543d !important;
+    color: #68d391 !important;
+}
+
+body.dark input[style*="background-color: #f0f0f0"] {
+    background-color: #2d3748 !important;
+    color: #a0aec0 !important;
 }
 </style>
 
@@ -1161,11 +1201,11 @@ function recupererCheques() {
                     // Remplir les champs
                     const montantInput = document.querySelector(`input[name="cheques[${lastIndex}][montant]"]`);
                     const emetteurInput = document.querySelector(`input[name="cheques[${lastIndex}][emetteur]"]`);
-                    // On ne récupère pas le numéro du chèque car il change forcément
-                    // const numeroInput = document.querySelector(`input[name="cheques[${lastIndex}][numero]"]`);
+                    const numeroInput = document.querySelector(`input[name="cheques[${lastIndex}][numero]"]`);
                     
                     if (montantInput) montantInput.value = cheque.montant;
                     if (emetteurInput) emetteurInput.value = cheque.emetteur;
+                    if (numeroInput) numeroInput.value = cheque.numero || '';
                     
                     count++;
                 });

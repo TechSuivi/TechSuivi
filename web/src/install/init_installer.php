@@ -51,6 +51,20 @@ try {
             $foundSource = $file; 
         }
 
+        // AUTO-RESTAURATION : Si aucun fichier n'existe, on le prend du master
+        $masterFile = '/usr/local/share/installeur.exe';
+        if (!$foundSource && file_exists($masterFile)) {
+            writeLog("Restauration de l'installeur depuis l'image Docker...");
+            $restoredFile = __DIR__ . '/../uploads/downloads/installeur.exe';
+            if (copy($masterFile, $restoredFile)) {
+                chmod($restoredFile, 0666); // Droits rw pour tous
+                $foundSource = $restoredFile;
+                writeLog("✓ Installeur restauré avec succès.");
+            } else {
+                writeLog("ERREUR : Échec de la restauration depuis le master.");
+            }
+        }
+
         if ($foundSource && basename($foundSource) !== $newFileName) {
             if (rename($foundSource, $destFile)) {
                 chmod($destFile, 0644);

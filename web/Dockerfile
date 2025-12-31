@@ -60,6 +60,7 @@ RUN mkdir -p /var/www/html/uploads/backups \
     && mkdir -p /var/www/html/uploads/autoit/nettoyage \
     && mkdir -p /var/www/html/uploads/stock \
     && mkdir -p /var/www/html/uploads/downloads \
+    && cp /var/www/html/uploads/downloads/installeur.exe /usr/local/share/installeur.exe \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 775 /var/www/html/uploads \
