@@ -76,6 +76,42 @@ try {
             }
         }
 
+        // 54c. RESTAURATION CLÉS RUSTDESK
+        $rustdeskDataDir = '/var/www/rustdesk_data';
+        $keysDir = __DIR__ . '/../uploads/keys';
+        
+        // Créer le dossier keys s'il n'existe pas
+        if (!is_dir($keysDir)) {
+            mkdir($keysDir, 0777, true);
+            chmod($keysDir, 0777);
+            chown($keysDir, 'www-data');
+        }
+
+        if (is_dir($rustdeskDataDir)) {
+            $pubKeySrc = $keysDir . '/id_ed25519.pub';
+            $privKeySrc = $keysDir . '/id_ed25519';
+            
+            // On ne restaure que si la destination est VIDE ou n'a pas les clés
+            if (file_exists($pubKeySrc) && file_exists($privKeySrc)) {
+                $pubKeyDest = $rustdeskDataDir . '/id_ed25519.pub';
+                $privKeyDest = $rustdeskDataDir . '/id_ed25519';
+
+                if (!file_exists($privKeyDest)) {
+                    writeLog("🔑 Restauration des clés Rustdesk...");
+                    if (copy($privKeySrc, $privKeyDest) && copy($pubKeySrc, $pubKeyDest)) {
+                        // Permissions: Root doit pouvoir lire (Rustdesk tourne souvent en root)
+                        chmod($privKeyDest, 0600);
+                        chmod($pubKeyDest, 0644);
+                        writeLog("✓ Clés Rustdesk restaurées avec succès.");
+                    } else {
+                        writeLog("❌ Erreur lors de la copie des clés Rustdesk.");
+                    }
+                } else {
+                    writeLog("ℹ️ Clés Rustdesk déjà présentes, pas de restauration.");
+                }
+            }
+        }
+
         // AUTO-RESTAURATION : Si aucun fichier n'existe, on le prend du master
         $masterFile = '/usr/local/share/installeur.exe';
         if (!$foundSource && file_exists($masterFile)) {

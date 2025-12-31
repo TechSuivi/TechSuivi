@@ -11,6 +11,8 @@ services:
     volumes:
       - ts_vnc_tokens:/var/www/html/vnc_tokens
       - ./web/src/:/var/www/html
+      # 👇 Volume Rustdesk pour gestion des clés
+      - ts_rustdesk_data:/var/www/rustdesk_data
 
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -46,6 +48,23 @@ services:
     volumes:
       - ts_vnc_tokens:/tokens:ro
 
+  # 👇 Service Rustdesk (HBBS)
+  rustdesk:
+    image: rustdesk/rustdesk-server:latest
+    container_name: ts_rustdesk
+    command: hbbs -r techsuivi.fr:21117 # ⚠️ À modifier avec votre IP/Domaine
+    volumes:
+      - ts_rustdesk_data:/root
+    ports:
+      - "21115:21115"
+      - "21116:21116"
+      - "21116:21116/udp"
+      - "21118:21118"
+    depends_on:
+      - web
+    restart: unless-stopped
+
 volumes:
   db_data:
   ts_vnc_tokens:
+  ts_rustdesk_data: # 👈 Nouveau volume
