@@ -130,40 +130,70 @@ try {
     // ---------------------------------------------------------
     // 4. Mettre à jour cfg.ini et la clé API
     // ---------------------------------------------------------
+    // On vérifie d'abord si une clé valide existe déjà en base (source de vérité)
+    $stmt = $pdo->prepare("SELECT id, config_value FROM configuration WHERE config_key = 'api_key_autoit_client'");
+    $stmt->execute();
+    $configExists = $stmt->fetch();
+
+    $bannedKeys = ['api_yxftwm9yzai8e5unki0to']; // Clés par défaut à bannir
+    $finalApiKey = null;
+    $shouldUpdateDb = false;
+
+    // A. Clé en base de données ?
+    if ($configExists && !empty($configExists['config_value']) && !in_array(trim($configExists['config_value']), $bannedKeys)) {
+        $finalApiKey = trim($configExists['config_value']);
+        writeLog("✓ Clé API récupérée depuis la base de données.");
+    } else {
+        // B. Clé dans cfg.ini (si pas en base ou invalide en base) ?
+        $iniFile = __DIR__ . '/../Download/Install/ini/cfg.ini';
+        if (file_exists($iniFile)) {
+            $currentIni = parse_ini_file($iniFile, true);
+            $iniKey = $currentIni['config']['key_api'] ?? '';
+            
+            if (!empty($iniKey) && strlen($iniKey) > 10 && !in_array(trim($iniKey), $bannedKeys)) {
+                $finalApiKey = trim($iniKey);
+                writeLog("✓ Clé API personnalisée détectée dans cfg.ini (et adoptée).");
+                $shouldUpdateDb = true;
+            }
+        }
+    }
+
+    // C. Toujours rien ? Génération !
+    if (!$finalApiKey) {
+        $finalApiKey = 'api_' . substr(bin2hex(random_bytes(10)), 0, 20);
+        $shouldUpdateDb = true;
+        writeLog("✓ Génération d'une NOUVELLE clé API unique.");
+    }
+
+    // Mise à jour Base de données si nécessaire
+    if ($shouldUpdateDb) {
+        if ($configExists) {
+            $stmt = $pdo->prepare("UPDATE configuration SET config_value = :val WHERE id = :id");
+            $stmt->execute([':val' => $finalApiKey, ':id' => $configExists['id']]);
+            writeLog("✓ Base de données mise à jour avec la nouvelle clé.");
+        } else {
+            $stmt = $pdo->prepare("INSERT INTO configuration (config_key, config_value, config_type, description, category) VALUES ('api_key_autoit_client', :val, 'text', 'Clé API AutoIt', 'api_keys')");
+            $stmt->execute([':val' => $finalApiKey]);
+            writeLog("✓ Base de données initialisée avec la nouvelle clé.");
+        }
+    }
+
+    // Mise à jour de cfg.ini (Toujours, pour s'assurer que l'IP/URL et la clé sont synchro)
     $iniFile = __DIR__ . '/../Download/Install/ini/cfg.ini';
     $iniDir = dirname($iniFile);
-    
     if (!is_dir($iniDir)) {
         mkdir($iniDir, 0775, true);
     }
-
-    // Valeurs par défaut
-    $apiKey = 'api_' . substr(bin2hex(random_bytes(10)), 0, 20);
-    $currentIni = [];
-
-    if (file_exists($iniFile)) {
-        $currentIni = parse_ini_file($iniFile, true);
-        // Si une clé existe déjà et n'est pas celle par défaut (exemple "api_ChangeMe"), on la garde
-        if (!empty($currentIni['config']['key_api']) && strlen($currentIni['config']['key_api']) > 10) {
-            $apiKey = $currentIni['config']['key_api'];
-            writeLog("Clé API existante conservée : " . substr($apiKey, 0, 5) . "...");
-        } else {
-            writeLog("Génération d'une nouvelle clé API.");
-        }
-    } else {
-        writeLog("Création du fichier cfg.ini...");
-    }
-
-    // Préparation des URLs
+    
+    // Préparation des URLs pour le INI
     $apiUrl = $appUrl . "/api/autoit_api.php";
     $ipOnly = parse_url($appUrl, PHP_URL_HOST);
 
-    // Contenu INI propre
     $iniContent = "[config]\n";
     $iniContent .= "firstinit=0\n";
     $iniContent .= "url_base=" . $appUrl . "/\n";
     $iniContent .= "url_api=" . $apiUrl . "\n";
-    $iniContent .= "key_api=" . $apiKey . "\n";
+    $iniContent .= "key_api=" . $finalApiKey . "\n";
     $iniContent .= "id_inter=\n\n";
     $iniContent .= "[dl]\n";
     $iniContent .= "protocole=" . parse_url($appUrl, PHP_URL_SCHEME) . "\n";
@@ -171,27 +201,9 @@ try {
     $iniContent .= "chemin=/\n";
 
     if (file_put_contents($iniFile, $iniContent)) {
-        writeLog("✓ Fichier cfg.ini mis à jour avec l'IP $ipOnly");
+        writeLog("✓ Fichier cfg.ini synchronisé (Clé: " . substr($finalApiKey, 0, 5) . "...)");
     } else {
         writeLog("❌ ERREUR : Impossible d'écrire dans $iniFile");
-    }
-
-    // 5. Insérer/Mettre à jour la clé API en base de données
-    // On cherche la config 'api_key_autoit_client'
-    $stmt = $pdo->prepare("SELECT id FROM configuration WHERE config_key = 'api_key_autoit_client'");
-    $stmt->execute();
-    $configExists = $stmt->fetch();
-
-    if ($configExists) {
-        $stmt = $pdo->prepare("UPDATE configuration SET config_value = :val WHERE id = :id");
-        $stmt->execute([':val' => $apiKey, ':id' => $configExists['id']]);
-        writeLog("✓ Clé API mise à jour dans la base de données.");
-    } else {
-        // Insertion (Attention aux champs par défaut de votre table configuration)
-        // Basé sur votre dump : (config_key, config_value, config_type, description, category)
-        $stmt = $pdo->prepare("INSERT INTO configuration (config_key, config_value, config_type, description, category) VALUES ('api_key_autoit_client', :val, 'text', 'Clé API AutoIt', 'api_keys')");
-        $stmt->execute([':val' => $apiKey]);
-        writeLog("✓ Nouvelle clé API insérée dans la base de données.");
     }
     
 } catch (Exception $e) {
