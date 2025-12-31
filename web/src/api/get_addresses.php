@@ -25,7 +25,11 @@ $context = stream_context_create($options);
 $response = @file_get_contents($apiUrl, false, $context);
 
 if ($response === FALSE) {
-    echo json_encode(['error' => 'Impossible de contacter l\'API Adresse.', 'features' => []]);
+    $error = error_get_last();
+    $errorMsg = $error['message'] ?? 'Erreur inconnue';
+    // Nettoyer le message d'erreur pour ne pas exposer trop de détails techniques si nécessaire, 
+    // ou tout afficher pour le debug :
+    echo json_encode(['error' => 'Impossible de contacter l\'API Adresse: ' . $errorMsg, 'features' => []]);
     exit;
 }
 
