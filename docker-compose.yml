@@ -9,6 +9,7 @@ services:
     depends_on:
       - db
     volumes:
+      - ts_vnc_tokens:/var/www/html/vnc_tokens
       - ./web/src/:/var/www/html
 
       - /var/run/docker.sock:/var/run/docker.sock
@@ -43,7 +44,8 @@ services:
     network_mode: host
     # command: géré par entrypoint.sh
     volumes:
-      - ./web/src/vnc_tokens:/tokens:ro
+      - ts_vnc_tokens:/tokens:ro
 
 volumes:
   db_data:
+  ts_vnc_tokens:

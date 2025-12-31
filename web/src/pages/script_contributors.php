@@ -29,7 +29,10 @@ $versionHistory = [
             'Zero-Config : Auto-configuration IP et restauration installeur',
             'Sécurité : Génération automatique de clé API pour l\'installeur',
             'UI Dashboard : Unification des cartes Interventions/Agenda',
-            'Fix : Affichage Agenda et corrections mineures'
+            'Fix : Affichage Agenda et corrections mineures',
+            'Feature : Bouton "Vérifier Mise à jour" (Page Contributeurs)',
+            'Fix : Permissions Docker (Volumes Uploads & VNC)',
+            'Infra : Passage aux volumes Docker nommés pour VNC'
         ]
     ],
     [
