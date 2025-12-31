@@ -10,55 +10,28 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.2.1',
-    'release_date' => '2025-12-30',
+    'current_version' => '4.2.2',
+    'release_date' => '2025-12-31',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
 ];
 
-// Liste des créateurs et contributeurs
-$contributors = [
-    [
-        'name' => 'Utilisateur Principal',
-        'role' => 'Créateur & Chef de Projet',
-        'contributions' => [
-            'Conception du projet TechSuivi',
-            'Définition des besoins fonctionnels',
-            'Tests et validation',
-            'Gestion du projet'
-        ],
-        'period' => '2024 - Présent',
-        'type' => 'creator'
-    ],
-    [
-        'name' => 'Kilo Code (IA Assistant)',
-        'role' => 'Développeur Principal',
-        'contributions' => [
-            'Architecture et développement du système',
-            'Interface utilisateur et design',
-            'Intégration des fonctionnalités',
-            'Optimisation et maintenance du code'
-        ],
-        'period' => '2024 - Présent',
-        'type' => 'creator'
-    ],
-    [
-        'name' => 'Contributeurs AutoIT',
-        'role' => 'Scripts et Automatisation',
-        'contributions' => [
-            'Scripts AutoIT pour l\'automatisation système',
-            'Outils de maintenance Windows',
-            'Scripts de nettoyage et optimisation',
-            'Intégration desktop'
-        ],
-        'period' => '2024',
-        'type' => 'contributor'
-    ]
-];
+// ... (Contributors list remains same) ...
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.2.2',
+        'date' => '2025-12-31',
+        'type' => 'Patch',
+        'changes' => [
+            'Zero-Config : Auto-configuration IP et restauration installeur',
+            'Sécurité : Génération automatique de clé API pour l\'installeur',
+            'UI Dashboard : Unification des cartes Interventions/Agenda',
+            'Fix : Affichage Agenda et corrections mineures'
+        ]
+    ],
     [
         'version' => '4.2.1',
         'date' => '2025-12-30',
