@@ -76,12 +76,13 @@ services:
       - DB_NAME=techsuivi_db
       - DB_USER=techsuivi_user
       - DB_PASS=votre_password_ici
-      - APP_URL=http://192.168.10.100
+      - APP_URL=http://192.168.10.100  # ⚠️ Vérifiez votre IP
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      # Dossiers LIÉS au NAS (Il faut créer les dossiers et/ou les changer)
+      # 👇 Dossiers PERSISTANTS (Visibles dans File Station)
       - /share/Container/TechSuivi/uploads:/var/www/html/uploads
-      - /share/Container/TechSuivi/vnc_tokens:/var/www/html/vnc_tokens
+      # 👇 Volume DOCKER pour les tokens (Interne)
+      - ts_vnc_tokens:/var/www/html/vnc_tokens
     restart: always
 
   db:
@@ -102,11 +103,12 @@ services:
     restart: unless-stopped
     network_mode: host
     volumes:
-      - /share/Container/TechSuivi/vnc_tokens:/tokens
+      # 👇 Le même volume DOCKER, en lecture seule
+      - ts_vnc_tokens:/tokens:ro
 
-# Déclaration du volume de base de données
 volumes:
   ts_db_data:
+  ts_vnc_tokens: 
 ```
 
 
