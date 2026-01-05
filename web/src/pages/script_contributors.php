@@ -10,8 +10,8 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.2.2',
-    'release_date' => '2025-12-31',
+    'current_version' => '4.2.3',
+    'release_date' => '2026-01-05',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
@@ -21,6 +21,19 @@ $projectInfo = [
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.2.3',
+        'date' => '2026-01-05',
+        'type' => 'Minor Release',
+        'changes' => [
+            'Feature : Gestionnaire de Fichiers complet (Création dossiers, Upload fichiers, Navigation)',
+            'Feature : Système de Sauvegarde/Restauration Rustdesk (Settings)',
+            'Feature : Restauration ZIP contextuelle (Restaurer dans le dossier courant)',
+            'Fix : Navigation manquante sur la page Import Clients',
+            'Fix : Correction des noms de fichiers tronqués dans les ZIP générés',
+            'UI : Barre d\'outils compacte pour le Gestionnaire de Fichiers'
+        ]
+    ],
     [
         'version' => '4.2.2',
         'date' => '2025-12-31',

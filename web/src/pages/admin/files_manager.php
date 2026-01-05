@@ -182,21 +182,47 @@ $globalStats = getDirectoryStats($uploadsDir);
 <div class="files-explorer bordered-section" style="flex: 2;">
     <h3 style="margin-top: 0;">📂 Explorateur de Fichiers</h3>
     
-    <!-- Navigation -->
-    <div class="files-navigation backup-section-content" style="margin-bottom: 15px;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-            <strong>📍 Chemin :</strong>
-            <span style="font-family: monospace; background-color: #e9ecef; padding: 2px 6px; border-radius: 3px;">
-                /uploads/<?= htmlspecialchars($currentPath) ?>
-            </span>
+    <!-- Navigation & Actions -->
+    <div class="files-navigation backup-section-content" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
+        <!-- Partie Gauche : Chemin -->
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <strong>📍 Chemin :</strong>
+                <span style="font-family: monospace; background-color: #e9ecef; padding: 2px 6px; border-radius: 3px;">
+                    /uploads/<?= htmlspecialchars($currentPath) ?>
+                </span>
+            </div>
+            <?php if (!empty($currentPath)): ?>
+                <div>
+                    <a href="index.php?page=files_manager&path=<?= urlencode(dirname($currentPath) === '.' ? '' : dirname($currentPath)) ?>" 
+                       style="background-color: #6c757d; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 12px; display: inline-flex; align-items: center;">
+                        ⬆️ Dossier parent
+                    </a>
+                </div>
+            <?php endif; ?>
         </div>
         
-        <?php if (!empty($currentPath)): ?>
-            <a href="index.php?page=files_manager&path=<?= urlencode(dirname($currentPath) === '.' ? '' : dirname($currentPath)) ?>" 
-               style="background-color: #6c757d; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; font-size: 12px;">
-                ⬆️ Dossier parent
-            </a>
-        <?php endif; ?>
+        <!-- Partie Droite : Actions Compactes -->
+        <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
+            <!-- Nouveau Dossier -->
+            <form method="post" action="actions/files_action.php" style="display: flex; gap: 2px; align-items: center;">
+                <input type="hidden" name="action" value="create_folder">
+                <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
+                <input type="text" name="folder_name" placeholder="Nouveau dossier..." required style="padding: 4px; border: 1px solid #ced4da; border-radius: 3px 0 0 3px; font-size: 13px; width: 140px;">
+                <button type="submit" class="backup-button backup-button-info" style="width: auto; margin: 0; padding: 4px 8px; border-radius: 0 3px 3px 0; font-size: 13px;" title="Créer dossier">➕</button>
+            </form>
+
+            <!-- Upload -->
+            <form method="post" action="actions/files_action.php" enctype="multipart/form-data" style="width: 100%;">
+                <input type="hidden" name="action" value="upload_file">
+                <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
+                
+                <label for="file_upload" class="backup-button backup-button-success" style="width: 100%; box-sizing: border-box; margin: 0; padding: 4px 8px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; text-align: center;">
+                    ⬆️ Uploader un fichier
+                </label>
+                <input id="file_upload" type="file" name="upload_file" required style="display: none;" onchange="this.form.submit()">
+            </form>
+        </div>
     </div>
     
     <!-- Liste des fichiers -->
@@ -269,6 +295,7 @@ $globalStats = getDirectoryStats($uploadsDir);
     </div>
 </div>
 
+
 <!-- Actions de sauvegarde -->
 <div class="files-backup-section bordered-section">
     <h3>💾 Sauvegarde des Fichiers</h3>
@@ -304,6 +331,25 @@ $globalStats = getDirectoryStats($uploadsDir);
     </div>
     <?php endif; ?>
     
+    <!-- Restauration -->
+    <div class="backup-section-content backup-section-warning">
+        <h4>📤 Restauration d'Archive</h4>
+        <p class="backup-description">
+            Uploadez une archive ZIP pour restaurer des fichiers.
+            Les fichiers seront extraits dans le dossier actuel : <strong>/uploads/<?= htmlspecialchars($currentPath) ?></strong>
+        </p>
+        <form method="post" action="actions/files_action.php" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="restore_zip">
+            <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
+            <div style="margin-bottom: 10px;">
+                <input type="file" name="restore_file" accept=".zip" required style="width: 100%;">
+            </div>
+            <button type="submit" class="backup-button backup-button-warning" onclick="return confirm('⚠️ Attention : Cela écrasera les fichiers existants s\'ils portent le même nom.\nÊtes-vous sûr de vouloir continuer ?')">
+                📤 Restaurer ICI
+            </button>
+        </form>
+    </div>
+
     <!-- Historique des sauvegardes -->
     <div class="backup-section-content">
         <h4>📋 Sauvegardes Récentes</h4>

@@ -40,6 +40,12 @@ function createZipArchive($source, $destination, $basePath = '') {
         throw new Exception('Extension ZIP non disponible');
     }
     
+    // Nettoyer le chemin source pour éviter les soucis de trailing slash
+    $source = realpath($source);
+    if (!$source) {
+        throw new Exception('Source invalide');
+    }
+
     $zip = new ZipArchive();
     if ($zip->open($destination, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
         throw new Exception('Impossible de créer l\'archive ZIP');
@@ -52,12 +58,25 @@ function createZipArchive($source, $destination, $basePath = '') {
     
     foreach ($iterator as $file) {
         $filePath = $file->getRealPath();
-        $relativePath = $basePath . substr($filePath, strlen($source) + 1);
+        
+        // Calculer le chemin relatif par rapport à la source
+        // strlen($source) + 1 pour sauter le slash séparateur après le nom du dossier source
+        $relativePath = substr($filePath, strlen($source) + 1);
+        
+        // Ajouter le basePath si défini (pour créer un dossier racine dans le zip)
+        if ($basePath !== '') {
+            $zipPath = $basePath . '/' . $relativePath;
+        } else {
+            $zipPath = $relativePath;
+        }
+        
+        // Normaliser les slashs pour le format ZIP (toujours /)
+        $zipPath = str_replace('\\', '/', $zipPath);
         
         if ($file->isDir()) {
-            $zip->addEmptyDir($relativePath);
+            $zip->addEmptyDir($zipPath);
         } elseif ($file->isFile()) {
-            $zip->addFile($filePath, $relativePath);
+            $zip->addFile($filePath, $zipPath);
         }
     }
     
@@ -195,7 +214,7 @@ try {
             $backupFileName = "files_backup_full_{$timestamp}.zip";
             $backupPath = $backupsDir . $backupFileName;
             
-            createZipArchive($uploadsDir, $backupPath, 'uploads');
+            createZipArchive($uploadsDir, $backupPath, '');
             
             $fileSize = formatFileSize(filesize($backupPath));
             $_SESSION['files_message'] = "✅ Sauvegarde complète créée avec succès : {$backupFileName} ({$fileSize})";
@@ -235,6 +254,109 @@ try {
             header('Location: ../index.php?page=files_manager&path=' . urlencode($folder));
             exit();
             
+        case 'create_folder':
+            $folderName = trim($_POST['folder_name'] ?? '');
+            $targetPath = $_POST['target_path'] ?? '';
+            $targetPath = str_replace(['../', '..\\'], '', $targetPath);
+            
+            // Validation nom dossier
+            if (empty($folderName) || preg_match('/[^a-zA-Z0-9_\-\.]/', $folderName)) {
+                throw new Exception('Nom de dossier invalide (caractères alphanumériques, tirets et points uniquement)');
+            }
+            
+            $basePath = $uploadsDir . ($targetPath ? $targetPath . '/' : '');
+            $newDirPath = $basePath . $folderName;
+            
+            if (is_dir($newDirPath)) {
+                throw new Exception('Ce dossier existe déjà');
+            }
+            
+            // Vérification sécurité path
+            if (!str_starts_with(realpath($basePath), realpath($uploadsDir))) {
+                throw new Exception('Chemin non autorisé');
+            }
+
+            if (mkdir($newDirPath, 0775, true)) {
+                 chmod($newDirPath, 0775);
+                 $_SESSION['files_message'] = "✅ Dossier créé : " . $folderName;
+                 $_SESSION['files_message_type'] = 'success';
+            } else {
+                 throw new Exception('Erreur lors de la création du dossier');
+            }
+            
+            header('Location: ../index.php?page=files_manager&path=' . urlencode($targetPath));
+            exit();
+
+        case 'upload_file':
+            if (!isset($_FILES['upload_file']) || $_FILES['upload_file']['error'] !== UPLOAD_ERR_OK) {
+                throw new Exception('Erreur lors de l\'upload');
+            }
+            
+            $targetPath = $_POST['target_path'] ?? '';
+            $targetPath = str_replace(['../', '..\\'], '', $targetPath);
+            $basePath = $uploadsDir . ($targetPath ? $targetPath . '/' : '');
+            
+             // Vérification sécurité path
+            if (!is_dir($basePath) || !str_starts_with(realpath($basePath), realpath($uploadsDir))) {
+                throw new Exception('Dossier cible invalide');
+            }
+            
+            $fileName = basename($_FILES['upload_file']['name']);
+            $targetFile = $basePath . $fileName;
+            
+            if (move_uploaded_file($_FILES['upload_file']['tmp_name'], $targetFile)) {
+                chmod($targetFile, 0644);
+                $_SESSION['files_message'] = "✅ Fichier uploadé : " . $fileName;
+                $_SESSION['files_message_type'] = 'success';
+            } else {
+                throw new Exception('Erreur lors de l\'enregistrement du fichier');
+            }
+            header('Location: ../index.php?page=files_manager&path=' . urlencode($targetPath));
+            exit();
+
+        case 'restore_zip':
+            set_time_limit(600);
+            ini_set('memory_limit', '1G');
+            
+            if (!isset($_FILES['restore_file']) || $_FILES['restore_file']['error'] !== UPLOAD_ERR_OK) {
+                throw new Exception('Erreur lors de l\'upload du fichier');
+            }
+            
+            $zipFile = $_FILES['restore_file']['tmp_name'];
+            $fileType = mime_content_type($zipFile);
+            
+            // Récupérer le chemin cible (optionnel)
+            $targetPath = $_POST['target_path'] ?? '';
+            $targetPath = str_replace(['../', '..\\'], '', $targetPath);
+            $extractPath = $uploadsDir . $targetPath;
+            
+            // Vérifier que le chemin cible existe et est dans uploads
+            if (!is_dir($extractPath) || !str_starts_with(realpath($extractPath), realpath($uploadsDir))) {
+                 $extractPath = $uploadsDir; // Fallback sur root
+            }
+
+            // Validation basique (ZipArchive validera la structure)
+            $zip = new ZipArchive();
+            if ($zip->open($zipFile) !== TRUE) {
+                throw new Exception('Le fichier n\'est pas une archive ZIP valide');
+            }
+            
+            // Extraction
+            // On extrait dans le dossier CIBLE
+            if (!$zip->extractTo($extractPath)) {
+                $zip->close();
+                throw new Exception('Erreur lors de l\'extraction de l\'archive');
+            }
+            
+            $zip->close();
+            
+            $msgPath = $targetPath ? "/uploads/" . $targetPath : "/uploads/ (Racine)";
+            $_SESSION['files_message'] = "✅ Restauration effectuée avec succès dans : " . $msgPath;
+            $_SESSION['files_message_type'] = 'success';
+            
+            header('Location: ../index.php?page=files_manager&path=' . urlencode($targetPath));
+            exit();
+
         default:
             throw new Exception('Action non reconnue');
     }
@@ -243,8 +365,8 @@ try {
     $_SESSION['files_message'] = "❌ Erreur : " . $e->getMessage();
     $_SESSION['files_message_type'] = 'error';
     
-    // Redirection par défaut
-    $redirectPath = $_POST['folder'] ?? $_GET['path'] ?? '';
+    // Redirection par défaut avec maintien du path
+    $redirectPath = $_POST['target_path'] ?? $_POST['folder'] ?? $_GET['path'] ?? '';
     header('Location: ../index.php?page=files_manager&path=' . urlencode($redirectPath));
     exit();
 }

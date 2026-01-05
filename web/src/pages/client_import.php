@@ -4,6 +4,9 @@ if (!defined('TECHSUIVI_INCLUDED')) {
     die('Accès direct non autorisé.');
 }
 
+// Inclure le composant de navigation des paramètres
+require_once __DIR__ . '/../components/settings_navigation.php';
+
 require_once __DIR__ . '/../utils/SimpleXLSX.php';
 use Shuchkin\SimpleXLSX;
 
