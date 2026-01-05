@@ -94,7 +94,7 @@ $allowedPages = [
     'users_list', 'user_add', 'change_password', 'database_backup', 'files_manager',
     'statuts_list', 'timezone_settings', 'autoit_logiciels_list',
     'autoit_commandes_list', 'autoit_nettoyage_list', 'autoit_personnalisation_list', 'autoit_installeur_list',
-    'print_generator', 'agenda_list', 'agenda_add', 'agenda_edit', 'vnc', 'vnc_fullscreen', 'client_import'
+    'print_generator', 'agenda_list', 'agenda_add', 'agenda_edit', 'vnc', 'vnc_fullscreen', 'client_import', 'rustdesk_backup'
 ];
 
 // Validation sécurisée du paramètre page
@@ -591,6 +591,9 @@ if (!in_array($page, $allowedPages)) {
             } elseif ($page === 'files_manager') {
                 // Cette page ne nécessite pas de connexion à la base de données
                 include 'pages/admin/files_manager.php';
+            } elseif ($page === 'rustdesk_backup') {
+                // Cette page ne nécessite pas de connexion à la base de données
+                include 'pages/admin/rustdesk_backup.php';
             } elseif ($page === 'print_generator') {
                 // Cette page ne nécessite pas de connexion à la base de données
                 include 'pages/print/print_generator.php';

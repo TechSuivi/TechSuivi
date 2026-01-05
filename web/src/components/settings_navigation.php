@@ -26,6 +26,7 @@ function getActiveSettingsTab($currentPage) {
         // Onglet Sauvegarde
         'database_backup' => 'sauvegarde',
         'files_manager' => 'sauvegarde',
+        'rustdesk_backup' => 'sauvegarde',
         
         // Onglet Configuration
         'intervention_sheet_config' => 'config',
@@ -108,6 +109,7 @@ $tabs = [
         'items' => [
             ['url' => 'index.php?page=database_backup', 'icon' => '💾', 'title' => 'Sauvegarde Base de Données'],
             ['url' => 'index.php?page=files_manager', 'icon' => '📁', 'title' => 'Gestion des Fichiers'],
+            ['url' => 'index.php?page=rustdesk_backup', 'icon' => '🔐', 'title' => 'Sauvegarde Rustdesk'],
         ]
     ],
     'server' => [
