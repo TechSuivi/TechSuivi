@@ -96,18 +96,15 @@ try {
                 $pubKeyDest = $rustdeskDataDir . '/id_ed25519.pub';
                 $privKeyDest = $rustdeskDataDir . '/id_ed25519';
 
-                if (!file_exists($privKeyDest)) {
-                    writeLog("🔑 Restauration des clés Rustdesk...");
-                    if (copy($privKeySrc, $privKeyDest) && copy($pubKeySrc, $pubKeyDest)) {
-                        // Permissions: Root doit pouvoir lire (Rustdesk tourne souvent en root)
-                        chmod($privKeyDest, 0600);
-                        chmod($pubKeyDest, 0644);
-                        writeLog("✓ Clés Rustdesk restaurées avec succès.");
-                    } else {
-                        writeLog("❌ Erreur lors de la copie des clés Rustdesk.");
-                    }
+                // On restaure (écrase) les clés si elles sont présentes dans uploads
+                writeLog("🔑 Restauration des clés Rustdesk (Overwrite)...");
+                if (copy($privKeySrc, $privKeyDest) && copy($pubKeySrc, $pubKeyDest)) {
+                    // Permissions: Root doit pouvoir lire (Rustdesk tourne souvent en root)
+                    chmod($privKeyDest, 0600);
+                    chmod($pubKeyDest, 0644);
+                    writeLog("✓ Clés Rustdesk restaurées avec succès.");
                 } else {
-                    writeLog("ℹ️ Clés Rustdesk déjà présentes, pas de restauration.");
+                    writeLog("❌ Erreur lors de la copie des clés Rustdesk.");
                 }
             }
         }
