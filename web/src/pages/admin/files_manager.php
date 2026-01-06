@@ -308,6 +308,11 @@ $globalStats = getDirectoryStats($uploadsDir);
         </p>
         <form method="post" action="actions/files_action.php">
             <input type="hidden" name="action" value="backup_full">
+            <!--
+            <div style="margin-bottom: 10px;">
+                <input type="password" name="backup_password" placeholder="Mot de passe (facultatif)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box;">
+            </div>
+            -->
             <button type="submit" class="backup-button backup-button-success">
                 📦 Créer Archive Complète
             </button>
@@ -324,6 +329,11 @@ $globalStats = getDirectoryStats($uploadsDir);
         <form method="post" action="actions/files_action.php">
             <input type="hidden" name="action" value="backup_folder">
             <input type="hidden" name="folder" value="<?= htmlspecialchars($currentPath) ?>">
+            <!--
+            <div style="margin-bottom: 10px;">
+                <input type="password" name="backup_password" placeholder="Mot de passe (facultatif)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box;">
+            </div>
+            -->
             <button type="submit" class="backup-button backup-button-info">
                 📁 Sauvegarder ce Dossier
             </button>
@@ -344,6 +354,11 @@ $globalStats = getDirectoryStats($uploadsDir);
             <div style="margin-bottom: 10px;">
                 <input type="file" name="restore_file" accept=".zip" required style="width: 100%;">
             </div>
+            <!--
+            <div style="margin-bottom: 10px;">
+                <input type="password" name="restore_password" placeholder="Mot de passe (si archive protégée)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box;">
+            </div>
+            -->
             <button type="submit" class="backup-button backup-button-warning" onclick="return confirm('⚠️ Attention : Cela écrasera les fichiers existants s\'ils portent le même nom.\nÊtes-vous sûr de vouloir continuer ?')">
                 📤 Restaurer ICI
             </button>

@@ -22,11 +22,15 @@ require_once __DIR__ . '/../../components/settings_navigation.php';
 
         <div class="info-card" style="max-width: 600px;">
             <h4>🔑 Gestion des Clés</h4>
+            
+            <!-- Password input hidden due to env issues, keeping hidden for JS compatibility -->
+            <input type="hidden" id="rustdeskPassword" value="">
+
             <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px;">
                 <!-- Backup Button -->
-                <a href="ajax/rustdesk_keys.php?action=download_keys" target="_blank" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center;">
+                <button onclick="downloadRustdeskBackup()" class="btn btn-primary" style="display: inline-flex; align-items: center;">
                     📥 Télécharger la sauvegarde (.zip)
-                </a>
+                </button>
 
                 <!-- Restore Button -->
                 <button class="btn btn-warning" onclick="document.getElementById('rustdeskKeyInputBackup').click()" style="display: inline-flex; align-items: center;">
@@ -34,7 +38,7 @@ require_once __DIR__ . '/../../components/settings_navigation.php';
                 </button>
                 
                 <!-- Hidden Input -->
-                <input type="file" id="rustdeskKeyInputBackup" multiple style="display: none;" onchange="uploadRustdeskKeysBackup(this)">
+                <input type="file" id="rustdeskKeyInputBackup" multiple accept=".zip,.pub,." style="display: none;" onchange="uploadRustdeskKeysBackup(this)">
             </div>
             
             <p class="text-muted" style="margin-top: 15px; font-size: 0.9em;">
@@ -47,6 +51,15 @@ require_once __DIR__ . '/../../components/settings_navigation.php';
 </div>
 
 <script>
+function downloadRustdeskBackup() {
+    const password = document.getElementById('rustdeskPassword').value;
+    let url = 'ajax/rustdesk_keys.php?action=download_keys';
+    if (password) {
+        url += '&password=' + encodeURIComponent(password);
+    }
+    window.location.href = url;
+}
+
 function uploadRustdeskKeysBackup(input) {
     if (input.files.length === 0) return;
 
@@ -55,6 +68,12 @@ function uploadRustdeskKeysBackup(input) {
         formData.append('key_files[]', input.files[i]);
     }
     formData.append('action', 'upload_keys');
+    
+    // Ajouter le mot de passe s'il est présent
+    const password = document.getElementById('rustdeskPassword').value;
+    if (password) {
+        formData.append('password', password);
+    }
 
     showRustdeskAlert('info', 'Envoi des clés en cours...');
 

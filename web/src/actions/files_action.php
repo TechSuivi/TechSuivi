@@ -35,7 +35,7 @@ function formatFileSize($bytes) {
 }
 
 // Fonction pour créer une archive ZIP récursivement
-function createZipArchive($source, $destination, $basePath = '') {
+function createZipArchive($source, $destination, $basePath = '', $password = null) {
     if (!extension_loaded('zip')) {
         throw new Exception('Extension ZIP non disponible');
     }
@@ -46,10 +46,62 @@ function createZipArchive($source, $destination, $basePath = '') {
         throw new Exception('Source invalide');
     }
 
-    $zip = new ZipArchive();
-    if ($zip->open($destination, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
-        throw new Exception('Impossible de créer l\'archive ZIP');
+    // Si un mot de passe est défini, on utilise la commande système "zip" (si disponible)
+    if (!empty($password)) {
+        error_log("FilesBackup: Password received (len=" . strlen($password) . ")");
+        $zipBinPath = shell_exec('which zip');
+        $zipBin = $zipBinPath ? trim($zipBinPath) : '';
+        error_log("FilesBackup: Zip binary found at '$zipBin'");
+        
+        if (!empty($zipBin)) {
+            $currentDir = getcwd();
+            
+            if (empty($basePath)) {
+                // Backup Full : on se place dans source et on zippe tout
+                chdir($source);
+                $cmd = sprintf("'%s' -r -P %s %s .", $zipBin, escapeshellarg($password), escapeshellarg($destination));
+            } else {
+                // Backup Folder : on se place dans le parent
+                chdir(dirname($source));
+                $folderToZip = basename($source);
+                $cmd = sprintf("zip -r -P %s %s %s", escapeshellarg($password), escapeshellarg($destination), escapeshellarg($folderToZip));
+            }
+            
+            error_log("Trying system zip: $cmd"); // Debug
+            
+            $output = [];
+            $returnVar = -1;
+            exec($cmd, $output, $returnVar);
+            chdir($currentDir);
+            
+            if ($returnVar === 0 && file_exists($destination) && filesize($destination) > 0) {
+                 return true; // Succès
+            } else {
+                 error_log("Zip command failed: $cmd | Return: $returnVar");
+                 if (file_exists($destination)) {
+                     @unlink($destination);
+                 }
+            }
+        }
     }
+
+    // Fallback : PHP ZipArchive
+    $zip = new ZipArchive();
+    $flags = ZipArchive::CREATE;
+    if (file_exists($destination)) {
+        $flags |= ZipArchive::OVERWRITE;
+    }
+
+    if ($zip->open($destination, $flags) !== TRUE) {
+        throw new Exception('Impossible de créer l\'archive ZIP (Erreur Open)');
+    }
+    
+    if (!empty($password)) {
+        // Pour une compatibilité maximale en fallback, on utilise setPassword (global)
+        $zip->setPassword($password);
+    }
+    
+    $filesAdded = 0;
     
     $iterator = new RecursiveIteratorIterator(
         new RecursiveDirectoryIterator($source, RecursiveDirectoryIterator::SKIP_DOTS),
@@ -58,29 +110,38 @@ function createZipArchive($source, $destination, $basePath = '') {
     
     foreach ($iterator as $file) {
         $filePath = $file->getRealPath();
-        
-        // Calculer le chemin relatif par rapport à la source
-        // strlen($source) + 1 pour sauter le slash séparateur après le nom du dossier source
         $relativePath = substr($filePath, strlen($source) + 1);
         
-        // Ajouter le basePath si défini (pour créer un dossier racine dans le zip)
         if ($basePath !== '') {
             $zipPath = $basePath . '/' . $relativePath;
         } else {
             $zipPath = $relativePath;
         }
         
-        // Normaliser les slashs pour le format ZIP (toujours /)
         $zipPath = str_replace('\\', '/', $zipPath);
         
         if ($file->isDir()) {
             $zip->addEmptyDir($zipPath);
         } elseif ($file->isFile()) {
             $zip->addFile($filePath, $zipPath);
+            $filesAdded++;
+            // On tente d'appliquer le chiffrement par fichier AUSSI si possible, sinon setPassword suffit souvent pour EM_TRADITIONAL
+            if (!empty($password) && defined('ZipArchive::EM_TRADITIONAL')) {
+                $zip->setEncryptionName($zipPath, ZipArchive::EM_TRADITIONAL);
+            }
         }
     }
     
-    $zip->close();
+    if ($filesAdded === 0) {
+        $zip->close();
+        @unlink($destination);
+        throw new Exception("Aucun fichier à sauvegarder");
+    }
+    
+    if (!$zip->close()) {
+        throw new Exception("Erreur lors de la fermeture de l'archive ZIP");
+    }
+    
     return true;
 }
 
@@ -214,7 +275,8 @@ try {
             $backupFileName = "files_backup_full_{$timestamp}.zip";
             $backupPath = $backupsDir . $backupFileName;
             
-            createZipArchive($uploadsDir, $backupPath, '');
+            $password = $_POST['backup_password'] ?? null;
+            createZipArchive($uploadsDir, $backupPath, '', $password);
             
             $fileSize = formatFileSize(filesize($backupPath));
             $_SESSION['files_message'] = "✅ Sauvegarde complète créée avec succès : {$backupFileName} ({$fileSize})";
@@ -245,7 +307,8 @@ try {
             $backupFileName = "files_backup_{$folderName}_{$timestamp}.zip";
             $backupPath = $backupsDir . $backupFileName;
             
-            createZipArchive($folderPath, $backupPath, basename($folder));
+            $password = $_POST['backup_password'] ?? null;
+            createZipArchive($folderPath, $backupPath, basename($folder), $password);
             
             $fileSize = formatFileSize(filesize($backupPath));
             $_SESSION['files_message'] = "✅ Sauvegarde du dossier créée avec succès : {$backupFileName} ({$fileSize})";
@@ -339,6 +402,11 @@ try {
             $zip = new ZipArchive();
             if ($zip->open($zipFile) !== TRUE) {
                 throw new Exception('Le fichier n\'est pas une archive ZIP valide');
+            }
+            
+            $password = $_POST['restore_password'] ?? null;
+            if (!empty($password)) {
+                $zip->setPassword($password);
             }
             
             // Extraction

@@ -750,7 +750,7 @@ body.dark input[style*="background-color: #f0f0f0"] {
                     <small style="color: #666; display: block;">(+ entrées / - sorties)</small>
                 </label>
                 <input type="number" id="ajustement_especes" name="ajustement_especes" step="0.01"
-                       value="<?= $feuille_existante['ajustement_especes'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['ajustement_especes'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input"
                        onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?>
                        placeholder="Ex: +50 ou -20">
@@ -806,23 +806,23 @@ body.dark input[style*="background-color: #f0f0f0"] {
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">500 €</div>
             <div class="field-group" style="border: 1px solid #2196F3; border-radius: 3px; padding: 4px;">
                 <input type="number" id="billets_500" name="billets_500" min="0"
-                       value="<?= $feuille_existante['billets_500'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['billets_500'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="1">
             </div>
             <div class="field-group" style="border: 1px solid #FF9800; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_billets_500" name="retrait_billets_500" min="0"
-                       value="<?= $feuille_existante['retrait_billets_500'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_billets_500'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="15">
             </div>
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">2,00 €</div>
             <div class="field-group" style="border: 1px solid #4CAF50; border-radius: 3px; padding: 4px;">
                 <input type="number" id="pieces_200" name="pieces_200" min="0"
-                       value="<?= $feuille_existante['pieces_200'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['pieces_200'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="29">
             </div>
             <div class="field-group" style="border: 1px solid #E91E63; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_pieces_200" name="retrait_pieces_200" min="0"
-                       value="<?= $feuille_existante['retrait_pieces_200'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_pieces_200'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="43">
             </div>
         </div>
@@ -832,23 +832,23 @@ body.dark input[style*="background-color: #f0f0f0"] {
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">200 €</div>
             <div class="field-group" style="border: 1px solid #2196F3; border-radius: 3px; padding: 4px;">
                 <input type="number" id="billets_200" name="billets_200" min="0"
-                       value="<?= $feuille_existante['billets_200'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['billets_200'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="2">
             </div>
             <div class="field-group" style="border: 1px solid #FF9800; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_billets_200" name="retrait_billets_200" min="0"
-                       value="<?= $feuille_existante['retrait_billets_200'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_billets_200'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="16">
             </div>
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">1,00 €</div>
             <div class="field-group" style="border: 1px solid #4CAF50; border-radius: 3px; padding: 4px;">
                 <input type="number" id="pieces_100" name="pieces_100" min="0"
-                       value="<?= $feuille_existante['pieces_100'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['pieces_100'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="30">
             </div>
             <div class="field-group" style="border: 1px solid #E91E63; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_pieces_100" name="retrait_pieces_100" min="0"
-                       value="<?= $feuille_existante['retrait_pieces_100'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_pieces_100'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="44">
             </div>
         </div>
@@ -858,23 +858,23 @@ body.dark input[style*="background-color: #f0f0f0"] {
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">100 €</div>
             <div class="field-group" style="border: 1px solid #2196F3; border-radius: 3px; padding: 4px;">
                 <input type="number" id="billets_100" name="billets_100" min="0"
-                       value="<?= $feuille_existante['billets_100'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['billets_100'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="3">
             </div>
             <div class="field-group" style="border: 1px solid #FF9800; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_billets_100" name="retrait_billets_100" min="0"
-                       value="<?= $feuille_existante['retrait_billets_100'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_billets_100'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="17">
             </div>
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">0,50 €</div>
             <div class="field-group" style="border: 1px solid #4CAF50; border-radius: 3px; padding: 4px;">
                 <input type="number" id="pieces_050" name="pieces_050" min="0"
-                       value="<?= $feuille_existante['pieces_050'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['pieces_050'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="31">
             </div>
             <div class="field-group" style="border: 1px solid #E91E63; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_pieces_050" name="retrait_pieces_050" min="0"
-                       value="<?= $feuille_existante['retrait_pieces_050'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_pieces_050'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="45">
             </div>
         </div>
@@ -884,23 +884,23 @@ body.dark input[style*="background-color: #f0f0f0"] {
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">50 €</div>
             <div class="field-group" style="border: 1px solid #2196F3; border-radius: 3px; padding: 4px;">
                 <input type="number" id="billets_050" name="billets_050" min="0"
-                       value="<?= $feuille_existante['billets_050'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['billets_050'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="4">
             </div>
             <div class="field-group" style="border: 1px solid #FF9800; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_billets_050" name="retrait_billets_050" min="0"
-                       value="<?= $feuille_existante['retrait_billets_050'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_billets_050'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="18">
             </div>
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">0,20 €</div>
             <div class="field-group" style="border: 1px solid #4CAF50; border-radius: 3px; padding: 4px;">
                 <input type="number" id="pieces_020" name="pieces_020" min="0"
-                       value="<?= $feuille_existante['pieces_020'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['pieces_020'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="32">
             </div>
             <div class="field-group" style="border: 1px solid #E91E63; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_pieces_020" name="retrait_pieces_020" min="0"
-                       value="<?= $feuille_existante['retrait_pieces_020'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_pieces_020'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="46">
             </div>
         </div>
@@ -910,23 +910,23 @@ body.dark input[style*="background-color: #f0f0f0"] {
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">20 €</div>
             <div class="field-group" style="border: 1px solid #2196F3; border-radius: 3px; padding: 4px;">
                 <input type="number" id="billets_020" name="billets_020" min="0"
-                       value="<?= $feuille_existante['billets_020'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['billets_020'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="5">
             </div>
             <div class="field-group" style="border: 1px solid #FF9800; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_billets_020" name="retrait_billets_020" min="0"
-                       value="<?= $feuille_existante['retrait_billets_020'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_billets_020'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="19">
             </div>
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">0,10 €</div>
             <div class="field-group" style="border: 1px solid #4CAF50; border-radius: 3px; padding: 4px;">
                 <input type="number" id="pieces_010" name="pieces_010" min="0"
-                       value="<?= $feuille_existante['pieces_010'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['pieces_010'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="33">
             </div>
             <div class="field-group" style="border: 1px solid #E91E63; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_pieces_010" name="retrait_pieces_010" min="0"
-                       value="<?= $feuille_existante['retrait_pieces_010'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_pieces_010'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="47">
             </div>
         </div>
@@ -936,23 +936,23 @@ body.dark input[style*="background-color: #f0f0f0"] {
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">10 €</div>
             <div class="field-group" style="border: 1px solid #2196F3; border-radius: 3px; padding: 4px;">
                 <input type="number" id="billets_010" name="billets_010" min="0"
-                       value="<?= $feuille_existante['billets_010'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['billets_010'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="6">
             </div>
             <div class="field-group" style="border: 1px solid #FF9800; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_billets_010" name="retrait_billets_010" min="0"
-                       value="<?= $feuille_existante['retrait_billets_010'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_billets_010'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="20">
             </div>
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">0,05 €</div>
             <div class="field-group" style="border: 1px solid #4CAF50; border-radius: 3px; padding: 4px;">
                 <input type="number" id="pieces_005" name="pieces_005" min="0"
-                       value="<?= $feuille_existante['pieces_005'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['pieces_005'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="34">
             </div>
             <div class="field-group" style="border: 1px solid #E91E63; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_pieces_005" name="retrait_pieces_005" min="0"
-                       value="<?= $feuille_existante['retrait_pieces_005'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_pieces_005'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="48">
             </div>
         </div>
@@ -962,23 +962,23 @@ body.dark input[style*="background-color: #f0f0f0"] {
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">5 €</div>
             <div class="field-group" style="border: 1px solid #2196F3; border-radius: 3px; padding: 4px;">
                 <input type="number" id="billets_005" name="billets_005" min="0"
-                       value="<?= $feuille_existante['billets_005'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['billets_005'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="7">
             </div>
             <div class="field-group" style="border: 1px solid #FF9800; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_billets_005" name="retrait_billets_005" min="0"
-                       value="<?= $feuille_existante['retrait_billets_005'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_billets_005'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="21">
             </div>
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">0,02 €</div>
             <div class="field-group" style="border: 1px solid #4CAF50; border-radius: 3px; padding: 4px;">
                 <input type="number" id="pieces_002" name="pieces_002" min="0"
-                       value="<?= $feuille_existante['pieces_002'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['pieces_002'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="35">
             </div>
             <div class="field-group" style="border: 1px solid #E91E63; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_pieces_002" name="retrait_pieces_002" min="0"
-                       value="<?= $feuille_existante['retrait_pieces_002'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_pieces_002'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="49">
             </div>
         </div>
@@ -997,12 +997,12 @@ body.dark input[style*="background-color: #f0f0f0"] {
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">0,01 €</div>
             <div class="field-group" style="border: 1px solid #4CAF50; border-radius: 3px; padding: 4px;">
                 <input type="number" id="pieces_001" name="pieces_001" min="0"
-                       value="<?= $feuille_existante['pieces_001'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['pieces_001'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="36">
             </div>
             <div class="field-group" style="border: 1px solid #E91E63; border-radius: 3px; padding: 4px;">
                 <input type="number" id="retrait_pieces_001" name="retrait_pieces_001" min="0"
-                       value="<?= $feuille_existante['retrait_pieces_001'] ?? 0 ?>"
+                       value="<?= ($feuille_existante['retrait_pieces_001'] ?? 0) ?: '' ?>"
                        class="feuille-caisse-input" onchange="calculerTotaux()" <?= !$modification_autorisee ? 'readonly' : '' ?> tabindex="50">
             </div>
         </div>

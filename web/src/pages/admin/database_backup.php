@@ -100,6 +100,13 @@ if (isset($pdo)) {
             <input type="hidden" name="backup_format" value="sql">
             <input type="hidden" name="backup_destination" value="server">
             
+            <!--
+            <div style="margin-bottom: 10px;">
+                <label style="display: block; margin-bottom: 5px; font-size: 13px;">Mot de passe (facultatif) :</label>
+                <input type="password" name="backup_password" placeholder="Protéger l'archive ZIP" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+            </div>
+            -->
+            
             <button type="submit" style="background-color: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-bottom: 10px;">
                 💾 Sauvegarde Complète sur Serveur
             </button>
@@ -116,6 +123,13 @@ if (isset($pdo)) {
             <input type="hidden" name="backup_type" value="full">
             <input type="hidden" name="backup_format" value="sql">
             <input type="hidden" name="backup_destination" value="download">
+            
+            <!--
+            <div style="margin-bottom: 10px;">
+                <label style="display: block; margin-bottom: 5px; font-size: 13px;">Mot de passe (facultatif) :</label>
+                <input type="password" name="backup_password" placeholder="Protéger l'archive ZIP" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+            </div>
+            -->
             
             <button type="submit" style="background-color: #2196f3; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-bottom: 10px;">
                 📥 Télécharger Sauvegarde Complète
@@ -207,6 +221,11 @@ if (isset($pdo)) {
                     ⚠️ Vider la base avant restauration
                 </label>
             </div>
+                <!--
+                <div style="margin-bottom: 10px;">
+                    <input type="password" name="restore_password" placeholder="Mot de passe (si archive protégée)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                </div>
+                -->
             <button type="submit" name="restore_upload" style="background-color: #ff9800; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
                 🔄 Restaurer depuis Upload
             </button>
@@ -264,6 +283,11 @@ if (isset($pdo)) {
                         ⚠️ Vider la base avant restauration
                     </label>
                 </div>
+                <!--
+                <div style="margin-bottom: 10px;">
+                    <input type="password" name="restore_password" placeholder="Mot de passe (si archive protégée)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                </div>
+                -->
                 <button type="submit" name="restore_from_server" style="background-color: #17a2b8; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
                     📁 Restaurer depuis Serveur
                 </button>

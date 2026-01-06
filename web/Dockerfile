@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libpng-dev \
     unzip \
+    zip \
     git \
     iputils-ping \
     cron \

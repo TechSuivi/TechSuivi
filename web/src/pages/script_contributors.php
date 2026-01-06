@@ -28,6 +28,7 @@ $versionHistory = [
         'changes' => [
             'Feature : Gestionnaire de Fichiers complet (Création dossiers, Upload fichiers, Navigation)',
             'Feature : Système de Sauvegarde/Restauration Rustdesk (Settings)',
+            'Feature : Protection par mot de passe (Backup/Restore) pour Fichiers, DB, et Rustdesk',
             'Feature : Restauration ZIP contextuelle (Restaurer dans le dossier courant)',
             'Fix : Navigation manquante sur la page Import Clients',
             'Fix : Correction des noms de fichiers tronqués dans les ZIP générés',

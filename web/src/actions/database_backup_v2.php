@@ -135,6 +135,12 @@ try {
         $backupFormat = $_POST['backup_format'] ?? 'sql';
         $backupDestination = $_POST['backup_destination'] ?? 'download';
         $selectedTables = $_POST['selected_tables'] ?? [];
+        $backupPassword = $_POST['backup_password'] ?? '';
+        
+        // Si un mot de passe est défini, on force le format ZIP
+        if (!empty($backupPassword)) {
+            $backupFormat = 'zip';
+        }
         
         // Validation pour sauvegarde partielle
         if ($backupType === 'partial' && empty($selectedTables)) {
@@ -282,17 +288,60 @@ try {
         // Traitement selon le format
         if ($backupFormat === 'zip') {
             // Créer un fichier ZIP
-            if (class_exists('ZipArchive')) {
+                if (class_exists('ZipArchive')) {
                 $zip = new ZipArchive();
-                if ($zip->open($finalPath, ZipArchive::CREATE) === TRUE) {
-                    $zip->addFile($sqlPath, basename($sqlPath));
-                    $zip->close();
+                // Si mot de passe, on utilise la commande système "zip" si dispo (meilleur cryptage)
+                $zipBinPath = shell_exec('which zip');
+                $zipBin = $zipBinPath ? trim($zipBinPath) : '';
+                $useSystemZip = !empty($zipBin);
+                
+                if (!empty($backupPassword) && $useSystemZip) {
+                    error_log("DBBackup: Password set, Zip bin: $zipBin");
+                    $currentDir = getcwd();
+                    chdir(dirname($sqlPath));
+                    $sqlFile = basename($sqlPath);
+                    $cmd = sprintf("'%s' -j -P %s %s %s", $zipBin, escapeshellarg($backupPassword), escapeshellarg($finalPath), escapeshellarg($sqlFile));
                     
-                    // Supprimer le fichier SQL temporaire
-                    unlink($sqlPath);
-                } else {
-                    throw new Exception("Impossible de créer le fichier ZIP v2.6");
+                    error_log("DB Backup trying: $cmd");
+                    exec($cmd, $output, $returnVar);
+                    chdir($currentDir);
+                    
+                    if ($returnVar !== 0 || !file_exists($finalPath) || filesize($finalPath) === 0) {
+                        error_log("DB Backup Zip failed: " . implode(', ', $output));
+                        if(file_exists($finalPath)) @unlink($finalPath);
+                        $useSystemZip = false; 
+                    }
                 }
+
+                if (empty($backupPassword) || !$useSystemZip) {
+                    // Méthode PHP classique (fallback ou sans mot de passe)
+                    $flags = ZipArchive::CREATE;
+                    if (file_exists($finalPath)) $flags |= ZipArchive::OVERWRITE;
+                    
+                    if ($zip->open($finalPath, $flags) === TRUE) {
+                        // Si un mot de passe est défini (mais zip commande échouée)
+                        if (!empty($backupPassword)) {
+                             // Fallback compatible
+                             $zip->setPassword($backupPassword);
+                        }
+                        
+                        $zip->addFile($sqlPath, basename($sqlPath));
+                        
+                        // Tentative chiffrement spécifique si dispo
+                        if (!empty($backupPassword) && defined('ZipArchive::EM_TRADITIONAL')) {
+                             $zip->setEncryptionName(basename($sqlPath), ZipArchive::EM_TRADITIONAL);
+                        }
+                        
+                        if (!$zip->close()) {
+                            throw new Exception("Erreur fermeture ZIP");
+                        }
+                    } else {
+                        throw new Exception("Impossible de créer le fichier ZIP v2.6");
+                    }
+                }
+    
+                // Supprimer le fichier SQL temporaire
+                unlink($sqlPath);
             } else {
                 // Fallback vers SQL si ZIP non disponible
                 $_SESSION['backup_message'] = "⚠️ Extension ZIP non disponible v2.6, sauvegarde créée au format SQL";
@@ -395,6 +444,8 @@ try {
             exit();
         }
         
+        $restorePassword = $_POST['restore_password'] ?? '';
+        
         $serverPath = __DIR__ . '/../uploads/backups/' . basename($serverFile);
         
         if (!file_exists($serverPath)) {
@@ -456,6 +507,11 @@ try {
                 if (class_exists('ZipArchive')) {
                     $zip = new ZipArchive();
                     if ($zip->open($serverPath) === TRUE) {
+                        
+                        // Si un mot de passe est fourni, l'appliquer
+                        if (!empty($restorePassword)) {
+                            $zip->setPassword($restorePassword);
+                        }
                         $restoreResults[] = "📦 Fichier ZIP ouvert avec succès (v2.6)";
                         for ($i = 0; $i < $zip->numFiles; $i++) {
                             $filename = $zip->getNameIndex($i);
@@ -683,6 +739,7 @@ try {
         // RESTAURATION DEPUIS UPLOAD - VERSION v2.6 FORCÉE
         $uploadedFile = $_FILES['backup_file'];
         $dropTables = isset($_POST['drop_tables']) && $_POST['drop_tables'] === '1';
+        $restorePassword = $_POST['restore_password'] ?? '';
         
         if ($uploadedFile['error'] !== UPLOAD_ERR_OK) {
             $_SESSION['restore_message'] = "❌ Erreur v2.6 lors de l'upload : " . $uploadedFile['error'];
@@ -747,6 +804,11 @@ try {
                 if (class_exists('ZipArchive')) {
                     $zip = new ZipArchive();
                     if ($zip->open($uploadedFile['tmp_name']) === TRUE) {
+                        
+                        // Si un mot de passe est fourni, l'appliquer
+                        if (!empty($restorePassword)) {
+                            $zip->setPassword($restorePassword);
+                        }
                         $restoreResults[] = "📦 Fichier ZIP ouvert avec succès (v2.6)";
                         for ($i = 0; $i < $zip->numFiles; $i++) {
                             $filename = $zip->getNameIndex($i);
