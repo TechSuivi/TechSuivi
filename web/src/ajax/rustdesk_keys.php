@@ -16,6 +16,7 @@ if (!isset($_SESSION['username'])) {
 $action = $_GET['action'] ?? $_POST['action'] ?? '';
 $rustdeskDir = '/var/www/rustdesk_data';
 $persistenceDir = __DIR__ . '/../uploads/keys';
+$backupDir = __DIR__ . '/../uploads/backups'; // Definition manquante ajoutee
 
 // Créer les dossiers si manquants (Silent mode)
 if (!is_dir($persistenceDir)) {
@@ -126,7 +127,6 @@ if ($action === 'download_keys') {
         exit;
     } else {
         die("Erreur création ZIP.");
-    }
     }
 
 } elseif ($action === 'upload_keys') {

@@ -38,7 +38,7 @@ require_once __DIR__ . '/../../components/settings_navigation.php';
                 </button>
                 
                 <!-- Hidden Input -->
-                <input type="file" id="rustdeskKeyInputBackup" multiple accept=".zip,.pub,." style="display: none;" onchange="uploadRustdeskKeysBackup(this)">
+                <input type="file" id="rustdeskKeyInputBackup" multiple style="display: none;" onchange="uploadRustdeskKeysBackup(this)">
             </div>
             
             <p class="text-muted" style="margin-top: 15px; font-size: 0.9em;">
