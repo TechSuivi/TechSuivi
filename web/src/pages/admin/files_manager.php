@@ -227,65 +227,85 @@ $globalStats = getDirectoryStats($uploadsDir);
     
     <!-- Liste des fichiers -->
     <div class="files-table-container backup-section-content" style="max-height: 500px; overflow-y: auto;">
-        <table class="files-table" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr>
-                    <th style="padding: 10px; text-align: left;">Nom</th>
-                    <th style="padding: 10px; text-align: right;">Taille</th>
-                    <th style="padding: 10px; text-align: center;">Modifié</th>
-                    <th style="padding: 10px; text-align: center;">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($items)): ?>
+        <form id="filesForm" method="post" action="actions/files_action.php">
+            <input type="hidden" name="action" value="delete_batch">
+            <input type="hidden" name="path" value="<?= htmlspecialchars($currentPath) ?>">
+            
+            <!-- Barre d'actions groupées (cachée par défaut) -->
+            <div id="batchActions" style="display: none; padding: 10px; background-color: #f8d7da; border-bottom: 1px solid #dee2e6; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10;">
+                <span style="font-weight: bold; font-size: 13px;">Actions groupées :</span>
+                <button type="submit" onclick="return confirm('Attention : Vous êtes sur le point de supprimer définitivement les éléments sélectionnés.\nConfirmer ?')" 
+                        style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;">
+                    🗑️ Supprimer la sélection (<span id="selectedCount">0</span>)
+                </button>
+            </div>
+
+            <table class="files-table" style="width: 100%; border-collapse: collapse;">
+                <thead>
                     <tr>
-                        <td colspan="4" style="padding: 20px; text-align: center; color: #6c757d; font-style: italic;">
-                            📭 Dossier vide
-                        </td>
+                        <th style="padding: 10px; width: 30px; text-align: center;">
+                            <input type="checkbox" id="selectAll" title="Tout sélectionner">
+                        </th>
+                        <th style="padding: 10px; text-align: left;">Nom</th>
+                        <th style="padding: 10px; text-align: right;">Taille</th>
+                        <th style="padding: 10px; text-align: center;">Modifié</th>
+                        <th style="padding: 10px; text-align: center;">Actions</th>
                     </tr>
-                <?php else: ?>
-                    <?php foreach ($items as $item): ?>
+                </thead>
+                <tbody>
+                    <?php if (empty($items)): ?>
                         <tr>
-                            <td style="padding: 8px;">
-                                <?php if ($item['type'] === 'directory'): ?>
-                                    <a href="index.php?page=files_manager&path=<?= urlencode($item['path']) ?>" 
-                                       style="text-decoration: none; color: #007bff; font-weight: 500;">
-                                        <?= $item['icon'] ?> <?= htmlspecialchars($item['name']) ?>
-                                    </a>
-                                <?php else: ?>
-                                    <span><?= $item['icon'] ?> <?= htmlspecialchars($item['name']) ?></span>
-                                <?php endif; ?>
-                            </td>
-                            <td style="padding: 8px; text-align: right; font-family: monospace;">
-                                <?= $item['type'] === 'directory' ? '-' : formatFileSize($item['size']) ?>
-                            </td>
-                            <td style="padding: 8px; text-align: center; font-size: 12px;">
-                                <?= date('d/m/Y H:i', $item['modified']) ?>
-                            </td>
-                            <td style="padding: 8px; text-align: center;">
-                                <?php if ($item['type'] === 'file'): ?>
-                                    <a href="actions/files_action.php?action=download&file=<?= urlencode($item['path']) ?>" 
-                                       style="background-color: #28a745; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 11px; margin-right: 5px;">
-                                        📥 Télécharger
-                                    </a>
-                                    <a href="actions/files_action.php?action=delete&file=<?= urlencode($item['path']) ?>" 
-                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')"
-                                       style="background-color: #dc3545; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;">
-                                        🗑️ Supprimer
-                                    </a>
-                                <?php else: ?>
-                                    <a href="actions/files_action.php?action=delete_dir&dir=<?= urlencode($item['path']) ?>" 
-                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?')"
-                                       style="background-color: #dc3545; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;">
-                                        🗑️ Supprimer
-                                    </a>
-                                <?php endif; ?>
+                            <td colspan="5" style="padding: 20px; text-align: center; color: #6c757d; font-style: italic;">
+                                📭 Dossier vide
                             </td>
                         </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php else: ?>
+                        <?php foreach ($items as $item): ?>
+                            <tr>
+                                <td style="padding: 8px; text-align: center;">
+                                    <input type="checkbox" name="selected_files[]" value="<?= htmlspecialchars($item['name']) ?>" class="file-checkbox">
+                                </td>
+                                <td style="padding: 8px;">
+                                    <?php if ($item['type'] === 'directory'): ?>
+                                        <a href="index.php?page=files_manager&path=<?= urlencode($item['path']) ?>" 
+                                           style="text-decoration: none; color: #007bff; font-weight: 500;">
+                                            <?= $item['icon'] ?> <?= htmlspecialchars($item['name']) ?>
+                                        </a>
+                                    <?php else: ?>
+                                        <span><?= $item['icon'] ?> <?= htmlspecialchars($item['name']) ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td style="padding: 8px; text-align: right; font-family: monospace;">
+                                    <?= $item['type'] === 'directory' ? '-' : formatFileSize($item['size']) ?>
+                                </td>
+                                <td style="padding: 8px; text-align: center; font-size: 12px;">
+                                    <?= date('d/m/Y H:i', $item['modified']) ?>
+                                </td>
+                                <td style="padding: 8px; text-align: center;">
+                                    <?php if ($item['type'] === 'file'): ?>
+                                        <a href="actions/files_action.php?action=download&file=<?= urlencode($item['path']) ?>" 
+                                           style="background-color: #28a745; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 11px; margin-right: 5px;">
+                                            📥 Télécharger
+                                        </a>
+                                        <a href="actions/files_action.php?action=delete&file=<?= urlencode($item['path']) ?>" 
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')"
+                                           style="background-color: #dc3545; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;">
+                                            🗑️ Supprimer
+                                        </a>
+                                    <?php else: ?>
+                                        <a href="actions/files_action.php?action=delete_dir&dir=<?= urlencode($item['path']) ?>" 
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?')"
+                                           style="background-color: #dc3545; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;">
+                                            🗑️ Supprimer
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </form>
     </div>
     
     <!-- Statistiques du dossier actuel -->
@@ -416,12 +436,52 @@ $globalStats = getDirectoryStats($uploadsDir);
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Confirmation pour les actions de suppression
+    // Confirmation pour les actions de suppression individuelles
     const deleteLinks = document.querySelectorAll('a[href*="action=delete"]');
     deleteLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             if (!confirm('Êtes-vous sûr de vouloir supprimer cet élément ?')) {
                 e.preventDefault();
+            }
+        });
+    });
+
+    // Gestion de la sélection multiple
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const fileCheckboxes = document.querySelectorAll('.file-checkbox');
+    const batchActions = document.getElementById('batchActions');
+    const selectedCountSpan = document.getElementById('selectedCount');
+
+    function updateBatchActions() {
+        const selectedCount = document.querySelectorAll('.file-checkbox:checked').length;
+        selectedCountSpan.textContent = selectedCount;
+        
+        if (selectedCount > 0) {
+            batchActions.style.display = 'flex';
+        } else {
+            batchActions.style.display = 'none';
+        }
+    }
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            fileCheckboxes.forEach(cb => {
+                cb.checked = selectAllCheckbox.checked;
+            });
+            updateBatchActions();
+        });
+    }
+
+    fileCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            updateBatchActions();
+            // Si une case est décochée, on décoche "Tout sélectionner"
+            if (!cb.checked) {
+                selectAllCheckbox.checked = false;
+            }
+            // Si toutes sont cochées, on coche "Tout sélectionner"
+            if (document.querySelectorAll('.file-checkbox:checked').length === fileCheckboxes.length) {
+                selectAllCheckbox.checked = true;
             }
         });
     });

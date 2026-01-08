@@ -46,46 +46,47 @@ function createZipArchive($source, $destination, $basePath = '', $password = nul
         throw new Exception('Source invalide');
     }
 
-    // Si un mot de passe est défini, on utilise la commande système "zip" (si disponible)
-    if (!empty($password)) {
-        error_log("FilesBackup: Password received (len=" . strlen($password) . ")");
-        $zipBinPath = shell_exec('which zip');
-        $zipBin = $zipBinPath ? trim($zipBinPath) : '';
-        error_log("FilesBackup: Zip binary found at '$zipBin'");
+    // Toujours essayer d'utiliser la commande système "zip" en priorité (plus robuste pour les chemins)
+    $zipBinPath = shell_exec('which zip');
+    $zipBin = $zipBinPath ? trim($zipBinPath) : '';
+    
+    if (!empty($zipBin)) {
+        error_log("FilesBackup: System zip found at '$zipBin'");
+        $currentDir = getcwd();
         
-        if (!empty($zipBin)) {
-            $currentDir = getcwd();
-            
-            if (empty($basePath)) {
-                // Backup Full : on se place dans source et on zippe tout
-                chdir($source);
-                $cmd = sprintf("'%s' -r -P %s %s .", $zipBin, escapeshellarg($password), escapeshellarg($destination));
-            } else {
-                // Backup Folder : on se place dans le parent
-                chdir(dirname($source));
-                $folderToZip = basename($source);
-                $cmd = sprintf("zip -r -P %s %s %s", escapeshellarg($password), escapeshellarg($destination), escapeshellarg($folderToZip));
-            }
-            
-            error_log("Trying system zip: $cmd"); // Debug
-            
-            $output = [];
-            $returnVar = -1;
-            exec($cmd, $output, $returnVar);
-            chdir($currentDir);
-            
-            if ($returnVar === 0 && file_exists($destination) && filesize($destination) > 0) {
-                 return true; // Succès
-            } else {
-                 error_log("Zip command failed: $cmd | Return: $returnVar");
-                 if (file_exists($destination)) {
-                     @unlink($destination);
-                 }
-            }
+        // Construction des arguments mot de passe
+        $pwdArg = !empty($password) ? "-P " . escapeshellarg($password) : "";
+        
+        if (empty($basePath)) {
+            // Backup Full : on se place DANS source et on zippe tout (.)
+            chdir($source);
+            $cmd = sprintf("'%s' -r %s %s .", $zipBin, $pwdArg, escapeshellarg($destination));
+        } else {
+            // Backup Folder : on se place dans le PARENT de source
+            chdir(dirname($source));
+            $folderToZip = basename($source);
+            $cmd = sprintf("'%s' -r %s %s %s", $zipBin, $pwdArg, escapeshellarg($destination), escapeshellarg($folderToZip));
+        }
+        
+        error_log("Executing system zip: $cmd"); // Debug
+        
+        $output = [];
+        $returnVar = -1;
+        exec($cmd, $output, $returnVar);
+        chdir($currentDir);
+        
+        if ($returnVar === 0 && file_exists($destination) && filesize($destination) > 0) {
+             return true; // Succès complet via système
+        } else {
+             error_log("Zip command failed: $cmd | Return: $returnVar");
+             // En cas d'échec, on nettoie et on laisse le fallback PHP essayer
+             if (file_exists($destination)) {
+                 @unlink($destination);
+             }
         }
     }
 
-    // Fallback : PHP ZipArchive
+    // Fallback : PHP ZipArchive (Moins robuste sur les chemins récursifs complexes mais standard)
     $zip = new ZipArchive();
     $flags = ZipArchive::CREATE;
     if (file_exists($destination)) {
@@ -97,7 +98,6 @@ function createZipArchive($source, $destination, $basePath = '', $password = nul
     }
     
     if (!empty($password)) {
-        // Pour une compatibilité maximale en fallback, on utilise setPassword (global)
         $zip->setPassword($password);
     }
     
@@ -110,7 +110,11 @@ function createZipArchive($source, $destination, $basePath = '', $password = nul
     
     foreach ($iterator as $file) {
         $filePath = $file->getRealPath();
-        $relativePath = substr($filePath, strlen($source) + 1);
+        
+        // Calcul du chemin relatif robuste
+        $sourceLen = strlen($source);
+        $relativePath = substr($filePath, $sourceLen);
+        $relativePath = ltrim($relativePath, '/\\'); // Enlever le slash initial
         
         if ($basePath !== '') {
             $zipPath = $basePath . '/' . $relativePath;
@@ -125,7 +129,6 @@ function createZipArchive($source, $destination, $basePath = '', $password = nul
         } elseif ($file->isFile()) {
             $zip->addFile($filePath, $zipPath);
             $filesAdded++;
-            // On tente d'appliquer le chiffrement par fichier AUSSI si possible, sinon setPassword suffit souvent pour EM_TRADITIONAL
             if (!empty($password) && defined('ZipArchive::EM_TRADITIONAL')) {
                 $zip->setEncryptionName($zipPath, ZipArchive::EM_TRADITIONAL);
             }
@@ -266,6 +269,57 @@ try {
             $redirectPath = $parentPath === '.' ? '' : $parentPath;
             header('Location: ../index.php?page=files_manager&path=' . urlencode($redirectPath));
             exit();
+
+        case 'delete_batch':
+            $files = $_POST['selected_files'] ?? [];
+            $path = $_POST['path'] ?? '';
+            $path = trim(str_replace(['../', '..\\'], '', $path), '/\\');
+            
+            $basePath = $uploadsDir . ($path ? $path . '/' : '');
+            
+            if (!is_dir($basePath) || !str_starts_with(realpath($basePath), realpath($uploadsDir))) {
+                throw new Exception('Dossier cible invalide');
+            }
+            
+            if (empty($files) || !is_array($files)) {
+                throw new Exception('Aucun fichier sélectionné');
+            }
+            
+            $deletedCount = 0;
+            $errors = 0;
+            
+            foreach ($files as $name) {
+                // Sécurité stricte sur le nom
+                $name = basename($name);
+                $targetPath = $basePath . $name;
+                
+                if (!file_exists($targetPath)) continue;
+                
+                // Vérification finale double check
+                if (!str_starts_with(realpath($targetPath), realpath($uploadsDir))) continue;
+                
+                $currentSuccess = false;
+                
+                if (is_dir($targetPath)) {
+                   if (deleteDirectory($targetPath)) $currentSuccess = true;
+                } else {
+                   if (@unlink($targetPath)) $currentSuccess = true;
+                }
+                
+                if ($currentSuccess) $deletedCount++;
+                else $errors++;
+            }
+            
+            if ($errors > 0) {
+                 $_SESSION['files_message'] = "⚠️ $deletedCount éléments supprimés, $errors erreurs.";
+                 $_SESSION['files_message_type'] = 'warning';
+            } else {
+                 $_SESSION['files_message'] = "✅ $deletedCount éléments supprimés avec succès.";
+                 $_SESSION['files_message_type'] = 'success';
+            }
+            
+            header('Location: ../index.php?page=files_manager&path=' . urlencode($path));
+            exit();
             
         case 'backup_full':
             set_time_limit(600); // 10 minutes
@@ -386,7 +440,6 @@ try {
             }
             
             $zipFile = $_FILES['restore_file']['tmp_name'];
-            $fileType = mime_content_type($zipFile);
             
             // Récupérer le dossier cible
             $targetPath = $_POST['target_path'] ?? '';
@@ -401,30 +454,140 @@ try {
                  $extractPath = $uploadsDir; // Fallback sur root
             }
 
-            // Tenter de corriger les permissions AVANT l'extraction
+            // Correction des permissions avant extraction
             if (is_dir($extractPath)) {
                 @chmod($extractPath, 0775);
             }
 
-            // Validation basique (ZipArchive validera la structure)
-            $zip = new ZipArchive();
-            if ($zip->open($zipFile) !== TRUE) {
-                throw new Exception('Le fichier n\'est pas une archive ZIP valide');
-            }
-            
             $password = $_POST['restore_password'] ?? null;
-            if (!empty($password)) {
-                $zip->setPassword($password);
-            }
-            
-            // Extraction
-            if (!$zip->extractTo($extractPath)) {
-                $zip->close();
-                throw new Exception('Erreur lors de l\'extraction de l\'archive (Vérifiez les permissions ou si le dossier est verrouillé)');
-            }
-            $zip->close();
+            $success = false;
 
-            // Correction des permissions post-restauration (Récursif)
+            // Tentative avec la commande système 'unzip' si disponible (plus robuste)
+            $zipBinPath = shell_exec('which unzip');
+            $zipBin = $zipBinPath ? trim($zipBinPath) : '';
+            
+            if (!empty($zipBin)) {
+                // Lister le contenu pour détecter la structure
+                $listCmd = sprintf("'%s' -l %s", $zipBin, escapeshellarg($zipFile));
+                exec($listCmd, $listOutput, $listReturn);
+                
+                $hasCommonDir = false;
+                $commonDir = '';
+                
+                if ($listReturn === 0) {
+                    // Analyse : est-ce que tous les fichiers commencent par "NomDossier/" ?
+                    $firstFile = '';
+                    foreach ($listOutput as $line) {
+                        // Format unzip -l standard
+                        if (preg_match('/^\s*\d+\s+[\d-]+\s+[\d:]+\s+(.+)$/', $line, $matches)) {
+                            $name = trim($matches[1]);
+                            if (str_ends_with($name, '/')) continue;
+                            $firstFile = $name;
+                            break;
+                        }
+                    }
+                    
+                    if ($firstFile) {
+                        $parts = explode('/', $firstFile);
+                        if (count($parts) > 1) {
+                            $potentialCommonDir = $parts[0];
+                            // Si le dossier commun correspond au dossier courant, on marque pour strip
+                            $currentDirName = basename($extractPath);
+                            if ($potentialCommonDir === $currentDirName) {
+                                $commonDir = $potentialCommonDir;
+                            }
+                        }
+                    }
+                }
+
+                $pwdArg = !empty($password) ? "-P " . escapeshellarg($password) : "";
+                
+                if (!empty($commonDir)) {
+                    // Extraction avec structure intelligente
+                    $tempExtractDir = $uploadsDir . 'temp_restore_' . uniqid();
+                    mkdir($tempExtractDir);
+                    
+                    $cmd = sprintf("'%s' %s -o %s -d %s", $zipBin, $pwdArg, escapeshellarg($zipFile), escapeshellarg($tempExtractDir));
+                    exec($cmd, $output, $returnVar);
+                    
+                    if ($returnVar === 0) {
+                        // Si structure confirmée, on déplace le contenu
+                        $sourceDir = $tempExtractDir . '/' . $commonDir;
+                        if (is_dir($sourceDir)) {
+                            $files = scandir($sourceDir);
+                            foreach ($files as $file) {
+                                if ($file === '.' || $file === '..') continue;
+                                rename($sourceDir . '/' . $file, $extractPath . $file);
+                            }
+                        } else {
+                             // Structure mixte, on déplace tout
+                             $files = scandir($tempExtractDir);
+                             foreach ($files as $file) {
+                                 if ($file === '.' || $file === '..') continue;
+                                 rename($tempExtractDir . '/' . $file, $extractPath . $file);
+                             }
+                        }
+                        deleteDirectory($tempExtractDir); // Nettoyage
+                        $success = true;
+                    }
+                } else {
+                    // Extraction directe
+                    $cmd = sprintf("'%s' %s -o %s -d %s", $zipBin, $pwdArg, escapeshellarg($zipFile), escapeshellarg($extractPath));
+                    exec($cmd, $output, $returnVar);
+                    if ($returnVar === 0) {
+                        $success = true;
+                    }
+                }
+            }
+
+            // Fallback PHP ZipArchive
+            if (!$success) {
+                $zip = new ZipArchive();
+                if ($zip->open($zipFile) !== TRUE) {
+                    throw new Exception('Le fichier n\'est pas une archive ZIP valide');
+                }
+                
+                if (!empty($password)) {
+                    $zip->setPassword($password);
+                }
+                
+                $currentDirName = basename($extractPath);
+                $stripPrefix = $currentDirName . '/';
+                
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $filename = $zip->getNameIndex($i);
+                    $targetName = $filename;
+                    
+                    // Logic de strip
+                    if (str_starts_with($filename, $stripPrefix)) {
+                        $targetName = substr($filename, strlen($stripPrefix));
+                    }
+                    
+                    if (empty($targetName) || str_ends_with($targetName, '/')) continue;
+                    
+                    // Extraction manuelle via Stream pour contrôler la destination
+                    $stream = $zip->getStream($filename);
+                    if ($stream) {
+                        $destPath = $extractPath . $targetName;
+                        $destDir = dirname($destPath);
+                        if (!is_dir($destDir)) mkdir($destDir, 0775, true);
+                        
+                        $destStream = fopen($destPath, 'wb');
+                        if ($destStream) {
+                            while (!feof($stream)) fwrite($destStream, fread($stream, 8192));
+                            fclose($destStream);
+                            fclose($stream);
+                        } else {
+                            $zip->extractTo($extractPath, $filename);
+                        }
+                    } else {
+                        $zip->extractTo($extractPath, $filename);
+                    }
+                }
+                $zip->close();
+            }
+
+            // Correction des permissions post-restauration
             try {
                 $iterator = new RecursiveIteratorIterator(
                     new RecursiveDirectoryIterator($extractPath, RecursiveDirectoryIterator::SKIP_DOTS),
@@ -433,15 +596,13 @@ try {
                 
                 foreach ($iterator as $item) {
                     if ($item->isDir()) {
-                        chmod($item->getRealPath(), 0775);
+                        @chmod($item->getRealPath(), 0775);
                     } else {
-                        chmod($item->getRealPath(), 0644);
+                        @chmod($item->getRealPath(), 0644);
                     }
                 }
-                // Appliquer aussi au dossier racine d'extraction
-                chmod($extractPath, 0775);
+                @chmod($extractPath, 0775);
             } catch (Exception $e) {
-                // On continue même si le chmod échoue partiellement
                 error_log("Avertissement chmod post-restauration : " . $e->getMessage());
             }
             
