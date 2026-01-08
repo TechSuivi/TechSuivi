@@ -30,6 +30,10 @@ echo "<form method='GET'>
 try {
     $pdo = getDatabaseConnection();
     
+    // Lister les tables existantes
+    $tablesList = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+    echo "<h3>Tables disponibles :</h3><p style='font-size:12px;color:#666'>" . implode(', ', $tablesList) . "</p>";
+
     // Récupérer les 5 dernières entrées qui ne sont pas vides
     $sql = "SELECT $id_col, $col FROM $table WHERE $col IS NOT NULL AND $col != '' ORDER BY $id_col DESC LIMIT $limit";
     $rows = $pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
