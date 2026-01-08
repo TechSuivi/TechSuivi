@@ -415,8 +415,28 @@ try {
                 $zip->close();
                 throw new Exception('Erreur lors de l\'extraction de l\'archive');
             }
-            
             $zip->close();
+
+            // Correction des permissions post-restauration (Récursif)
+            try {
+                $iterator = new RecursiveIteratorIterator(
+                    new RecursiveDirectoryIterator($extractPath, RecursiveDirectoryIterator::SKIP_DOTS),
+                    RecursiveIteratorIterator::SELF_FIRST
+                );
+                
+                foreach ($iterator as $item) {
+                    if ($item->isDir()) {
+                        chmod($item->getRealPath(), 0775);
+                    } else {
+                        chmod($item->getRealPath(), 0644);
+                    }
+                }
+                // Appliquer aussi au dossier racine d'extraction
+                chmod($extractPath, 0775);
+            } catch (Exception $e) {
+                // On continue même si le chmod échoue partiellement
+                error_log("Avertissement chmod post-restauration : " . $e->getMessage());
+            }
             
             $msgPath = $targetPath ? "/uploads/" . $targetPath : "/uploads/ (Racine)";
             $_SESSION['files_message'] = "✅ Restauration effectuée avec succès dans : " . $msgPath;
