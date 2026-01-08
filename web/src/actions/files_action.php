@@ -656,18 +656,25 @@ try {
                     if (empty($targetName) || str_ends_with($targetName, '/')) continue;
                     
                     // Extraction manuelle via Stream pour contrôler la destination
+                    $destPath = $extractPath . $targetName;
+                    
+                    // TENTATIVE DE SUPPRESSION PREALABLE pour éviter les problèmes de droits
+                    if (file_exists($destPath)) {
+                        @unlink($destPath);
+                    }
+                    
                     $stream = $zip->getStream($filename);
                     if ($stream) {
-                        $destPath = $extractPath . $targetName;
                         $destDir = dirname($destPath);
                         if (!is_dir($destDir)) mkdir($destDir, 0775, true);
                         
-                        $destStream = fopen($destPath, 'wb');
+                        $destStream = @fopen($destPath, 'wb');
                         if ($destStream) {
                             while (!feof($stream)) fwrite($destStream, fread($stream, 8192));
                             fclose($destStream);
                             fclose($stream);
                         } else {
+                            // En cas d'échec fopen, on tente extractTo standard
                             $zip->extractTo($extractPath, $filename);
                         }
                     } else {

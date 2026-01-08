@@ -180,22 +180,24 @@ $globalStats = getDirectoryStats($uploadsDir);
 
 <!-- Explorateur de fichiers -->
 <div class="files-explorer bordered-section" style="flex: 2;">
-    <h3 style="margin-top: 0;">📂 Explorateur de Fichiers</h3>
+    <h3 style="margin-top: 0; border-bottom: 2px solid rgba(127, 127, 127, 0.3); padding-bottom: 10px; margin-bottom: 15px; font-size: 1.2rem;">
+        📂 Explorateur de Fichiers
+    </h3>
     
     <!-- Navigation & Actions -->
-    <div class="files-navigation backup-section-content" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 15px;">
+    <div class="files-navigation backup-section-content" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-radius: 5px; border: 1px solid rgba(127, 127, 127, 0.2);">
         <!-- Partie Gauche : Chemin -->
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <div style="display: flex; align-items: center; gap: 10px;">
                 <strong>📍 Chemin :</strong>
-                <span style="font-family: monospace; background-color: #e9ecef; padding: 2px 6px; border-radius: 3px;">
+                <span style="font-family: monospace; background-color: rgba(127, 127, 127, 0.1); padding: 2px 8px; border-radius: 3px; border: 1px solid rgba(127, 127, 127, 0.2);">
                     /uploads/<?= htmlspecialchars($currentPath) ?>
                 </span>
             </div>
             <?php if (!empty($currentPath)): ?>
                 <div>
                     <a href="index.php?page=files_manager&path=<?= urlencode(dirname($currentPath) === '.' ? '' : dirname($currentPath)) ?>" 
-                       style="background-color: #6c757d; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 12px; display: inline-flex; align-items: center;">
+                       style="background-color: #6c757d; color: white; padding: 2px 8px; text-decoration: none; border-radius: 3px; font-size: 12px; display: inline-flex; align-items: center;">
                         ⬆️ Dossier parent
                     </a>
                 </div>
@@ -205,11 +207,11 @@ $globalStats = getDirectoryStats($uploadsDir);
         <!-- Partie Droite : Actions Compactes -->
         <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
             <!-- Nouveau Dossier -->
-            <form method="post" action="actions/files_action.php" style="display: flex; gap: 2px; align-items: center;">
+            <form method="post" action="actions/files_action.php" style="display: flex; gap: 0; align-items: center;">
                 <input type="hidden" name="action" value="create_folder">
                 <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
-                <input type="text" name="folder_name" placeholder="Nouveau dossier..." required style="padding: 4px; border: 1px solid #ced4da; border-radius: 3px 0 0 3px; font-size: 13px; width: 140px;">
-                <button type="submit" class="backup-button backup-button-info" style="width: auto; margin: 0; padding: 4px 8px; border-radius: 0 3px 3px 0; font-size: 13px;" title="Créer dossier">➕</button>
+                <input type="text" name="folder_name" placeholder="Nouveau dossier..." required style="padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px 0 0 4px; font-size: 13px; width: 140px; border-right: none;">
+                <button type="submit" class="backup-button backup-button-info" style="width: auto; margin: 0; padding: 4px 10px; border-radius: 0 4px 4px 0; font-size: 13px;" title="Créer dossier">➕</button>
             </form>
 
             <!-- Upload -->
@@ -217,7 +219,7 @@ $globalStats = getDirectoryStats($uploadsDir);
                 <input type="hidden" name="action" value="upload_file">
                 <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
                 
-                <label for="file_upload" class="backup-button backup-button-success" style="width: 100%; box-sizing: border-box; margin: 0; padding: 4px 8px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; text-align: center;">
+                <label for="file_upload" class="backup-button backup-button-success" style="width: 100%; box-sizing: border-box; margin: 0; padding: 4px 10px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; text-align: center;">
                     ⬆️ Uploader un fichier
                 </label>
                 <input id="file_upload" type="file" name="upload_file" required style="display: none;" onchange="this.form.submit()">
@@ -226,79 +228,83 @@ $globalStats = getDirectoryStats($uploadsDir);
     </div>
     
     <!-- Liste des fichiers -->
-    <div class="files-table-container backup-section-content" style="max-height: 500px; overflow-y: auto;">
+    <div class="files-table-container" style="max-height: 500px; overflow-y: auto; border: 1px solid rgba(127, 127, 127, 0.2); border-radius: 4px;">
         <form id="filesForm" method="post" action="actions/files_action.php">
             <input type="hidden" name="action" value="delete_batch">
             <input type="hidden" name="path" value="<?= htmlspecialchars($currentPath) ?>">
             
-            <!-- Barre d'actions groupées (cachée par défaut) -->
-            <div id="batchActions" style="display: none; padding: 10px; background-color: #f8d7da; border-bottom: 1px solid #dee2e6; align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10;">
-                <span style="font-weight: bold; font-size: 13px;">Actions groupées :</span>
+            <!-- Barre d'actions groupées -->
+            <div id="batchActions" style="display: none; padding: 8px 12px; background-color: rgba(220, 53, 69, 0.1); border-bottom: 1px solid rgba(220, 53, 69, 0.2); align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10;">
+                <span style="font-weight: bold; font-size: 13px; color: #dc3545;">Actions :</span>
                 <button type="submit" onclick="return confirm('Attention : Vous êtes sur le point de supprimer définitivement les éléments sélectionnés.\nConfirmer ?')" 
-                        style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;">
-                    🗑️ Supprimer la sélection (<span id="selectedCount">0</span>)
+                        style="background-color: #dc3545; color: white; border: none; padding: 4px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;">
+                    🗑️ Supprimer (<span id="selectedCount">0</span>)
                 </button>
             </div>
 
-            <table class="files-table" style="width: 100%; border-collapse: collapse;">
+            <table class="files-table" style="width: 100%; border-collapse: collapse; font-size: 14px;">
                 <thead>
                     <tr>
-                        <th style="padding: 10px; width: 30px; text-align: center;">
-                            <input type="checkbox" id="selectAll" title="Tout sélectionner">
+                        <th style="padding: 10px; width: 40px; text-align: center; border-bottom: 2px solid rgba(127, 127, 127, 0.2);">
+                            <input type="checkbox" id="selectAll" title="Tout sélectionner" style="cursor: pointer;">
                         </th>
-                        <th style="padding: 10px; text-align: left;">Nom</th>
-                        <th style="padding: 10px; text-align: right;">Taille</th>
-                        <th style="padding: 10px; text-align: center;">Modifié</th>
-                        <th style="padding: 10px; text-align: center;">Actions</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(127, 127, 127, 0.2);">Nom</th>
+                        <th style="padding: 10px; text-align: right; border-bottom: 2px solid rgba(127, 127, 127, 0.2); width: 100px;">Taille</th>
+                        <th style="padding: 10px; text-align: center; border-bottom: 2px solid rgba(127, 127, 127, 0.2); width: 140px;">Modifié</th>
+                        <th style="padding: 10px; text-align: center; border-bottom: 2px solid rgba(127, 127, 127, 0.2); width: 160px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($items)): ?>
                         <tr>
-                            <td colspan="5" style="padding: 20px; text-align: center; color: #6c757d; font-style: italic;">
-                                📭 Dossier vide
+                            <td colspan="5" style="padding: 30px; text-align: center; opacity: 0.7; font-style: italic;">
+                                📭 Ce dossier est vide
                             </td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($items as $item): ?>
-                            <tr>
+                            <tr style="border-bottom: 1px solid rgba(127, 127, 127, 0.1); transition: background-color 0.1s;">
                                 <td style="padding: 8px; text-align: center;">
-                                    <input type="checkbox" name="selected_files[]" value="<?= htmlspecialchars($item['name']) ?>" class="file-checkbox">
+                                    <input type="checkbox" name="selected_files[]" value="<?= htmlspecialchars($item['name']) ?>" class="file-checkbox" style="cursor: pointer;">
                                 </td>
                                 <td style="padding: 8px;">
                                     <?php if ($item['type'] === 'directory'): ?>
                                         <a href="index.php?page=files_manager&path=<?= urlencode($item['path']) ?>" 
-                                           style="text-decoration: none; color: #007bff; font-weight: 500;">
-                                            <?= $item['icon'] ?> <?= htmlspecialchars($item['name']) ?>
+                                           style="text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; background: none !important; padding: 0 !important; border: none !important; color: inherit;">
+                                            <span style="font-size: 1.1em;">📁</span> <?= htmlspecialchars($item['name']) ?>
                                         </a>
                                     <?php else: ?>
-                                        <span><?= $item['icon'] ?> <?= htmlspecialchars($item['name']) ?></span>
+                                        <span style="display: flex; align-items: center; gap: 8px;">
+                                            <?= $item['icon'] ?> <?= htmlspecialchars($item['name']) ?>
+                                        </span>
                                     <?php endif; ?>
                                 </td>
                                 <td style="padding: 8px; text-align: right; font-family: monospace;">
                                     <?= $item['type'] === 'directory' ? '-' : formatFileSize($item['size']) ?>
                                 </td>
-                                <td style="padding: 8px; text-align: center; font-size: 12px;">
+                                <td style="padding: 8px; text-align: center; font-size: 13px;">
                                     <?= date('d/m/Y H:i', $item['modified']) ?>
                                 </td>
                                 <td style="padding: 8px; text-align: center;">
-                                    <?php if ($item['type'] === 'file'): ?>
-                                        <a href="actions/files_action.php?action=download&file=<?= urlencode($item['path']) ?>" 
-                                           style="background-color: #28a745; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 11px; margin-right: 5px;">
-                                            📥 Télécharger
-                                        </a>
-                                        <a href="actions/files_action.php?action=delete&file=<?= urlencode($item['path']) ?>" 
-                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')"
-                                           style="background-color: #dc3545; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;">
-                                            🗑️ Supprimer
-                                        </a>
-                                    <?php else: ?>
-                                        <a href="actions/files_action.php?action=delete_dir&dir=<?= urlencode($item['path']) ?>" 
-                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?')"
-                                           style="background-color: #dc3545; color: white; padding: 3px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;">
-                                            🗑️ Supprimer
-                                        </a>
-                                    <?php endif; ?>
+                                    <div style="display: flex; justify-content: center; gap: 5px;">
+                                        <?php if ($item['type'] === 'file'): ?>
+                                            <a href="actions/files_action.php?action=download&file=<?= urlencode($item['path']) ?>" 
+                                               style="background-color: #28a745; color: white; padding: 4px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;" title="Télécharger">
+                                                📥
+                                            </a>
+                                            <a href="actions/files_action.php?action=delete&file=<?= urlencode($item['path']) ?>" 
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')"
+                                               style="background-color: #dc3545; color: white; padding: 4px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;" title="Supprimer">
+                                                🗑️
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="actions/files_action.php?action=delete_dir&dir=<?= urlencode($item['path']) ?>" 
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?')"
+                                               style="background-color: #dc3545; color: white; padding: 4px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;" title="Supprimer">
+                                                🗑️
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -309,9 +315,10 @@ $globalStats = getDirectoryStats($uploadsDir);
     </div>
     
     <!-- Statistiques du dossier actuel -->
-    <div class="files-stats backup-section-content" style="margin-top: 15px; font-size: 13px;">
-        <strong>📊 Dossier actuel :</strong> 
-        <?= $dirCount ?> dossier(s), <?= $fileCount ?> fichier(s), <?= formatFileSize($totalSize) ?>
+    <div class="files-stats backup-section-content" style="margin-top: 10px; font-size: 13px; text-align: right; border-top: 1px solid rgba(127, 127, 127, 0.2); padding-top: 5px;">
+        <strong>Contenu :</strong> 
+        <?= $dirCount ?> dossier(s), <?= $fileCount ?> fichier(s) | 
+        <strong>Total :</strong> <?= formatFileSize($totalSize) ?>
     </div>
 </div>
 
