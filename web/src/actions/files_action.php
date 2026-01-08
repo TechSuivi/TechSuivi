@@ -388,7 +388,8 @@ try {
             $zipFile = $_FILES['restore_file']['tmp_name'];
             $fileType = mime_content_type($zipFile);
             
-            // Nettoyage du chemin cible
+            // Récupérer le dossier cible
+            $targetPath = $_POST['target_path'] ?? '';
             $targetPath = trim($targetPath, '/\\');
             $extractPath = $uploadsDir . ($targetPath ? $targetPath . '/' : '');
             
