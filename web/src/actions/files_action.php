@@ -35,7 +35,7 @@ function formatFileSize($bytes) {
 }
 
 // Fonction pour créer une archive ZIP récursivement
-function createZipArchive($source, $destination, $basePath = '', $password = null) {
+function createZipArchive($source, $destination, $basePath = '', $password = null, $excludes = []) {
     if (!extension_loaded('zip')) {
         throw new Exception('Extension ZIP non disponible');
     }
@@ -57,15 +57,24 @@ function createZipArchive($source, $destination, $basePath = '', $password = nul
         // Construction des arguments mot de passe
         $pwdArg = !empty($password) ? "-P " . escapeshellarg($password) : "";
         
+        // Construction des exclusions
+        $excludeArg = "";
+        if (!empty($excludes)) {
+            foreach ($excludes as $ex) {
+                // zip -x "pattern*"
+                $excludeArg .= " -x " . escapeshellarg($ex . '*'); 
+            }
+        }
+        
         if (empty($basePath)) {
             // Backup Full : on se place DANS source et on zippe tout (.)
             chdir($source);
-            $cmd = sprintf("'%s' -r %s %s .", $zipBin, $pwdArg, escapeshellarg($destination));
+            $cmd = sprintf("'%s' -r %s %s . %s", $zipBin, $pwdArg, escapeshellarg($destination), $excludeArg);
         } else {
             // Backup Folder : on se place dans le PARENT de source
             chdir(dirname($source));
             $folderToZip = basename($source);
-            $cmd = sprintf("'%s' -r %s %s %s", $zipBin, $pwdArg, escapeshellarg($destination), escapeshellarg($folderToZip));
+            $cmd = sprintf("'%s' -r %s %s %s %s", $zipBin, $pwdArg, escapeshellarg($destination), escapeshellarg($folderToZip), $excludeArg);
         }
         
         error_log("Executing system zip: $cmd"); // Debug
@@ -124,6 +133,19 @@ function createZipArchive($source, $destination, $basePath = '', $password = nul
         
         $zipPath = str_replace('\\', '/', $zipPath);
         
+        // Gestion des exclusions (PHP fallback)
+        $shouldExclude = false;
+        if (!empty($excludes)) {
+            foreach ($excludes as $ex) {
+                // Vérification simple : si le chemin relatif commence par l'exclusion
+                if (str_starts_with($zipPath, $ex)) {
+                    $shouldExclude = true;
+                    break;
+                }
+            }
+        }
+        if ($shouldExclude) continue;
+        
         if ($file->isDir()) {
             $zip->addEmptyDir($zipPath);
         } elseif ($file->isFile()) {
@@ -147,6 +169,8 @@ function createZipArchive($source, $destination, $basePath = '', $password = nul
     
     return true;
 }
+
+
 
 // Fonction pour supprimer un dossier récursivement
 function deleteDirectory($dir) {
@@ -325,19 +349,57 @@ try {
             set_time_limit(600); // 10 minutes
             ini_set('memory_limit', '1G');
             
+            $outputMode = $_POST['output_mode'] ?? 'server';
+            $excludeBackups = isset($_POST['exclude_backups']) && $_POST['exclude_backups'] == '1';
+            
             $timestamp = date('Y-m-d_H-i-s');
             $backupFileName = "files_backup_full_{$timestamp}.zip";
-            $backupPath = $backupsDir . $backupFileName;
+            
+            // Si téléchargement direct, on utilise un fichier temporaire
+            if ($outputMode === 'download') {
+                $tempDir = $uploadsDir . 'temp/';
+                if (!is_dir($tempDir)) mkdir($tempDir, 0775, true);
+                $backupPath = $tempDir . $backupFileName;
+            } else {
+                $backupPath = $backupsDir . $backupFileName;
+            }
             
             $password = $_POST['backup_password'] ?? null;
-            createZipArchive($uploadsDir, $backupPath, '', $password);
             
-            $fileSize = formatFileSize(filesize($backupPath));
-            $_SESSION['files_message'] = "✅ Sauvegarde complète créée avec succès : {$backupFileName} ({$fileSize})";
-            $_SESSION['files_message_type'] = 'success';
+            // Gestion des exclusions
+            $excludes = [];
+            if ($excludeBackups) {
+                $excludes[] = 'backups/';
+                // Exclure aussi le dossier temp si on est en train de créer le zip dedans
+                $excludes[] = 'temp/'; 
+            }
             
-            header('Location: ../index.php?page=files_manager');
-            exit();
+            createZipArchive($uploadsDir, $backupPath, '', $password, $excludes);
+            
+            if ($outputMode === 'download') {
+                if (file_exists($backupPath)) {
+                    // Headers pour le téléchargement
+                    header('Content-Type: application/zip');
+                    header('Content-Disposition: attachment; filename="' . basename($backupPath) . '"');
+                    header('Content-Length: ' . filesize($backupPath));
+                    header('Pragma: no-cache');
+                    header('Expires: 0');
+                    readfile($backupPath);
+                    
+                    // Suppression après envoi
+                    unlink($backupPath);
+                    exit();
+                } else {
+                    throw new Exception("Erreur : Le fichier de sauvegarde n'a pas été créé.");
+                }
+            } else {
+                $fileSize = formatFileSize(filesize($backupPath));
+                $_SESSION['files_message'] = "✅ Sauvegarde complète créée avec succès : {$backupFileName} ({$fileSize})";
+                $_SESSION['files_message_type'] = 'success';
+                
+                header('Location: ../index.php?page=files_manager');
+                exit();
+            }
             
         case 'backup_folder':
             set_time_limit(600); // 10 minutes
@@ -356,20 +418,48 @@ try {
                 throw new Exception('Accès non autorisé');
             }
             
+            $outputMode = $_POST['output_mode'] ?? 'server';
+            
             $timestamp = date('Y-m-d_H-i-s');
             $folderName = str_replace(['/', '\\'], '_', $folder);
             $backupFileName = "files_backup_{$folderName}_{$timestamp}.zip";
-            $backupPath = $backupsDir . $backupFileName;
+            
+            // Si téléchargement direct, on utilise un fichier temporaire
+            if ($outputMode === 'download') {
+                $tempDir = $uploadsDir . 'temp/';
+                if (!is_dir($tempDir)) mkdir($tempDir, 0775, true);
+                $backupPath = $tempDir . $backupFileName;
+            } else {
+                $backupPath = $backupsDir . $backupFileName;
+            }
             
             $password = $_POST['backup_password'] ?? null;
             createZipArchive($folderPath, $backupPath, basename($folder), $password);
             
-            $fileSize = formatFileSize(filesize($backupPath));
-            $_SESSION['files_message'] = "✅ Sauvegarde du dossier créée avec succès : {$backupFileName} ({$fileSize})";
-            $_SESSION['files_message_type'] = 'success';
-            
-            header('Location: ../index.php?page=files_manager&path=' . urlencode($folder));
-            exit();
+            if ($outputMode === 'download') {
+                if (file_exists($backupPath)) {
+                    // Headers pour le téléchargement
+                    header('Content-Type: application/zip');
+                    header('Content-Disposition: attachment; filename="' . basename($backupPath) . '"');
+                    header('Content-Length: ' . filesize($backupPath));
+                    header('Pragma: no-cache');
+                    header('Expires: 0');
+                    readfile($backupPath);
+                    
+                    // Suppression après envoi
+                    unlink($backupPath);
+                    exit();
+                } else {
+                    throw new Exception("Erreur : Le fichier de sauvegarde n'a pas été créé.");
+                }
+            } else {
+                $fileSize = formatFileSize(filesize($backupPath));
+                $_SESSION['files_message'] = "✅ Sauvegarde du dossier créée avec succès : {$backupFileName} ({$fileSize})";
+                $_SESSION['files_message_type'] = 'success';
+                
+                header('Location: ../index.php?page=files_manager&path=' . urlencode($folder));
+                exit();
+            }
             
         case 'create_folder':
             $folderName = trim($_POST['folder_name'] ?? '');

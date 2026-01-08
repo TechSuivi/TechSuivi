@@ -324,18 +324,29 @@ $globalStats = getDirectoryStats($uploadsDir);
     <div class="backup-section-content">
         <h4>📦 Sauvegarde Complète</h4>
         <p class="backup-description">
-            Créer une archive ZIP de tout le dossier uploads
+            Créer une archive ZIP de tout le dossier uploads.
         </p>
         <form method="post" action="actions/files_action.php">
             <input type="hidden" name="action" value="backup_full">
-            <!--
-            <div style="margin-bottom: 10px;">
-                <input type="password" name="backup_password" placeholder="Mot de passe (facultatif)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box;">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="checkbox" name="exclude_backups" value="1" checked style="margin-right: 8px;">
+                    Exclure le dossier 'backups' (Recommandé)
+                </label>
+                <div style="font-size: 11px; color: #6c757d; margin-top: 2px; margin-left: 20px;">
+                    Évite que la sauvegarde contienne les anciennes sauvegardes.
+                </div>
             </div>
-            -->
-            <button type="submit" class="backup-button backup-button-success">
-                📦 Créer Archive Complète
-            </button>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="submit" name="output_mode" value="server" class="backup-button backup-button-success" style="flex: 1;">
+                    💾 Sauvegarder sur Serveur
+                </button>
+                <button type="submit" name="output_mode" value="download" class="backup-button backup-button-info" style="flex: 1;">
+                    📥 Télécharger Immédiatement
+                </button>
+            </div>
         </form>
     </div>
     
@@ -349,14 +360,15 @@ $globalStats = getDirectoryStats($uploadsDir);
         <form method="post" action="actions/files_action.php">
             <input type="hidden" name="action" value="backup_folder">
             <input type="hidden" name="folder" value="<?= htmlspecialchars($currentPath) ?>">
-            <!--
-            <div style="margin-bottom: 10px;">
-                <input type="password" name="backup_password" placeholder="Mot de passe (facultatif)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box;">
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button type="submit" name="output_mode" value="server" class="backup-button backup-button-info" style="flex: 1;">
+                    💾 Sauvegarder sur Serveur
+                </button>
+                <button type="submit" name="output_mode" value="download" class="backup-button" style="flex: 1; background-color: #117a8b; color: white;">
+                    📥 Télécharger Immédiatement
+                </button>
             </div>
-            -->
-            <button type="submit" class="backup-button backup-button-info">
-                📁 Sauvegarder ce Dossier
-            </button>
         </form>
     </div>
     <?php endif; ?>
