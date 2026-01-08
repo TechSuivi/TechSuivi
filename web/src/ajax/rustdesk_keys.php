@@ -148,22 +148,101 @@ if ($action === 'download_keys') {
         }
         $destPersistence = $persistenceDir . '/' . $fileName;
         
+        // 1. Copie vers le dossier de persistance (Uploads)
         $opResult = $isMove ? @move_uploaded_file($sourcePath, $destPersistence) : @copy($sourcePath, $destPersistence);
         
         if ($opResult) {
             @chmod($destPersistence, 0644);
+            $liveSuccess = false;
+            $details = [];
+
+            // 2. Tentative copie vers Volume (Si monté et inscriptible)
             if (is_dir($rustdeskDir) && is_writable($rustdeskDir)) {
                  $destLive = $rustdeskDir . '/' . $fileName;
-                 @copy($destPersistence, $destLive);
-                 if ($fileName === 'id_ed25519') {
-                     @chmod($destLive, 0600); @chmod($destPersistence, 0600);
+                 if (@copy($destPersistence, $destLive)) {
+                     if ($fileName === 'id_ed25519') {
+                         @chmod($destLive, 0600); @chmod($destPersistence, 0600);
+                     } else {
+                         @chmod($destLive, 0644);
+                     }
+                     $liveSuccess = true;
+                     $details[] = "Volume:OK";
                  } else {
-                     @chmod($destLive, 0644);
+                     $details[] = "Volume:CopyFail";
                  }
+            } else {
+                $details[] = "Volume:N/A";
             }
-            $count++;
+
+            // 3. Fallback : Injection Docker (Si volume échoue ou absent)
+            if (!$liveSuccess) {
+                $dockerBin = shell_exec('which docker');
+                if ($dockerBin) {
+                    $dockerBin = trim($dockerBin);
+                    // Trouver le conteneur Rustdesk (HBBS ou Rustdesk)
+                    $containerName = shell_exec("$dockerBin ps --format '{{.Names}}' | grep -E 'ts_rustdesk|ts_hbbs|hbbs|rustdesk' | head -n 1");
+                    $containerName = $containerName ? trim($containerName) : null;
+                    
+                    if ($containerName) {
+                        try {
+                            $cmd = sprintf(
+                                "%s exec -i %s sh -c 'cat > /root/%s'", 
+                                $dockerBin, 
+                                escapeshellarg($containerName), 
+                                escapeshellarg($fileName)
+                            );
+                            
+                            $descriptorSpec = [
+                                0 => ["pipe", "r"], // stdin
+                                1 => ["pipe", "w"], // stdout
+                                2 => ["pipe", "w"]  // stderr
+                            ];
+                            
+                            $process = proc_open($cmd, $descriptorSpec, $pipes);
+                            
+                            if (is_resource($process)) {
+                                fwrite($pipes[0], file_get_contents($destPersistence));
+                                fclose($pipes[0]);
+                                
+                                $stdout = stream_get_contents($pipes[1]);
+                                $stderr = stream_get_contents($pipes[2]);
+                                fclose($pipes[1]);
+                                fclose($pipes[2]);
+                                
+                                $returnVal = proc_close($process);
+                                if ($returnVal === 0) {
+                                    $liveSuccess = true;
+                                    $details[] = "Docker:OK($containerName)";
+                                    
+                                    // Fix permissions inside container
+                                    $perm = ($fileName === 'id_ed25519') ? '600' : '644';
+                                    exec("$dockerBin exec $containerName chmod $perm /root/$fileName");
+                                    
+                                    // Owner correction (root is default usually but just in case)
+                                    // exec("$dockerBin exec $containerName chown root:root /root/$fileName");
+                                } else {
+                                    $details[] = "Docker:Fail($returnVal)";
+                                    error_log("Docker Inject Fail: $stderr");
+                                }
+                            }
+                        } catch (Exception $e) {
+                            $details[] = "Docker:Exception";
+                        }
+                    } else {
+                        $details[] = "Docker:NoContainer";
+                    }
+                } else {
+                    $details[] = "Docker:NoBin";
+                }
+            }
+
+            if ($liveSuccess) {
+                $count++;
+            } else {
+                $errors[] = "Copié dans uploads mais échec déploiement live (" . implode(', ', $details) . ")";
+            }
         } else {
-             $errors[] = "Échec copie de $fileName";
+             $errors[] = "Échec copie vers uploads ($fileName)";
         }
     };
 
