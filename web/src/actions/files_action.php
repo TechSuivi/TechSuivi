@@ -388,14 +388,21 @@ try {
             $zipFile = $_FILES['restore_file']['tmp_name'];
             $fileType = mime_content_type($zipFile);
             
-            // Récupérer le chemin cible (optionnel)
-            $targetPath = $_POST['target_path'] ?? '';
-            $targetPath = str_replace(['../', '..\\'], '', $targetPath);
-            $extractPath = $uploadsDir . $targetPath;
+            // Nettoyage du chemin cible
+            $targetPath = trim($targetPath, '/\\');
+            $extractPath = $uploadsDir . ($targetPath ? $targetPath . '/' : '');
+            
+            // Correction double slash éventuel
+            $extractPath = str_replace('//', '/', $extractPath);
             
             // Vérifier que le chemin cible existe et est dans uploads
             if (!is_dir($extractPath) || !str_starts_with(realpath($extractPath), realpath($uploadsDir))) {
                  $extractPath = $uploadsDir; // Fallback sur root
+            }
+
+            // Tenter de corriger les permissions AVANT l'extraction
+            if (is_dir($extractPath)) {
+                @chmod($extractPath, 0775);
             }
 
             // Validation basique (ZipArchive validera la structure)
@@ -410,10 +417,9 @@ try {
             }
             
             // Extraction
-            // On extrait dans le dossier CIBLE
             if (!$zip->extractTo($extractPath)) {
                 $zip->close();
-                throw new Exception('Erreur lors de l\'extraction de l\'archive');
+                throw new Exception('Erreur lors de l\'extraction de l\'archive (Vérifiez les permissions ou si le dossier est verrouillé)');
             }
             $zip->close();
 
