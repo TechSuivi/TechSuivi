@@ -44,22 +44,28 @@ foreach ($files as $file) {
     $perms = substr(sprintf('%o', fileperms($path)), -4);
     $owner = posix_getpwuid(fileowner($path))['name'];
     
-    // URL relative depuis la racine web (qui semble être src/)
+    // URL relative
     $url = 'uploads/interventions/' . $file;
     
+    $mime = @mime_content_type($path) ?: 'Inconnu';
+    $imgInfo = @getimagesize($path);
+    $isValidImage = $imgInfo !== false;
+    $validityStatus = $isValidImage ? "<span style='color:green'>OK ({$imgInfo[0]}x{$imgInfo[1]})</span>" : "<span style='color:red'>INVALID</span>";
+
     echo "<tr>";
     echo "<td style='padding:5px;'>" . htmlspecialchars($file) . "</td>";
     echo "<td style='padding:5px;'>" . filesize($path) . "</td>";
     echo "<td style='padding:5px;'>" . $perms . "</td>";
     echo "<td style='padding:5px;'>" . $owner . "</td>";
+    echo "<td style='padding:5px; font-size:12px;'>$mime<br>$validityStatus</td>";
     
     if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
         echo "<td style='padding:5px;'>
                 <a href='$url' target='_blank'>Lien Direct</a><br>
-                <img src='$url' style='height: 60px; border:1px solid #ccc; margin-top:5px;' alt='Erreur chargement'>
+                <img src='$url' style='height: 60px; border:1px solid #ccc; margin-top:5px;' alt='Erreur chargement' onerror=\"this.onerror=null;this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2260%22 height=%2260%22><text x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2210%22 fill=%22red%22>ERREUR</text></svg>';\">
               </td>";
     } else {
-        echo "<td style='padding:5px;'>$ext (Pas une image)</td>";
+        echo "<td style='padding:5px;'>-</td>";
     }
     echo "</tr>";
     $count++;

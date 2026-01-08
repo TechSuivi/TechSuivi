@@ -163,7 +163,9 @@ try {
                                     } elseif (is_numeric($value)) {
                                         $rowValues[] = $value;
                                     } else {
-                                        $rowValues[] = "'" . addslashes($value) . "'";
+                                        $val = addslashes($value);
+                                        $val = str_replace(["\n", "\r"], ["\\n", "\\r"], $val);
+                                        $rowValues[] = "'" . $val . "'";
                                     }
                                 }
                                 $values[] = "(" . implode(', ', $rowValues) . ")";
