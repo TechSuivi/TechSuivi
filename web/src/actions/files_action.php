@@ -660,13 +660,18 @@ try {
                     
                     // TENTATIVE DE SUPPRESSION PREALABLE pour éviter les problèmes de droits
                     if (file_exists($destPath)) {
+                        @chmod($destPath, 0777); // On tente de rendre le fichier modifiable
                         @unlink($destPath);
                     }
                     
                     $stream = $zip->getStream($filename);
                     if ($stream) {
                         $destDir = dirname($destPath);
-                        if (!is_dir($destDir)) mkdir($destDir, 0775, true);
+                        if (!is_dir($destDir)) {
+                            mkdir($destDir, 0775, true);
+                        } else {
+                            @chmod($destDir, 0775); // On s'assure que le dossier est accessible
+                        }
                         
                         $destStream = @fopen($destPath, 'wb');
                         if ($destStream) {
@@ -674,11 +679,11 @@ try {
                             fclose($destStream);
                             fclose($stream);
                         } else {
-                            // En cas d'échec fopen, on tente extractTo standard
-                            $zip->extractTo($extractPath, $filename);
+                            // En cas d'échec fopen, on tente extractTo standard (silencieux pour éviter warning headers)
+                            @$zip->extractTo($extractPath, $filename);
                         }
                     } else {
-                        $zip->extractTo($extractPath, $filename);
+                        @$zip->extractTo($extractPath, $filename);
                     }
                 }
                 $zip->close();
