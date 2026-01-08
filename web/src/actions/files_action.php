@@ -58,7 +58,7 @@ function createZipArchive($source, $destination, $basePath = '', $password = nul
         $pwdArg = !empty($password) ? "-P " . escapeshellarg($password) : "";
         
         // Construction des exclusions
-        $excludeArg = "";
+        $excludeArg = " -x \"*.gitkeep\""; // Exclusion par défaut
         if (!empty($excludes)) {
             foreach ($excludes as $ex) {
                 // zip -x "pattern*"
@@ -119,6 +119,9 @@ function createZipArchive($source, $destination, $basePath = '', $password = nul
     
     foreach ($iterator as $file) {
         $filePath = $file->getRealPath();
+        
+        // Exclusion automatique des .gitkeep
+        if ($file->getFilename() === '.gitkeep') continue;
         
         // Calcul du chemin relatif robuste
         $sourceLen = strlen($source);
