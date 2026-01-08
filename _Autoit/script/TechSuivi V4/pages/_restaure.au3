@@ -103,7 +103,7 @@ Func _InitializeRestaure()
 
 
     ; Vérifier si un chemin de sauvegarde par défaut existe
-    Local $sDefaultPath = RegRead("HKEY_CURRENT_USER\Software\TechSuivi", "DefaultBackupPath")
+    Local $sDefaultPath = IniRead("ini\cfg.ini", "config", "BackupPath", "")
     If $sDefaultPath <> "" And FileExists($sDefaultPath) Then
         $sBackupPath = $sDefaultPath
         _UpdateBackupSourceLabel()
@@ -124,7 +124,7 @@ Func _SelectRestoreBackupPath()
         _Log("- Nouveau chemin de sauvegarde: " & $sBackupPath, "Restauration", "Config")
 
         ; Sauvegarder le chemin par défaut
-        RegWrite("HKEY_CURRENT_USER\Software\TechSuivi", "DefaultBackupPath", "REG_SZ", $sBackupPath)
+        IniWrite("ini\cfg.ini", "config", "BackupPath", $sBackupPath)
     EndIf
 EndFunc
 
@@ -148,23 +148,30 @@ Func _RefreshBackupsList()
     $aBackupPaths[0] = 0
 
     Local $aBackups = _FileListToArray($sBackupPath, "Sauvegarde_*", $FLTA_FOLDERS)
-    If IsArray($aBackups) Then
-        For $i = 1 To $aBackups[0]
-            Local $sBackupPath_Full = $sBackupPath & "\" & $aBackups[$i]
-
-            ; Stocker le chemin dans le tableau
-            ReDim $aBackupPaths[$aBackupPaths[0] + 2]
-            $aBackupPaths[0] += 1
-            $aBackupPaths[$aBackupPaths[0]] = $sBackupPath_Full
-
-            GUICtrlSetData($hListBackups, $aBackups[$i], $aBackups[$i])
-        Next
-        _Log("- " & $aBackups[0] & " sauvegarde(s) trouvée(s)", "Restauration", "Info")
-    EndIf
-
-    ; Désactiver les options si aucune sauvegarde
+    
     If Not IsArray($aBackups) Or $aBackups[0] = 0 Then
         _DisableAllRestoreOptions()
+        Return
+    EndIf
+
+    ; Populate List
+    For $i = 1 To $aBackups[0]
+        Local $sBackupPath_Full = $sBackupPath & "\" & $aBackups[$i]
+
+        ; Stocker le chemin dans le tableau
+        ReDim $aBackupPaths[$aBackupPaths[0] + 2]
+        $aBackupPaths[0] += 1
+        $aBackupPaths[$aBackupPaths[0]] = $sBackupPath_Full
+
+        GUICtrlSetData($hListBackups, $aBackups[$i])
+    Next
+    _Log("- " & $aBackups[0] & " sauvegarde(s) trouvée(s)", "Restauration", "Info")
+
+    ; Auto-select first backup
+    If $aBackups[0] > 0 Then
+        GUICtrlSetData($hListBackups, $aBackups[1]) ; Select first item visually
+        _AnalyzeBackupAndUpdateOptions($sBackupPath & "\" & $aBackups[1]) ; Trigger Logic
+        _Log("- Sélection automatique: " & $aBackups[1], "Restauration", "Info")
     EndIf
 EndFunc
 

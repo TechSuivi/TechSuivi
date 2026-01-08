@@ -60,7 +60,7 @@ function isMenuActive($menuPage, $currentPage) {
         'transactions' => ['transaction_add', 'transactions_list'],
         'stock' => ['stock_list', 'stock_add', 'inventory_list', 'inventory_view'],
         'messages' => ['messages', 'helpdesk_categories'],
-        'settings' => ['settings', 'server_info', 'docker_info', 'script_contributors', 'intervention_sheet_config', 'cyber_pricing_config', 'acadia_config', 'api_keys_config', 'mail_config', 'oauth2_config', 'scheduled_tasks', 'reports_config', 'downloads_add', 'downloads_edit', 'liens_add', 'liens_edit', 'helpdesk_categories', 'fournisseurs_list', 'moyens_paiement', 'statuts_list', 'print_generator', 'catalog_import', 'photos_settings', 'timezone_settings', 'user_add', 'users_list', 'change_password', 'database_backup', 'files_manager', 'autoit_logiciels_list', 'autoit_commandes_list', 'autoit_nettoyage_list', 'autoit_personnalisation_list', 'autoit_installeur_list', 'client_import']
+        'settings' => ['settings', 'server_info', 'docker_info', 'script_contributors', 'intervention_sheet_config', 'cyber_pricing_config', 'acadia_config', 'api_keys_config', 'mail_config', 'oauth2_config', 'scheduled_tasks', 'reports_config', 'downloads_add', 'downloads_edit', 'liens_add', 'liens_edit', 'helpdesk_categories', 'fournisseurs_list', 'moyens_paiement', 'statuts_list', 'print_generator', 'catalog_import', 'photos_settings', 'timezone_settings', 'user_add', 'users_list', 'change_password', 'database_backup', 'files_manager', 'autoit_logiciels_list', 'autoit_commandes_list', 'autoit_nettoyage_list', 'autoit_personnalisation_list', 'autoit_installeur_list', 'client_import', 'gemini_config']
     ];
     
     // Vérifier si la page actuelle correspond directement
@@ -94,7 +94,8 @@ $allowedPages = [
     'users_list', 'user_add', 'change_password', 'database_backup', 'files_manager',
     'statuts_list', 'timezone_settings', 'autoit_logiciels_list',
     'autoit_commandes_list', 'autoit_nettoyage_list', 'autoit_personnalisation_list', 'autoit_installeur_list',
-    'print_generator', 'agenda_list', 'agenda_add', 'agenda_edit', 'vnc', 'vnc_fullscreen', 'client_import', 'rustdesk_backup'
+    'print_generator', 'agenda_list', 'agenda_add', 'agenda_edit', 'vnc', 'vnc_fullscreen', 'client_import', 'rustdesk_backup', 
+    'gemini_config', 'mail_ai_assistant'
 ];
 
 // Validation sécurisée du paramètre page
@@ -196,6 +197,7 @@ if (!in_array($page, $allowedPages)) {
             </div>
             <div class="header-controls">
                 <a href="index.php?page=vnc" class="settings-btn" style="background-color: #5e35b1; border-color: #5e35b1;">🖥️ VNC</a>
+                <a href="index.php?page=mail_ai_assistant" class="settings-btn" style="background-color: #a855f7; border-color: #a855f7;">🤖 Assistant IA</a>
                 <a href="index.php?page=settings" class="settings-btn">⚙️ Paramètres</a>
                 <button id="theme-toggle">🌙 Light Mode</button>
                 <a href="logout.php" class="logout-btn">🚪 Déconnexion</a>
@@ -557,6 +559,18 @@ if (!in_array($page, $allowedPages)) {
                     include 'pages/config/acadia_config.php';
                 } else {
                      echo "<p style='color: red;'>La configuration Acadia ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
+                }
+            } elseif ($page === 'gemini_config') {
+                if ($pdo) {
+                    include 'pages/config/gemini_config.php';
+                } else {
+                     echo "<p style='color: red;'>La configuration Gemini ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
+                }
+            } elseif ($page === 'mail_ai_assistant') {
+                if ($pdo) {
+                    include 'pages/config/mail_ai_assistant.php';
+                } else {
+                     echo "<p style='color: red;'>L'assistant IA ne peut pas être affiché car la connexion à la base de données a échoué.</p>";
                 }
             } elseif ($page === 'api_keys_config') {
                 if ($pdo) {

@@ -32,9 +32,11 @@ function getActiveSettingsTab($currentPage) {
         'intervention_sheet_config' => 'config',
         'cyber_pricing_config' => 'config',
         'acadia_config' => 'config',
+        'gemini_config' => 'config',
         
         // Onglet Mail
         'mail_config' => 'mail',
+
         'oauth2_config' => 'mail',
         'scheduled_tasks' => 'mail',
         'reports_config' => 'mail',
@@ -79,6 +81,7 @@ $tabs = [
             ['url' => 'index.php?page=intervention_sheet_config', 'icon' => '📄', 'title' => 'Feuille d\'Intervention'],
             ['url' => 'index.php?page=cyber_pricing_config', 'icon' => '🖥️', 'title' => 'Tarifs Cyber'],
             ['url' => 'index.php?page=acadia_config', 'icon' => '🔧', 'title' => 'Configuration Acadia'],
+            ['url' => 'index.php?page=gemini_config', 'icon' => '🧠', 'title' => 'Configuration Gemini'],
         ]
     ],
     'mail' => [

@@ -111,7 +111,7 @@ Func _InitializeSauve()
 
 
     ; Vérifier si un chemin de sauvegarde par défaut existe
-    Local $sDefaultPath = RegRead("HKEY_CURRENT_USER\Software\TechSuivi", "DefaultBackupPath")
+    Local $sDefaultPath = IniRead("ini\cfg.ini", "config", "BackupPath", "")
     If $sDefaultPath <> "" And FileExists($sDefaultPath) Then
         $sBackupPath = $sDefaultPath
         _UpdateDestinationLabel()
@@ -127,7 +127,7 @@ Func _SelectBackupPath()
         _Log("- Nouveau chemin de sauvegarde: " & $sBackupPath, "Sauvegarde", "Config")
 
         ; Sauvegarder le chemin par défaut
-        RegWrite("HKEY_CURRENT_USER\Software\TechSuivi", "DefaultBackupPath", "REG_SZ", $sBackupPath)
+        IniWrite("ini\cfg.ini", "config", "BackupPath", $sBackupPath)
     EndIf
 EndFunc
 

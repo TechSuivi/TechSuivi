@@ -392,6 +392,8 @@ $mailMethod = $mailHelper->getMailMethod();
 
                 <!-- Colonne Droite : Expéditeur & Actions -->
                 <div class="col-lg-4">
+
+
                     <div class="config-card">
                         <div class="config-section-title">
                             <span>👤</span> Expéditeur
@@ -485,6 +487,8 @@ function testMailConfig() {
         btn.disabled = false;
     });
 }
+
+
 
 // Fonction utilitaire pour valider les emails
 function validateEmail(email) {

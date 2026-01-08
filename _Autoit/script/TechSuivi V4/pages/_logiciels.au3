@@ -22,6 +22,16 @@
 #include <InetConstants.au3>
 #include <EditConstants.au3>
 #include <StringConstants.au3>
+#include <GuiListView.au3>
+
+; Globals for ProcessBridge (Logiciels)
+Global $sBridgeExeSoft = @ScriptDir & "\tools\ProcessBridge.exe"
+Global $sLogFileSoft = @ScriptDir & "\tools\latest_soft.log"
+Global $sInputFileSoft = @ScriptDir & "\tools\input_soft.txt"
+Global $iPidBridgeSoft = 0
+Global $iLastLogSizeSoft = 0
+Global $aSoftQueue[0]
+Global $iCurrentSoftIndex = -1
 
 ; Définition manuelle des constantes manquantes
 ;Global Const $ES_MULTILINE = 0x0004
@@ -47,186 +57,251 @@ Global $button_refresh_log
 
 
 
+Global $aLogicielsData[100][3] ; [ID, Cmd, Auto] - Resize if needed or use static max
+
 func _logiciels()
-    $info_log = 0
-    $coord1 = 40 ; Décalage pour être dans le groupe
-    $coord2 = 60 ; Décalage pour être dans le groupe
-
-    ; Création du groupe Installation
-    $group_install = GUICtrlCreateGroup("Installation", 20, 40, 320, 480)
-
-    ; Création des cases à cocher pour les logiciels (partie verte)
-    for $a = 1 To $nb_log  Step 1
-        $name_log = IniRead($ini_log,$a,"nom","")
-        $type_installation = IniRead($ini_log,$a,"type_installation","")
-
-        ; Détermination du label selon le type d'installation
-        if $type_installation = "winget" Then
-            $input_log = "Winget"
-        elseif $type_installation = "fichier" Then
-            $input_log = "FTP"
-        Else
-            $input_log = "Non défini"
+    ; Layout
+    $coord1 = 20
+    $coord2 = 40
+    
+    ; --- Group Installation ---
+    $group_install = GUICtrlCreateGroup("Installation", $coord1, $coord2, 330, 480)
+    
+    ; ListView for Software
+    ; Columns: Nom (240), Type (65)
+    Global $idListSoft = GUICtrlCreateListView("Logiciel|Type", $coord1 + 10, $coord2 + 20, 310, 200, BitOR($LVS_REPORT, $LVS_SHOWSELALWAYS), BitOR($LVS_EX_CHECKBOXES, $LVS_EX_FULLROWSELECT))
+    _GUICtrlListView_SetColumnWidth($idListSoft, 0, 200)
+    _GUICtrlListView_SetColumnWidth($idListSoft, 1, 65)
+    
+    ; Populate
+    For $a = 1 To $nb_log
+        Local $name = IniRead($ini_log, $a, "nom", "")
+        Local $type = IniRead($ini_log, $a, "type_installation", "")
+        Local $cmd  = IniRead($ini_log, $a, "commande_winget", "")
+        Local $auto = IniRead($ini_log, $a, "defaut", "0")
+        
+        Local $sItem = $name & "|" & $type
+        Local $idItem = GUICtrlCreateListViewItem($sItem, $idListSoft)
+        Local $iIndex = $a - 1
+        
+        ; Store Technical Data in Array (mapped by ListView Index)
+        If $iIndex >= 0 And $iIndex < UBound($aLogicielsData) Then
+            $aLogicielsData[$iIndex][0] = $a    ; ID (INI Index)
+            $aLogicielsData[$iIndex][1] = $cmd  ; Winget Cmd
+            $aLogicielsData[$iIndex][2] = $auto ; Default
+            
+            ; Auto-check defaults
+            If $auto = "1" Then _GUICtrlListView_SetItemChecked($idListSoft, $iIndex, True)
         EndIf
-
-        $label_log_[$a] = GUICtrlCreateLabel($input_log, $coord1, $coord2+5, 70, 25)
-        $Checkbox_log_[$a] = GUICtrlCreateCheckbox($name_log, $coord1+80, $coord2, 210, 25)
-
-
-
-        $coord2 = $coord2 + 20
     Next
+    
+    ; Console Output using Edit Control
+    GUICtrlCreateLabel("Sortie Console (Winget) :", $coord1 + 10, $coord2 + 230, 300, 15)
+    Global $idOutputSoft = GUICtrlCreateEdit("", $coord1 + 10, $coord2 + 245, 310, 175, BitOR($ES_READONLY, $ES_MULTILINE, $WS_VSCROLL, $ES_AUTOVSCROLL))
+    GUICtrlSetFont(-1, 8, 400, 0, "Consolas")
+    GUICtrlSetBkColor(-1, 0x1E1E1E)
+    GUICtrlSetColor(-1, 0xCCCCCC)
+    
+    ; Buttons
+    $coordBtnY = $coord2 + 430
+    Global $btnSoftAll = GUICtrlCreateButton("Tout (Dé)Select", $coord1 + 10, $coordBtnY, 150, 25)
+    GUICtrlSetOnEvent(-1, "_SoftToggleAll")
+    
+    Global $btnSoftDef = GUICtrlCreateButton("Défaut", $coord1 + 170, $coordBtnY, 150, 25)
+    GUICtrlSetOnEvent(-1, "_SoftCheckDefault")
+    
+    Global $btnSoftRun = GUICtrlCreateButton("INSTALLER SÉLECTION", $coord1 + 10, $coordBtnY + 30, 310, 30)
+    GUICtrlSetOnEvent(-1, "_modelog")
+    GUICtrlSetFont(-1, 10, 600)
+    
+    GUICtrlCreateGroup("", -99, -99, 1, 1) ; End Group
 
-    $coord2 = $coord2 + 20
-
-    ; Boutons
-    $button_toggle_all_log = GUICtrlCreateButton("Tout (Dé)Sélectionner",$coord1,$coord2,130,30)
-    GUICtrlSetOnEvent($button_toggle_all_log, _toggle_all_log)
-
-    $button_defaut_log = GUICtrlCreateButton("Par défaut",$coord1+135,$coord2,130,30)
-    GUICtrlSetOnEvent($button_defaut_log, _checkDefaultlog)
-
-    $button_install_log = GUICtrlCreateButton("    Installation    ",$coord1,$coord2+35,265,30)
-    GUICtrlSetOnEvent($button_install_log, _modelog)
-
-    GUICtrlCreateGroup("", -99, -99, 1, 1) ; Fin du groupe Installation
-
-
-    ; Création de la TreeView pour les programmes installés
+    ; --- Initialisation TreeView et Groupes Droite (Reused from existing code logic, placed same coords) ---
+    ; Group Désinstallation
     $group_uninstall = GUICtrlCreateGroup("Désinstallation", 360, 40, 400, 420)
     $idTreeView = GUICtrlCreateTreeView(370, 60, 380, 350, BitOR($TVS_CHECKBOXES, $TVS_FULLROWSELECT))
     _GUICtrlTreeView_BeginUpdate($idTreeView)
-    
     Local $aListeProgInst = _ListeProgrammes()
     For $i = 0 To UBound($aListeProgInst) - 1
         $hItem = GUICtrlCreateTreeViewItem($aListeProgInst[$i][0], $idTreeView)
         _GUICtrlTreeView_SetIcon($idTreeView, $hItem, $aListeProgInst[$i][1], $aListeProgInst[$i][2])
     Next
-    
     _GUICtrlTreeView_EndUpdate($idTreeView)
 
-    ; Nouveaux boutons sous la TreeView
-    $coord_uninstall_x = 370
-    $coord_uninstall_y = 420
-
-    $button_refresh_log = GUICtrlCreateButton("Actualiser la liste", $coord_uninstall_x, $coord_uninstall_y, 130, 30)
+    $button_refresh_log = GUICtrlCreateButton("Actualiser la liste", 370, 420, 130, 30)
     GUICtrlSetOnEvent($button_refresh_log, _refreshTreeView)
     
-    $button_treeview_uninstall = GUICtrlCreateButton("Désinstaller sélection", $coord_uninstall_x+140, $coord_uninstall_y, 150, 30)
+    $button_treeview_uninstall = GUICtrlCreateButton("Désinstaller sélection", 510, 420, 150, 30)
     GUICtrlSetOnEvent($button_treeview_uninstall, _uninstalllog)
-    
-    GUICtrlCreateGroup("", -99, -99, 1, 1) ; Fin du groupe Désinstallation
+    GUICtrlCreateGroup("", -99, -99, 1, 1)
 
-    ; Groupe Progression
+    ; Group Progression (Global)
     $group_progress = GUICtrlCreateGroup("Progression", 360, 470, 400, 50)
-    
-    ; Ajout de la barre de progression
     $hProgressBar = GUICtrlCreateProgress(370, 490, 380, 20, $PBS_SMOOTH)
     GUICtrlSetData($hProgressBar, 0)
-    
-    ; Ajout du texte pour la barre de progression
-    ;$hProgressText = GUICtrlCreateLabel("", 380, 515, 400, 20, $SS_CENTER) ; Masqué pour gagner de la place ou à repositionner si besoin
-
-    GUICtrlCreateGroup("", -99, -99, 1, 1) ; Fin du groupe Progression
-
-    ; Ajout du contrôle d'édition pour les commandes
-    ;$edit_cmd = GUICtrlCreateEdit("", $coord1, $coord2+110, 300, 100, $ES_MULTILINE + $ES_AUTOVSCROLL + $WS_VSCROLL)
+    GUICtrlCreateGroup("", -99, -99, 1, 1)
 EndFunc
 
-Func _toggle_all_log()
-    $toggle_state = Not $toggle_state
-    
-    for $a = 1 To $nb_log  Step 1
-        If $toggle_state Then
-            GUICtrlSetState($Checkbox_log_[$a], $GUI_CHECKED)
-        Else
-            GUICtrlSetState($Checkbox_log_[$a], $GUI_UNCHECKED)
-        EndIf
-    Next
-Endfunc
+; --- Selection Helpers ---
 
-Func _checkDefaultlog()
-    for $a = 1 To $nb_log  Step 1
-        If IniRead($ini_log,$a,"defaut","") = "1" Then
-            GUICtrlSetState($Checkbox_log_[$a], $GUI_CHECKED)
-        Else
-            GUICtrlSetState($Checkbox_log_[$a], $GUI_UNCHECKED)
-        EndIf
+Func _SoftToggleAll()
+    $toggle_state = Not $toggle_state
+    Local $iCount = _GUICtrlListView_GetItemCount($idListSoft)
+    For $i = 0 To $iCount - 1
+        _GUICtrlListView_SetItemChecked($idListSoft, $i, $toggle_state)
     Next
-Endfunc
+EndFunc
+
+Func _SoftCheckDefault()
+    Local $iCount = _GUICtrlListView_GetItemCount($idListSoft)
+    For $i = 0 To $iCount - 1
+        ; Check from Array
+        Local $isDefault = False
+        If $i < UBound($aLogicielsData) Then
+            $isDefault = ($aLogicielsData[$i][2] == "1")
+        EndIf
+        _GUICtrlListView_SetItemChecked($idListSoft, $i, $isDefault)
+    Next
+EndFunc
+
+; --- Queue Logic ---
 
 Func _modelog()
-    for $a = 1 To $nb_log  Step 1
-        if GUICtrlRead($Checkbox_log_[$a]) = 1 then ;installation logiciel check
-            $name_log = IniRead($ini_log,$a,"nom","")
-            $type_installation = IniRead($ini_log,$a,"type_installation","")
+    ; Build Queue
+    ReDim $aSoftQueue[0]
+    Local $iCount = _GUICtrlListView_GetItemCount($idListSoft)
+    
+    For $i = 0 To $iCount - 1
+        If _GUICtrlListView_GetItemChecked($idListSoft, $i) Then
+            ; Uncheck to mark as pending
+            _GUICtrlListView_SetItemChecked($idListSoft, $i, False)
             
-            ; Installation selon le type défini dans le fichier INI
-            if $type_installation = "winget" Then
-                _winget_install($a) ;> installation en mode winget
-                ; Rafraîchir la liste après chaque installation winget
-                Sleep(2000) ; Attendre que l'installation soit bien enregistrée dans le registre
-                _refreshTreeView()
-            Elseif $type_installation = "fichier" Then
-                _ftp_install($a) ;> Installation en mode FTP
-                ; Rafraîchir la liste après chaque installation FTP
-                Sleep(3000) ; Attendre plus longtemps pour les installations manuelles
-                _refreshTreeView()
-            Else
-                MsgBox(0,"",$name_log & " : Type d'installation non défini")
+            ; Get Data from View (Name/Type) AND Array (ID/Cmd)
+            Local $name = _GUICtrlListView_GetItemText($idListSoft, $i, 0)
+            Local $type = _GUICtrlListView_GetItemText($idListSoft, $i, 1)
+            
+            Local $id_ini = 0
+            Local $cmd = ""
+            
+            If $i < UBound($aLogicielsData) Then
+                $id_ini = $aLogicielsData[$i][0]
+                $cmd    = $aLogicielsData[$i][1]
             EndIf
+            
+            Local $idx = $i
+            _SoftQueueAdd($idx, $id_ini, $type, $name, $cmd)
         EndIf
     Next
+    
+    If UBound($aSoftQueue) > 0 Then
+        _Log("Début de l'installation (" & UBound($aSoftQueue) & " éléments)", "Logiciels", "Queue")
+        _ProcessSoftQueue()
+    Else
+        MsgBox(64, "Info", "Aucun logiciel sélectionné.")
+    EndIf
 EndFunc
 
-Func _winget_install($id)
-	$name = IniRead($ini_log,$id,"nom","")
-	$commande_winget = IniRead($ini_log,$id,"commande_winget","")
+Func _SoftQueueAdd($idx, $id_ini, $type, $name, $cmd)
+    Local $i = UBound($aSoftQueue)
+    ReDim $aSoftQueue[$i+1]
+    $aSoftQueue[$i] = $idx & "*|*" & $id_ini & "*|*" & $type & "*|*" & $name & "*|*" & $cmd
+EndFunc
+
+Func _ProcessSoftQueue()
+    ; Check if Bridge running (Winget)
+    If $iPidBridgeSoft And ProcessExists($iPidBridgeSoft) Then Return
+    
+    ; Check if empty
+    If UBound($aSoftQueue) = 0 Then
+        _Log("Fin de la file d'attente logiciels.", "Logiciels", "Queue")
+        Return
+    EndIf
+    
+    ; Pop
+    Local $sRaw = $aSoftQueue[0]
+    Local $aSplit = StringSplit($sRaw, "*|*", 1)
+    ; [1]Idx, [2]ID_INI, [3]Type, [4]Name, [5]Cmd
+    
+    ; Shift Array
+    Local $iSize = UBound($aSoftQueue)
+    For $i = 0 To $iSize - 2
+        $aSoftQueue[$i] = $aSoftQueue[$i+1]
+    Next
+    ReDim $aSoftQueue[$iSize-1]
+    
+    ; Parse Data
+    Local $iListIdx = $aSplit[1]
+    Local $id_ini   = $aSplit[2]
+    Local $sType    = $aSplit[3]
+    Local $sName    = $aSplit[4]
+    Local $sCmd     = $aSplit[5]
+    
+    $iCurrentSoftIndex = $iListIdx
+    
+    _UpdateProgressText("Traitement de : " & $sName)
+    _Log("Traitement : " & $sName & " (" & $sType & ")", "Logiciels", "Traitement")
+    
+    If $sType = "winget" Then
+        ; Launch Async Bridge
+        Local $fullCmd = "winget install " & $sCmd & " --accept-source-agreements --accept-package-agreements --silent"
+        _StartBridgeSoft($fullCmd, $sName)
+        
+    ElseIf $sType = "fichier" Then
+        ; Launch Sync/Blocking FTP
+        _ftp_install($id_ini)
+        
+        ; Sync function finished, loop immediately to next
+        $iCurrentSoftIndex = -1
+        _ProcessSoftQueue()
+    Else
+        _Log("Type inconnu : " & $sType, "Logiciels", "Erreur")
+        _ProcessSoftQueue()
+    EndIf
+EndFunc
+
+; --- Bridge Helpers (Winget) ---
+
+Func _StartBridgeSoft($sCmd, $sName)
+    If $iPidBridgeSoft Then _StopBridgeSoft()
+    
+    FileDelete($sLogFileSoft)
+    FileDelete($sInputFileSoft)
+    FileWrite($sInputFileSoft, "")
+    $iLastLogSizeSoft = 0
+    
+    GUICtrlSetData($idOutputSoft, "--- Winget : " & $sName & " ---" & @CRLF)
+    
+    ; Run Bridge (Output to latest_soft.log)
+    $iPidBridgeSoft = Run('"' & $sBridgeExeSoft & '" "' & $sCmd & '" "' & $sLogFileSoft & '" "' & $sInputFileSoft & '"', @ScriptDir & "\tools", @SW_HIDE)
+    
+    AdlibRegister("_UpdateLogSoftCtx", 200)
+EndFunc
+
+Func _StopBridgeSoft()
+    If $iPidBridgeSoft Then ProcessClose($iPidBridgeSoft)
+    $iPidBridgeSoft = 0
+    AdlibUnRegister("_UpdateLogSoftCtx")
+    $iCurrentSoftIndex = -1
+EndFunc
+
+Func _UpdateLogSoftCtx()
+	If Not FileExists($sLogFileSoft) Then Return
+	Local $iSize = FileGetSize($sLogFileSoft)
 	
-	; Vérification que la commande winget existe
-	if $commande_winget = "" Then
-		_UpdateProgressText("Erreur : Commande winget manquante pour " & $name)
-		MsgBox(0, "Erreur", "Commande winget manquante pour " & $name)
-		; Décocher et colorer le label en rouge (erreur)
-		GUICtrlSetState($Checkbox_log_[$id], $GUI_UNCHECKED)
-		GUICtrlSetColor($label_log_[$id], 0xFF0000) ; Rouge
-		GUICtrlSetData($label_log_[$id], "Erreur")
-		Return
+	If $iSize > $iLastLogSizeSoft Then
+		Local $hFile = FileOpen($sLogFileSoft, 256 + $FO_READ) 
+		FileSetPos($hFile, $iLastLogSizeSoft, $FILE_BEGIN)
+		Local $sNewData = FileRead($hFile)
+		FileClose($hFile)
+		
+		$iLastLogSizeSoft = $iSize
+		GUICtrlSetData($idOutputSoft, $sNewData, 1)
 	EndIf
 	
-	_UpdateProgressText("Installation winget en cours : " & $name)
-	
-	; Construction de la commande winget complète
-	$cmd_complete = "winget install " & $commande_winget & " --accept-source-agreements --accept-package-agreements --silent"
-	
-	; Exécution de la commande
-	$CmdPid = RunWait(@ComSpec & " /c " & $cmd_complete, @ScriptDir, @SW_HIDE)
-	
-	; Vérification du code de retour avec messages explicites
-	if $CmdPid = 0 Then
-		_UpdateProgressText("Installation terminée avec succès : " & $name)
-		_Log("Installation réussie : " & $name, "Logiciels", "Installation")
-		; Décocher et colorer le label en vert (installé)
-		GUICtrlSetState($Checkbox_log_[$id], $GUI_UNCHECKED)
-		GUICtrlSetColor($label_log_[$id], 0x008000) ; Vert
-		GUICtrlSetData($label_log_[$id], "Installé")
-	ElseIf $CmdPid = -1978335189 Then
-		; Cas spécial : déjà installé
-		Local $errorMessage = _GetWingetErrorMessage($CmdPid)
-		_UpdateProgressText($errorMessage & " : " & $name)
-		_Log($errorMessage & " : " & $name, "Logiciels", "Installation")
-		; Décocher et colorer le label en bleu (déjà installé)
-		GUICtrlSetState($Checkbox_log_[$id], $GUI_UNCHECKED)
-		GUICtrlSetColor($label_log_[$id], 0x0000FF) ; Bleu
-		GUICtrlSetData($label_log_[$id], "Déjà installé")
-	Else
-		Local $errorMessage = _GetWingetErrorMessage($CmdPid)
-		_UpdateProgressText("Erreur lors de l'installation : " & $name)
-		_Log($errorMessage & " : " & $name, "Logiciels", "Installation")
-		; Décocher et colorer le label en rouge (erreur)
-		GUICtrlSetState($Checkbox_log_[$id], $GUI_UNCHECKED)
-		GUICtrlSetColor($label_log_[$id], 0xFF0000) ; Rouge
-		GUICtrlSetData($label_log_[$id], "Erreur")
+	; If process finished
+	If $iPidBridgeSoft And Not ProcessExists($iPidBridgeSoft) Then
+	    _StopBridgeSoft()
+        _ProcessSoftQueue()
 	EndIf
 EndFunc
 

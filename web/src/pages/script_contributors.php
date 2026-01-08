@@ -10,8 +10,8 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.2.3',
-    'release_date' => '2026-01-05',
+    'current_version' => '4.3.0',
+    'release_date' => '2026-01-08',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
@@ -21,6 +21,18 @@ $projectInfo = [
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.3.0',
+        'date' => '2026-01-08',
+        'type' => 'Minor Release',
+        'changes' => [
+            'Feature : Assistant IA complet (Chat conversationnel, Historique, Règles personnalisables)',
+            'Feature : UI Premium pour l\'Assistant (Split View, Dark Mode, Animations)',
+            'Persistance : Sauvegarde automatique de l\'état (Mode, Conversation, Ton) après rechargement',
+            'Database : Nouvelles tables (ai_conversations, ai_messages, ai_rules)',
+            'Fix : Gestion robuste des erreurs API Gemini et correction des fuites CSS'
+        ]
+    ],
     [
         'version' => '4.2.3',
         'date' => '2026-01-05',

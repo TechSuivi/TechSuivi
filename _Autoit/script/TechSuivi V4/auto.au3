@@ -142,11 +142,11 @@ if $screen_res_H < 901 Then
     $editHeight = 40
 EndIf
 
-Global $Form1 = GUICreate($log_name, 800, $formHeight, 192, 50)
+Global $Form1 = GUICreate($log_name, 1000, $formHeight, 192, 50)
 GUISetOnEvent($GUI_EVENT_CLOSE, Terminate,$Form1)
 
 
-$edit_cmd =  GUICtrlCreateEdit("", 10, 550 , 780, $editHeight, $ES_AUTOVSCROLL + $WS_VSCROLL + $ES_READONLY+ $ES_OEMCONVERT)
+$edit_cmd =  GUICtrlCreateEdit("", 10, 550 , 980, $editHeight, $ES_AUTOVSCROLL + $WS_VSCROLL + $ES_READONLY+ $ES_OEMCONVERT)
 
 
 
@@ -166,7 +166,7 @@ $id_client = IniRead( @ScriptDir & "\ini\cfg.ini", "config", "id_client", "" )
 
 ;~         GUISetFont(9, 300)
 
-        Local $idTab = GUICtrlCreateTab(10, 10, 780, 530)
+        Local $idTab = GUICtrlCreateTab(10, 10, 980, 530)
 
 
 
