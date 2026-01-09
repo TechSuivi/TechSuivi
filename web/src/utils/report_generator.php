@@ -592,14 +592,14 @@ class ReportGenerator {
                      $pdf->SetFillColor(245, 245, 245);
                      $pdf->SetFont('Arial', 'B', 9);
                      $pdf->Cell(40, 7, 'Montant', 1, 0, 'R', true);
-                     $pdf->Cell(80, 7, utf8_decode('Emetteur'), 1, 0, 'L', true);
-                     $pdf->Cell(70, 7, utf8_decode('Numéro'), 1, 1, 'L', true);
+                     $pdf->Cell(80, 7, $this->decode('Emetteur'), 1, 0, 'L', true);
+                     $pdf->Cell(70, 7, $this->decode('Numéro'), 1, 1, 'L', true);
                      
                      $pdf->SetFont('Arial', '', 9);
                      foreach ($cheques as $ch) {
-                         $pdf->Cell(40, 7, number_format($ch['montant'], 2) . ' ' . chr(128), 1, 0, 'R');
-                         $pdf->Cell(80, 7, utf8_decode($ch['emetteur']), 1, 0, 'L');
-                         $pdf->Cell(70, 7, utf8_decode($ch['numero']), 1, 1, 'L');
+                         $pdf->Cell(40, 7, $this->decode(number_format($ch['montant'], 2) . ' €'), 1, 0, 'R');
+                         $pdf->Cell(80, 7, $this->decode($ch['emetteur']), 1, 0, 'L');
+                         $pdf->Cell(70, 7, $this->decode($ch['numero']), 1, 1, 'L');
                      }
                  }
              }
@@ -608,12 +608,41 @@ class ReportGenerator {
              if (!empty($fc['commentaire'])) {
                  $pdf->Ln(4);
                  $pdf->SetFont('Arial', 'B', 10);
-                 $pdf->Write(6, utf8_decode('Commentaire : '));
+                 $pdf->Write(6, $this->decode('Commentaire : '));
                  $pdf->SetFont('Arial', 'I', 10);
-                 $pdf->Write(6, utf8_decode($fc['commentaire']));
+                 $pdf->Write(6, $this->decode($fc['commentaire']));
                  $pdf->Ln(8);
              }
              $pdf->Ln(4);
+        }
+
+        // --- 1b. Retraits Bancaires ---
+        if ($fc['total_retrait_especes'] > 0) {
+            $this->pdfSectionHeader($pdf, 'Retraits Bancaires - Total : ' . number_format($fc['total_retrait_especes'], 2) . ' ' . chr(128)); // Euro char not working well in header title sometimes, using chr(128) or just EUR if issue persists. But we fixed decode, so let's try decode.
+            // Actually, let's use the standard decode we added
+             $this->pdfSectionHeader($pdf, 'Retraits Bancaires - Total : ' . number_format($fc['total_retrait_especes'], 2) . ' €');
+
+            $yStart = $pdf->GetY();
+            $colWidth = 60;
+            $colGap = 5;
+            $x1 = 10;
+            $x2 = 10 + $colWidth + $colGap;
+            
+            // Draw Col 1 - Pièces retirées
+            if ($fc['total_retrait_pieces'] > 0) {
+                $pdf->SetXY($x1, $yStart);
+                $this->pdfSubHeader($pdf, 'Pièces retirées', $colWidth);
+                $this->pdfCoinWithdrawalTable($pdf, $fc, $colWidth, $x1);
+            }
+
+            // Draw Col 2 - Billets retirés
+            if ($fc['total_retrait_billets'] > 0) {
+                $pdf->SetXY($x2, $yStart);
+                $this->pdfSubHeader($pdf, 'Billets retirés', $colWidth);
+                $this->pdfBillWithdrawalTable($pdf, $fc, $colWidth, $x2);
+            }
+            
+            $pdf->SetY($yStart + 60); // Ensure we move down enough
         }
 
         // --- 2. Cyber ---
@@ -649,13 +678,13 @@ class ReportGenerator {
                 $pdf->Cell(50, 7, $this->decode($impStr), 1, 0, 'L');
                 
                 $pdf->SetTextColor(40, 167, 69); // Green
-                $pdf->Cell(40, 7, number_format($s['tarif'], 2) . ' €', 1, 1, 'R');
+                $pdf->Cell(40, 7, $this->decode(number_format($s['tarif'], 2) . ' €'), 1, 1, 'R');
                 $pdf->SetTextColor(0);
             }
             // Total Cyber
             $pdf->SetFont('Arial', 'B', 10);
             $pdf->Cell(150, 8, 'Total Cyber', 1, 0, 'R');
-            $pdf->Cell(40, 8, number_format($resume['totaux']['recettes_cyber'], 2) . ' €', 1, 1, 'R');
+            $pdf->Cell(40, 8, $this->decode(number_format($resume['totaux']['recettes_cyber'], 2) . ' €'), 1, 1, 'R');
             $pdf->Ln(6);
         }
 
@@ -701,7 +730,7 @@ class ReportGenerator {
                 // Montant color
                 if ($t['montant'] < 0) $pdf->SetTextColor(220, 53, 69);
                 else $pdf->SetTextColor(40, 167, 69);
-                $pdf->Cell(25, 7, number_format($t['montant'], 2) . ' €', 1, 0, 'R');
+                $pdf->Cell(25, 7, $this->decode(number_format($t['montant'], 2) . ' €'), 1, 0, 'R');
                 $pdf->SetTextColor(0);
 
                 $pdf->Cell(20, 7, $this->decode($t['num_facture'] ?? ''), 1, 1, 'L');
@@ -716,7 +745,7 @@ class ReportGenerator {
             if ($solde < 0) $pdf->SetTextColor(220, 53, 69);
             else $pdf->SetTextColor(40, 167, 69);
             
-            $pdf->Cell(25, 8, number_format($solde, 2) . ' €', 1, 1, 'R');
+            $pdf->Cell(25, 8, $this->decode(number_format($solde, 2) . ' €'), 1, 1, 'R');
             $pdf->SetTextColor(0);
         }
         $pdf->Ln(10);
@@ -803,6 +832,37 @@ class ReportGenerator {
         $pdf->SetFont('Arial', 'B', 8);
         $pdf->Cell($w/2, 8, 'TOTAL CAISSE', 1, 0);
         $pdf->Cell($w/2, 8, number_format($fc['total_caisse'], 2), 1, 1, 'R');
+    }
+
+    private function pdfCoinWithdrawalTable($pdf, $fc, $w, $x) {
+        $this->pdfMoneyRow($pdf, '0.01', $fc['retrait_pieces_001'] ?? 0, 0.01, $w, $x);
+        $this->pdfMoneyRow($pdf, '0.02', $fc['retrait_pieces_002'] ?? 0, 0.02, $w, $x);
+        $this->pdfMoneyRow($pdf, '0.05', $fc['retrait_pieces_005'] ?? 0, 0.05, $w, $x);
+        $this->pdfMoneyRow($pdf, '0.10', $fc['retrait_pieces_010'] ?? 0, 0.10, $w, $x);
+        $this->pdfMoneyRow($pdf, '0.20', $fc['retrait_pieces_020'] ?? 0, 0.20, $w, $x);
+        $this->pdfMoneyRow($pdf, '0.50', $fc['retrait_pieces_050'] ?? 0, 0.50, $w, $x);
+        $this->pdfMoneyRow($pdf, '1.00', $fc['retrait_pieces_100'] ?? 0, 1.00, $w, $x);
+        $this->pdfMoneyRow($pdf, '2.00', $fc['retrait_pieces_200'] ?? 0, 2.00, $w, $x);
+        
+        $pdf->SetX($x);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell($w/2, 6, 'TOTAL', 1, 0);
+        $pdf->Cell($w/2, 6, number_format($fc['total_retrait_pieces'], 2), 1, 1, 'R');
+    }
+
+    private function pdfBillWithdrawalTable($pdf, $fc, $w, $x) {
+        $this->pdfMoneyRow($pdf, '5', $fc['retrait_billets_005'] ?? 0, 5, $w, $x);
+        $this->pdfMoneyRow($pdf, '10', $fc['retrait_billets_010'] ?? 0, 10, $w, $x);
+        $this->pdfMoneyRow($pdf, '20', $fc['retrait_billets_020'] ?? 0, 20, $w, $x);
+        $this->pdfMoneyRow($pdf, '50', $fc['retrait_billets_050'] ?? 0, 50, $w, $x);
+        $this->pdfMoneyRow($pdf, '100', $fc['retrait_billets_100'] ?? 0, 100, $w, $x);
+        $this->pdfMoneyRow($pdf, '200', $fc['retrait_billets_200'] ?? 0, 200, $w, $x);
+        $this->pdfMoneyRow($pdf, '500', $fc['retrait_billets_500'] ?? 0, 500, $w, $x);
+        
+        $pdf->SetX($x);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->Cell($w/2, 6, 'TOTAL', 1, 0);
+        $pdf->Cell($w/2, 6, number_format($fc['total_retrait_billets'], 2), 1, 1, 'R');
     }
 
     private function pdfMoneyRow($pdf, $label, $qty, $val, $w, $x) {

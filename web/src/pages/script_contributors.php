@@ -10,7 +10,7 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.3.1',
+    'current_version' => '4.3.2',
     'release_date' => '2026-01-09',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
@@ -21,6 +21,16 @@ $projectInfo = [
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.3.2',
+        'date' => '2026-01-09',
+        'type' => 'Patch',
+        'changes' => [
+            'Fix : Encodage correct du symbole Euro (€) dans les rapports PDF',
+            'Feature : Ajout de la section "Retraits Bancaires" dans le rapport PDF Résumé Caisse',
+            'Fix : Uniformisation de l\'encodage des caractères spéciaux pour FPDF'
+        ]
+    ],
     [
         'version' => '4.3.1',
         'date' => '2026-01-09',
