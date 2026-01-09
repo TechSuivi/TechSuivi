@@ -8,9 +8,9 @@
         <div class="modal-body">
             <div style="margin-bottom: 20px;">
                 <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                    <span id="viewAgendaDate" class="badge" style="background:#ddd; padding:2px 6px; border-radius:4px;">Date</span>
-                    <span id="viewAgendaStatus" class="badge" style="background:#ddd; padding:2px 6px; border-radius:4px;">Statut</span>
-                    <span id="viewAgendaPriority" class="badge" style="background:#ddd; padding:2px 6px; border-radius:4px;">Priorité</span>
+                    <span id="viewAgendaDate" class="badge badge-agenda">Date</span>
+                    <span id="viewAgendaStatus" class="badge badge-agenda">Statut</span>
+                    <span id="viewAgendaPriority" class="badge badge-agenda">Priorité</span>
                 </div>
                 <div id="viewAgendaDescription" style="white-space: pre-wrap; line-height: 1.6; color: var(--text-color); background: var(--input-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
                     Description...

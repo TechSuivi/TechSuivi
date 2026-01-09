@@ -571,8 +571,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Reply Modal
     const replyMessageModal = document.getElementById('replyMessageModal');
-    const closeReplyMessageModal = document.getElementById('closeReplyMessageModal'); // Not in shared
-    const cancelReplyMessage = document.getElementById('cancelReplyMessage'); // Not in shared
+    // const closeReplyMessageModal = ... (Removed, handled globally)
+    // const cancelReplyMessage = ... (Removed, handled globally)
     const replyMessageForm = document.getElementById('msg_reply_form');
     
     // Search & Filters
@@ -742,6 +742,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Global functions for inline onclick handlers
+    window.closeReplyMessageModal = function() {
+        const modal = document.getElementById('replyMessageModal');
+        if (modal) modal.style.display = 'none';
+    };
+
     window.closeConfirmModal = function() {
         document.getElementById('confirmationModal').style.display = 'none';
         pendingAction = null;
@@ -921,6 +926,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     📁 ${escapeHtml(message.CATEGORIE_NOM)}
                  </div>` : '';
             
+            const clientHtml = message.id_client ?
+                `<div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 8px;">
+                    👤 <a href="index.php?page=clients_view&id=${message.id_client}" style="color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-muted); transition: color 0.2s;">${escapeHtml(message.client_nom || 'Inconnu')} ${escapeHtml(message.client_prenom || '')}</a>
+                    ${message.client_telephone ? `<span style="margin-left: 8px;">📞 ${escapeHtml(message.client_telephone)}</span>` : ''}
+                    ${message.client_portable ? `<span style="margin-left: 8px;">📱 ${escapeHtml(message.client_portable)}</span>` : ''}
+                 </div>` : '';
+
             const repliesHtml = message.REPLIES && message.REPLIES.length > 0 ? 
                 `<div class="replies-container">
                     <h4 style="margin: 0 0 10px 0; font-size: 0.9em; color: var(--text-muted);">Réponses (${message.REPLIES.length})</h4>
@@ -944,13 +956,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             ${dateFaitHtml}
                         </div>
                     </div>
+                    ${clientHtml}
                     <div class="message-content">${escapeHtml(message.MESSAGE).replace(/\n/g, '<br>')}</div>
                     
                     ${repliesHtml}
 
                     <div class="message-actions">
                         <button class="btn-modern" style="background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color);"
-                                onclick="openReplyModal(${message.ID}, '${escapeHtml(message.TITRE).replace(/'/g, "\\'")}', '${escapeHtml(message.MESSAGE).substring(0, 50).replace(/'/g, "\\'").replace(/\n/g, ' ')}...')">
+                                onclick="openReplyModal(${message.ID}, '${escapeHtml(message.TITRE).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}', '${escapeHtml(message.MESSAGE).substring(0, 50).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, ' ')}...')">
                             ↩️ Répondre
                         </button>
                         <button class="btn-modern ${isDone ? 'btn-status-done' : 'btn-status-todo'}"

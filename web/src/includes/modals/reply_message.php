@@ -1,5 +1,5 @@
 <!-- Modal de réponse (Shared) -->
-<div id="replyMessageModal" class="custom-modal" style="display: none;">
+<div id="replyMessageModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
             <h2 class="modal-title">Répondre au message V2</h2>

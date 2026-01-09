@@ -1747,76 +1747,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Functions moved to global scope
 
-function submitReplyMessageForm() {
-    const form = document.getElementById('msg_reply_form');
-    // If we can't find the form, maybe it's not loaded
-    if (!form) {
-        console.error("submitReplyMessageForm: msg_reply_form not found");
-        return;
-    }
-    const alertsDiv = document.getElementById('msg_reply_alert');
-    const formData = new FormData(form);
-    const submitBtn = form.querySelector('button[onclick="submitReplyMessageForm()"]');
 
-    const originalText = submitBtn ? submitBtn.textContent : 'Envoyer';
-    
-    if(submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Envoi...';
-    }
-    
-    fetch('actions/helpdesk_reponses_add.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            closeModal(document.getElementById('replyMessageModal'));
-            form.reset();
-            // Reload page or dashboard
-            if (typeof loadDashboardData === 'function') {
-                loadDashboardData();
-            } else {
-                window.location.reload(); 
-            }
-        } else {
-            if(alertsDiv) alertsDiv.innerHTML = 
-                `<div class="alert alert-error">${data.message}</div>`;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        if(alertsDiv) alertsDiv.innerHTML = 
-            `<div class="alert alert-error">Erreur de communication</div>`;
-    })
-    .finally(() => {
-        if(submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
-        }
-    });
-}
-
-    function openReplyModal(id, title, messageSnippet) {
-        document.getElementById('msg_reply_id').value = id;
-        document.getElementById('msg_reply_title').textContent = title;
-        document.getElementById('msg_reply_preview').textContent = messageSnippet;
-        
-        // Reset form and alerts
-        document.getElementById('msg_reply_form').reset();
-        const alertDiv = document.getElementById('msg_reply_alert');
-        if(alertDiv) alertDiv.innerHTML = '';
-        
-        const modal = document.getElementById('replyMessageModal');
-        modal.style.display = 'flex';
-        
-        // Focus textarea
-        setTimeout(() => {
-            const el = document.getElementById('msg_reply_content');
-            if(el) el.focus();
-        }, 100);
-    };
     
     // Add Message Modal Listeners
     if (addMessageBtn) {
@@ -1911,7 +1842,7 @@ function submitReplyMessageForm() {
         
         // Basculer statut
         const isDone = message.FAIT == 1;
-        toggleBtn.textContent = isDone ? '✅ Marquer comme à faire' : '✅ Marquer comme lu';
+        toggleBtn.textContent = isDone ? '✅ Marquer comme à faire' : '✅ Marquer comme fait';
         toggleBtn.className = isDone ? 'btn-modern btn-status-done' : 'btn-modern btn-primary';
         toggleBtn.onclick = function() {
             toggleMessageStatus(message.ID, message.FAIT);
@@ -1961,8 +1892,37 @@ function submitReplyMessageForm() {
         const dateStr = dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
         document.getElementById('viewAgendaDate').textContent = dateStr;
         
-        document.getElementById('viewAgendaStatus').textContent = item.statut.charAt(0).toUpperCase() + item.statut.slice(1);
-        document.getElementById('viewAgendaPriority').textContent = item.priorite ? (item.priorite.charAt(0).toUpperCase() + item.priorite.slice(1)) : 'Normale';
+        const getStatusClass = (status) => {
+            const map = {
+                'planifie': 'status-planned',
+                'en_cours': 'status-progress',
+                'termine': 'status-completed',
+                'reporte': 'status-postponed',
+                'annule': 'status-cancelled'
+            };
+            return map[status] || 'status-planned';
+        };
+
+        const getPriorityClass = (priority) => {
+            const map = {
+                'urgente': 'priority-urgent',
+                'haute': 'priority-high',
+                'normale': 'priority-normal',
+                'basse': 'priority-low'
+            };
+            return map[priority] || 'priority-normal';
+        };
+
+        const statusClass = getStatusClass(item.statut);
+        const priorityClass = getPriorityClass(item.priorite);
+
+        const statusLabel = document.getElementById('viewAgendaStatus');
+        statusLabel.textContent = item.statut.charAt(0).toUpperCase() + item.statut.slice(1);
+        statusLabel.className = 'badge badge-agenda ' + statusClass;
+        
+        const priorityLabel = document.getElementById('viewAgendaPriority');
+        priorityLabel.textContent = item.priorite ? (item.priorite.charAt(0).toUpperCase() + item.priorite.slice(1)) : 'Normale';
+        priorityLabel.className = 'badge badge-agenda ' + priorityClass;
         
         const descEl = document.getElementById('viewAgendaDescription');
         if (item.description) {
@@ -2054,4 +2014,80 @@ function submitReplyMessageForm() {
             messageSearchInitialized = true;
         }
     }
+
+    // Expose functions globally for onclick events
+    window.submitReplyMessageForm = function() {
+        const form = document.getElementById('msg_reply_form');
+        // If we can't find the form, maybe it's not loaded
+        if (!form) {
+            console.error("submitReplyMessageForm: msg_reply_form not found");
+            return;
+        }
+        const alertsDiv = document.getElementById('msg_reply_alert');
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[onclick="submitReplyMessageForm()"]');
+
+        const originalText = submitBtn ? submitBtn.textContent : 'Envoyer';
+        
+        if(submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Envoi...';
+        }
+        
+        fetch('actions/helpdesk_reponses_add.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('replyMessageModal').style.display = 'none';
+                form.reset();
+                // Reload page or dashboard
+                if (typeof loadDashboardData === 'function') {
+                    loadDashboardData();
+                } else {
+                    window.location.reload(); 
+                }
+            } else {
+                if(alertsDiv) alertsDiv.innerHTML = 
+                    `<div class="alert alert-error">${data.message}</div>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if(alertsDiv) alertsDiv.innerHTML = 
+                `<div class="alert alert-error">Erreur de communication</div>`;
+        })
+        .finally(() => {
+            if(submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    };
+
+    window.openReplyModal = function(id, title, messageSnippet) {
+        document.getElementById('msg_reply_id').value = id;
+        document.getElementById('msg_reply_title').textContent = title;
+        document.getElementById('msg_reply_preview').textContent = messageSnippet;
+        
+        // Reset form and alerts
+        document.getElementById('msg_reply_form').reset();
+        const alertDiv = document.getElementById('msg_reply_alert');
+        if(alertDiv) alertDiv.innerHTML = '';
+        
+        const modal = document.getElementById('replyMessageModal');
+        modal.style.display = 'flex';
+        
+        // Focus textarea
+        setTimeout(() => {
+            const el = document.getElementById('msg_reply_content');
+            if(el) el.focus();
+        }, 100);
+    };
+
+    window.closeReplyMessageModal = function() {
+        document.getElementById('replyMessageModal').style.display = 'none';
+    };
 </script>

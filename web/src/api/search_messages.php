@@ -42,12 +42,14 @@ try {
         // Recherche dans toutes les catégories
         $baseQuery = "FROM helpdesk_msg h
                       LEFT JOIN helpdesk_cat c ON h.CATEGORIE = c.ID
+                      LEFT JOIN clients cl ON h.id_client = cl.ID
                       WHERE 1=1";
         $params = [];
     } else {
         // Recherche dans une catégorie spécifique
         $baseQuery = "FROM helpdesk_msg h
                       LEFT JOIN helpdesk_cat c ON h.CATEGORIE = c.ID
+                      LEFT JOIN clients cl ON h.id_client = cl.ID
                       WHERE h.CATEGORIE = ?";
         $params = [$category];
     }
@@ -72,11 +74,17 @@ try {
     
     // Récupérer les messages avec pagination
     if ($searchAllCategories) {
-        $dataQuery = "SELECT h.ID, h.TITRE, h.MESSAGE, h.DATE, h.FAIT, h.DATE_FAIT, h.CATEGORIE, c.CATEGORIE as CATEGORIE_NOM, c.couleur as CATEGORIE_COULEUR " .
-                     $baseQuery . " ORDER BY h.FAIT ASC, h.DATE DESC LIMIT ? OFFSET ?";
+        $dataQuery = "SELECT h.ID, h.TITRE, h.MESSAGE, h.DATE, h.FAIT, h.DATE_FAIT, h.CATEGORIE, 
+                             c.CATEGORIE as CATEGORIE_NOM, c.couleur as CATEGORIE_COULEUR,
+                             cl.nom as client_nom, cl.prenom as client_prenom, cl.telephone as client_telephone, cl.portable as client_portable, cl.ID as id_client
+                      " . $baseQuery . " 
+                      ORDER BY h.FAIT ASC, h.DATE DESC LIMIT ? OFFSET ?";
     } else {
-        $dataQuery = "SELECT h.ID, h.TITRE, h.MESSAGE, h.DATE, h.FAIT, h.DATE_FAIT, h.CATEGORIE, c.CATEGORIE as CATEGORIE_NOM, c.couleur as CATEGORIE_COULEUR " .
-                     $baseQuery . " ORDER BY h.FAIT ASC, h.DATE DESC LIMIT ? OFFSET ?";
+        $dataQuery = "SELECT h.ID, h.TITRE, h.MESSAGE, h.DATE, h.FAIT, h.DATE_FAIT, h.CATEGORIE, 
+                             c.CATEGORIE as CATEGORIE_NOM, c.couleur as CATEGORIE_COULEUR,
+                             cl.nom as client_nom, cl.prenom as client_prenom, cl.telephone as client_telephone, cl.portable as client_portable, cl.ID as id_client
+                      " . $baseQuery . " 
+                      ORDER BY h.FAIT ASC, h.DATE DESC LIMIT ? OFFSET ?";
     }
     
     $dataParams = array_merge($params, [$limit, $offset]);

@@ -10,8 +10,8 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.3.0',
-    'release_date' => '2026-01-08',
+    'current_version' => '4.3.1',
+    'release_date' => '2026-01-09',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
@@ -21,6 +21,16 @@ $projectInfo = [
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.3.1',
+        'date' => '2026-01-09',
+        'type' => 'Patch',
+        'changes' => [
+            'Fix : Bouton "Répondre" fonctionnel sur Dashboard et Messages',
+            'Fix : Bouton "Annuler" fonctionnel sur le modal de réponse',
+            'Fix : Gestion des caractères spéciaux (quotes, backslashes) dans les réponses'
+        ]
+    ],
     [
         'version' => '4.3.0',
         'date' => '2026-01-08',

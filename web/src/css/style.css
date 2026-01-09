@@ -7,10 +7,13 @@
     --sidebar-bg-dark: #1e1e1e;
     --sidebar-text-dark: #ffffff;
     --sidebar-hover-dark: #333333;
-    --accent-color: #2A4F9C; /* bleu principal */
-    --accent-green: #4CAF50; /* vert check */
-    --accent-gray: #B0B0B0;  /* gris clé */
-    
+    --accent-color: #2A4F9C;
+    /* bleu principal */
+    --accent-green: #4CAF50;
+    /* vert check */
+    --accent-gray: #B0B0B0;
+    /* gris clé */
+
     /* Variables pour l'autocomplétion */
     --bg-color: var(--bg-color-light);
     --text-color: var(--text-color-light);
@@ -24,7 +27,7 @@
 body.light {
     background-color: var(--bg-color-light);
     color: var(--text-color-light);
-    
+
     /* Variables pour l'autocomplétion en mode clair */
     --bg-color: var(--bg-color-light);
     --text-color: var(--text-color-light);
@@ -39,7 +42,7 @@ body.light {
 body.dark {
     background-color: var(--bg-color-dark);
     color: var(--text-color-dark);
-    
+
     /* Variables pour l'autocomplétion en mode sombre */
     --bg-color: var(--bg-color-dark);
     --text-color: var(--text-color-dark);
@@ -109,11 +112,11 @@ body.light .sidebar {
     border-right: 1px solid #e0e0e0;
 }
 
-body.light .menu-item > a {
+body.light .menu-item>a {
     color: #2c2c2c;
 }
 
-body.light .menu-item > a:hover {
+body.light .menu-item>a:hover {
     background-color: #eeeeee;
 }
 
@@ -132,25 +135,25 @@ body.light .submenu-separator {
 }
 
 /* Styles pour les éléments de menu actifs - PRIORITÉ MAXIMALE */
-.menu-item > a.active {
+.menu-item>a.active {
     background-color: rgba(42, 79, 156, 0.25) !important;
     border-left: 4px solid var(--accent-color) !important;
     font-weight: bold !important;
     color: #ffffff !important;
 }
 
-.menu-item > a.active:hover {
+.menu-item>a.active:hover {
     background-color: rgba(42, 79, 156, 0.35) !important;
 }
 
 /* Styles pour les éléments de menu actifs en mode clair */
-body.light .menu-item > a.active {
+body.light .menu-item>a.active {
     background-color: rgba(42, 79, 156, 0.2) !important;
     color: var(--accent-color) !important;
     border-left: 4px solid var(--accent-color) !important;
 }
 
-body.light .menu-item > a.active:hover {
+body.light .menu-item>a.active:hover {
     background-color: rgba(42, 79, 156, 0.3) !important;
 }
 
@@ -206,7 +209,7 @@ body.light .menu-item a[href="index.php"]:not(.active):hover {
     margin: 0;
 }
 
-.menu-item > a {
+.menu-item>a {
     display: block;
     padding: 15px 20px;
     color: var(--sidebar-text-dark);
@@ -214,7 +217,7 @@ body.light .menu-item a[href="index.php"]:not(.active):hover {
     font-weight: bold;
 }
 
-.menu-item > a:hover {
+.menu-item>a:hover {
     background-color: var(--sidebar-hover-dark);
 }
 
@@ -236,7 +239,7 @@ body.light .menu-item a[href="index.php"]:not(.active):hover {
     background-color: var(--sidebar-hover-dark);
 }
 
-.menu-item.open > .submenu {
+.menu-item.open>.submenu {
     display: block;
 }
 
@@ -281,6 +284,70 @@ body.dark .submenu-separator {
     color: #666 !important;
     border-top-color: #444;
 }
+
+/* Badge Agenda Style */
+.badge-agenda {
+    background: #eee;
+    color: #333;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+body.dark .badge-agenda {
+    background: #444;
+    color: #ddd;
+    border: 1px solid #555;
+}
+
+/* Agenda Status Colors */
+.status-planned {
+    background: #3498db !important;
+    color: white !important;
+}
+
+.status-progress {
+    background: #f39c12 !important;
+    color: white !important;
+}
+
+.status-completed {
+    background: #27ae60 !important;
+    color: white !important;
+}
+
+.status-postponed {
+    background: #e67e22 !important;
+    color: white !important;
+}
+
+.status-cancelled {
+    background: #e74c3c !important;
+    color: white !important;
+}
+
+/* Agenda Priority Colors */
+.priority-urgent {
+    background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%) !important;
+    color: white !important;
+}
+
+.priority-high {
+    background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%) !important;
+    color: white !important;
+}
+
+.priority-normal {
+    background: linear-gradient(90deg, #3498db 0%, #2980b9 100%) !important;
+    color: white !important;
+}
+
+.priority-low {
+    background: linear-gradient(90deg, #95a5a6 0%, #7f8c8d 100%) !important;
+    color: white !important;
+}
+
 
 /* Amélioration de l'espacement des éléments du sous-menu */
 .submenu li {
@@ -450,13 +517,16 @@ header h1 {
     .sidebar {
         width: 60px;
     }
+
     .sidebar .logo img {
         max-width: 40px;
     }
-    .sidebar .menu-item > a {
+
+    .sidebar .menu-item>a {
         padding: 15px 10px;
         font-size: 14px;
     }
+
     .content {
         margin-left: 60px;
         width: calc(100% - 60px);
@@ -466,23 +536,35 @@ header h1 {
 /* Styles pour la table des clients dans .content */
 .content table {
     width: 100%;
-    border-collapse: collapse; /* Fusionne les bordures des cellules */
-    margin-top: 20px; /* Espace au-dessus de la table */
-    font-size: 0.9em; /* Taille de police légèrement réduite pour plus de contenu */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Ombre légère pour la table */
+    border-collapse: collapse;
+    /* Fusionne les bordures des cellules */
+    margin-top: 20px;
+    /* Espace au-dessus de la table */
+    font-size: 0.9em;
+    /* Taille de police légèrement réduite pour plus de contenu */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    /* Ombre légère pour la table */
 }
 
-.content th, .content td {
-    border: 1px solid #ddd; /* Bordure grise claire pour les cellules */
-    padding: 10px 12px;     /* Augmentation du padding pour plus d'aération */
-    text-align: left;       /* Alignement du texte à gauche */
-    vertical-align: middle; /* Alignement vertical au milieu */
+.content th,
+.content td {
+    border: 1px solid #ddd;
+    /* Bordure grise claire pour les cellules */
+    padding: 10px 12px;
+    /* Augmentation du padding pour plus d'aération */
+    text-align: left;
+    /* Alignement du texte à gauche */
+    vertical-align: middle;
+    /* Alignement vertical au milieu */
 }
 
 .content th {
-    background-color: #f0f3f5; /* Fond gris clair pour les en-têtes */
-    color: #333;               /* Couleur de texte foncée pour les en-têtes */
-    font-weight: bold;         /* Texte en gras pour les en-têtes */
+    background-color: #f0f3f5;
+    /* Fond gris clair pour les en-têtes */
+    color: #333;
+    /* Couleur de texte foncée pour les en-têtes */
+    font-weight: bold;
+    /* Texte en gras pour les en-têtes */
 }
 
 /* Style pour les lignes paires (meilleure lisibilité) */
@@ -498,12 +580,15 @@ header h1 {
 /* Style pour les liens de tri dans les en-têtes */
 .content th a {
     text-decoration: none;
-    color: inherit; /* Hérite de la couleur du parent (th) */
-    display: block; /* Pour que le lien prenne toute la cellule */
+    color: inherit;
+    /* Hérite de la couleur du parent (th) */
+    display: block;
+    /* Pour que le lien prenne toute la cellule */
 }
 
 .content th a:hover {
-    text-decoration: underline; /* Soulignement au survol */
+    text-decoration: underline;
+    /* Soulignement au survol */
 }
 
 /* Styles pour la pagination */
@@ -513,14 +598,17 @@ header h1 {
     text-align: center;
 }
 
-.pagination a, .pagination strong {
+.pagination a,
+.pagination strong {
     display: inline-block;
     padding: 8px 12px;
     margin: 0 3px;
     border: 1px solid #ddd;
     text-decoration: none;
-    color: var(--accent-color); /* Utilise la variable de couleur d'accentuation */
-    border-radius: 4px; /* Coins arrondis */
+    color: var(--accent-color);
+    /* Utilise la variable de couleur d'accentuation */
+    border-radius: 4px;
+    /* Coins arrondis */
     transition: background-color 0.2s, color 0.2s;
 }
 
@@ -537,7 +625,8 @@ header h1 {
     cursor: default;
 }
 
-.pagination span { /* Pour les ellipses "..." */
+.pagination span {
+    /* Pour les ellipses "..." */
     padding: 8px 12px;
     margin: 0 3px;
 }
@@ -552,12 +641,14 @@ header h1 {
     border: 1px solid #ccc;
     border-radius: 4px;
     margin-right: 5px;
-    width: auto; /* Ajustement de la largeur */
+    width: auto;
+    /* Ajustement de la largeur */
     min-width: 250px;
 }
 
 .content form input[type="submit"],
-.content form a { /* Style pour le bouton "Effacer la recherche" */
+.content form a {
+    /* Style pour le bouton "Effacer la recherche" */
     padding: 10px 18px;
     border-radius: 4px;
     text-decoration: none;
@@ -572,15 +663,19 @@ header h1 {
 }
 
 .content form input[type="submit"]:hover {
-    background-color: #23428a; /* Un peu plus foncé au survol */
+    background-color: #23428a;
+    /* Un peu plus foncé au survol */
 }
 
-.content form a { /* Bouton "Effacer la recherche" */
+.content form a {
+    /* Bouton "Effacer la recherche" */
     background-color: #6c757d;
     color: white;
     border: 1px solid #6c757d;
-    display: inline-block; /* Pour que le padding s'applique correctement */
-    vertical-align: middle; /* Pour aligner avec les inputs */
+    display: inline-block;
+    /* Pour que le padding s'applique correctement */
+    vertical-align: middle;
+    /* Pour aligner avec les inputs */
 }
 
 .content form a:hover {
@@ -589,71 +684,91 @@ header h1 {
 
 /* Styles spécifiques au mode sombre pour la table des clients, pagination, formulaire */
 body.dark .content table {
-    box-shadow: 0 2px 5px rgba(255,255,255,0.05); /* Ombre plus subtile pour le mode sombre */
+    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+    /* Ombre plus subtile pour le mode sombre */
 }
 
-body.dark .content th, body.dark .content td {
-    border-color: #444; /* Bordure plus foncée pour le mode sombre */
+body.dark .content th,
+body.dark .content td {
+    border-color: #444;
+    /* Bordure plus foncée pour le mode sombre */
 }
 
 body.dark .content th {
-    background-color: #2c2c2c; /* Fond d'en-tête plus foncé */
-    color: var(--text-color-dark); /* Utilise la variable de texte du mode sombre */
+    background-color: #2c2c2c;
+    /* Fond d'en-tête plus foncé */
+    color: var(--text-color-dark);
+    /* Utilise la variable de texte du mode sombre */
 }
 
 body.dark .content tbody tr:nth-child(even) {
-    background-color: #252525; /* Ligne paire un peu plus claire que le fond */
+    background-color: #252525;
+    /* Ligne paire un peu plus claire que le fond */
 }
 
 body.dark .content tbody tr:hover {
-    background-color: #383838; /* Survol un peu plus clair */
+    background-color: #383838;
+    /* Survol un peu plus clair */
 }
 
 /* Styles pour les liens dans les cellules de tableau en mode sombre */
 body.dark .content td a {
-    color: #8ab4f8; /* Un bleu clair lisible sur fond sombre */
+    color: #8ab4f8;
+    /* Un bleu clair lisible sur fond sombre */
     text-decoration: none;
 }
+
 body.dark .content td a:hover {
     text-decoration: underline;
-    color: #99c7ff; /* Un peu plus clair au survol */
+    color: #99c7ff;
+    /* Un peu plus clair au survol */
 }
+
 /* Style spécifique pour les liens de suppression pour qu'ils restent rouges */
 body.dark .content td a[style*="color: red"] {
-    color: #ff7b7b !important; /* Un rouge plus clair et visible, avec !important pour surcharger */
+    color: #ff7b7b !important;
+    /* Un rouge plus clair et visible, avec !important pour surcharger */
 }
+
 body.dark .content td a[style*="color: red"]:hover {
     color: #ff9c9c !important;
 }
 
 
 body.dark .content th a {
-    color: var(--text-color-dark); /* Liens de tri en mode sombre */
+    color: var(--text-color-dark);
+    /* Liens de tri en mode sombre */
 }
 
-body.dark .pagination a, body.dark .pagination strong {
+body.dark .pagination a,
+body.dark .pagination strong {
     border-color: #555;
-    color: var(--accent-color); /* Garde la couleur d'accentuation pour les liens actifs/survolés */
+    color: var(--accent-color);
+    /* Garde la couleur d'accentuation pour les liens actifs/survolés */
 }
 
 body.dark .pagination a:hover {
     background-color: var(--accent-color);
-    color: #fff; /* Texte blanc sur fond d'accentuation */
+    color: #fff;
+    /* Texte blanc sur fond d'accentuation */
     border-color: var(--accent-color);
 }
 
 body.dark .pagination strong {
     background-color: var(--accent-color);
-    color: #fff; /* Texte blanc sur fond d'accentuation */
+    color: #fff;
+    /* Texte blanc sur fond d'accentuation */
     border-color: var(--accent-color);
 }
 
-body.dark .pagination span { /* Ellipses */
+body.dark .pagination span {
+    /* Ellipses */
     color: #777;
 }
 
 body.dark .content form input[type="text"] {
-    background-color: #333; /* Fond de champ de saisie plus foncé */
+    background-color: #333;
+    /* Fond de champ de saisie plus foncé */
     color: var(--text-color-dark);
     border-color: #555;
 }
@@ -663,13 +778,17 @@ body.dark .content form input[type="submit"] {
     /* On peut s'assurer que la bordure est visible */
     border: 1px solid var(--accent-color);
 }
+
 body.dark .content form input[type="submit"]:hover {
-    background-color: #23428a; /* Un peu plus foncé au survol */
+    background-color: #23428a;
+    /* Un peu plus foncé au survol */
 }
 
 
-body.dark .content form a { /* Bouton "Effacer la recherche" */
-    background-color: #5a6268; /* Un gris un peu plus clair que le précédent */
+body.dark .content form a {
+    /* Bouton "Effacer la recherche" */
+    background-color: #5a6268;
+    /* Un gris un peu plus clair que le précédent */
     color: white;
     border: 1px solid #5a6268;
 }
@@ -679,61 +798,76 @@ body.dark .content form a:hover {
 }
 
 /* Styles pour la Popup de Confirmation (Mode Clair par défaut) */
-#confirmationModal > div { /* Conteneur interne de la modal */
-    background-color: #fefefe; /* Fond blanc par défaut pour le mode clair */
-    color: var(--text-color-light); /* Couleur de texte par défaut pour le mode clair */
+#confirmationModal>div {
+    /* Conteneur interne de la modal */
+    background-color: #fefefe;
+    /* Fond blanc par défaut pour le mode clair */
+    color: var(--text-color-light);
+    /* Couleur de texte par défaut pour le mode clair */
 }
+
 /* Styles pour la Popup de Confirmation en Mode Sombre */
 /* Cible le conteneur interne direct de la modal */
-body.dark #confirmationModal > div {
-    background-color: #2b2b2b !important; /* Fond plus foncé pour la modal, !important pour forcer si conflit */
+body.dark #confirmationModal>div {
+    background-color: #2b2b2b !important;
+    /* Fond plus foncé pour la modal, !important pour forcer si conflit */
     color: var(--text-color-dark) !important;
     border-color: #555 !important;
 }
 
 /* Assurer que l'overlay reste semi-transparent */
 body.dark #confirmationModal {
-    background-color: rgba(0,0,0,0.75); /* Un peu plus opaque pour mieux contraster */
+    background-color: rgba(0, 0, 0, 0.75);
+    /* Un peu plus opaque pour mieux contraster */
 }
 
 
 body.dark #confirmationModal #closeModal {
-    color: #bbb; /* Couleur de la croix pour fermer */
+    color: #bbb;
+    /* Couleur de la croix pour fermer */
 }
+
 body.dark #confirmationModal #closeModal:hover {
     color: #fff;
 }
 
-body.dark #confirmationModal h2, 
+body.dark #confirmationModal h2,
 body.dark #confirmationModal h3,
 body.dark #confirmationModal h4 {
-    color: var(--text-color-dark); /* Titres dans la modal */
+    color: var(--text-color-dark);
+    /* Titres dans la modal */
 }
 
 body.dark #confirmationModal #clientSummary ul {
     list-style-type: none;
     padding-left: 0;
 }
+
 body.dark #confirmationModal #clientSummary ul li {
     padding: 3px 0;
 }
+
 body.dark #confirmationModal #clientSummary ul li strong {
-    color: #ccc; /* Labels en gras un peu plus clairs */
+    color: #ccc;
+    /* Labels en gras un peu plus clairs */
 }
 
 
 body.dark #duplicateClientsTableContainer table {
-    background-color: #333; /* Fond de la table des doublons */
+    background-color: #333;
+    /* Fond de la table des doublons */
     color: var(--text-color-dark);
 }
 
-body.dark #duplicateClientsTableContainer th, 
+body.dark #duplicateClientsTableContainer th,
 body.dark #duplicateClientsTableContainer td {
-    border-color: #555; /* Bordures de cellules dans la table des doublons */
+    border-color: #555;
+    /* Bordures de cellules dans la table des doublons */
 }
 
 body.dark #duplicateClientsTableContainer th {
-    background-color: #404040; /* Fond d'en-tête de la table des doublons */
+    background-color: #404040;
+    /* Fond d'en-tête de la table des doublons */
 }
 
 body.dark #duplicateClientsTableContainer tbody tr:nth-child(even) {
@@ -749,6 +883,7 @@ body.dark #confirmationModal button#cancelAddClient {
     border-color: #5a6268;
     color: white;
 }
+
 body.dark #confirmationModal button#cancelAddClient:hover {
     background-color: #494f54;
 }
@@ -872,7 +1007,7 @@ body.dark .content #results_container {
     border-color: #555 !important;
 }
 
-body.dark .content #results_container > div {
+body.dark .content #results_container>div {
     background-color: #333 !important;
     border-bottom-color: #555 !important;
     color: var(--text-color-dark) !important;
@@ -1038,20 +1173,20 @@ body.dark .actions-section h3 {
 /* Amélioration des boutons d'actions rapides */
 .button-like {
     transition: all 0.2s ease !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
 }
 
 .button-like:hover {
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 body.dark .button-like {
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }
 
 body.dark .button-like:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* Variables CSS pour les cartes */
@@ -1280,7 +1415,7 @@ body.dark .popup {
     background-color: #2b2b2b !important;
     color: var(--text-color-dark) !important;
     border-color: #555 !important;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* Styles pour les checkboxes et radios personnalisés */
@@ -1760,7 +1895,7 @@ body h1:has-text('cyber') {
     padding: 20px 30px;
     border-radius: 12px;
     margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     font-size: 1.6em;
     font-weight: 500;
 }
@@ -1771,7 +1906,7 @@ form[method="POST"][style*="background-color"] {
     background: var(--card-bg) !important;
     padding: 30px !important;
     border-radius: 12px !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
     border: 1px solid var(--border-color) !important;
 }
 
@@ -1921,7 +2056,7 @@ form div[style*="border: 1px solid"] h4 {
 }
 
 /* Modal styling for cyber */
-#confirmModal > div {
+#confirmModal>div {
     background: var(--card-bg) !important;
     border: 1px solid var(--border-color) !important;
     color: var(--text-color) !important;
@@ -1983,7 +2118,7 @@ h1:has-text('Crédits Clients') {
     padding: 20px 30px;
     border-radius: 12px;
     margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     font-size: 1.6em;
     font-weight: 500;
 }
@@ -2106,18 +2241,18 @@ a[title="Utiliser le crédit"]:hover {
 }
 
 /* Statistics cards */
-div[style*="grid-template-columns"] > div[style*="text-align: center"] {
+div[style*="grid-template-columns"]>div[style*="text-align: center"] {
     background: var(--card-bg) !important;
     border: 1px solid var(--border-color) !important;
     border-radius: 12px !important;
     padding: 20px !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
     transition: all 0.3s !important;
 }
 
-div[style*="grid-template-columns"] > div[style*="text-align: center"]:hover {
+div[style*="grid-template-columns"]>div[style*="text-align: center"]:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* Tarifs box at bottom */
@@ -2126,7 +2261,7 @@ div[style*="margin-top: 30px"][style*="padding: 20px"] {
     border: 1px solid var(--border-color) !important;
     border-radius: 12px !important;
     padding: 25px !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
 }
 
 div[style*="margin-top: 30px"][style*="padding: 20px"] h3 {
@@ -2310,13 +2445,13 @@ body.light .sidebar .submenu a:hover {
 }
 
 /* Active menu items keep their accent color */
-.sidebar .menu-item > a.active,
+.sidebar .menu-item>a.active,
 .sidebar .submenu li a.active {
     background-color: rgba(42, 79, 156, 0.25) !important;
     background: rgba(42, 79, 156, 0.25) !important;
 }
 
-body.light .sidebar .menu-item > a.active,
+body.light .sidebar .menu-item>a.active,
 body.light .sidebar .submenu li a.active {
     background-color: rgba(42, 79, 156, 0.2) !important;
     background: rgba(42, 79, 156, 0.2) !important;
