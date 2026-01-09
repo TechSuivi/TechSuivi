@@ -266,6 +266,7 @@ try {
 }
 ?>
 
+
 <h1><?= $editData ? 'Modifier la session' : 'Nouvelle session cyber' ?></h1>
 
 <p><a href="index.php?page=cyber_list" style="color: var(--accent-color);">← Retour à la liste</a></p>
@@ -338,16 +339,30 @@ try {
         </div>
         
         <div>
-            <label for="tarif">Tarif spécifique (€) :</label>
-            <div style="display: flex; gap: 5px; align-items: end;">
-                <input type="number" id="tarif" name="tarif" step="0.01" min="0"
+            <label for="tarif_saisi">Tarif spécifique (€) :</label>
+            <div style="display: flex; gap: 5px; align-items: center;">
+                <input type="number" id="tarif_saisi" step="0.01" min="0"
                        value="<?= htmlspecialchars($editData['tarif'] ?? $_POST['tarif'] ?? '') ?>"
-                       style="flex: 1; padding: 6px; margin-top: 3px; font-size: 14px;"
+                       style="flex: 1; padding: 6px; font-size: 14px;"
                        placeholder="Auto">
+                <input type="hidden" id="tarif" name="tarif" value="<?= htmlspecialchars($editData['tarif'] ?? $_POST['tarif'] ?? '') ?>">
+                
+                <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <label style="display: flex; align-items: center; gap: 3px; font-size: 11px; cursor: pointer; white-space: nowrap;" title="Ajouter le prix des impressions au tarif spécifique">
+                        <input type="checkbox" id="add_prints_option">
+                        ➕ Imp.
+                    </label>
+                    
+                    <label style="display: flex; align-items: center; gap: 3px; font-size: 11px; cursor: pointer; white-space: nowrap;" title="Ajouter le prix du temps cyber au tarif spécifique">
+                        <input type="checkbox" id="add_cyber_option">
+                        ➕ Cyber
+                    </label>
+                </div>
+                
                 <button type="button" id="recalculer_tarif"
-                        style="padding: 8px 12px; background-color: var(--secondary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: bold;"
+                        style="padding: 6px 10px; background-color: var(--secondary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;"
                         title="Recalculer le tarif automatiquement">
-                    🔄 Recalc
+                    🔄
                 </button>
             </div>
             <small style="color: var(--text-secondary); font-size: 11px;">
@@ -619,14 +634,22 @@ try {
 
 <script>
 // Calcul automatique du prix en temps réel
+// Calcul automatique du prix en temps réel
 document.addEventListener('DOMContentLoaded', function() {
     const ha = document.getElementById('ha');
     const hd = document.getElementById('hd');
     const impNb = document.getElementById('imp_nb');
     const impCouleur = document.getElementById('imp_couleur');
-    const tarif = document.getElementById('tarif');
-    const totalImpressions = document.getElementById('total_impressions');
-    const tarifCyber = document.getElementById('tarif_cyber');
+    const tarifSaisi = document.getElementById('tarif_saisi');
+    const tarifHidden = document.getElementById('tarif');
+    const addPrintsOption = document.getElementById('add_prints_option');
+    const addCyberOption = document.getElementById('add_cyber_option');
+    
+    // --- Vérification des éléments critiques ---
+    if (!tarifSaisi || !tarifHidden) {
+        console.error("Éléments critiques manquants (tarif_saisi ou tarif)");
+        // On ne throw pas d'erreur pour ne pas bloquer le reste si jamais
+    }
     
     function calculerTotalImpressions() {
         let total = 0;
@@ -639,7 +662,8 @@ document.addEventListener('DOMContentLoaded', function() {
             total += parseInt(impCouleur.value) * <?= $price_color_page ?>;
         }
         
-        totalImpressions.textContent = total.toFixed(2) + ' €';
+        const totalImpressions = document.getElementById('total_impressions');
+        if (totalImpressions) totalImpressions.textContent = total.toFixed(2) + ' €';
         return total;
     }
     
@@ -662,7 +686,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        tarifCyber.textContent = prixTemps.toFixed(2) + ' €';
+        const tarifCyber = document.getElementById('tarif_cyber');
+        if (tarifCyber) tarifCyber.textContent = prixTemps.toFixed(2) + ' €';
         return prixTemps;
     }
     
@@ -670,20 +695,48 @@ document.addEventListener('DOMContentLoaded', function() {
         // Calcul des deux parties séparément
         const prixTemps = calculerTarifCyber();
         const prixImpressions = calculerTotalImpressions();
-        const prix = prixTemps + prixImpressions;
+        const prixCalc = prixTemps + prixImpressions;
+        let prixFinal = prixCalc;
         
-        // Si pas de tarif spécifique, on met à jour le champ
-        if (!tarif.value || tarif.value == 0) {
-            tarif.value = prix.toFixed(2);
+        let visualValue = tarifSaisi.value;
+        let isManual = visualValue !== '' && !isNaN(parseFloat(visualValue));
+        
+        if (isManual) {
+            let manualAmount = parseFloat(visualValue);
+            prixFinal = manualAmount;
+            
+            // Si la case Imp est cochée
+            if (addPrintsOption && addPrintsOption.checked) {
+                prixFinal += prixImpressions;
+            }
+            
+            // Si la case Cyber est cochée
+            if (addCyberOption && addCyberOption.checked) {
+                prixFinal += prixTemps;
+            }
+            
+            // On met à jour le champ caché qui sera envoyé
+            tarifHidden.value = prixFinal.toFixed(2);
+        } else {
+            // Mode Auto
+            // On met à jour le champ caché avec le calcul auto
+            tarifHidden.value = prixCalc.toFixed(2);
+            
+            // On remplit le champ visuel si on veut montrer le calcul
+             if (!tarifSaisi.value) {
+                // Option : afficher ou non le calcul dans le champ saisie ?
+                // Le comportement original remplissait le champ.
+                // tarifSaisi.value = prixCalc.toFixed(2); // Désactivé : on ne pré-remplit pas
+            }
         }
         
-        // Mise à jour de l'affichage du total
+        // Mise à jour de l'affichage du total avec le VRAI prix final
         const displayTotal = document.getElementById('cout_total_display');
         if (displayTotal) {
-            displayTotal.textContent = prix.toFixed(2) + ' €';
+            displayTotal.textContent = prixFinal.toFixed(2) + ' €';
         }
         
-        return prix;
+        return prixFinal;
     }
     
     // Calcul initial
@@ -708,6 +761,41 @@ document.addEventListener('DOMContentLoaded', function() {
         calculerTotalImpressions();
         calculerPrixTotal();
     });
+    
+    // Listener pour le tarif spécifique
+    tarifSaisi.addEventListener('input', function() {
+        // Si on saisit manuellement, on décoche "Auto calc" implicitement
+        // Le hidden sera mis à jour par calculerPrixTotal
+        calculerPrixTotal();
+    });
+    
+    if (addPrintsOption) {
+        addPrintsOption.addEventListener('change', function() {
+            calculerPrixTotal();
+        });
+    }
+    
+    if (addCyberOption) {
+        addCyberOption.addEventListener('change', function() {
+            calculerPrixTotal();
+        });
+    }
+    
+    // Bouton recalculer tarif
+    const recalculerBtn = document.getElementById('recalculer_tarif');
+    if (recalculerBtn) {
+        recalculerBtn.addEventListener('click', function() {
+            // Force le recalcul en vidant temporairement le champ tarif
+            tarifSaisi.value = '';
+            const nouveauPrix = calculerPrixTotal();
+            
+            // Animation visuelle
+            tarifSaisi.style.backgroundColor = '#e6ffe6';
+            setTimeout(() => {
+                tarifSaisi.style.backgroundColor = '';
+            }, 1000);
+        });
+    }
     
     // Gestion de l'affichage des champs de chèque
     const moyenPayement = document.getElementById('moyen_payement');
@@ -738,7 +826,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (creditClientId && creditClientId.value) {
             const option = creditClientId.options[creditClientId.selectedIndex];
             const soldeDisponible = parseFloat(option.dataset.solde || 0);
-            const montantSession = parseFloat(tarif.value || 0);
+            const montantSession = parseFloat(tarifHidden.value || 0);
             const soldeApres = soldeDisponible - montantSession;
             
             document.getElementById('solde_disponible').textContent = soldeDisponible.toFixed(2) + ' €';
@@ -757,7 +845,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listeners pour les infos crédit
     if (creditClientId) {
         creditClientId.addEventListener('change', updateCreditInfo);
-        tarif.addEventListener('input', updateCreditInfo);
+        tarifSaisi.addEventListener('input', updateCreditInfo);
+        if (addPrintsOption) addPrintsOption.addEventListener('change', updateCreditInfo);
+        if (addCyberOption) addCyberOption.addEventListener('change', updateCreditInfo);
         
         // Initialisation
         if (creditClientId.value) {
@@ -790,7 +880,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Validation du tarif
-            if (!tarif.value || parseFloat(tarif.value) <= 0) {
+            if (!tarifHidden.value || parseFloat(tarifHidden.value) <= 0) {
                 alert('Veuillez saisir un montant valide pour la session.');
                 return;
             }
@@ -822,20 +912,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Bouton recalculer tarif
-    const recalculerBtn = document.getElementById('recalculer_tarif');
-    recalculerBtn.addEventListener('click', function() {
-        // Force le recalcul en vidant temporairement le champ tarif
-        const ancienneValeur = tarif.value;
-        tarif.value = '';
-        const nouveauPrix = calculerPrixTotal();
-        
-        // Animation visuelle pour montrer le changement
-        tarif.style.backgroundColor = '#e6ffe6';
-        setTimeout(() => {
-            tarif.style.backgroundColor = '';
-        }, 1000);
-    });
+
     
     // Gestion d'ajout de crédit
     const creditGestionClient = document.getElementById('credit_gestion_client');
@@ -972,6 +1049,42 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e.target === modal) {
                 handleCancel();
             }
+        });
+    }
+    
+    // --- Autocomplétion Client ---
+    const nomInput = document.getElementById('nom');
+    if (nomInput) {
+        let awesomplete = new Awesomplete(nomInput, {
+            minChars: 2,
+            maxItems: 15,
+            autoFirst: true
+        });
+
+        // Source de données via API
+        nomInput.addEventListener('input', function() {
+            if (this.value.length < 2) return;
+            
+            // Appel API
+            fetch('api/search_clients.php?q=' + encodeURIComponent(this.value))
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        // Mapper les données pour Awesomplete
+                        // search_clients.php retourne [{label:..., value:..., ...}]
+                        awesomplete.list = data;
+                    } 
+                    // Note: search_clients.php retourne directement le format compatible (tableau d'objets ou strings)
+                    // Il retourne bien [{label:..., value:...}] donc c'est parfait.
+                })
+                .catch(err => console.error('Erreur recherche client:', err));
+        });
+        
+        // Optionnel : Gérer la sélection si on voulait remplir d'autres champs
+        nomInput.addEventListener('awesomplete-selectcomplete', function(e) {
+            // e.text est l'objet sélectionné {label:..., value:...}
+            // Le champ input est déjà rempli par la valeur 'value' (Nom Prénom)
+            // On pourrait remplir l'email ou autre si besoin, mais pas demandé ici.
         });
     }
 });
