@@ -74,6 +74,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tarif_specifique = !empty($_POST['tarif']) ? $_POST['tarif'] : null;
     $moyen_payement = $_POST['moyen_payement'] ?? '';
     $credit_client_id = !empty($_POST['credit_client_id']) ? (int)$_POST['credit_client_id'] : null;
+    $id_client = !empty($_POST['id_client']) ? (int)$_POST['id_client'] : null;
+    // DEBUG TEMP
+    if($id_client === null && !empty($_POST['nom'])) {
+        // error_log("CyberAdd: ID Client is NULL for nom: " . $_POST['nom']);
+    }
+    // FIN DEBUG
     $paye_par_credit = isset($_POST['paye_par_credit']) && $_POST['paye_par_credit'] === '1' ? 1 : 0;
     $ajout_credit = isset($_POST['ajout_credit']) && $_POST['ajout_credit'] === '1' ? 1 : 0;
     
@@ -168,13 +174,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($editData) {
                 // Modification - on garde les tarifs existants pour préserver l'historique
-                $stmt = $pdo->prepare("UPDATE FC_cyber SET nom = ?, ha = ?, hd = ?, imp = ?, imp_c = ?, tarif = ?, moyen_payement = ?, info_chq = ?, credit_id = ?, paye_par_credit = ? WHERE id = ?");
-                $stmt->execute([$nom, $ha, $hd, $imp_nb, $imp_couleur, $tarif_global, $moyen_payement, $info_chq, $credit_client_id, $paye_par_credit, $editData['id']]);
+                $stmt = $pdo->prepare("UPDATE FC_cyber SET nom = ?, ha = ?, hd = ?, imp = ?, imp_c = ?, tarif = ?, moyen_payement = ?, info_chq = ?, credit_id = ?, paye_par_credit = ?, id_client = ? WHERE id = ?");
+                $stmt->execute([$nom, $ha, $hd, $imp_nb, $imp_couleur, $tarif_global, $moyen_payement, $info_chq, $credit_client_id, $paye_par_credit, $id_client, $editData['id']]);
                 $_SESSION['cyber_message'] = "Session modifiée avec succès.";
             } else {
                 // Ajout - on sauvegarde les tarifs actuels avec la session
-                $stmt = $pdo->prepare("INSERT INTO FC_cyber (nom, ha, hd, imp, imp_c, tarif, moyen_payement, info_chq, price_nb_page, price_color_page, price_time_base, price_time_minimum, time_minimum_threshold, time_increment, credit_id, paye_par_credit) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->execute([$nom, $ha, $hd, $imp_nb, $imp_couleur, $tarif_global, $moyen_payement, $info_chq, $price_nb_page, $price_color_page, $price_time_base, $price_time_minimum, $time_minimum_threshold, $time_increment, $credit_client_id, $paye_par_credit]);
+                $stmt = $pdo->prepare("INSERT INTO FC_cyber (nom, ha, hd, imp, imp_c, tarif, moyen_payement, info_chq, price_nb_page, price_color_page, price_time_base, price_time_minimum, time_minimum_threshold, time_increment, credit_id, paye_par_credit, id_client) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$nom, $ha, $hd, $imp_nb, $imp_couleur, $tarif_global, $moyen_payement, $info_chq, $price_nb_page, $price_color_page, $price_time_base, $price_time_minimum, $time_minimum_threshold, $time_increment, $credit_client_id, $paye_par_credit, $id_client]);
                 $session_id = $pdo->lastInsertId();
                 
                 // Si c'est un ajout de crédit, ajouter au solde et enregistrer le mouvement
@@ -292,11 +298,16 @@ try {
     <!-- Informations principales -->
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
         <div>
-            <label for="nom">Nom du client :</label>
-            <input type="text" id="nom" name="nom"
-                   value="<?= htmlspecialchars($editData['nom'] ?? $_POST['nom'] ?? 'CYBER') ?>"
-                   style="width: 100%; padding: 6px; margin-top: 3px; font-size: 14px;"
-                   placeholder="CYBER">
+            <div style="position: relative;">
+                <input type="text" id="nom" name="nom"
+                       value="<?= htmlspecialchars($editData['nom'] ?? $_POST['nom'] ?? 'CYBER') ?>"
+                       style="width: 100%; padding: 6px; margin-top: 3px; font-size: 14px; padding-right: 30px;"
+                       placeholder="CYBER">
+                <span id="client_link_status" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: none; cursor: help;" title="Client lié">
+                    ✅
+                </span>
+            </div>
+            <input type="hidden" id="id_client" name="id_client" value="<?= htmlspecialchars($editData['id_client'] ?? $_POST['id_client'] ?? '') ?>">
         </div>
         
         <div>
@@ -631,6 +642,9 @@ try {
         </div>
     </div>
 </div>
+
+<script src="js/awesomplete.min.js"></script>
+<link rel="stylesheet" href="css/awesomplete.css" />
 
 <script>
 // Calcul automatique du prix en temps réel
@@ -1061,6 +1075,8 @@ document.addEventListener('DOMContentLoaded', function() {
             autoFirst: true
         });
 
+        let clientsList = []; // Stockage local des résultats
+
         // Source de données via API
         nomInput.addEventListener('input', function() {
             if (this.value.length < 2) return;
@@ -1070,22 +1086,60 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data && data.length > 0) {
-                        // Mapper les données pour Awesomplete
-                        // search_clients.php retourne [{label:..., value:..., ...}]
+                        clientsList = data; // Sauvegarde
                         awesomplete.list = data;
-                    } 
-                    // Note: search_clients.php retourne directement le format compatible (tableau d'objets ou strings)
-                    // Il retourne bien [{label:..., value:...}] donc c'est parfait.
+                    } else {
+                        clientsList = [];
+                    }
                 })
-                .catch(err => console.error('Erreur recherche client:', err));
+                .catch(err => {
+                    console.error('Erreur recherche client:', err);
+                    clientsList = [];
+                });
         });
+        
+        const linkStatus = document.getElementById('client_link_status');
         
         // Optionnel : Gérer la sélection si on voulait remplir d'autres champs
         nomInput.addEventListener('awesomplete-selectcomplete', function(e) {
-            // e.text est l'objet sélectionné {label:..., value:...}
-            // Le champ input est déjà rempli par la valeur 'value' (Nom Prénom)
-            // On pourrait remplir l'email ou autre si besoin, mais pas demandé ici.
+            // e.text est souvent juste la "valeur" affichée, pas l'objet complet
+            console.log('Selected item text:', e.text); 
+            
+            // Recherche de l'objet complet dans notre liste locale
+            let selectedItem = null;
+            
+            // Essai 1: e.text est peut-être déjà l'objet (si Awesomplete est gentil)
+            if (e.text && e.text.id) {
+                selectedItem = e.text;
+            } 
+            // Essai 2: Lookup par valeur
+            else if (clientsList.length > 0) {
+                // e.text.value si e.text est un objet Suggestion, sinon e.text direct
+                const selectedValue = (e.text && e.text.value) ? e.text.value : e.text;
+                selectedItem = clientsList.find(c => c.value === selectedValue || c.label === selectedValue);
+            }
+
+            if(selectedItem && selectedItem.id) {
+                document.getElementById('id_client').value = selectedItem.id;
+                if(linkStatus) {
+                    linkStatus.style.display = 'block';
+                    linkStatus.title = 'Client lié (ID: ' + selectedItem.id + ')';
+                }
+            } else {
+                console.warn('Selected item has no ID found via lookup:', e.text);
+            }
         });
+        
+        // Clear ID if user changes the name manually
+        nomInput.addEventListener('input', function() {
+             document.getElementById('id_client').value = '';
+             if(linkStatus) linkStatus.style.display = 'none';
+        });
+        
+        // Check initial state
+        if(document.getElementById('id_client').value && linkStatus) {
+             linkStatus.style.display = 'block';
+        }
     }
 });
 </script>

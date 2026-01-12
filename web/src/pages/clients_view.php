@@ -111,6 +111,68 @@ if ($clientId <= 0) {
                 $stmtTransactions = $pdo->prepare($sqlTransactions);
                 $stmtTransactions->execute([':id' => $clientId]);
                 $transactionsHistory = $stmtTransactions->fetchAll();
+
+                // --- Récupérer l'historique CYBER (Sessions + Crédits) ---
+                $cyberHistory = [];
+                
+                // 1. Sessions Cyber
+                $sqlCyberSessions = "
+                    SELECT 
+                        id, 
+                        date_cyber as date, 
+                        'SESSION' as type, 
+                        tarif as montant, 
+                        CONCAT('Session Cyber - ', IFNULL(duree_minutes, '?'), ' min') as description,
+                        '#8e44ad' as color
+                    FROM FC_cyber
+                    WHERE id_client = :id
+                ";
+                // Note: FC_cyber n'a pas forcément duree_minutes stocké, on fera le calcul ou affichage simple
+                // Correction : on prend juste les champs dispos
+                $sqlCyberSessions = "
+                    SELECT 
+                        id, 
+                        date_cyber as date, 
+                        'SESSION' as type, 
+                        tarif as montant, 
+                        'Session Cyber' as description,
+                        '#8e44ad' as color,
+                        moyen_payement
+                    FROM FC_cyber
+                    WHERE id_client = :id
+                ";
+                $stmtCyber = $pdo->prepare($sqlCyberSessions);
+                $stmtCyber->execute([':id' => $clientId]);
+                $cyberSessions = $stmtCyber->fetchAll(PDO::FETCH_ASSOC);
+                
+                // 2. Historique Crédits
+                $sqlCyberCredits = "
+                    SELECT 
+                        h.id, 
+                        h.date_mouvement as date, 
+                        h.type_mouvement as type, 
+                        h.montant, 
+                        h.description,
+                        CASE 
+                            WHEN h.type_mouvement = 'AJOUT' THEN '#27ae60'
+                            WHEN h.type_mouvement = 'DEDUCTION' THEN '#e67e22'
+                            ELSE '#95a5a6'
+                        END as color
+                    FROM FC_cyber_credits_historique h
+                    JOIN FC_cyber_credits c ON h.credit_id = c.id
+                    WHERE c.id_client = :id
+                ";
+                $stmtCredits = $pdo->prepare($sqlCyberCredits);
+                $stmtCredits->execute([':id' => $clientId]);
+                $cyberCredits = $stmtCredits->fetchAll(PDO::FETCH_ASSOC);
+                
+                // Fusionner
+                $cyberHistory = array_merge($cyberSessions, $cyberCredits);
+                
+                // Trier par date décroissante
+                usort($cyberHistory, function($a, $b) {
+                    return strtotime($b['date']) - strtotime($a['date']);
+                });
             }
 
         } catch (PDOException $e) {
@@ -750,6 +812,55 @@ table td:nth-child(5) {
                     </table>
 
 
+            </div>
+        </div>
+        </div>
+        <?php endif; ?>
+
+        <?php if (!empty($cyberHistory)): ?>
+        <div class="full-width-section">
+        <div class="cyber-section" style="margin-top: 40px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 class="section-title" style="margin-bottom: 0; border-bottom: none;">
+                    <span>🌐</span> Historique Cyber
+                </h2>
+            </div>
+
+            <div class="interventions-table-container">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); width: 14%;">Date</th>
+                                <th style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); width: 14%;">Type</th>
+                                <th style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); width: 58%;">Description</th>
+                                <th style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); width: 14%;">Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($cyberHistory as $item): ?>
+                                <tr>
+                                    <td><?= date('d/m/Y H:i', strtotime($item['date'])) ?></td>
+                                    <td>
+                                        <span class="status-badge" style="background-color: <?= htmlspecialchars($item['color']) ?>;">
+                                            <?= htmlspecialchars($item['type']) ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <?= htmlspecialchars($item['description']) ?>
+                                    </td>
+                                    <td style="font-weight: bold;">
+                                        <?= number_format($item['montant'], 2) ?> €
+                                        <?php if (!empty($item['moyen_payement'])): ?>
+                                            <span style="font-size: 0.85em; font-weight: normal; color: var(--text-muted); margin-left: 5px;">
+                                                par <?= htmlspecialchars($item['moyen_payement']) ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
             </div>
         </div>
         </div>

@@ -18,7 +18,12 @@ if (isset($_SESSION['cyber_message'])) {
 // Récupération des sessions cyber
 if (isset($pdo)) {
     try {
-        $stmt = $pdo->query("SELECT id, nom, ha, hd, imp, imp_c, tarif, moyen_payement, info_chq, date_cyber, price_nb_page, price_color_page, price_time_base, price_time_minimum, time_minimum_threshold, time_increment FROM FC_cyber ORDER BY date_cyber DESC");
+        $stmt = $pdo->query("
+            SELECT s.*, c.nom as client_nom, c.prenom as client_prenom 
+            FROM FC_cyber s
+            LEFT JOIN clients c ON s.id_client = c.ID
+            ORDER BY s.date_cyber DESC
+        ");
         $sessions_cyber = $stmt->fetchAll();
     } catch (PDOException $e) {
         $errorMessage = "Erreur lors de la récupération des sessions : " . htmlspecialchars($e->getMessage());
@@ -139,7 +144,15 @@ $current_price_base = $current_pricing['cyber_price_time_base'] ?? '0.75';
             ?>
                 <tr>
                     <td><?= htmlspecialchars($session['id']) ?></td>
-                    <td><?= htmlspecialchars($session['nom'] ?? 'Anonyme') ?></td>
+                    <td>
+                        <?php if (!empty($session['client_nom'])): ?>
+                            <a href="index.php?page=clients_view&id=<?= $session['id_client'] ?>" style="text-decoration: none; color: inherit; font-weight: 500;" title="Voir la fiche client">
+                                <span title="Client lié">👤 <?= htmlspecialchars($session['client_nom'] . ' ' . ($session['client_prenom'] ?? '')) ?></span>
+                            </a>
+                        <?php else: ?>
+                            <?= htmlspecialchars($session['nom'] ?? 'Anonyme') ?>
+                        <?php endif; ?>
+                    </td>
                     <td><?= $session['ha'] ? date('H:i', strtotime($session['ha'])) : '-' ?></td>
                     <td><?= $session['hd'] ? date('H:i', strtotime($session['hd'])) : '-' ?></td>
                     <td><?= $calcul['duree'] ?: '-' ?></td>
@@ -160,6 +173,8 @@ $current_price_base = $current_pricing['cyber_price_time_base'] ?? '0.75';
                         <a href="actions/cyber_delete.php?id=<?= htmlspecialchars($session['id']) ?>"
                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette session ?');"
                            style="color: red;">Supprimer</a>
+                        <?php else: ?>
+                            <span style="color: var(--text-muted);">-</span>
                         <?php endif; ?>
                     </td>
                 </tr>

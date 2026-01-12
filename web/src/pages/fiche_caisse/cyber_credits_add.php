@@ -39,6 +39,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 // Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom_client = trim($_POST['nom_client'] ?? '');
+    $id_client = !empty($_POST['id_client']) ? (int)$_POST['id_client'] : null;
     $montant = !empty($_POST['montant']) ? floatval($_POST['montant']) : 0;
     $type_operation = $_POST['type_operation'] ?? 'AJOUT';
     $notes = trim($_POST['notes'] ?? '');
@@ -65,8 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($editData) {
                 // Modification d'un crédit existant
-                $stmt = $pdo->prepare("UPDATE FC_cyber_credits SET nom_client = ?, notes = ? WHERE id = ?");
-                $stmt->execute([$nom_client, $notes, $editData['id']]);
+                $stmt = $pdo->prepare("UPDATE FC_cyber_credits SET nom_client = ?, notes = ?, id_client = ? WHERE id = ?");
+                $stmt->execute([$nom_client, $notes, $id_client, $editData['id']]);
                 
                 // Si il y a un mouvement de crédit
                 if ($montant != 0) {
@@ -98,10 +99,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Création d'un nouveau crédit
                 $stmt = $pdo->prepare("
-                    INSERT INTO FC_cyber_credits (nom_client, solde_actuel, notes) 
-                    VALUES (?, ?, ?)
+                    INSERT INTO FC_cyber_credits (nom_client, solde_actuel, notes, id_client) 
+                    VALUES (?, ?, ?, ?)
                 ");
-                $stmt->execute([$nom_client, $montant, $notes]);
+                $stmt->execute([$nom_client, $montant, $notes, $id_client]);
                 $credit_id = $pdo->lastInsertId();
                 
                 // Enregistrer le mouvement initial
@@ -152,6 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                    value="<?= htmlspecialchars($editData['nom_client'] ?? '') ?>"
                    style="width: 100%; padding: 8px; margin-top: 5px;"
                    placeholder="Nom complet du client">
+            <input type="hidden" id="id_client" name="id_client" value="<?= htmlspecialchars($editData['id_client'] ?? $_POST['id_client'] ?? '') ?>">
         </div>
         
         <?php if ($editData): ?>
@@ -229,6 +231,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </a>
     </div>
 </form>
+
+<script src="js/awesomplete.min.js"></script>
+<link rel="stylesheet" href="css/awesomplete.css" />
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nomInput = document.getElementById('nom_client');
+    const idInput = document.getElementById('id_client');
+    let clientsList = [];
+
+    if (nomInput) {
+        let awesomplete = new Awesomplete(nomInput, {
+            minChars: 2,
+            maxItems: 15,
+            autoFirst: true
+        });
+
+        nomInput.addEventListener('input', function() {
+            if (this.value.length < 2) return;
+            
+            fetch('api/search_clients.php?q=' + encodeURIComponent(this.value))
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        clientsList = data;
+                        awesomplete.list = data;
+                    } else {
+                        clientsList = [];
+                    }
+                })
+                .catch(err => {
+                    console.error('Erreur recherche:', err);
+                    clientsList = [];
+                });
+        });
+        
+        nomInput.addEventListener('awesomplete-selectcomplete', function(e) {
+            let selectedItem = null;
+            if (e.text && e.text.id) {
+                selectedItem = e.text;
+            } else if (clientsList.length > 0) {
+                const selectedValue = (e.text && e.text.value) ? e.text.value : e.text;
+                selectedItem = clientsList.find(c => c.value === selectedValue || c.label === selectedValue);
+            }
+
+            if(selectedItem && selectedItem.id) {
+                idInput.value = selectedItem.id;
+            }
+        });
+    }
+});
+</script>
 
 <?php if ($editData && !empty($historique)): ?>
     <div style="margin-top: 30px; background-color: var(--card-bg); border-radius: 8px; overflow: hidden;">

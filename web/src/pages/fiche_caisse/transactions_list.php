@@ -158,7 +158,9 @@ function changePerPage(value) {
                     <td>
                         <?php if (!empty($transaction['client_nom'])): ?>
                             <!-- Affichage propre pour les clients liés -->
-                            <span title="Client lié">👤 <?= htmlspecialchars($transaction['client_nom'] . ' ' . ($transaction['client_prenom'] ?? '')) ?></span>
+                            <a href="index.php?page=clients_view&id=<?= $transaction['id_client'] ?>" style="text-decoration: none; color: inherit; font-weight: 500;" title="Voir la fiche client">
+                                <span title="Client lié">👤 <?= htmlspecialchars($transaction['client_nom'] . ' ' . ($transaction['client_prenom'] ?? '')) ?></span>
+                            </a>
                         <?php else: ?>
                             <!-- Affichage standard (description libre ou ancien format) -->
                             <?= htmlspecialchars($transaction['nom'] ?? '') ?>

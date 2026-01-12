@@ -10,8 +10,8 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.3.3',
-    'release_date' => '2026-01-09',
+    'current_version' => '4.3.4',
+    'release_date' => '2026-01-12',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
@@ -21,6 +21,17 @@ $projectInfo = [
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.3.4',
+        'date' => '2026-01-12',
+        'type' => 'Patch',
+        'changes' => [
+            'Feature : Cyber - Liaison robuste des sessions avec les fiches client (ID)',
+            'UI : Cyber - Indicateur visuel (✅) lors de la sélection client',
+            'UI : Fiches Client - Nouvel historique Cyber avec détail des paiements',
+            'UI : Listes Cyber/Transactions - Nom du client cliquable avec icône 👤'
+        ]
+    ],
     [
         'version' => '4.3.3',
         'date' => '2026-01-09',
