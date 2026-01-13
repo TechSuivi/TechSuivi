@@ -163,6 +163,30 @@ try {
         throw new Exception("Base de données inaccessible après $maxRetries tentatives.");
     }
 
+    // 3b. Mises à jour structurelles critiques (Synchro avec config/db_schema.php)
+    writeLog("Vérification de la structure de la base de données...");
+    
+    $schemaFile = __DIR__ . '/../config/db_schema.php';
+    if (file_exists($schemaFile)) {
+        $schemaConfig = require $schemaFile;
+        $criticalUpdates = $schemaConfig['columns'] ?? [];
+        
+        foreach ($criticalUpdates as $table => $column) {
+            try {
+                $stmt = $pdo->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
+                if (!$stmt->fetch()) {
+                    writeLog("  + Ajout automatique de la colonne $column dans $table...");
+                    $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$column` INT DEFAULT NULL");
+                    writeLog("    ✓ Succès.");
+                }
+            } catch (Exception $e) {
+                 writeLog("  ⚠️ Erreur lors de la mise à jour structure $table : " . $e->getMessage());
+            }
+        }
+    } else {
+        writeLog("⚠️ Fichier de schéma non trouvé : $schemaFile");
+    }
+
     $stmt = $pdo->prepare("SELECT ID FROM download WHERE NOM = 'Installeur TechSuivi' OR URL LIKE '/uploads/downloads/installeur_%'");
     $stmt->execute();
     $existing = $stmt->fetch();

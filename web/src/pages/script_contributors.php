@@ -10,8 +10,8 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.3.4',
-    'release_date' => '2026-01-12',
+    'current_version' => '4.3.5',
+    'release_date' => '2026-01-13',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
@@ -21,6 +21,14 @@ $projectInfo = [
 
 // Historique des versions
 $versionHistory = [
+    [
+        'version' => '4.3.5',
+        'date' => '2026-01-13',
+        'type' => 'Patch',
+        'changes' => [
+            'UX : Page Contributeurs - Bouton d\'accès direct à la mise à jour structure BDD'
+        ]
+    ],
     [
         'version' => '4.3.4',
         'date' => '2026-01-12',
@@ -231,6 +239,7 @@ $technologies = [
                 <table class="info-table">
                     <tr><td><strong>Nom :</strong></td><td><?= htmlspecialchars($projectInfo['name']) ?></td></tr>
                     <tr><td><strong>Version actuelle :</strong></td><td><span class="version-badge" id="currentVersionDisplay"><?= htmlspecialchars($projectInfo['current_version']) ?></span> <button onclick="checkVersion()" style="background:none;border:none;cursor:pointer;font-size:1.2em;" title="Vérifier MAJ">🔄</button></td></tr>
+                    <tr><td><strong>Base de données :</strong></td><td><a href="install/update_db_structure.php" target="_blank" style="text-decoration: none; padding: 4px 10px; background-color: #ffc107; color: #333; border-radius: 4px; font-size: 13px; font-weight: bold;">🛠️ Mettre à jour Structure</a></td></tr>
                     <tr><td><strong>Date de release :</strong></td><td><?= htmlspecialchars($projectInfo['release_date']) ?></td></tr>
                     <tr><td><strong>Statut :</strong></td><td><span class="status-active"><?= htmlspecialchars($projectInfo['status']) ?></span></td></tr>
                     <tr><td><strong>Licence :</strong></td><td><?= htmlspecialchars($projectInfo['license']) ?></td></tr>

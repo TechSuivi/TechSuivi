@@ -16,10 +16,9 @@ try {
     $pdo = getDatabaseConnection();
     echo "<h1>Mise à jour de la base de données</h1>";
     
-    $updates = [
-        'FC_cyber' => 'id_client',
-        'FC_cyber_credits' => 'id_client'
-    ];
+    // Chargement de la configuration centralisée
+    $schemaConfig = require __DIR__ . '/../config/db_schema.php';
+    $updates = $schemaConfig['columns'] ?? [];
     
     foreach ($updates as $table => $column) {
         // Vérifier si la colonne existe via une requête propre
