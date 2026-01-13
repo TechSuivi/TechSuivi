@@ -33,7 +33,8 @@ $versionHistory = [
             'Feature : Stock - Page "Liste commande" qui regroupe les produits pour une vision synthétique',
             'Feature : Stock - Modification de date de commande et gestion de fichiers (Factures/BL) depuis la liste',
             'UX : Stock - Ajout rapide d\'articles dans une commande existante',
-            'UX : Stock - Affichage d\'un en-tête de commande avec actions (Edit/Add) et documents lors de la recherche d\'une commande unique'
+            'UX : Stock - Affichage d\'un en-tête de commande avec actions (Edit/Add) et documents lors de la recherche d\'une commande unique',
+            'Bugfix : UI - Correction de l\'ouverture du menu latéral sur les pages secondaires (ex: Liste commande)'
         ]
     ],
     [
