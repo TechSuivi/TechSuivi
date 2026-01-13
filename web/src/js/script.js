@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Ouvrir le menu Clients
                 var clientsMenu = document.querySelector('.menu-item a[href*="clients"]').parentElement;
                 clientsMenu.classList.add('open');
-            } else if (currentPage.startsWith('stock_') || currentPage.startsWith('inventory_')) {
+            } else if (currentPage.startsWith('stock_') || currentPage.startsWith('inventory_') || currentPage.startsWith('orders_')) {
                 // Ouvrir le menu Stock
                 var stockMenu = document.querySelector('.menu-item a[href*="stock_list"]').parentElement;
                 stockMenu.classList.add('open');
