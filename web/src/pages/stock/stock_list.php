@@ -286,6 +286,133 @@ if (isset($pdo)) { // Assurez-vous que $pdo est disponible
         <span>Page <?= $currentPage ?> sur <?= $totalPages ?></span>
     </div>
 
+    <?php
+    // Détection si on affiche une seule commande
+    // On analyse les items de la page courante
+    $uniqueOrders = [];
+    foreach ($stockItems as $item) {
+        if (!empty($item['numero_commande'])) {
+            $key = $item['fournisseur'] . '|' . $item['numero_commande'];
+            if (!isset($uniqueOrders[$key])) {
+                $uniqueOrders[$key] = $item;
+            }
+        }
+    }
+
+    $singleOrderMode = (count($uniqueOrders) === 1);
+    
+    if ($singleOrderMode) {
+        $orderData = reset($uniqueOrders);
+        $orderNum = $orderData['numero_commande'];
+        $supplier = $orderData['fournisseur'];
+        $dateCmd = $orderData['date_commande'];
+        $docsStrHeader = $orderData['documents'] ?? '';
+    ?>
+        <!-- Bloc d'action de commande (Design Unifié) -->
+        <style>
+            .order-header-card {
+                padding: 20px;
+                background-color: #fff;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                margin-bottom: 25px;
+                border-left: 5px solid #0d6efd;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+            .order-info h3 { margin: 0 0 5px 0; color: #343a40; font-size: 1.25em; display: flex; align-items: center; gap: 10px; }
+            .order-badge { font-family: ui-monospace, SFMono-Regular, monospace; background: #e9ecef; padding: 4px 10px; border-radius: 6px; color: #495057; font-size: 0.9em; }
+            .order-meta { color: #6c757d; font-size: 0.95em; display: flex; align-items: center; gap: 15px; }
+            .order-meta strong { color: #495057; }
+            
+            .doc-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background-color: #f8f9fa;
+                border: 1px solid #dee2e6;
+                padding: 6px 12px;
+                border-radius: 20px;
+                text-decoration: none;
+                color: #495057;
+                font-size: 0.85em;
+                transition: all 0.2s;
+            }
+            .doc-pill:hover { background-color: #e9ecef; border-color: #ced4da; transform: translateY(-1px); }
+
+            .action-btn {
+                padding: 10px 20px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 600;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                transition: all 0.2s;
+                border: none;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .btn-edit { background-color: #ffc107; color: #212529; }
+            .btn-edit:hover { background-color: #ffca2c; }
+            .btn-add { background-color: #198754; color: white; }
+            .btn-add:hover { background-color: #157347; }
+
+            /* Dark Mode */
+            body.dark .order-header-card { background-color: var(--card-bg); color: var(--text-color); }
+            body.dark .order-info h3 { color: var(--text-color); }
+            body.dark .order-badge { background-color: #343a40; color: #e9ecef; }
+            body.dark .order-meta { color: #adb5bd; }
+            body.dark .order-meta strong { color: #e9ecef; }
+            body.dark .doc-pill { background-color: #343a40; border-color: #495057; color: #e9ecef; }
+            body.dark .doc-pill:hover { background-color: #495057; }
+        </style>
+
+        <div class="order-header-card">
+            <div class="order-info">
+                <h3>
+                    📦 Commande <span class="order-badge"><?= htmlspecialchars($orderNum) ?></span>
+                </h3>
+                <div class="order-meta">
+                    <span>🏢 <strong><?= htmlspecialchars($supplier) ?></strong></span>
+                    <?php if(!empty($dateCmd)): ?>
+                        <span>📅 <?= date('d/m/Y', strtotime($dateCmd)) ?></span>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Documents -->
+                <?php if (!empty($docsStrHeader)): ?>
+                <div style="margin-top: 15px; display: flex; gap: 8px; flex-wrap: wrap;">
+                    <?php
+                    $docs = explode(';', $docsStrHeader);
+                    foreach ($docs as $docStr) {
+                        $parts = explode('|', $docStr);
+                        if (count($parts) >= 1) {
+                            $path = $parts[0];
+                            $name = $parts[1] ?? 'Doc';
+                            if (file_exists(__DIR__ . '/../../' . $path)) {
+                                echo '<a href="' . htmlspecialchars($path) . '" target="_blank" class="doc-pill">📄 ' . htmlspecialchars($name) . '</a>';
+                            }
+                        }
+                    }
+                    ?>
+                </div>
+                <?php endif; ?>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <a href="index.php?page=orders_edit&supplier=<?= urlencode($supplier) ?>&order=<?= urlencode($orderNum) ?>" class="action-btn btn-edit">
+                    ✏️ Modifier / Docs
+                </a>
+                <a href="index.php?page=stock_add&supplier=<?= urlencode($supplier) ?>&order=<?= urlencode($orderNum) ?>" class="action-btn btn-add">
+                    ➕ Ajouter Article
+                </a>
+            </div>
+        </div>
+    <?php } ?>
+
     <table class="stock-table">
         <thead>
             <tr>
@@ -316,7 +443,9 @@ if (isset($pdo)) { // Assurez-vous que $pdo est disponible
                 <th class="col-date">Date Cde</th>
                 <th><a href="?page=stock_list&sort=fournisseur&dir=<?= $sortDir == 'ASC' ? 'DESC' : 'ASC' ?>&search=<?= urlencode($searchTerm) ?>" style="color: inherit; text-decoration: none;">Fournisseur</a></th>
                 <th class="col-cmd"><?= getSortLink('numero_commande', 'N° Cde', $sortBy, $sortDir, $searchTerm, $currentPage) ?></th>
-                <th style="text-align: center;">Docs</th>
+                <?php if (!$singleOrderMode): ?>
+                    <th style="text-align: center;">Docs</th>
+                <?php endif; ?>
             </tr>
         </thead>
         <tbody>
@@ -342,6 +471,7 @@ if (isset($pdo)) { // Assurez-vous que $pdo est disponible
                     <td class="col-cmd"><?= htmlspecialchars($item['numero_commande'] ?? '') ?></td>
 
 
+                    <?php if (!$singleOrderMode): ?>
                     <td style="text-align: center;">
                         <?php 
                         $docsStr = $item['documents'] ?? '';
@@ -366,6 +496,7 @@ if (isset($pdo)) { // Assurez-vous que $pdo est disponible
                         }
                         ?>
                     </td>
+                    <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>

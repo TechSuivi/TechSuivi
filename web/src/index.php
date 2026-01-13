@@ -58,7 +58,7 @@ function isMenuActive($menuPage, $currentPage) {
         'gestion_caisse' => ['dashboard_caisse', 'feuille_caisse_add', 'feuille_caisse_list', 'feuille_caisse_view', 'moyens_paiement', 'resume_journalier', 'tableau_recapitulatif'],
         'cyber' => ['cyber_add', 'cyber_list', 'cyber_credits_list', 'cyber_credits_add', 'cyber_credits_history'],
         'transactions' => ['transaction_add', 'transactions_list'],
-        'stock' => ['stock_list', 'stock_add', 'inventory_list', 'inventory_view'],
+        'stock' => ['stock_list', 'orders_list', 'stock_add', 'inventory_list', 'inventory_view'],
         'messages' => ['messages', 'helpdesk_categories'],
         'settings' => ['settings', 'server_info', 'docker_info', 'script_contributors', 'intervention_sheet_config', 'cyber_pricing_config', 'acadia_config', 'api_keys_config', 'mail_config', 'oauth2_config', 'scheduled_tasks', 'reports_config', 'downloads_add', 'downloads_edit', 'liens_add', 'liens_edit', 'helpdesk_categories', 'fournisseurs_list', 'moyens_paiement', 'statuts_list', 'print_generator', 'catalog_import', 'photos_settings', 'timezone_settings', 'user_add', 'users_list', 'change_password', 'database_backup', 'files_manager', 'autoit_logiciels_list', 'autoit_commandes_list', 'autoit_nettoyage_list', 'autoit_personnalisation_list', 'autoit_installeur_list', 'client_import', 'gemini_config']
     ];
@@ -85,7 +85,7 @@ $allowedPages = [
     'downloads_list', 'downloads_add', 'downloads_edit', 'liens_list',
     'liens_add', 'liens_edit', 'helpdesk_categories', 'messages',
     'liens_add', 'liens_edit', 'helpdesk_categories', 'messages',
-    'stock_list', 'stock_add', 'inventory_list', 'inventory_view', 'fournisseurs_list', 'catalog_import',
+    'stock_list', 'orders_list', 'orders_edit', 'stock_add', 'inventory_list', 'inventory_view', 'fournisseurs_list', 'catalog_import',
     'dashboard_caisse', 'moyens_paiement', 'cyber_list', 'cyber_add',
     'cyber_edit', 'cyber_credits_list', 'cyber_credits_add', 'cyber_credits_history', 'transactions_list', 'transaction_add', 'transaction_edit',
     'feuille_caisse_add', 'feuille_caisse_list', 'feuille_caisse_view',
@@ -182,6 +182,7 @@ if (!in_array($page, $allowedPages)) {
                 <a href="index.php?page=stock_list" <?php echo isMenuActive('stock', $page) ? 'class="active"' : ''; ?>>📦 Stock</a>
                 <ul class="submenu">
                     <li><a href="index.php?page=stock_list" <?php echo ($page === 'stock_list') ? 'class="active"' : ''; ?>>📋 Liste</a></li>
+                    <li><a href="index.php?page=orders_list" <?php echo ($page === 'orders_list') ? 'class="active"' : ''; ?>>📋 Liste commande</a></li>
                     <li><a href="index.php?page=inventory_list" <?php echo ($page === 'inventory_list' || $page === 'inventory_view') ? 'class="active"' : ''; ?>>📊 Inventaire</a></li>
                     <li><a href="index.php?page=stock_add" <?php echo ($page === 'stock_add') ? 'class="active"' : ''; ?>>➕ Ajouter</a></li>
                 </ul>
@@ -316,6 +317,12 @@ if (!in_array($page, $allowedPages)) {
                     include 'pages/stock/stock_list.php';
                 } else {
                      echo "<p style='color: red;'>La liste du stock ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
+                }
+            } elseif ($page === 'orders_list') {
+                if ($pdo) {
+                    include 'pages/stock/orders_list.php';
+                } else {
+                     echo "<p style='color: red;'>La liste des commandes ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
                 }
             } elseif ($page === 'stock_add') {
                 if ($pdo) {
@@ -601,6 +608,12 @@ if (!in_array($page, $allowedPages)) {
                     include 'pages/config/reports_config.php';
                 } else {
                      echo "<p style='color: red;'>La configuration des rapports ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
+                }
+            } elseif ($page === 'orders_edit') {
+                if ($pdo) {
+                     include 'pages/stock/orders_edit.php';
+                } else {
+                     echo "<p style='color: red;'>La modification de commande ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
                 }
             } elseif ($page === 'files_manager') {
                 // Cette page ne nécessite pas de connexion à la base de données

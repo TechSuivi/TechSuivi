@@ -29,7 +29,11 @@ $versionHistory = [
             'Feature : Cyber - Liaison robuste des sessions avec les fiches client (ID)',
             'UI : Cyber - Indicateur visuel (✅) lors de la sélection client',
             'UI : Fiches Client - Nouvel historique Cyber avec détail des paiements',
-            'UI : Listes Cyber/Transactions - Nom du client cliquable avec icône 👤'
+            'UI : Listes Cyber/Transactions - Nom du client cliquable avec icône 👤',
+            'Feature : Stock - Page "Liste commande" qui regroupe les produits pour une vision synthétique',
+            'Feature : Stock - Modification de date de commande et gestion de fichiers (Factures/BL) depuis la liste',
+            'UX : Stock - Ajout rapide d\'articles dans une commande existante',
+            'UX : Stock - Affichage d\'un en-tête de commande avec actions (Edit/Add) et documents lors de la recherche d\'une commande unique'
         ]
     ],
     [

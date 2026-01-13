@@ -141,6 +141,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($pdo)) {
     $message = '<p style="color: red;">Erreur de configuration : la connexion à la base de données n\'est pas disponible.</p>';
 }
+
+// Récupération des paramètres GET pour pré-remplissage
+$preFillSupplier = trim($_GET['supplier'] ?? '');
+$preFillOrder = trim($_GET['order'] ?? '');
 ?>
 
 
@@ -180,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
                 <div style="flex: 1;">
                     <div style="margin-bottom: 15px;">
                         <label for="supplier_name" style="display: block; margin-bottom: 5px; font-weight: bold;">Nom du fournisseur * :</label>
-                        <input type="text" id="supplier_name" list="fournisseurs_list" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Tapez ou sélectionnez un fournisseur" autocomplete="off">
+                        <input type="text" id="supplier_name" list="fournisseurs_list" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Tapez ou sélectionnez un fournisseur" autocomplete="off" value="<?= htmlspecialchars($preFillSupplier) ?>">
                         <datalist id="fournisseurs_list">
                             <!-- Les options seront chargées dynamiquement -->
                         </datalist>
@@ -188,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label for="order_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Numéro de commande * :</label>
-                        <input type="text" id="order_number" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Numéro de commande">
+                        <input type="text" id="order_number" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Numéro de commande" value="<?= htmlspecialchars($preFillOrder) ?>">
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label for="order_date" style="display: block; margin-bottom: 5px; font-weight: bold;">Date de commande :</label>
@@ -606,7 +610,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedSupplierName && savedOrderNumber && savedSupplierValidated === 'true') {
         validateSupplier();
     } else {
-        productForm.style.display = 'none';
+        // Vérifier si des paramètres de pré-remplissage sont présents (GET)
+        if (supplierNameInput.value.trim() !== '' && orderNumberInput.value.trim() !== '') {
+             validateSupplier();
+        } else {
+             productForm.style.display = 'none';
+        }
     }
 
     function validateSupplier() {
