@@ -33,6 +33,7 @@ function getActiveSettingsTab($currentPage) {
         'cyber_pricing_config' => 'config',
         'acadia_config' => 'config',
         'gemini_config' => 'config',
+        'theme_config' => 'config',
         
         // Onglet Mail
         'mail_config' => 'mail',
@@ -82,6 +83,7 @@ $tabs = [
             ['url' => 'index.php?page=cyber_pricing_config', 'icon' => '🖥️', 'title' => 'Tarifs Cyber'],
             ['url' => 'index.php?page=acadia_config', 'icon' => '🔧', 'title' => 'Configuration Acadia'],
             ['url' => 'index.php?page=gemini_config', 'icon' => '🧠', 'title' => 'Configuration Gemini'],
+            ['url' => 'index.php?page=theme_config', 'icon' => '🎨', 'title' => 'Thèmes & Apparence'],
         ]
     ],
     'mail' => [
@@ -166,7 +168,7 @@ $tabs = [
     <!-- Menu de navigation rapide pour l'onglet actif -->
     <?php if (isset($tabs[$activeTab])): ?>
         <div class="quick-nav-menu">
-            <h4 style="margin: 0 0 10px 0; color: var(--accent-color);">
+            <h4>
                 <?= $tabs[$activeTab]['title'] ?> - Navigation rapide
             </h4>
             <div class="quick-nav-buttons">
@@ -180,173 +182,7 @@ $tabs = [
     <?php endif; ?>
 </div>
 
-<style>
-/* Navigation persistante des paramètres */
-.settings-persistent-nav {
-    background-color: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
 
-/* Fil d'Ariane */
-.settings-breadcrumb {
-    background-color: transparent;
-    padding: 0 0 15px 0;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #dee2e6;
-    font-size: 14px;
-}
-
-.settings-breadcrumb a {
-    color: var(--accent-color);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.settings-breadcrumb a:hover {
-    text-decoration: underline;
-}
-
-.breadcrumb-separator {
-    margin: 0 8px;
-    color: #6c757d;
-}
-
-.breadcrumb-current {
-    color: #6c757d;
-    font-weight: 600;
-}
-
-/* Onglets de navigation */
-.settings-tabs-nav {
-    margin-bottom: 15px;
-}
-
-.tab-buttons {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-}
-
-.tab-button {
-    background: #ffffff;
-    border: 1px solid #dee2e6;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--text-color);
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-.tab-button:hover {
-    background-color: var(--hover-color);
-    border-color: var(--accent-color);
-}
-
-.tab-button.active {
-    background: linear-gradient(135deg, var(--accent-color), #23428a);
-    color: white;
-    border-color: var(--accent-color);
-    font-weight: bold;
-}
-
-/* Menu de navigation rapide */
-.quick-nav-menu {
-    background-color: #ffffff;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    padding: 15px;
-    margin-top: 15px;
-}
-
-.quick-nav-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.quick-nav-btn {
-    background: linear-gradient(135deg, var(--accent-color), #23428a);
-    color: white;
-    padding: 6px 12px;
-    text-decoration: none;
-    border-radius: 4px;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.quick-nav-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    text-decoration: none;
-    color: white;
-}
-
-/* Styles pour le mode sombre */
-body.dark .settings-persistent-nav {
-    background-color: #2c2c2c;
-    border-color: #444;
-    box-shadow: 0 2px 4px rgba(255,255,255,0.05);
-}
-
-body.dark .settings-breadcrumb {
-    border-bottom-color: #444;
-}
-
-body.dark .breadcrumb-current,
-body.dark .breadcrumb-separator {
-    color: #aaa;
-}
-
-body.dark .tab-button {
-    background-color: #333;
-    color: var(--text-color-dark);
-    border-color: #555;
-}
-
-body.dark .tab-button:hover {
-    background-color: #383838;
-    border-color: var(--accent-color);
-}
-
-body.dark .quick-nav-menu {
-    background-color: #333;
-    border-color: #555;
-}
-
-body.dark .quick-nav-menu h4 {
-    color: var(--accent-color) !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .tab-buttons {
-        flex-direction: column;
-    }
-    
-    .tab-button {
-        text-align: center;
-    }
-    
-    .quick-nav-buttons {
-        flex-direction: column;
-    }
-    
-    .quick-nav-btn {
-        justify-content: center;
-    }
-}
-</style>
 
 <script>
 function switchSettingsTab(tabName) {

@@ -153,51 +153,52 @@ switch ($action) {
         ob_start(); // Capture HTML output
         
         if ($dockerInfo['status'] === 'ok'): ?>
-            <div class="info-grid" style="margin-bottom: 20px;">
-                <div class="info-card">
-                    <h4>📊 Vue d'ensemble</h4>
-                    <table class="info-table">
-                        <tr><td><strong>Version :</strong></td><td><?= htmlspecialchars($dockerInfo['stats']['version']) ?></td></tr>
-                        <tr><td><strong>Conteneurs :</strong></td><td><?= htmlspecialchars($dockerInfo['stats']['total']) ?></td></tr>
-                        <tr><td><strong>En cours :</strong></td><td style="color: #28a745;">● <?= htmlspecialchars($dockerInfo['stats']['running']) ?></td></tr>
-                        <tr><td><strong>Arrêtés :</strong></td><td style="color: #dc3545;">● <?= htmlspecialchars($dockerInfo['stats']['stopped']) ?></td></tr>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-20 mb-20">
+                <div class="card p-20 border border-border rounded shadow-sm bg-card">
+                    <h4 class="mt-0 mb-15 text-lg font-bold text-dark border-b border-border pb-10">📊 Vue d'ensemble</h4>
+                    <table class="w-full">
+                        <tr class="border-b border-border"><td class="p-10 font-bold text-muted">Version :</td><td class="p-10 text-dark"><?= htmlspecialchars($dockerInfo['stats']['version']) ?></td></tr>
+                        <tr class="border-b border-border"><td class="p-10 font-bold text-muted">Conteneurs :</td><td class="p-10 text-dark"><?= htmlspecialchars($dockerInfo['stats']['total']) ?></td></tr>
+                        <tr class="border-b border-border"><td class="p-10 font-bold text-muted">En cours :</td><td class="p-10 text-success font-bold">● <?= htmlspecialchars($dockerInfo['stats']['running']) ?></td></tr>
+                        <tr><td class="p-10 font-bold text-muted">Arrêtés :</td><td class="p-10 text-danger font-bold">● <?= htmlspecialchars($dockerInfo['stats']['stopped']) ?></td></tr>
                     </table>
-                </div>
                 </div>
 
                 <!-- CARTE GESTION RUSTDESK -->
-                <div class="info-card">
-                    <h4>🔐 Gestion Rustdesk</h4>
-                    <p class="text-muted" style="font-size: 0.9em; margin-bottom: 15px;">
+                <div class="card p-20 border border-border rounded shadow-sm bg-card">
+                    <h4 class="mt-0 mb-15 text-lg font-bold text-dark border-b border-border pb-10">🔐 Gestion Rustdesk</h4>
+                    <p class="text-muted text-sm mb-15">
                         Sauvegardez ou restaurez l'identité (ID/Key) de votre serveur Rustdesk.
                     </p>
                     
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <a href="ajax/rustdesk_keys.php?action=download_keys" target="_blank" class="btn-action" style="text-decoration: none; display: inline-flex; align-items: center; color: inherit;">
+                    <div class="flex flex-wrap gap-10">
+                        <a href="ajax/rustdesk_keys.php?action=download_keys" target="_blank" class="btn btn-primary text-white no-underline flex items-center gap-5">
                             📥 Sauvegarder les clés (.zip)
                         </a>
 
-                        <button class="btn-action" onclick="document.getElementById('rustdeskKeyInput').click()" style="display: inline-flex; align-items: center;">
+                        <button class="btn btn-secondary flex items-center gap-5" onclick="document.getElementById('rustdeskKeyInput').click()">
                             📤 Restaurer les clés
                         </button>
                         
-                        <input type="file" id="rustdeskKeyInput" multiple style="display: none;" onchange="uploadRustdeskKeys(this)">
+                        <input type="file" id="rustdeskKeyInput" multiple class="hidden" onchange="uploadRustdeskKeys(this)">
                     </div>
                 </div>
             </div>
 
             <?php if (!empty($dockerInfo['containers'])): ?>
-                <div class="info-card" style="width: 100%; overflow-x: auto;">
-                    <h4>🚀 Conteneurs Actifs</h4>
-                    <table class="info-table" style="min-width: 600px;">
+                <div class="card p-0 overflow-hidden border border-border rounded shadow-sm bg-card w-full overflow-x-auto">
+                    <div class="p-15 border-b border-border bg-light">
+                        <h4 class="m-0 text-lg font-bold text-dark">🚀 Conteneurs Actifs</h4>
+                    </div>
+                    <table class="w-full min-w-600 border-collapse">
                         <thead>
-                            <tr style="border-bottom: 2px solid #dee2e6;">
-                                <th style="text-align: left; padding: 10px;">Nom</th>
-                                <th style="text-align: left; padding: 10px;">Image</th>
-                                <th style="text-align: left; padding: 10px;">Status</th>
-                                <th style="text-align: left; padding: 10px;">Ports</th>
-                                <th style="text-align: left; padding: 10px;">CPU / RAM</th>
-                                <th style="text-align: right; padding: 10px;">Actions</th>
+                            <tr class="bg-light border-b border-border">
+                                <th class="text-left p-10 font-bold text-muted text-xs uppercase">Nom</th>
+                                <th class="text-left p-10 font-bold text-muted text-xs uppercase">Image</th>
+                                <th class="text-left p-10 font-bold text-muted text-xs uppercase">Status</th>
+                                <th class="text-left p-10 font-bold text-muted text-xs uppercase">Ports</th>
+                                <th class="text-left p-10 font-bold text-muted text-xs uppercase">CPU / RAM</th>
+                                <th class="text-right p-10 font-bold text-muted text-xs uppercase">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -206,22 +207,22 @@ switch ($action) {
                                     $isSelf = ($dockerInfo['in_container'] && strpos($c['name'], 'web') !== false);
                                     $isRunning = stringsStartsWith($c['status'], 'Up');
                                 ?>
-                                <tr class="<?= $isSelf ? 'is-self' : '' ?>">
-                                    <td style="padding: 10px;">
+                                <tr class="border-b border-border hover:bg-hover transition-colors <?= $isSelf ? 'bg-soft-blue' : '' ?>">
+                                    <td class="p-10 text-dark">
                                         <strong><?= htmlspecialchars($c['name']) ?></strong>
-                                        <?php if ($isSelf): ?> <span class="badge-self">(Ce serveur)</span><?php endif; ?>
+                                        <?php if ($isSelf): ?> <span class="badge bg-info text-white text-xs ml-5">(Ce serveur)</span><?php endif; ?>
                                     </td>
-                                    <td style="padding: 10px;"><small><?= htmlspecialchars($c['image']) ?></small></td>
-                                    <td style="padding: 10px;">
+                                    <td class="p-10 text-muted text-sm"><?= htmlspecialchars($c['image']) ?></td>
+                                    <td class="p-10">
                                         <?php if ($isRunning): ?>
-                                            <span style="color: #28a745; font-weight: bold;">● En cours</span>
+                                            <span class="text-success font-bold">● En cours</span>
                                             <br><small class="text-muted"><?= htmlspecialchars($c['status']) ?></small>
                                         <?php else: ?>
-                                            <span style="color: #dc3545; font-weight: bold;">● Arrêté</span>
+                                            <span class="text-danger font-bold">● Arrêté</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td style="padding: 10px;"><small><?= htmlspecialchars($c['ports']) ?></small></td>
-                                    <td style="padding: 10px; font-family: monospace; font-size: 0.9em;">
+                                    <td class="p-10 text-muted text-xs"><?= htmlspecialchars($c['ports']) ?></td>
+                                    <td class="p-10 font-mono text-sm text-dark">
                                         <?php if ($isRunning): ?>
                                             CPU: <?= htmlspecialchars($c['cpu']) ?><br>
                                             RAM: <?= htmlspecialchars($c['mem']) ?>
@@ -229,18 +230,18 @@ switch ($action) {
                                             -
                                         <?php endif; ?>
                                     </td>
-                                    <td style="padding: 10px; text-align: right; white-space: nowrap;">
+                                    <td class="p-10 text-right whitespace-nowrap flex justify-end gap-5">
                                         <?php if ($isRunning): ?>
                                             <?php if (!$isSelf): ?>
-                                            <button class="btn-action btn-stop" onclick="dockerAction('stop', '<?= htmlspecialchars($c['name']) ?>')" title="Arrêter">⏹️</button>
+                                            <button class="btn-sm-action text-danger border-danger hover:bg-danger hover:text-white" onclick="dockerAction('stop', '<?= htmlspecialchars($c['name']) ?>')" title="Arrêter">⏹️</button>
                                             <?php endif; ?>
-                                            <button class="btn-action btn-restart" onclick="dockerAction('restart', '<?= htmlspecialchars($c['name']) ?>', <?= $isSelf ? 1 : 0 ?>)" title="Redémarrer">🔄</button>
-                                            <button class="btn-action btn-logs" onclick="showDockerLogs('<?= htmlspecialchars($c['name']) ?>')" title="Logs">📄</button>
+                                            <button class="btn-sm-action text-orange border-orange hover:bg-orange hover:text-white" onclick="dockerAction('restart', '<?= htmlspecialchars($c['name']) ?>', <?= $isSelf ? 1 : 0 ?>)" title="Redémarrer">🔄</button>
+                                            <button class="btn-sm-action text-info border-info hover:bg-info hover:text-white" onclick="showDockerLogs('<?= htmlspecialchars($c['name']) ?>')" title="Logs">📄</button>
                                         <?php else: ?>
                                             <?php if (!$isSelf): ?>
-                                            <button class="btn-action btn-start" onclick="dockerAction('start', '<?= htmlspecialchars($c['name']) ?>')" title="Démarrer">▶️</button>
+                                            <button class="btn-sm-action text-success border-success hover:bg-success hover:text-white" onclick="dockerAction('start', '<?= htmlspecialchars($c['name']) ?>')" title="Démarrer">▶️</button>
                                             <?php endif; ?>
-                                            <button class="btn-action btn-logs" onclick="showDockerLogs('<?= htmlspecialchars($c['name']) ?>')" title="Logs">📄</button>
+                                            <button class="btn-sm-action text-info border-info hover:bg-info hover:text-white" onclick="showDockerLogs('<?= htmlspecialchars($c['name']) ?>')" title="Logs">📄</button>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -249,18 +250,26 @@ switch ($action) {
                     </table>
                 </div>
             <?php else: ?>
-                <div class="alert alert-info">Aucun conteneur trouvé.</div>
+                <div class="alert alert-info flex items-center gap-10">
+                    <span class="text-lg">ℹ️</span> Aucun conteneur trouvé.
+                </div>
             <?php endif; ?>
 
         <?php elseif ($dockerInfo['status'] === 'permission_denied'): ?>
-            <div class="alert alert-warning">
-                <strong>⚠️ Docker détecté mais inaccessible</strong><br>
-                L'utilisateur <code><?= htmlspecialchars($dockerInfo['user']) ?></code> n'a pas les droits sur <code>/var/run/docker.sock</code>.
+            <div class="alert alert-warning flex items-center gap-10">
+                <span class="text-lg">⚠️</span>
+                <div>
+                    <strong>Docker détecté mais inaccessible</strong><br>
+                    L'utilisateur <code><?= htmlspecialchars($dockerInfo['user']) ?></code> n'a pas les droits sur <code>/var/run/docker.sock</code>.
+                </div>
             </div>
         <?php else: ?>
-            <div class="alert alert-danger">
-                <strong>❌ Docker non disponible</strong><br>
-                Statut : <?= htmlspecialchars($dockerInfo['status']) ?>
+            <div class="alert alert-danger flex items-center gap-10">
+                <span class="text-lg">❌</span>
+                <div>
+                    <strong>Docker non disponible</strong><br>
+                    Statut : <?= htmlspecialchars($dockerInfo['status']) ?>
+                </div>
             </div>
         <?php endif;
 

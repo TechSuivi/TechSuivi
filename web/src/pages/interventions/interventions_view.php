@@ -72,6 +72,16 @@ function formatLogContent($logContent) {
         $rawBuffer = [];
     };
 
+    // Helper to slugify categories/types for CSS classes
+    $slugifyClass = function($string) {
+        $string = str_replace(
+            ['é', 'è', 'ê', 'ë', 'à', 'â', 'î', 'ï', 'ô', 'û', 'ù', 'ç', 'É', 'È', 'Ê', 'Ë', 'À', 'Â', 'Î', 'Ï', 'Ô', 'Û', 'Ù', 'Ç'],
+            ['e', 'e', 'e', 'e', 'a', 'a', 'i', 'i', 'o', 'u', 'u', 'c', 'e', 'e', 'e', 'e', 'a', 'a', 'i', 'i', 'o', 'u', 'u', 'c'],
+            $string
+        );
+        return strtolower(preg_replace('/[^a-z0-9]/i', '-', $string));
+    };
+
     foreach ($lines as $line) {
         // Nettoyage agressif des espaces invisibles :
         // 1. Décodage des entités HTML (pour les &nbsp; et autres)
@@ -98,28 +108,41 @@ function formatLogContent($logContent) {
             $date = $matches[1];
             $rest = $matches[2];
 
-            $formattedHtml .= '<div class="log-entry">';
+            $metadata = [];
+            $message = $rest;
+
+            // Extract all [Brackets] at the beginning
+            while (preg_match('/^\[([^\]]+)\]\s*(.*)$/', $message, $metaMatches)) {
+                $metadata[] = $metaMatches[1];
+                $message = $metaMatches[2];
+            }
+
+            $classes = [];
+            if (isset($metadata[0])) {
+                $classes[] = 'cat-' . $slugifyClass($metadata[0]);
+            }
+            if (isset($metadata[1])) {
+                $classes[] = 'type-' . $slugifyClass($metadata[1]);
+            }
+            
+            // Keyword highlighting
+            if (stripos($message, 'erreur') !== false || stripos($message, 'échec') !== false || stripos($message, 'failed') !== false) {
+                $classes[] = 'line-error';
+            } elseif (stripos($message, 'success') !== false || stripos($message, 'réussie') !== false || stripos($message, 'terminée') !== false || stripos($message, ' OK') !== false) {
+                $classes[] = 'line-success';
+            } elseif (stripos($message, 'recherche') !== false || stripos($message, 'rechercher') !== false) {
+                $classes[] = 'line-search';
+            }
+
+            $formattedHtml .= '<div class="log-entry ' . implode(' ', $classes) . '">';
             $formattedHtml .= '<span class="log-date">[' . $date . ']</span>';
 
-            // Extract Category [Category]
-            if (preg_match('/^\[([^\]]+)\]\s*(.*)$/', $rest, $catMatches)) {
-                $category = $catMatches[1];
-                $message = $catMatches[2];
-                $formattedHtml .= ' <span class="log-category">[' . htmlspecialchars($category) . ']</span>';
-                
-                // Extract Type [Type] (Optional)
-                if (preg_match('/^\[([^\]]+)\]\s*(.*)$/', $message, $typeMatches)) {
-                     $type = $typeMatches[1];
-                     $finalMessage = $typeMatches[2];
-                     $formattedHtml .= ' <span class="log-type">[' . htmlspecialchars($type) . ']</span>';
-                     $formattedHtml .= ' <span class="log-message">' . htmlspecialchars($finalMessage) . '</span>';
-                } else {
-                     $formattedHtml .= ' <span class="log-message">' . htmlspecialchars($message) . '</span>';
-                }
-
-            } else {
-                $formattedHtml .= ' <span class="log-message">' . htmlspecialchars($rest) . '</span>';
+            foreach ($metadata as $index => $meta) {
+                $metaClass = ($index === 0) ? 'log-category' : 'log-type';
+                $formattedHtml .= ' <span class="' . $metaClass . '">[' . htmlspecialchars($meta) . ']</span>';
             }
+            
+            $formattedHtml .= ' <span class="log-message">' . htmlspecialchars($message) . '</span>';
             $formattedHtml .= '</div>';
         } else {
             // Add to buffer
@@ -267,515 +290,158 @@ if (empty($intervention_id)) {
 }
 ?>
 
-<style>
-/* Modern styles for interventions view page */
-.intervention-page {
-    background: var(--bg-color);
-    color: var(--text-color);
-    min-height: 100vh;
-    padding: 20px;
-}
+<!-- Inline CSS Removed for Audit -->
 
-.page-header {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
+<div class="page-header">
+    <div class="header-title">
+        <h1 class="m-0">🔍 Détail de l'intervention</h1>
+        <?php if ($intervention): ?>
+        <div class="header-subtitle">
+            ID: <strong><?= htmlspecialchars($intervention['id']) ?></strong> • Créée le <?= date('d/m/Y à H:i', strtotime($intervention['date'])) ?>
+        </div>
+        <?php endif; ?>
+    </div>
 
-.page-header h1 {
-    margin: 0;
-    font-size: 1.4em;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+    <?php if ($intervention): ?>
+    <div class="header-actions">
+        <div class="flex gap-10">
+            <?php if (!empty($intervention['statut_nom'])): ?>
+                <span class="status-pill" style="background-color: <?= htmlspecialchars($intervention['statut_couleur']) ?>; color: white; padding: 6px 16px; font-weight: 600;">
+                    <?= htmlspecialchars($intervention['statut_nom']) ?>
+                </span>
+            <?php else: ?>
+                <span class="status-pill <?= $intervention['en_cours'] ? 'bg-success-light text-success' : 'bg-hover text-muted' ?>">
+                    <?= $intervention['en_cours'] ? 'En cours' : 'Clôturée' ?>
+                </span>
+            <?php endif; ?>
 
-.intervent.view-container {
-    max-width: 95%; /* Était 1200px */
-    width: 100%; /* S'assurer qu'on prend la largeur dispo */
-    margin: 0 auto;
-    padding: 20px;
-    box-sizing: border-box; /* Important pour inclure le padding */
-}
-
-.intervention-detail {
-    max-width: 95%; /* 95% de largeur */
-    width: 100%;
-    margin: 0 auto;
-    background: transparent; /* Plus de fond blanc */
-    padding: 0; /* Plus de padding inutile */
-    border-radius: 0;
-    box-shadow: none; /* Plus d'ombre sur le conteneur principal */
-}
-
-.intervention-header {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-.intervention-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.95em;
-    margin-bottom: 15px;
-}
-
-.intervention-id {
-    font-size: 1.5em;
-    font-weight: bold;
-    color: #3498db;
-    margin: 10px 0;
-}
-
-.intervention-date {
-    color: var(--text-muted);
-    font-size: 1em;
-    margin-top: 8px;
-}
-
-.detail-section {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-.detail-section h3 {
-   margin-top: 0;
-    color: #3498db;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 12px;
-    font-size: 1.2em;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.client-info {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-}
-
-.client-field {
-    margin-bottom: 8px;
-}
-
-.client-field strong {
-    display: block;
-    color: var(--text-muted);
-    margin-bottom: 5px;
-    font-size: 0.85em;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.text-content {
-    background-color: var(--input-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 12px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    min-height: 60px;
-}
-
-.log-content {
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 15px;
-    margin-top: 12px;
-    font-family: 'Courier New', Consolas, monospace;
-    font-size: 0.9em;
-    line-height: 1.5;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    min-height: 60px;
-    overflow-x: auto;
-}
-
-.actions-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 30px;
-    padding: 25px;
-    border-top: 1px solid var(--border-color);
-}
-
-.btn {
-    padding: 12px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: none;
-    font-size: 1em;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
-    text-decoration: none;
-    color: white;
-}
-
-.btn-secondary {
-    background: var(--input-bg);
-    color: var(--text-color);
-    border: 2px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    background: var(--hover-bg);
-    text-decoration: none;
-}
-
-.btn-success {
-    background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
-    color: white;
-}
-
-.btn-success:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3);
-    text-decoration: none;
-    color: white;
-}
-
-.nettoyage-list {
-    margin-top: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.logiciel-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 15px;
-    margin-bottom: 0;
-    background-color: var(--input-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    border-left: 4px solid var(--border-color);
-    transition: all 0.2s ease;
-}
-
-.logiciel-item:hover {
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.logiciel-item.passe {
-    border-left-color: #28a745;
-    background-color: rgba(40, 167, 69, 0.05);
-}
-
-.logiciel-item.non-passe {
-    border-left-color: #dc3545;
-    background-color: rgba(220, 53, 69, 0.05);
-}
-
-.logiciel-status {
-    display: inline-block;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.8em;
-    font-weight: bold;
-    margin-right: 15px;
-    min-width: 80px;
-    text-align: center;
-}
-
-.logiciel-status.passe {
-    background-color: #28a745;
-    color: white;
-}
-
-.logiciel-status.non-passe {
-    background-color: #dc3545;
-    color: white;
-}
-
-.logiciel-nom {
-    font-weight: 600;
-    margin-right: 15px;
-    min-width: 200px;
-    color: var(--text-color);
-}
-
-.logiciel-info {
-    color: var(--text-muted);
-    font-style: italic;
-}
-
-.historique-card {
-    background: var(--bg-secondary, #f8f9fa);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    border: 1px solid var(--border-color);
-}
-
-.historique-card h4 {
-    margin-top: 0;
-    color: #3498db;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-    color: white;
-}
-
-.btn-danger:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
-    text-decoration: none;
-    color: white;
-}
-
-/* Dark mode */
-body.dark .log-content {
-    background-color: #0d0d0d;
-    border-color: #555;
-    color: #e0e0e0;
-}
-
-body.dark .client-info-box {
-    background: #1e1e1e !important;
-    border-color: #333 !important;
-}
-
-body.dark .client-info-box h3 {
-    color: #fff !important;
-    border-color: #333 !important;
-}
-
-body.dark .client-info-box strong {
-    color: #aaa !important;
-}
-
-body.dark .client-info-box span {
-    color: #fff !important;
-}
-
-/* Log Styles */
-.log-container {
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 0.9em;
-    background-color: #1e1e1e;
-    color: #d4d4d4;
-    padding: 15px;
-    border-radius: 8px;
-    overflow-x: auto;
-    line-height: 1.5;
-    border: 1px solid #333;
-}
-
-.log-entry {
-    margin-bottom: 2px;
-    white-space: pre-wrap; 
-}
-
-.log-date {
-    color: #569cd6; /* Blue */
-}
-
-.log-category {
-    color: #c586c0; /* Purple */
-    font-weight: bold;
-}
-
-.log-type {
-    color: #4ec9b0; /* Teal */
-}
-
-.log-message {
-    color: #ce9178; /* Orange/Redish */
-}
-
-.log-raw {
-    color: #d4d4d4; /* Default text */
-    padding-left: 20px; /* Indentation for command output */
-    white-space: pre-wrap;
-    opacity: 0.9;
-}
-
-.log-empty-line {
-    height: 1em;
-}
-
-.log-details {
-    margin: 5px 0;
-    border: 1px solid #444;
-    border-radius: 4px;
-    background-color: #252526;
-}
-
-.log-summary {
-    cursor: pointer;
-    padding: 5px 10px;
-    color: #858585;
-    font-style: italic;
-    user-select: none;
-}
-
-.log-summary:hover {
-    color: #d4d4d4;
-    background-color: #2d2d2d;
-}
-
-.log-details-content {
-    padding: 5px 0;
-    border-top: 1px solid #444;
-}
-</style>
-
-<div class="intervention-page">
-    <div class="page-header">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-            <h1 style="margin: 0;">
-                <span>🔍</span>
-                Détail de l'intervention
-            </h1>
-            
-            <?php if ($intervention): ?>
-            <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
-                <div style="text-align: right;">
-                    <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 2px;">ID: <?= htmlspecialchars($intervention['id']) ?></div>
-                    <div style="font-size: 0.85em; opacity: 0.9;">Créée le <?= date('d/m/Y à H:i', strtotime($intervention['date'])) ?></div>
-                </div>
-                
-                <?php if (!empty($intervention['statut_nom'])): ?>
-                    <span class="intervention-status" style="background-color: <?= htmlspecialchars($intervention['statut_couleur']) ?>; color: white; display: inline-flex; align-items: center; gap: 8px; margin: 0; border: 1px solid rgba(255,255,255,0.3); padding: 8px 15px; font-size: 1em;">
-                        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background-color: rgba(255,255,255,0.8);"></span>
-                        <?= htmlspecialchars($intervention['statut_nom']) ?>
-                    </span>
-                    <?php if (!empty($intervention['statut_description'])): ?>
-                        <!-- Description masquée à la demande de l'utilisateur -->
-                    <?php endif; ?>
-                <?php else: ?>
-                    <span class="intervention-status <?= $intervention['en_cours'] ? 'en-cours' : 'cloturee' ?>" style="margin: 0;">
-                        <?= $intervention['en_cours'] ? 'En cours' : 'Clôturée' ?>
-                    </span>
-                <?php endif; ?>
-            </div>
+            <?php if ($intervention['en_cours'] == 1): ?>
+                <a href="index.php?page=interventions_edit&id=<?= htmlspecialchars($intervention['id']) ?>" class="btn btn-primary btn-sm px-15">
+                    <span>✏️</span> Modifier
+                </a>
+                <a href="pwa/?intervention_id=<?= htmlspecialchars($intervention['id']) ?>" target="_blank" class="btn btn-success btn-sm">
+                    <span>📷</span> Photos (Mobile)
+                </a>
             <?php endif; ?>
         </div>
-    </div>
-    
-<div class="intervention-detail">
 
+        <div class="flex gap-10">
+            <button onclick="printIntervention('<?= htmlspecialchars($intervention['id']) ?>')" class="btn btn-secondary btn-sm">
+                <span>🖨️</span> Imprimer
+            </button>
+            <a href="actions/interventions_delete.php?id=<?= htmlspecialchars($intervention['id']) ?>" 
+                onclick="return confirm('❗ Êtes-vous sûr de vouloir supprimer cette intervention ?\n\nCette action est irréversible.');" 
+                class="btn btn-sm-action btn-danger-text btn-sm">
+                <span>🗑️</span> Supprimer
+            </a>
+            <a href="index.php?page=interventions_list" class="btn btn-sm-action btn-sm">
+                Fermer
+            </a>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>
+
+<div class="intervention-detail">
     <?php echo $message; ?>
 
     <?php if ($intervention): ?>
-        <!-- Nouvelle disposition : Info Client (Gauche) + Historique (Droite) dans un seul bloc -->
-        <div class="detail-section" style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start;">
-            
-            <!-- Colonne Gauche : Info Client -->
-            <div>
-                <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1em; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                    <span>👤</span> Coordonnées Client
-                </h3>
-                <div style="display: flex; flex-direction: column; gap: 12px;">
-                    <div>
-                        <strong style="display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 2px;">NOM COMPLET</strong>
-                        <span style="font-weight: 500; font-size: 1.1em;"><?= htmlspecialchars(($intervention['client_nom'] ?? '') . ' ' . ($intervention['client_prenom'] ?? '')) ?></span>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div>
-                            <strong style="display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 2px;">EMAIL</strong>
-                            <a href="mailto:<?= htmlspecialchars($intervention['mail'] ?? '') ?>" style="color: #3498db; text-decoration: none;"><?= htmlspecialchars($intervention['mail'] ?? 'Non renseigné') ?></a>
+        <div class="grid grid-2-col gap-20 mb-20">
+            <!-- Coordonnées Client -->
+            <div class="card h-full">
+                <div class="card-header">
+                    <h3 class="m-0 text-lg flex items-center gap-10">
+                        <span>👤</span> Coordonnées Client
+                    </h3>
+                    <a href="index.php?page=clients_view&id=<?= $intervention['id_client'] ?>" class="btn btn-sm btn-ghost" title="Voir fiche client">👁️</a>
+                </div>
+                <div class="card-body">
+                    <div class="flex flex-col gap-15">
+                        <div class="info-group">
+                            <label class="text-xs text-muted uppercase font-bold spacing-1">Nom complet</label>
+                            <div class="text-lg font-semibold"><?= htmlspecialchars(($intervention['client_nom'] ?? '') . ' ' . ($intervention['client_prenom'] ?? '')) ?></div>
                         </div>
-                        <div>
-                            <strong style="display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 2px;">TÉLÉPHONE</strong>
-                            <?= htmlspecialchars($intervention['telephone'] ?? '') ?> 
-                            <?php if(!empty($intervention['portable'])) echo ' / ' . htmlspecialchars($intervention['portable']); ?>
-                            <?php if(empty($intervention['telephone']) && empty($intervention['portable'])) echo 'Non renseigné'; ?>
+
+                        <div class="grid grid-2-col gap-15">
+                            <div class="info-group">
+                                <label class="text-xs text-muted uppercase font-bold spacing-1">Email</label>
+                                <div>
+                                    <?php if (!empty($intervention['mail'])): ?>
+                                        <a href="mailto:<?= htmlspecialchars($intervention['mail']) ?>" class="text-primary hover-underline"><?= htmlspecialchars($intervention['mail']) ?></a>
+                                    <?php else: ?>
+                                        <span class="text-muted italic">Non renseigné</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            <div class="info-group">
+                                <label class="text-xs text-muted uppercase font-bold spacing-1">Téléphone</label>
+                                <div class="font-medium">
+                                    <?php 
+                                    $phones = array_filter([$intervention['telephone'] ?? '', $intervention['portable'] ?? '']);
+                                    echo !empty($phones) ? htmlspecialchars(implode(' / ', $phones)) : '<span class="text-muted italic">Non renseigné</span>';
+                                    ?>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <strong style="display: block; font-size: 0.85em; color: var(--text-muted); margin-bottom: 2px;">ADRESSE</strong>
-                        <?= htmlspecialchars($intervention['adresse1'] ?? '') ?>
-                        <?php if (!empty($intervention['adresse2'])): ?>
-                            <br><?= htmlspecialchars($intervention['adresse2']) ?>
-                        <?php endif; ?>
-                        <br><?= htmlspecialchars(($intervention['cp'] ?? '') . ' ' . ($intervention['ville'] ?? '')) ?>
+
+                        <div class="info-group">
+                            <label class="text-xs text-muted uppercase font-bold spacing-1">Adresse</label>
+                            <div class="text-sm">
+                                <?= !empty($intervention['adresse1']) ? htmlspecialchars($intervention['adresse1']) . '<br>' : '' ?>
+                                <?= !empty($intervention['adresse2']) ? htmlspecialchars($intervention['adresse2']) . '<br>' : '' ?>
+                                <?= htmlspecialchars(($intervention['cp'] ?? '') . ' ' . ($intervention['ville'] ?? '')) ?>
+                                <?php if (empty($intervention['adresse1']) && empty($intervention['cp'])): ?>
+                                    <span class="text-muted italic">Adresse non renseignée</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Colonne Droite : Historique des statuts -->
-            <div style="border-left: 1px solid var(--border-color); padding-left: 30px;">
-                <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.1em; color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                    <span>📊</span> Historique des statuts
-                </h3>
-                
-                <?php if (isset($intervention['statuts_historique']) && !empty($intervention['statuts_historique'])): ?>
-                    <?php
-                    $historique = getHistoriqueComplet($pdo, $intervention['statuts_historique']);
-                    if (!empty($historique)):
-                    ?>
-                        <div style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
-                            <?php foreach ($historique as $index => $entry): ?>
-                                <div class="historique-entry" style="display: flex; align-items: center; padding: 10px; margin-bottom: 8px; background-color: var(--bg-secondary, #f8f9fa); border-left: 4px solid <?= htmlspecialchars($entry['statut']['couleur']) ?>; border-radius: 4px; border: 1px solid var(--border-color, #dee2e6);">
-                                    <div style="flex: 1;">
-                                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px;">
-                                            <strong class="statut-nom" style="color: var(--text-color, #333); font-size: 0.95em;"><?= htmlspecialchars($entry['statut']['nom']) ?></strong>
-                                            <span class="date-historique" style="font-size: 0.8em; color: var(--text-muted);"><?= formatDateHistorique($entry['date_heure']) ?></span>
-                                        </div>
-                                        <?php if ($index === 0): ?>
-                                            <div style="margin-top: 2px;">
-                                                <span class="badge-actuel" style="background-color: #28a745; color: white; padding: 1px 6px; border-radius: 10px; font-size: 0.7em; font-weight: bold; text-transform: uppercase;">ACTUEL</span>
+            <!-- Historique des statuts -->
+            <div class="card h-full">
+                <div class="card-header">
+                    <h3 class="m-0 text-lg flex items-center gap-10">
+                        <span>📊</span> Historique des statuts
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <?php if (isset($intervention['statuts_historique']) && !empty($intervention['statuts_historique'])): ?>
+                        <?php
+                        $historique = getHistoriqueComplet($pdo, $intervention['statuts_historique']);
+                        if (!empty($historique)):
+                        ?>
+                            <div class="max-h-300 overflow-y-auto">
+                                <?php foreach ($historique as $index => $entry): ?>
+                                    <div class="p-15 border-b border-hover flex items-center justify-between hover-bg-light transition-all" style="border-left: 4px solid <?= htmlspecialchars($entry['statut']['couleur']) ?>;">
+                                        <div>
+                                            <div class="font-semibold text-sm"><?= htmlspecialchars($entry['statut']['nom']) ?></div>
+                                            <div class="text-xs text-muted mt-2">
+                                                Durée : 
                                                 <?php if ($index < count($historique) - 1): ?>
-                                                    <span class="duree-statut" style="font-size: 0.8em; color: var(--text-muted); margin-left: 8px;">Durée: <?= calculerDureeStatut($entry['date_heure'], $historique[$index + 1]['date_heure']) ?></span>
+                                                    <?= calculerDureeStatut($entry['date_heure'], $historique[$index + 1]['date_heure']) ?>
                                                 <?php else: ?>
-                                                    <span class="duree-statut" style="font-size: 0.8em; color: var(--text-muted); margin-left: 8px;">Durée: <?= calculerDureeStatut($entry['date_heure']) ?></span>
+                                                    <?= calculerDureeStatut($entry['date_heure']) ?>
                                                 <?php endif; ?>
                                             </div>
-                                        <?php endif; ?>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-xs font-medium"><?= formatDateHistorique($entry['date_heure']) ?></div>
+                                            <?php if ($index === 0): ?>
+                                                <span class="badge bg-success text-white text-3xs mt-5">ACTUEL</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="p-40 text-center text-muted italic">Aucun historique disponible</div>
+                        <?php endif; ?>
                     <?php else: ?>
-                        <p style="color: var(--text-muted, #666); font-style: italic; font-size: 0.9em;">Aucun historique disponible</p>
+                        <div class="p-40 text-center text-muted italic">Aucun historique de statut disponible</div>
                     <?php endif; ?>
-                <?php else: ?>
-                    <p style="color: var(--text-muted, #666); font-style: italic; font-size: 0.9em;">Aucun historique de statut disponible</p>
-                <?php endif; ?>
+                </div>
             </div>
         </div>
 
@@ -799,220 +465,229 @@ body.dark .client-info-box span {
             // URL : Charge le viewer sur 8085, connecte le socket sur le port dédié
             $vncUrl = "http://{$vncHost}:8085/vnc_lite.html?host={$vncHost}&port={$vncPort}&password={$vncPassword}&autoconnect=true&scale=true";
         ?>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 25px;">
-            <!-- Colonne Gauche : Informations -->
-            <div class="detail-section" style="margin-bottom: 0; display: flex; flex-direction: column;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin: 0;">Informations de l'intervention</h3>
-                    <div style="text-align: center; background: white; padding: 5px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?= urlencode("http://" . $_SERVER['HTTP_HOST'] . "/pwa/?intervention_id=" . $intervention['id']) ?>" 
-                             alt="QR Code PWA" 
-                             style="width: 120px; height: 120px; display: block;" 
-                             title="Scanner pour ouvrir dans l'application mobile">
-                        <div style="font-size: 11px; color: #666; margin-top: 4px; font-weight: 500;">App Mobile</div>
-                    </div>
-                </div>
-                <div class="text-content" style="flex: 1;">
+        <!-- Informations de l'intervention -->
+        <div class="card mb-20">
+            <div class="card-header">
+                <h3 class="m-0 text-lg flex items-center gap-10">
+                    <span>📝</span> Informations de l'intervention
+                </h3>
+            </div>
+            <div class="card-body">
+                <div class="text-content text-base leading-relaxed bg-hover/30 p-15 rounded-8 min-h-100">
                     <?= nl2br(htmlspecialchars($intervention['info'] ?? '')) ?>
                 </div>
             </div>
+        </div>
 
-            <!-- Colonne Droite : VNC -->
-            <div class="detail-section" style="margin-bottom: 0; display: flex; flex-direction: column;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin: 0; display: flex; align-items: center; gap: 10px;">
-                        🖥️ Accès VNC
-                        <span id="ping-indicator" title="Statut de connexion PC (Ping)" style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background-color: #999; animation: blink-grey 2s infinite;"></span>
+        <div class="grid grid-2-col gap-20 mb-20">
+            <!-- Accès VNC -->
+            <div class="card flex flex-col h-full">
+                <div class="card-header">
+                    <h3 class="m-0 text-lg flex items-center gap-10">
+                        <span>🖥️</span> Accès VNC
+                        <span id="ping-indicator" class="ping-indicator" title="Statut de connexion PC (Ping)"></span>
                     </h3>
+                    <div class="flex gap-5">
+                        <a href="index.php?page=vnc_fullscreen&id=<?= htmlspecialchars($intervention['id']) ?>" target="_blank" class="btn btn-sm btn-ghost" title="Plein écran">↗️</a>
+                    </div>
                 </div>
-                <!-- Styles pour le ping indicator -->
-                <style>
-                    @keyframes blink-grey {
-                        0% { opacity: 0.4; }
-                        50% { opacity: 1; }
-                        100% { opacity: 0.4; }
-                    }
-                    .ping-online {
-                        background-color: #2ecc71 !important; /* Green */
-                        box-shadow: 0 0 8px rgba(46, 204, 113, 0.6);
-                        animation: none !important;
-                    }
-                    .ping-offline {
-                        background-color: #e74c3c !important; /* Red */
-                        animation: none !important;
-                    }
-                </style>
-                <div style="position: relative; width: 100%; height: 600px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); background: #000; display: flex;">
-                    <iframe 
-                        src="<?= $vncUrl ?>" 
-                        style="width: 100%; height: 100%; border: none;"
-                        allowfullscreen
-                    ></iframe>
-                </div>
+                <div class="card-body flex flex-col gap-15">
+                    <div class="vnc-frame-container bg-black rounded-8 overflow-hidden aspect-video border border-border">
+                        <iframe 
+                            src="<?= $vncUrl ?>" 
+                            class="w-full h-full border-none"
+                            allowfullscreen
+                        ></iframe>
+                    </div>
 
-                <script>
-                // Script de gestion du ping
-                (function() {
-                    const pingIndicator = document.getElementById('ping-indicator');
-                    // On recupere l'IP depuis PHP, on s'assure qu'elle est dispo
-                    const ipVnc = '<?= htmlspecialchars($intervention['ip_vnc'] ?? '') ?>';
-                    
-                    if (ipVnc) {
-                        function checkPing() {
-                            fetch(`api/ping.php?ip=${encodeURIComponent(ipVnc)}`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        pingIndicator.classList.remove('ping-offline');
-                                        pingIndicator.classList.add('ping-online');
-                                        pingIndicator.title = "PC en ligne (Ping OK)";
-                                    } else {
+                    <div class="flex items-center justify-between">
+                        <button onclick="disableVNC('<?= htmlspecialchars($intervention['id']) ?>')" class="btn btn-sm btn-danger-outline">
+                            🚫 Désactiver VNC
+                        </button>
+                        <div class="text-xs text-muted flex items-center gap-5">
+                            🔒 Sécurisé via SSH Tunnel
+                        </div>
+                    </div>
+
+                    <script>
+                    (function() {
+                        const pingIndicator = document.getElementById('ping-indicator');
+                        const ipVnc = '<?= htmlspecialchars($intervention['ip_vnc'] ?? '') ?>';
+                        
+                        if (ipVnc) {
+                            function checkPing() {
+                                fetch(`api/ping.php?ip=${encodeURIComponent(ipVnc)}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.success) {
+                                            pingIndicator.classList.remove('ping-offline');
+                                            pingIndicator.classList.add('ping-online');
+                                            pingIndicator.title = "PC en ligne (Ping OK)";
+                                        } else {
+                                            pingIndicator.classList.remove('ping-online');
+                                            pingIndicator.classList.add('ping-offline');
+                                            pingIndicator.title = "PC injoignable (Ping KO)";
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.error('Ping check failed', err);
                                         pingIndicator.classList.remove('ping-online');
                                         pingIndicator.classList.add('ping-offline');
-                                        pingIndicator.title = "PC injoignable (Ping KO)";
-                                    }
-                                })
-                                .catch(err => {
-                                    console.error('Ping check failed', err);
-                                    pingIndicator.classList.remove('ping-online');
-                                    pingIndicator.classList.add('ping-offline');
-                                });
+                                    });
+                            }
+                            checkPing();
+                            setInterval(checkPing, 15000);
                         }
+                    })();
+                    </script>
+                </div>
+            </div>
 
-                        // Premier check immédiat
-                        checkPing();
-                        
-                        // Puis toutes les 15 secondes
-                        setInterval(checkPing, 15000);
-                    }
-                })();
-                </script>
-                <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 8px; align-items: center;">
-                    <button onclick="disableVNC('<?= htmlspecialchars($intervention['id']) ?>')" class="btn btn-danger" style="font-size: 0.9em; padding: 6px 12px;">
-                        🚫 Désactiver VNC
-                    </button>
-                    <a href="index.php?page=vnc_fullscreen&id=<?= htmlspecialchars($intervention['id']) ?>" target="_blank" class="btn btn-secondary" style="font-size: 0.9em; padding: 6px 12px;">
-                        Ouvrir en plein écran ↗
-                    </a>
+            <!-- App Mobile / QR Code -->
+            <div class="card flex flex-col h-full">
+                <div class="card-header">
+                    <h3 class="m-0 text-lg flex items-center gap-10">
+                        <span>📱</span> App Mobile PWA
+                    </h3>
+                </div>
+                <div class="card-body flex flex-col items-center justify-center text-center py-20">
+                    <div class="qr-box bg-white p-15 rounded-12 shadow-sm mb-15">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?= urlencode("http://" . $_SERVER['HTTP_HOST'] . "/pwa/?intervention_id=" . $intervention['id']) ?>" 
+                             alt="QR Code PWA" 
+                             class="block w-120 h-120" 
+                             title="Scanner pour ouvrir dans l'application mobile">
+                    </div>
+                    <p class="text-sm font-semibold mb-5">QR Code PWA</p>
+                    <p class="text-xs text-muted px-20">Scannez ce code pour accéder à l'intervention sur mobile et ajouter des photos.</p>
                 </div>
             </div>
         </div>
         <div style="clear: both;"></div>
+
         <?php else: ?>
-            <!-- Section pour activer le VNC quand il n'est pas configuré -->
-            <div class="detail-section">
-                <h3>🖥️ Configuration VNC</h3>
-                <p style="color: var(--text-muted); margin-bottom: 15px;">Le VNC n'est pas configuré pour cette intervention.</p>
-                <button onclick="showEnableVNCModal('<?= htmlspecialchars($intervention['id']) ?>')" class="btn btn-success">
-                    ✅ Activer le VNC
-                </button>
+        <!-- Informations de l'intervention -->
+        <div class="card mb-20">
+            <div class="card-header">
+                <h3 class="m-0 text-lg flex items-center gap-10">
+                    <span>📝</span> Informations de l'intervention
+                </h3>
             </div>
-            
-            <div class="detail-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h3 style="margin: 0;">Informations de l'intervention</h3>
-                    <div style="text-align: center; background: white; padding: 5px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?= urlencode("http://" . $_SERVER['HTTP_HOST'] . "/pwa/?intervention_id=" . $intervention['id']) ?>" 
-                             alt="QR Code PWA" 
-                             style="width: 120px; height: 120px; display: block;" 
-                             title="Scanner pour ouvrir dans l'application mobile">
-                        <div style="font-size: 11px; color: #666; margin-top: 4px; font-weight: 500;">App Mobile</div>
-                    </div>
-                </div>
-                <div class="text-content">
+            <div class="card-body">
+                <div class="text-content text-base leading-relaxed bg-hover/30 p-15 rounded-8 min-h-100">
                     <?= nl2br(htmlspecialchars($intervention['info'] ?? '')) ?>
                 </div>
             </div>
+        </div>
+
+        <div class="grid grid-2-col gap-20 mb-20">
+            <!-- Configuration VNC -->
+            <div class="card flex flex-col h-full">
+                <div class="card-header">
+                    <h3 class="m-0 text-lg flex items-center gap-10">
+                        <span>🖥️</span> Configuration VNC
+                    </h3>
+                </div>
+                <div class="card-body flex flex-col items-center justify-center text-center py-40">
+                    <p class="text-muted mb-20">Le VNC n'est pas configuré pour cette intervention.</p>
+                    <button onclick="showEnableVNCModal('<?= htmlspecialchars($intervention['id']) ?>')" class="btn btn-success px-20">
+                        ✅ Activer le VNC
+                    </button>
+                </div>
+            </div>
+
+            <!-- App Mobile / QR Code -->
+            <div class="card flex flex-col h-full">
+                <div class="card-header">
+                    <h3 class="m-0 text-lg flex items-center gap-10">
+                        <span>📱</span> App Mobile PWA
+                    </h3>
+                </div>
+                <div class="card-body flex flex-col items-center justify-center text-center py-20">
+                    <div class="qr-box bg-white p-15 rounded-12 shadow-sm mb-15">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<?= urlencode("http://" . $_SERVER['HTTP_HOST'] . "/pwa/?intervention_id=" . $intervention['id']) ?>" 
+                             alt="QR Code PWA" 
+                             class="block w-120 h-120" 
+                             title="Scanner pour ouvrir dans l'application mobile">
+                    </div>
+                    <p class="text-sm font-semibold mb-5">QR Code PWA</p>
+                    <p class="text-xs text-muted px-20">Scannez ce code pour accéder à l'intervention sur mobile et ajouter des photos.</p>
+                </div>
+            </div>
+        </div>
         <?php endif; ?>
 
         <?php if (!empty($intervention['nettoyage'])): ?>
-        <div class="detail-section">
-            <h3>Nettoyage</h3>
-            <?php
-            $logiciels = parseNettoyageData($intervention['nettoyage']);
-            if (!empty($logiciels)): ?>
-                <div class="nettoyage-list">
-                    <?php foreach ($logiciels as $logiciel): ?>
-                        <div class="logiciel-item <?= $logiciel['passe'] ? 'passe' : 'non-passe' ?>">
-                            <span class="logiciel-status <?= $logiciel['passe'] ? 'passe' : 'non-passe' ?>">
-                                <?= $logiciel['passe'] ? 'Passé' : 'Non passé' ?>
-                            </span>
-                            <span class="logiciel-nom"><?= htmlspecialchars($logiciel['nom']) ?></span>
-                            <?php if (!empty($logiciel['info'])): ?>
-                                <span class="logiciel-info"><?= htmlspecialchars($logiciel['info']) ?></span>
-                            <?php endif; ?>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="text-content">
-                    <?= nl2br(htmlspecialchars($intervention['nettoyage'])) ?>
-                </div>
-            <?php endif; ?>
+        <div class="card mb-20">
+            <div class="card-header">
+                <h3 class="m-0 text-lg">🧼 Nettoyage</h3>
+            </div>
+            <div class="card-body">
+                <?php
+                $logiciels = parseNettoyageData($intervention['nettoyage']);
+                if (!empty($logiciels)): ?>
+                    <div class="grid grid-2-col gap-10">
+                        <?php foreach ($logiciels as $logiciel): ?>
+                            <div class="flex items-center gap-10 p-10 rounded-8 <?= $logiciel['passe'] ? 'bg-success-light/20 border-success/20' : 'bg-hover/20 border-border' ?> border">
+                                <span class="badge <?= $logiciel['passe'] ? 'bg-success text-white' : 'bg-secondary text-muted' ?> text-3xs">
+                                    <?= $logiciel['passe'] ? 'Passé' : 'Non passé' ?>
+                                </span>
+                                <span class="font-semibold text-sm flex-1"><?= htmlspecialchars($logiciel['nom']) ?></span>
+                                <?php if (!empty($logiciel['info'])): ?>
+                                    <span class="text-xs text-muted italic"><?= htmlspecialchars($logiciel['info']) ?></span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="text-content whitespace-pre-wrap text-sm italic text-muted">
+                        <?= htmlspecialchars($intervention['nettoyage']) ?>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
         <?php endif; ?>
 
         <?php if (!empty($intervention['info_log'])): ?>
-        <div class="detail-section">
-            <h3>📝 Log d'informations</h3>
-            <?= formatLogContent($intervention['info_log']) ?>
+        <div class="card mb-20">
+            <div class="card-header bg-dark text-white">
+                <h3 class="m-0 text-lg">📝 Log d'informations</h3>
+            </div>
+            <div class="card-body bg-dark text-gray-300 p-0 overflow-hidden">
+                <div class="max-h-500 overflow-y-auto font-mono text-xs">
+                    <?= formatLogContent($intervention['info_log']) ?>
+                </div>
+            </div>
         </div>
         <?php endif; ?>
 
         <?php if (!empty($intervention['note_user'])): ?>
-        <div class="detail-section">
-            <h3>Notes utilisateur</h3>
-            <div class="text-content">
-                <?= nl2br(htmlspecialchars($intervention['note_user'])) ?>
+        <div class="card mb-20">
+            <div class="card-header">
+                <h3 class="m-0 text-lg">📌 Notes utilisateur</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-content whitespace-pre-wrap bg-warning-light/20 p-15 rounded-8 border border-warning/10 text-sm">
+                    <?= htmlspecialchars($intervention['note_user']) ?>
+                </div>
             </div>
         </div>
         <?php endif; ?>
 
         <!-- Section Photos -->
-        <div class="detail-section">
-            <h3>Photos</h3>
-            <div id="photos-gallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                <!-- Les photos seront chargées ici via JavaScript -->
+        <div class="card mb-20">
+            <div class="card-header">
+                <h3 class="m-0 text-lg flex items-center gap-10">
+                    <span>📷</span> Photos & Captures
+                </h3>
             </div>
-            <div id="no-photos" style="display: none; text-align: center; padding: 40px; color: var(--text-muted, #666); font-style: italic;">
-                Aucune photo disponible pour cette intervention
+            <div class="card-body">
+                <div id="photos-gallery" class="grid grid-4-col gap-15">
+                    <!-- Les photos seront chargées ici via JavaScript -->
+                </div>
+                <div id="no-photos" class="py-40 text-center text-muted italic text-sm">
+                    Aucune photo disponible pour cette intervention
+                </div>
             </div>
-        </div>
-
-        <div class="actions-bar">
-            <?php if ($intervention['en_cours'] == 1): ?>
-                <a href="index.php?page=interventions_edit&id=<?= htmlspecialchars($intervention['id']) ?>" class="btn btn-primary">
-                    <span>✏️</span>
-                    Modifier l'intervention
-                </a>
-                <a href="pwa/?intervention_id=<?= htmlspecialchars($intervention['id']) ?>" target="_blank" class="btn btn-success">
-                    <span>📷</span>
-                    Ajouter des photos (Mobile)
-                </a>
-            <?php else: ?>
-                <span style="color: var(--text-muted); font-style: italic; padding: 10px 20px;">
-                    Intervention clôturée - Modification non autorisée
-                </span>
-                <a href="pwa/?intervention_id=<?= htmlspecialchars($intervention['id']) ?>" target="_blank" class="btn btn-success">
-                    <span>📷</span>
-                    Voir photos (Mobile)
-                </a>
-            <?php endif; ?>
-            <a href="actions/interventions_delete.php?id=<?= htmlspecialchars($intervention['id']) ?>" 
-               onclick="return confirm('❗ Êtes-vous sûr de vouloir supprimer cette intervention ?\n\nCette action est irréversible et supprimera également :\n- Toutes les photos associées\n- L\'historique des notes');" 
-               class="btn btn-danger" 
-               style="background-color: #dc3545; color: white;">
-                <span>🗑️</span>
-                Supprimer
-            </a>
-            <button onclick="printIntervention('<?= htmlspecialchars($intervention['id']) ?>')" class="btn btn-secondary" style="background-color: #6c757d; color: white;">
-                <span>🖨️</span>
-                Imprimer
-            </button>
-            <a href="index.php?page=interventions_list" class="btn btn-secondary">
-                <span>←</span>
-                Retour à la liste
-            </a>
         </div>
 
         <script>
@@ -1022,14 +697,12 @@ body.dark .client-info-box span {
         </script>
 
     <?php else: ?>
-        <div class="actions-bar">
-            <a href="index.php?page=interventions_list" class="btn btn-secondary">
-                <span>←</span>
-                Retour à la liste des interventions
+        <div class="flex items-center justify-center mt-30 p-20 bg-hover/10 rounded-12 border border-border">
+            <a href="index.php?page=interventions_list" class="btn btn-secondary px-20">
+                <span>←</span> Retour à la liste des interventions
             </a>
         </div>
     <?php endif; ?>
-</div>
 </div>
 
 <!-- Modal pour activer le VNC -->

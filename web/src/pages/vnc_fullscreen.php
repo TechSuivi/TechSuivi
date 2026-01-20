@@ -55,107 +55,58 @@ try {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($clientName) ?></title>
+    <!-- Use main style for utilities if available, otherwise inline critical styles -->
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* Critical Reset & Layout */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #1a1a2e; font-family: 'Segoe UI', system-ui, sans-serif; }
         
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background: #1a1a2e;
-        }
+        /* Flex Utilities */
+        .flex { display: flex; }
+        .flex-between-center { display: flex; justify-content: space-between; align-items: center; }
+        .items-center { align-items: center; }
+        .gap-10 { gap: 10px; }
         
+        /* Specific VNC Header */
         .vnc-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 40px;
+            position: fixed; top: 0; left: 0; right: 0; height: 40px;
             background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            padding: 0 15px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            color: white; font-size: 14px; font-weight: 500;
         }
         
-        .vnc-title {
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .vnc-title .icon {
-            font-size: 16px;
-        }
-        
-        .vnc-actions {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .vnc-btn {
-            background: rgba(255,255,255,0.15);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .vnc-btn:hover {
-            background: rgba(255,255,255,0.25);
-        }
-        
+        /* Fullscreen handling */
         .vnc-frame {
-            position: fixed;
-            top: 40px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border: none;
-            width: 100%;
-            height: calc(100% - 40px);
+            position: fixed; top: 40px; left: 0; right: 0; bottom: 0;
+            border: none; width: 100%; height: calc(100% - 40px);
         }
         
-        .fullscreen-mode .vnc-header {
-            display: none;
-        }
+        body.fullscreen-mode .vnc-header { display: none; }
+        body.fullscreen-mode .vnc-frame { top: 0; height: 100%; }
         
-        .fullscreen-mode .vnc-frame {
-            top: 0;
-            height: 100%;
+        /* Button Styles */
+        .vnc-btn {
+            background: rgba(255,255,255,0.15); color: white; border: none;
+            padding: 6px 12px; border-radius: 4px; font-size: 12px;
+            cursor: pointer; text-decoration: none; transition: background 0.2s;
+            display: flex; align-items: center; gap: 5px;
         }
+        .vnc-btn:hover { background: rgba(255,255,255,0.25); }
     </style>
 </head>
 <body>
-    <div class="vnc-header">
-        <div class="vnc-title">
-            <span class="icon">🖥️</span>
+    <div class="vnc-header flex-between-center">
+        <div class="vnc-title flex items-center gap-10">
+            <span class="text-lg">🖥️</span>
             <span>VNC - <strong><?= htmlspecialchars($clientName) ?></strong></span>
-            <span style="opacity: 0.7; font-size: 12px;">(Intervention #<?= htmlspecialchars($intervention['id']) ?>)</span>
+            <span class="opacity-70 text-xs">(Intervention #<?= htmlspecialchars($intervention['id']) ?>)</span>
         </div>
-        <div class="vnc-actions">
+        <div class="vnc-actions flex gap-10">
             <button class="vnc-btn" onclick="toggleFullscreen()" title="Basculer plein écran navigateur">
                 <span>⛶</span> Plein écran
             </button>

@@ -148,18 +148,20 @@ function getDirectoryStats($dir) {
 $globalStats = getDirectoryStats($uploadsDir);
 ?>
 
-<h1>📁 Gestionnaire de Fichiers Uploads</h1>
+<div class="page-header">
+    <h1>📁 Gestionnaire de Fichiers Uploads</h1>
+</div>
 
 <?php if (!empty($message)): ?>
-    <div style="margin-bottom: 20px; padding: 15px; border-radius: 4px; <?= $messageType === 'error' ? 'color: #721c24; border: 1px solid #f5c6cb; background-color: #f8d7da;' : ($messageType === 'success' ? 'color: #155724; border: 1px solid #c3e6cb; background-color: #d4edda;' : ($messageType === 'warning' ? 'color: #856404; border: 1px solid #ffeaa7; background-color: #fff3cd;' : 'color: #004085; border: 1px solid #b3d7ff; background-color: #cce7ff;')) ?>">
+    <div class="alert alert-<?= $messageType === 'error' ? 'error' : ($messageType === 'success' ? 'success' : ($messageType === 'warning' ? 'warning' : 'info')) ?> mb-20">
         <?= $message ?>
     </div>
 <?php endif; ?>
 
 <!-- Statistiques globales -->
-<div style="background-color: #e3f2fd; border: 1px solid #2196f3; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-    <h3 style="margin-top: 0; color: #1976d2;">📊 Statistiques du Dossier Uploads</h3>
-    <div style="display: flex; gap: 30px; flex-wrap: wrap;">
+<div class="card border-left-blue mb-20">
+    <h3 class="card-title text-info mb-15">📊 Statistiques du Dossier Uploads</h3>
+    <div class="grid-4">
         <div>
             <strong>📁 Dossiers :</strong> <?= number_format($globalStats['dirs']) ?>
         </div>
@@ -176,281 +178,273 @@ $globalStats = getDirectoryStats($uploadsDir);
 </div>
 
 <!-- Interface principale -->
-<div style="display: flex; gap: 20px; margin-bottom: 30px;">
+<div class="grid-2 dashboard-grid mb-30" style="grid-template-columns: 2fr 1fr;">
 
-<!-- Explorateur de fichiers -->
-<div class="files-explorer bordered-section" style="flex: 2;">
-    <h3 style="margin-top: 0; border-bottom: 2px solid rgba(127, 127, 127, 0.3); padding-bottom: 10px; margin-bottom: 15px; font-size: 1.2rem;">
-        📂 Explorateur de Fichiers
-    </h3>
-    
-    <!-- Navigation & Actions -->
-    <div class="files-navigation backup-section-content" style="margin-bottom: 15px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-radius: 5px; border: 1px solid rgba(127, 127, 127, 0.2);">
-        <!-- Partie Gauche : Chemin -->
-        <div style="display: flex; flex-direction: column; gap: 5px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <strong>📍 Chemin :</strong>
-                <span style="font-family: monospace; background-color: rgba(127, 127, 127, 0.1); padding: 2px 8px; border-radius: 3px; border: 1px solid rgba(127, 127, 127, 0.2);">
-                    /uploads/<?= htmlspecialchars($currentPath) ?>
-                </span>
+    <!-- Explorateur de fichiers -->
+    <div class="card h-full">
+        <h3 class="card-title mb-15 pb-10 border-b">
+            📂 Explorateur de Fichiers
+        </h3>
+        
+        <!-- Navigation & Actions -->
+        <div class="flex flex-wrap justify-between items-center gap-10 p-10 mb-15 border rounded-4 bg-secondary">
+            <!-- Partie Gauche : Chemin -->
+            <div class="flex flex-col gap-5">
+                <div class="flex items-center gap-10">
+                    <strong>📍 Chemin :</strong>
+                    <span class="bg-light px-5 py-2 rounded-4 border font-monospace">
+                        /uploads/<?= htmlspecialchars($currentPath) ?>
+                    </span>
+                </div>
+                <?php if (!empty($currentPath)): ?>
+                    <div>
+                        <a href="index.php?page=files_manager&path=<?= urlencode(dirname($currentPath) === '.' ? '' : dirname($currentPath)) ?>" 
+                           class="btn btn-sm-action">
+                            ⬆️ Dossier parent
+                        </a>
+                    </div>
+                <?php endif; ?>
             </div>
-            <?php if (!empty($currentPath)): ?>
-                <div>
-                    <a href="index.php?page=files_manager&path=<?= urlencode(dirname($currentPath) === '.' ? '' : dirname($currentPath)) ?>" 
-                       style="background-color: #6c757d; color: white; padding: 2px 8px; text-decoration: none; border-radius: 3px; font-size: 12px; display: inline-flex; align-items: center;">
-                        ⬆️ Dossier parent
-                    </a>
+            
+            <!-- Partie Droite : Actions Compactes -->
+            <div class="flex flex-col gap-5 items-end">
+                <!-- Nouveau Dossier -->
+                <form method="post" action="actions/files_action.php" class="flex items-center">
+                    <input type="hidden" name="action" value="create_folder">
+                    <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
+                    <input type="text" name="folder_name" placeholder="Nouveau dossier..." required class="form-control text-sm py-5 rounded-l-4 border-r-0 w-32">
+                    <button type="submit" class="btn btn-info rounded-l-0 py-5 px-10 text-sm" title="Créer dossier">➕</button>
+                </form>
+
+                <!-- Upload -->
+                <form method="post" action="actions/files_action.php" enctype="multipart/form-data" class="w-full">
+                    <input type="hidden" name="action" value="upload_file">
+                    <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
+                    
+                    <label for="file_upload" class="btn btn-success w-full py-5 text-sm cursor-pointer flex justify-center gap-5">
+                        ⬆️ Uploader un fichier
+                    </label>
+                    <input id="file_upload" type="file" name="upload_file" required style="display: none;" onchange="this.form.submit()">
+                </form>
+            </div>
+        </div>
+        
+        <!-- Liste des fichiers -->
+        <div class="border rounded-4" style="max-height: 500px; overflow-y: auto;">
+            <form id="filesForm" method="post" action="actions/files_action.php">
+                <input type="hidden" name="action" value="delete_batch">
+                <input type="hidden" name="path" value="<?= htmlspecialchars($currentPath) ?>">
+                
+                <!-- Barre d'actions groupées -->
+                <div id="batchActions" class="p-10 bg-soft-red border-b border-danger flex items-center gap-15 sticky top-0 z-10 hidden">
+                    <span class="font-bold text-sm text-danger">Actions :</span>
+                    <button type="submit" onclick="return confirm('Attention : Vous êtes sur le point de supprimer définitivement les éléments sélectionnés.\nConfirmer ?')" 
+                            class="btn btn-danger py-5 px-10 text-xs flex items-center gap-5">
+                        🗑️ Supprimer (<span id="selectedCount">0</span>)
+                    </button>
+                </div>
+
+                <table class="table w-full text-sm m-0">
+                    <thead>
+                        <tr>
+                            <th class="p-10 w-10 text-center">
+                                <input type="checkbox" id="selectAll" title="Tout sélectionner" class="cursor-pointer">
+                            </th>
+                            <th class="p-10 text-left">Nom</th>
+                            <th class="p-10 text-right w-24">Taille</th>
+                            <th class="p-10 text-center w-36">Modifié</th>
+                            <th class="p-10 text-center w-40">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($items)): ?>
+                            <tr>
+                                <td colspan="5" class="p-30 text-center italic text-muted">
+                                    📭 Ce dossier est vide
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($items as $item): ?>
+                                <tr class="hover:bg-secondary">
+                                    <td class="p-10 text-center">
+                                        <input type="checkbox" name="selected_files[]" value="<?= htmlspecialchars($item['name']) ?>" class="file-checkbox cursor-pointer">
+                                    </td>
+                                    <td class="p-10">
+                                        <?php if ($item['type'] === 'directory'): ?>
+                                            <a href="index.php?page=files_manager&path=<?= urlencode($item['path']) ?>" 
+                                               class="font-bold no-underline text-color flex items-center gap-10">
+                                                <span class="text-lg">📁</span> <?= htmlspecialchars($item['name']) ?>
+                                            </a>
+                                        <?php else: ?>
+                                            <span class="flex items-center gap-10">
+                                                <?= $item['icon'] ?> <?= htmlspecialchars($item['name']) ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td class="p-10 text-right font-monospace">
+                                        <?= $item['type'] === 'directory' ? '-' : formatFileSize($item['size']) ?>
+                                    </td>
+                                    <td class="p-10 text-center text-xs">
+                                        <?= date('d/m/Y H:i', $item['modified']) ?>
+                                    </td>
+                                    <td class="p-10 text-center">
+                                        <div class="flex justify-center gap-5">
+                                            <?php if ($item['type'] === 'file'): ?>
+                                                <a href="actions/files_action.php?action=download&file=<?= urlencode($item['path']) ?>" 
+                                                   class="btn btn-success py-5 px-10 text-xs" title="Télécharger">
+                                                    📥
+                                                </a>
+                                                <a href="actions/files_action.php?action=delete&file=<?= urlencode($item['path']) ?>" 
+                                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')"
+                                                   class="btn btn-danger py-5 px-10 text-xs" title="Supprimer">
+                                                    🗑️
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="actions/files_action.php?action=delete_dir&dir=<?= urlencode($item['path']) ?>" 
+                                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?')"
+                                                   class="btn btn-danger py-5 px-10 text-xs" title="Supprimer">
+                                                    🗑️
+                                                </a>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+        
+        <!-- Statistiques du dossier actuel -->
+        <div class="mt-10 pt-5 text-right text-xs text-muted border-t">
+            <strong>Contenu :</strong> 
+            <?= $dirCount ?> dossier(s), <?= $fileCount ?> fichier(s) | 
+            <strong>Total :</strong> <?= formatFileSize($totalSize) ?>
+        </div>
+    </div>
+
+    <!-- Actions de sauvegarde -->
+    <div class="card h-full">
+        <h3 class="card-title mb-15">💾 Sauvegarde des Fichiers</h3>
+        
+        <!-- Sauvegarde complète -->
+        <div class="mb-20">
+            <h4 class="mt-0 mb-10 text-success">📦 Sauvegarde Complète</h4>
+            <p class="text-sm text-muted mb-10">
+                Créer une archive ZIP de tout le dossier uploads.
+            </p>
+            <form method="post" action="actions/files_action.php">
+                <input type="hidden" name="action" value="backup_full">
+                
+                <div class="mb-15">
+                    <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" name="exclude_backups" value="1" checked class="mr-10">
+                        Exclure le dossier 'backups' (Recommandé)
+                    </label>
+                    <div class="text-xs text-muted ml-20 mt-5">
+                        Évite que la sauvegarde contienne les anciennes sauvegardes.
+                    </div>
+                </div>
+
+                <div class="flex gap-10 flex-wrap">
+                    <button type="submit" name="output_mode" value="server" class="btn btn-success flex-1">
+                        💾 Serveur
+                    </button>
+                    <button type="submit" name="output_mode" value="download" class="btn btn-info flex-1">
+                        📥 Télécharger
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Sauvegarde du dossier actuel -->
+        <?php if (!empty($currentPath)): ?>
+        <div class="mb-20 p-15 bg-secondary rounded-4 border">
+            <h4 class="mt-0 mb-10 text-info">📁 Sauvegarde Dossier Actuel</h4>
+            <p class="text-xs text-muted mb-10">
+                Sauvegarder uniquement : <?= htmlspecialchars($currentPath) ?>
+            </p>
+            <form method="post" action="actions/files_action.php">
+                <input type="hidden" name="action" value="backup_folder">
+                <input type="hidden" name="folder" value="<?= htmlspecialchars($currentPath) ?>">
+                
+                <div class="flex gap-10 flex-wrap">
+                    <button type="submit" name="output_mode" value="server" class="btn btn-info flex-1">
+                        💾 Serveur
+                    </button>
+                    <button type="submit" name="output_mode" value="download" class="btn btn-primary flex-1">
+                        📥 Télécharger
+                    </button>
+                </div>
+            </form>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Restauration -->
+        <div class="mb-20 p-15 bg-soft-red rounded-4 border border-danger">
+            <h4 class="mt-0 mb-10 text-danger">📤 Restauration d'Archive</h4>
+            <p class="text-xs text-danger mb-10">
+                Uploadez une archive ZIP pour restaurer des fichiers dans : <strong>/uploads/<?= htmlspecialchars($currentPath) ?></strong>
+            </p>
+            <form method="post" action="actions/files_action.php" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="restore_zip">
+                <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
+                <div class="mb-10">
+                    <input type="file" name="restore_file" accept=".zip" required class="w-full">
+                </div>
+                <button type="submit" class="btn btn-warning w-full" onclick="return confirm('⚠️ Attention : Cela écrasera les fichiers existants s\'ils portent le même nom.\nÊtes-vous sûr de vouloir continuer ?')">
+                    📤 Restaurer ICI
+                </button>
+            </form>
+        </div>
+
+        <!-- Historique des sauvegardes -->
+        <div>
+            <h4 class="mt-0 mb-10 text-muted">📋 Sauvegardes Récentes</h4>
+            <?php
+            $backupDir = __DIR__ . '/../../uploads/backups/';
+            $backups = [];
+            if (is_dir($backupDir)) {
+                $files = scandir($backupDir);
+                foreach ($files as $file) {
+                    if (strpos($file, 'files_backup_') === 0 && pathinfo($file, PATHINFO_EXTENSION) === 'zip') {
+                        $backups[] = [
+                            'name' => $file,
+                            'size' => filesize($backupDir . $file),
+                            'date' => filemtime($backupDir . $file)
+                        ];
+                    }
+                }
+                usort($backups, function($a, $b) { return $b['date'] - $a['date']; });
+                $backups = array_slice($backups, 0, 5); // 5 plus récentes
+            }
+            ?>
+            
+            <?php if (empty($backups)): ?>
+                <p class="text-muted italic text-center">Aucune sauvegarde récente</p>
+            <?php else: ?>
+                <div class="flex flex-col gap-5">
+                    <?php foreach ($backups as $backup): ?>
+                        <div class="flex justify-between items-center p-5 border rounded-4 text-xs">
+                            <div class="overflow-hidden truncate mr-5">
+                                <strong><?= htmlspecialchars($backup['name']) ?></strong><br>
+                                <span class="text-muted"><?= formatFileSize($backup['size']) ?> - <?= date('d/m/Y H:i', $backup['date']) ?></span>
+                            </div>
+                            <a href="actions/files_action.php?action=download&file=backups/<?= urlencode($backup['name']) ?>"
+                               class="btn btn-success py-5 px-10" title="Télécharger">
+                                 📥
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
         </div>
-        
-        <!-- Partie Droite : Actions Compactes -->
-        <div style="display: flex; flex-direction: column; gap: 5px; align-items: flex-end;">
-            <!-- Nouveau Dossier -->
-            <form method="post" action="actions/files_action.php" style="display: flex; gap: 0; align-items: center;">
-                <input type="hidden" name="action" value="create_folder">
-                <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
-                <input type="text" name="folder_name" placeholder="Nouveau dossier..." required style="padding: 4px 8px; border: 1px solid #ced4da; border-radius: 4px 0 0 4px; font-size: 13px; width: 140px; border-right: none;">
-                <button type="submit" class="backup-button backup-button-info" style="width: auto; margin: 0; padding: 4px 10px; border-radius: 0 4px 4px 0; font-size: 13px;" title="Créer dossier">➕</button>
-            </form>
-
-            <!-- Upload -->
-            <form method="post" action="actions/files_action.php" enctype="multipart/form-data" style="width: 100%;">
-                <input type="hidden" name="action" value="upload_file">
-                <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
-                
-                <label for="file_upload" class="backup-button backup-button-success" style="width: 100%; box-sizing: border-box; margin: 0; padding: 4px 10px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; text-align: center;">
-                    ⬆️ Uploader un fichier
-                </label>
-                <input id="file_upload" type="file" name="upload_file" required style="display: none;" onchange="this.form.submit()">
-            </form>
-        </div>
-    </div>
-    
-    <!-- Liste des fichiers -->
-    <div class="files-table-container" style="max-height: 500px; overflow-y: auto; border: 1px solid rgba(127, 127, 127, 0.2); border-radius: 4px;">
-        <form id="filesForm" method="post" action="actions/files_action.php">
-            <input type="hidden" name="action" value="delete_batch">
-            <input type="hidden" name="path" value="<?= htmlspecialchars($currentPath) ?>">
-            
-            <!-- Barre d'actions groupées -->
-            <div id="batchActions" style="display: none; padding: 8px 12px; background-color: rgba(220, 53, 69, 0.1); border-bottom: 1px solid rgba(220, 53, 69, 0.2); align-items: center; gap: 15px; position: sticky; top: 0; z-index: 10;">
-                <span style="font-weight: bold; font-size: 13px; color: #dc3545;">Actions :</span>
-                <button type="submit" onclick="return confirm('Attention : Vous êtes sur le point de supprimer définitivement les éléments sélectionnés.\nConfirmer ?')" 
-                        style="background-color: #dc3545; color: white; border: none; padding: 4px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px;">
-                    🗑️ Supprimer (<span id="selectedCount">0</span>)
-                </button>
-            </div>
-
-            <table class="files-table" style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                <thead>
-                    <tr>
-                        <th style="padding: 10px; width: 40px; text-align: center; border-bottom: 2px solid rgba(127, 127, 127, 0.2);">
-                            <input type="checkbox" id="selectAll" title="Tout sélectionner" style="cursor: pointer;">
-                        </th>
-                        <th style="padding: 10px; text-align: left; border-bottom: 2px solid rgba(127, 127, 127, 0.2);">Nom</th>
-                        <th style="padding: 10px; text-align: right; border-bottom: 2px solid rgba(127, 127, 127, 0.2); width: 100px;">Taille</th>
-                        <th style="padding: 10px; text-align: center; border-bottom: 2px solid rgba(127, 127, 127, 0.2); width: 140px;">Modifié</th>
-                        <th style="padding: 10px; text-align: center; border-bottom: 2px solid rgba(127, 127, 127, 0.2); width: 160px;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (empty($items)): ?>
-                        <tr>
-                            <td colspan="5" style="padding: 30px; text-align: center; opacity: 0.7; font-style: italic;">
-                                📭 Ce dossier est vide
-                            </td>
-                        </tr>
-                    <?php else: ?>
-                        <?php foreach ($items as $item): ?>
-                            <tr style="border-bottom: 1px solid rgba(127, 127, 127, 0.1); transition: background-color 0.1s;">
-                                <td style="padding: 8px; text-align: center;">
-                                    <input type="checkbox" name="selected_files[]" value="<?= htmlspecialchars($item['name']) ?>" class="file-checkbox" style="cursor: pointer;">
-                                </td>
-                                <td style="padding: 8px;">
-                                    <?php if ($item['type'] === 'directory'): ?>
-                                        <a href="index.php?page=files_manager&path=<?= urlencode($item['path']) ?>" 
-                                           style="text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 8px; background: none !important; padding: 0 !important; border: none !important; color: inherit;">
-                                            <span style="font-size: 1.1em;">📁</span> <?= htmlspecialchars($item['name']) ?>
-                                        </a>
-                                    <?php else: ?>
-                                        <span style="display: flex; align-items: center; gap: 8px;">
-                                            <?= $item['icon'] ?> <?= htmlspecialchars($item['name']) ?>
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td style="padding: 8px; text-align: right; font-family: monospace;">
-                                    <?= $item['type'] === 'directory' ? '-' : formatFileSize($item['size']) ?>
-                                </td>
-                                <td style="padding: 8px; text-align: center; font-size: 13px;">
-                                    <?= date('d/m/Y H:i', $item['modified']) ?>
-                                </td>
-                                <td style="padding: 8px; text-align: center;">
-                                    <div style="display: flex; justify-content: center; gap: 5px;">
-                                        <?php if ($item['type'] === 'file'): ?>
-                                            <a href="actions/files_action.php?action=download&file=<?= urlencode($item['path']) ?>" 
-                                               style="background-color: #28a745; color: white; padding: 4px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;" title="Télécharger">
-                                                📥
-                                            </a>
-                                            <a href="actions/files_action.php?action=delete&file=<?= urlencode($item['path']) ?>" 
-                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')"
-                                               style="background-color: #dc3545; color: white; padding: 4px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;" title="Supprimer">
-                                                🗑️
-                                            </a>
-                                        <?php else: ?>
-                                            <a href="actions/files_action.php?action=delete_dir&dir=<?= urlencode($item['path']) ?>" 
-                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?')"
-                                               style="background-color: #dc3545; color: white; padding: 4px 8px; text-decoration: none; border-radius: 3px; font-size: 11px;" title="Supprimer">
-                                                🗑️
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </form>
-    </div>
-    
-    <!-- Statistiques du dossier actuel -->
-    <div class="files-stats backup-section-content" style="margin-top: 10px; font-size: 13px; text-align: right; border-top: 1px solid rgba(127, 127, 127, 0.2); padding-top: 5px;">
-        <strong>Contenu :</strong> 
-        <?= $dirCount ?> dossier(s), <?= $fileCount ?> fichier(s) | 
-        <strong>Total :</strong> <?= formatFileSize($totalSize) ?>
     </div>
 </div>
 
-
-<!-- Actions de sauvegarde -->
-<div class="files-backup-section bordered-section">
-    <h3>💾 Sauvegarde des Fichiers</h3>
-    
-    <!-- Sauvegarde complète -->
-    <div class="backup-section-content">
-        <h4>📦 Sauvegarde Complète</h4>
-        <p class="backup-description">
-            Créer une archive ZIP de tout le dossier uploads.
-        </p>
-        <form method="post" action="actions/files_action.php">
-            <input type="hidden" name="action" value="backup_full">
-            
-            <div style="margin-bottom: 15px;">
-                <label style="display: flex; align-items: center; cursor: pointer;">
-                    <input type="checkbox" name="exclude_backups" value="1" checked style="margin-right: 8px;">
-                    Exclure le dossier 'backups' (Recommandé)
-                </label>
-                <div style="font-size: 11px; color: #6c757d; margin-top: 2px; margin-left: 20px;">
-                    Évite que la sauvegarde contienne les anciennes sauvegardes.
-                </div>
-            </div>
-
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="submit" name="output_mode" value="server" class="backup-button backup-button-success" style="flex: 1;">
-                    💾 Sauvegarder sur Serveur
-                </button>
-                <button type="submit" name="output_mode" value="download" class="backup-button backup-button-info" style="flex: 1;">
-                    📥 Télécharger Immédiatement
-                </button>
-            </div>
-        </form>
-    </div>
-    
-    <!-- Sauvegarde du dossier actuel -->
-    <?php if (!empty($currentPath)): ?>
-    <div class="backup-section-content backup-section-info">
-        <h4>📁 Sauvegarde Dossier Actuel</h4>
-        <p class="backup-description">
-            Sauvegarder uniquement : <?= htmlspecialchars($currentPath) ?>
-        </p>
-        <form method="post" action="actions/files_action.php">
-            <input type="hidden" name="action" value="backup_folder">
-            <input type="hidden" name="folder" value="<?= htmlspecialchars($currentPath) ?>">
-            
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button type="submit" name="output_mode" value="server" class="backup-button backup-button-info" style="flex: 1;">
-                    💾 Sauvegarder sur Serveur
-                </button>
-                <button type="submit" name="output_mode" value="download" class="backup-button" style="flex: 1; background-color: #117a8b; color: white;">
-                    📥 Télécharger Immédiatement
-                </button>
-            </div>
-        </form>
-    </div>
-    <?php endif; ?>
-    
-    <!-- Restauration -->
-    <div class="backup-section-content backup-section-warning">
-        <h4>📤 Restauration d'Archive</h4>
-        <p class="backup-description">
-            Uploadez une archive ZIP pour restaurer des fichiers.
-            Les fichiers seront extraits dans le dossier actuel : <strong>/uploads/<?= htmlspecialchars($currentPath) ?></strong>
-        </p>
-        <form method="post" action="actions/files_action.php" enctype="multipart/form-data">
-            <input type="hidden" name="action" value="restore_zip">
-            <input type="hidden" name="target_path" value="<?= htmlspecialchars($currentPath) ?>">
-            <div style="margin-bottom: 10px;">
-                <input type="file" name="restore_file" accept=".zip" required style="width: 100%;">
-            </div>
-            <!--
-            <div style="margin-bottom: 10px;">
-                <input type="password" name="restore_password" placeholder="Mot de passe (si archive protégée)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box;">
-            </div>
-            -->
-            <button type="submit" class="backup-button backup-button-warning" onclick="return confirm('⚠️ Attention : Cela écrasera les fichiers existants s\'ils portent le même nom.\nÊtes-vous sûr de vouloir continuer ?')">
-                📤 Restaurer ICI
-            </button>
-        </form>
-    </div>
-
-    <!-- Historique des sauvegardes -->
-    <div class="backup-section-content">
-        <h4>📋 Sauvegardes Récentes</h4>
-        <?php
-        $backupDir = __DIR__ . '/../../uploads/backups/';
-        $backups = [];
-        if (is_dir($backupDir)) {
-            $files = scandir($backupDir);
-            foreach ($files as $file) {
-                if (strpos($file, 'files_backup_') === 0 && pathinfo($file, PATHINFO_EXTENSION) === 'zip') {
-                    $backups[] = [
-                        'name' => $file,
-                        'size' => filesize($backupDir . $file),
-                        'date' => filemtime($backupDir . $file)
-                    ];
-                }
-            }
-            usort($backups, function($a, $b) { return $b['date'] - $a['date']; });
-            $backups = array_slice($backups, 0, 5); // 5 plus récentes
-        }
-        ?>
-        
-        <?php if (empty($backups)): ?>
-            <p class="backup-empty-message">Aucune sauvegarde récente</p>
-        <?php else: ?>
-            <div class="backup-history-list">
-                <?php foreach ($backups as $backup): ?>
-                    <div class="backup-history-item">
-                        <div class="backup-info">
-                            <strong><?= htmlspecialchars($backup['name']) ?></strong><br>
-                            <span class="backup-details"><?= formatFileSize($backup['size']) ?> - <?= date('d/m/Y H:i', $backup['date']) ?></span>
-                        </div>
-                        <a href="actions/files_action.php?action=download&file=backups/<?= urlencode($backup['name']) ?>"
-                           class="backup-download-btn">
-                             📥
-                        </a>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
-    </div>
-</div>
-
-</div>
-
-<p style="margin-top: 30px;">
-    <a href="index.php?page=settings&tab=sauvegarde">← Retour aux paramètres</a>
+<p class="mt-30">
+    <a href="index.php?page=settings&tab=sauvegarde" class="btn btn-sm-action">← Retour aux paramètres</a>
 </p>
 
 <script>
@@ -476,8 +470,12 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedCountSpan.textContent = selectedCount;
         
         if (selectedCount > 0) {
-            batchActions.style.display = 'flex';
+            batchActions.classList.remove('hidden');
+            batchActions.classList.add('flex');
+            batchActions.style.display = 'flex'; // Ensure display flex overrides class hidden if redundant
         } else {
+            batchActions.classList.add('hidden');
+            batchActions.classList.remove('flex');
             batchActions.style.display = 'none';
         }
     }

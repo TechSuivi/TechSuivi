@@ -16,7 +16,21 @@ return [
     
     // Futures évolutions possibles (ex: nouvelles tables)
     'tables' => [
-        // 'NouvelleTable' => "CREATE TABLE ... "
+        'mail_config' => "CREATE TABLE IF NOT EXISTS mail_config (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            smtp_host VARCHAR(255) NOT NULL,
+            smtp_port INT NOT NULL DEFAULT 587,
+            smtp_username VARCHAR(255) NOT NULL,
+            smtp_password VARCHAR(255) NOT NULL,
+            smtp_encryption ENUM('none', 'tls', 'ssl') NOT NULL DEFAULT 'tls',
+            from_name VARCHAR(255) NOT NULL,
+            from_email VARCHAR(255) NOT NULL,
+            reports_enabled BOOLEAN NOT NULL DEFAULT FALSE,
+            report_frequency ENUM('daily', 'weekly', 'monthly') NOT NULL DEFAULT 'weekly',
+            report_recipients TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
     ]
 ];
 ?>

@@ -59,10 +59,12 @@ if (isset($pdo)) {
 }
 ?>
 
-<h1>Sauvegarde et Restauration de la Base de Données</h1>
+<div class="page-header">
+    <h1>Sauvegarde et Restauration de la Base de Données</h1>
+</div>
 
 <?php if (!empty($message)): ?>
-    <div style="margin-bottom: 20px; padding: 15px; border-radius: 4px; <?= $messageType === 'error' ? 'color: #721c24; border: 1px solid #f5c6cb; background-color: #f8d7da;' : ($messageType === 'success' ? 'color: #155724; border: 1px solid #c3e6cb; background-color: #d4edda;' : ($messageType === 'warning' ? 'color: #856404; border: 1px solid #ffeaa7; background-color: #fff3cd;' : 'color: #004085; border: 1px solid #b3d7ff; background-color: #cce7ff;')) ?>">
+    <div class="alert alert-<?= $messageType === 'error' ? 'error' : ($messageType === 'success' ? 'success' : ($messageType === 'warning' ? 'warning' : 'info')) ?> mb-20">
         <?php if ($messageType === 'warning' || $messageType === 'success'): ?>
             <div style="max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 13px; line-height: 1.4;">
                 <?= $message ?>
@@ -73,9 +75,9 @@ if (isset($pdo)) {
     </div>
 <?php endif; ?>
 
-<div style="background-color: #fff3cd; border: 1px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-    <h3 style="margin-top: 0; color: #856404;">⚠️ Important</h3>
-    <ul style="color: #856404;">
+<div class="alert alert-warning mb-20">
+    <h3 class="mt-0 text-warning">⚠️ Important</h3>
+    <ul class="m-0 pl-20">
         <li>La sauvegarde inclura toutes les tables et données de la base</li>
         <li>Conservez vos sauvegardes dans un endroit sûr</li>
         <li>Testez régulièrement vos sauvegardes</li>
@@ -83,257 +85,234 @@ if (isset($pdo)) {
     </ul>
 </div>
 
-<!-- Conteneur principal pour sauvegarde et restauration côte à côte -->
-<div style="display: flex; gap: 20px; margin-bottom: 30px;">
+<!-- Conteneur principal pour sauvegarde et restauration -->
+<div class="grid-2 dashboard-grid mb-30">
 
-<!-- Section Sauvegarde -->
-<div class="backup-section-main backup-section-success">
-    <h3>💾 Sauvegarde</h3>
-    <p class="backup-section-description">Créer une sauvegarde de la base de données</p>
-    
-    <!-- Formulaire pour sauvegarde serveur -->
-    <div class="backup-section-content">
-        <h4>🗂️ Sauvegarde sur le Serveur</h4>
-        <form method="post" action="actions/database_backup_v2.php">
-            <input type="hidden" name="create_backup" value="1">
-            <input type="hidden" name="backup_type" value="full">
-            <input type="hidden" name="backup_format" value="sql">
-            <input type="hidden" name="backup_destination" value="server">
-            
-            <!--
-            <div style="margin-bottom: 10px;">
-                <label style="display: block; margin-bottom: 5px; font-size: 13px;">Mot de passe (facultatif) :</label>
-                <input type="password" name="backup_password" placeholder="Protéger l'archive ZIP" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-            </div>
-            -->
-            
-            <button type="submit" style="background-color: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-bottom: 10px;">
-                💾 Sauvegarde Complète sur Serveur
-            </button>
-            <br>
-            <small style="color: #6c757d;">Stockée dans : /uploads/backups/</small>
-        </form>
-    </div>
-    
-    <!-- Formulaire pour téléchargement direct -->
-    <div class="backup-section-content backup-section-info">
-        <h4>⬇️ Téléchargement Direct</h4>
-        <form method="post" action="../../actions/database_backup_v2.php">
-            <input type="hidden" name="create_backup" value="1">
-            <input type="hidden" name="backup_type" value="full">
-            <input type="hidden" name="backup_format" value="sql">
-            <input type="hidden" name="backup_destination" value="download">
-            
-            <!--
-            <div style="margin-bottom: 10px;">
-                <label style="display: block; margin-bottom: 5px; font-size: 13px;">Mot de passe (facultatif) :</label>
-                <input type="password" name="backup_password" placeholder="Protéger l'archive ZIP" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-            </div>
-            -->
-            
-            <button type="submit" style="background-color: #2196f3; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-bottom: 10px;">
-                📥 Télécharger Sauvegarde Complète
-            </button>
-            <br>
-            <small style="color: #6c757d;">Téléchargement automatique du fichier SQL</small>
-        </form>
-    </div>
-    
-    <!-- Options avancées -->
-    <details style="margin-top: 15px;">
-        <summary style="cursor: pointer; font-weight: bold; color: #495057;">⚙️ Options Avancées</summary>
-        <div style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
-            
-            <!-- Sauvegarde partielle serveur -->
-            <div style="margin-bottom: 15px;">
-                <h5 style="color: #495057;">📂 Sauvegarde Partielle (Serveur)</h5>
-                <form method="post" action="actions/database_backup_v2.php">
-                    <input type="hidden" name="create_backup" value="1">
-                    <input type="hidden" name="backup_type" value="partial">
-                    <input type="hidden" name="backup_format" value="sql">
-                    <input type="hidden" name="backup_destination" value="server">
-                    
-                    <div class="table-list backup-section-content" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px;">
-                        <?php if (!empty($dbInfo)): ?>
-                            <?php foreach ($dbInfo as $table): ?>
-                                <div class="backup-item">
-                                    <input type="checkbox" name="selected_tables[]" value="<?= htmlspecialchars($table['TABLE_NAME']) ?>" class="table-checkbox">
-                                    <span class="table-name"><?= htmlspecialchars($table['TABLE_NAME']) ?></span>
-                                    <span class="table-stats">(<?= number_format($table['TABLE_ROWS']) ?> lignes, <?= $table['SIZE_MB'] ?> MB)</span>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p style="color: #6c757d; margin: 0;">Aucune table trouvée</p>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <button type="submit" style="background-color: #ffc107; color: #212529; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
-                        📦 Sauvegarde Partielle (Serveur)
-                    </button>
-                </form>
-            </div>
-            
-            <!-- Sauvegarde partielle téléchargement -->
-            <div style="margin-bottom: 15px;">
-                <h5 style="color: #495057;">📥 Sauvegarde Partielle (Téléchargement)</h5>
-                <form method="post" action="../../actions/database_backup_v2.php">
-                    <input type="hidden" name="create_backup" value="1">
-                    <input type="hidden" name="backup_type" value="partial">
-                    <input type="hidden" name="backup_format" value="sql">
-                    <input type="hidden" name="backup_destination" value="download">
-                    
-                    <div class="table-list backup-section-content" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px;">
-                        <?php if (!empty($dbInfo)): ?>
-                            <?php foreach ($dbInfo as $table): ?>
-                                <div class="backup-item">
-                                    <input type="checkbox" name="selected_tables[]" value="<?= htmlspecialchars($table['TABLE_NAME']) ?>" class="table-checkbox">
-                                    <span class="table-name"><?= htmlspecialchars($table['TABLE_NAME']) ?></span>
-                                    <span class="table-stats">(<?= number_format($table['TABLE_ROWS']) ?> lignes, <?= $table['SIZE_MB'] ?> MB)</span>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p style="color: #6c757d; margin: 0;">Aucune table trouvée</p>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <button type="submit" style="background-color: #17a2b8; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
-                        📥 Télécharger Sauvegarde Partielle
-                    </button>
-                </form>
-            </div>
-        </div>
-    </details>
-</div>
-
-<!-- Section Restauration -->
-<div class="backup-section-main backup-section-warning">
-    <h3>🔄 Restauration</h3>
-    <p class="backup-section-description backup-warning-text"><strong>⚠️ ATTENTION :</strong> La restauration remplacera complètement toutes les données actuelles !</p>
-    
-    <!-- Upload de fichier -->
-    <div class="backup-section-content">
-        <h4>📁 Upload Fichier</h4>
-        <form method="post" enctype="multipart/form-data" action="actions/database_backup_v2.php">
-            <input type="file" name="backup_file" accept=".sql" style="margin-bottom: 10px; width: 100%;">
-            <div style="margin-bottom: 10px;">
-                <label style="display: flex; align-items: center; gap: 5px;">
-                    <input type="checkbox" name="drop_tables" value="1">
-                    ⚠️ Vider la base avant restauration
-                </label>
-            </div>
-                <!--
-                <div style="margin-bottom: 10px;">
-                    <input type="password" name="restore_password" placeholder="Mot de passe (si archive protégée)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-                </div>
-                -->
-            <button type="submit" name="restore_upload" style="background-color: #ff9800; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
-                🔄 Restaurer depuis Upload
-            </button>
-        </form>
-    </div>
-    
-    <!-- Fichiers serveur -->
-    <div class="backup-section-content backup-section-info">
-        <h4>🗂️ Fichiers Serveur</h4>
+    <!-- Section Sauvegarde -->
+    <div class="card h-full">
+        <h3 class="card-title mb-15">💾 Sauvegarde</h3>
+        <p class="text-muted mb-20">Créer une sauvegarde de la base de données</p>
         
-        <?php
-        // Lister les fichiers de sauvegarde disponibles sur le serveur
-        $backupDir = __DIR__ . '/../../uploads/backups/';
-        $serverBackups = [];
-        
-        // Utiliser le système de permissions pour créer le dossier
-        if (!is_dir($backupDir)) {
-            createDirectoryWithPermissions($backupDir);
-        }
-        
-        if (is_dir($backupDir)) {
-            $files = scandir($backupDir);
-            foreach ($files as $file) {
-                if (pathinfo($file, PATHINFO_EXTENSION) === 'sql') {
-                    $filePath = $backupDir . $file;
-                    $serverBackups[] = [
-                        'name' => $file,
-                        'size' => filesize($filePath),
-                        'date' => filemtime($filePath)
-                    ];
-                }
-            }
-            
-            // Trier par date (plus récent en premier)
-            usort($serverBackups, function($a, $b) {
-                return $b['date'] - $a['date'];
-            });
-        }
-        ?>
-        
-        <?php if (!empty($serverBackups)): ?>
+        <!-- Formulaire pour sauvegarde serveur -->
+        <div class="mb-20 p-15 bg-secondary rounded-4 border">
+            <h4 class="mt-0 mb-10 text-success">🗂️ Sauvegarde sur le Serveur</h4>
             <form method="post" action="actions/database_backup_v2.php">
-                <select name="server_backup_file" required style="width: 100%; margin-bottom: 10px; padding: 5px;">
-                    <option value="">-- Sélectionner un fichier --</option>
-                    <?php foreach ($serverBackups as $backup): ?>
-                        <option value="<?= htmlspecialchars($backup['name']) ?>">
-                            <?= htmlspecialchars($backup['name']) ?>
-                            (<?= number_format($backup['size'] / 1024 / 1024, 2) ?> MB - <?= date('d/m/Y H:i:s', $backup['date']) ?>)
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <div style="margin-bottom: 10px;">
-                    <label style="display: flex; align-items: center; gap: 5px;">
+                <input type="hidden" name="create_backup" value="1">
+                <input type="hidden" name="backup_type" value="full">
+                <input type="hidden" name="backup_format" value="sql">
+                <input type="hidden" name="backup_destination" value="server">
+                
+                <button type="submit" class="btn btn-success w-full mb-10">
+                    💾 Sauvegarde Complète sur Serveur
+                </button>
+                <small class="text-muted block text-center">Stockée dans : /uploads/backups/</small>
+            </form>
+        </div>
+        
+        <!-- Formulaire pour téléchargement direct -->
+        <div class="mb-20 p-15 bg-secondary rounded-4 border">
+            <h4 class="mt-0 mb-10 text-info">⬇️ Téléchargement Direct</h4>
+            <form method="post" action="../../actions/database_backup_v2.php">
+                <input type="hidden" name="create_backup" value="1">
+                <input type="hidden" name="backup_type" value="full">
+                <input type="hidden" name="backup_format" value="sql">
+                <input type="hidden" name="backup_destination" value="download">
+                
+                <button type="submit" class="btn btn-primary w-full mb-10">
+                    📥 Télécharger Sauvegarde Complète
+                </button>
+                <small class="text-muted block text-center">Téléchargement automatique du fichier SQL</small>
+            </form>
+        </div>
+        
+        <!-- Options avancées -->
+        <details class="mt-15">
+            <summary class="cursor-pointer font-bold text-muted">⚙️ Options Avancées</summary>
+            <div class="mt-15 p-15 bg-secondary rounded-4">
+                
+                <!-- Sauvegarde partielle serveur -->
+                <div class="mb-15">
+                    <h5 class="mt-0 mb-10 text-muted">📂 Sauvegarde Partielle (Serveur)</h5>
+                    <form method="post" action="actions/database_backup_v2.php">
+                        <input type="hidden" name="create_backup" value="1">
+                        <input type="hidden" name="backup_type" value="partial">
+                        <input type="hidden" name="backup_format" value="sql">
+                        <input type="hidden" name="backup_destination" value="server">
+                        
+                        <div class="table-list bg-light border p-10 rounded-4 mb-10" style="max-height: 150px; overflow-y: auto;">
+                            <?php if (!empty($dbInfo)): ?>
+                                <?php foreach ($dbInfo as $table): ?>
+                                    <div class="flex items-center gap-10 mb-5">
+                                        <input type="checkbox" name="selected_tables[]" value="<?= htmlspecialchars($table['TABLE_NAME']) ?>" class="table-checkbox">
+                                        <span class="font-bold"><?= htmlspecialchars($table['TABLE_NAME']) ?></span>
+                                        <span class="text-muted text-sm">(<?= number_format($table['TABLE_ROWS']) ?> lignes, <?= $table['SIZE_MB'] ?> MB)</span>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-muted m-0">Aucune table trouvée</p>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-warning btn-sm-action">
+                            📦 Sauvegarde Partielle (Serveur)
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Sauvegarde partielle téléchargement -->
+                <div class="mb-15">
+                    <h5 class="mt-0 mb-10 text-muted">📥 Sauvegarde Partielle (Téléchargement)</h5>
+                    <form method="post" action="../../actions/database_backup_v2.php">
+                        <input type="hidden" name="create_backup" value="1">
+                        <input type="hidden" name="backup_type" value="partial">
+                        <input type="hidden" name="backup_format" value="sql">
+                        <input type="hidden" name="backup_destination" value="download">
+                        
+                        <div class="table-list bg-light border p-10 rounded-4 mb-10" style="max-height: 150px; overflow-y: auto;">
+                            <?php if (!empty($dbInfo)): ?>
+                                <?php foreach ($dbInfo as $table): ?>
+                                    <div class="flex items-center gap-10 mb-5">
+                                        <input type="checkbox" name="selected_tables[]" value="<?= htmlspecialchars($table['TABLE_NAME']) ?>" class="table-checkbox">
+                                        <span class="font-bold"><?= htmlspecialchars($table['TABLE_NAME']) ?></span>
+                                        <span class="text-muted text-sm">(<?= number_format($table['TABLE_ROWS']) ?> lignes, <?= $table['SIZE_MB'] ?> MB)</span>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-muted m-0">Aucune table trouvée</p>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-info btn-sm-action">
+                            📥 Télécharger Sauvegarde Partielle
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <!-- Section Restauration -->
+    <div class="card h-full border-left-red">
+        <h3 class="card-title mb-15 text-danger">🔄 Restauration</h3>
+        <p class="text-danger font-bold mb-20">⚠️ ATTENTION : La restauration remplacera complètement toutes les données actuelles !</p>
+        
+        <!-- Upload de fichier -->
+        <div class="mb-20 p-15 bg-soft-red rounded-4 border border-danger">
+            <h4 class="mt-0 mb-10 text-danger">📁 Upload Fichier</h4>
+            <form method="post" enctype="multipart/form-data" action="actions/database_backup_v2.php">
+                <input type="file" name="backup_file" accept=".sql" class="form-control mb-10 w-full">
+                <div class="mb-10">
+                    <label class="flex items-center gap-5 cursor-pointer">
                         <input type="checkbox" name="drop_tables" value="1">
                         ⚠️ Vider la base avant restauration
                     </label>
                 </div>
-                <!--
-                <div style="margin-bottom: 10px;">
-                    <input type="password" name="restore_password" placeholder="Mot de passe (si archive protégée)" style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-                </div>
-                -->
-                <button type="submit" name="restore_from_server" style="background-color: #17a2b8; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">
-                    📁 Restaurer depuis Serveur
+                <button type="submit" name="restore_upload" class="btn btn-warning w-full">
+                    🔄 Restaurer depuis Upload
                 </button>
             </form>
-        <?php else: ?>
-            <p style="color: #6c757d; font-style: italic;">Aucun fichier de sauvegarde trouvé sur le serveur.</p>
-        <?php endif; ?>
+        </div>
+        
+        <!-- Fichiers serveur -->
+        <div class="mb-20 p-15 bg-secondary rounded-4 border">
+            <h4 class="mt-0 mb-10 text-info">🗂️ Fichiers Serveur</h4>
+            
+            <?php
+            // Lister les fichiers de sauvegarde disponibles sur le serveur
+            $backupDir = __DIR__ . '/../../uploads/backups/';
+            $serverBackups = [];
+            
+            // Utiliser le système de permissions pour créer le dossier
+            if (!is_dir($backupDir)) {
+                createDirectoryWithPermissions($backupDir);
+            }
+            
+            if (is_dir($backupDir)) {
+                $files = scandir($backupDir);
+                foreach ($files as $file) {
+                    if (pathinfo($file, PATHINFO_EXTENSION) === 'sql') {
+                        $filePath = $backupDir . $file;
+                        $serverBackups[] = [
+                            'name' => $file,
+                            'size' => filesize($filePath),
+                            'date' => filemtime($filePath)
+                        ];
+                    }
+                }
+                
+                // Trier par date (plus récent en premier)
+                usort($serverBackups, function($a, $b) {
+                    return $b['date'] - $a['date'];
+                });
+            }
+            ?>
+            
+            <?php if (!empty($serverBackups)): ?>
+                <form method="post" action="actions/database_backup_v2.php">
+                    <select name="server_backup_file" required class="form-control mb-10">
+                        <option value="">-- Sélectionner un fichier --</option>
+                        <?php foreach ($serverBackups as $backup): ?>
+                            <option value="<?= htmlspecialchars($backup['name']) ?>">
+                                <?= htmlspecialchars($backup['name']) ?>
+                                (<?= number_format($backup['size'] / 1024 / 1024, 2) ?> MB - <?= date('d/m/Y H:i:s', $backup['date']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="mb-10">
+                        <label class="flex items-center gap-5 cursor-pointer">
+                            <input type="checkbox" name="drop_tables" value="1">
+                            ⚠️ Vider la base avant restauration
+                        </label>
+                    </div>
+                    <button type="submit" name="restore_from_server" class="btn btn-info w-full">
+                        📁 Restaurer depuis Serveur
+                    </button>
+                </form>
+            <?php else: ?>
+                <p class="text-muted italic">Aucun fichier de sauvegarde trouvé sur le serveur.</p>
+            <?php endif; ?>
+        </div>
     </div>
 </div>
 
-</div>
-
 <!-- Informations sur la base de données -->
-<div style="background-color: #e3f2fd; border: 1px solid #2196f3; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-    <h3 style="margin-top: 0; color: #1976d2;">📋 Informations sur la Base de Données</h3>
-    <p><strong>Base de données :</strong> <?= htmlspecialchars($dbName ?? 'Non défini') ?></p>
-    <p><strong>Serveur :</strong> <?= htmlspecialchars($host ?? 'Non défini') ?></p>
-    <p><strong>Date/Heure :</strong> <?= date('d/m/Y H:i:s') ?></p>
+<div class="card border-left-blue">
+    <h3 class="card-title text-info mb-15">📋 Informations sur la Base de Données</h3>
+    <div class="grid-3 mb-20">
+        <p class="m-0"><strong>Base de données :</strong> <?= htmlspecialchars($dbName ?? 'Non défini') ?></p>
+        <p class="m-0"><strong>Serveur :</strong> <?= htmlspecialchars($host ?? 'Non défini') ?></p>
+        <p class="m-0"><strong>Date/Heure :</strong> <?= date('d/m/Y H:i:s') ?></p>
+    </div>
     
     <?php if (!empty($dbInfo)): ?>
-        <h4>Tables dans la base de données :</h4>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-            <thead>
-                <tr style="background-color: #f5f5f5;">
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Table</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Lignes</th>
-                    <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Taille (MB)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($dbInfo as $table): ?>
+        <h4 class="mb-10">Tables dans la base de données :</h4>
+        <div style="max-height: 300px; overflow-y: auto;">
+            <table class="table w-full">
+                <thead>
                     <tr>
-                        <td style="border: 1px solid #ddd; padding: 8px;"><?= htmlspecialchars($table['TABLE_NAME']) ?></td>
-                        <td style="border: 1px solid #ddd; padding: 8px; text-align: right;"><?= number_format($table['TABLE_ROWS']) ?></td>
-                        <td style="border: 1px solid #ddd; padding: 8px; text-align: right;"><?= $table['SIZE_MB'] ?></td>
+                        <th class="text-left">Table</th>
+                        <th class="text-right">Lignes</th>
+                        <th class="text-right">Taille (MB)</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($dbInfo as $table): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($table['TABLE_NAME']) ?></td>
+                            <td class="text-right"><?= number_format($table['TABLE_ROWS']) ?></td>
+                            <td class="text-right"><?= $table['SIZE_MB'] ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     <?php else: ?>
-        <p style="color: #666; font-style: italic;">Aucune information de table disponible</p>
+        <p class="text-muted italic">Aucune information de table disponible</p>
     <?php endif; ?>
 </div>
 
-<p style="margin-top: 30px;">
-    <a href="index.php?page=settings&tab=sauvegarde">← Retour aux paramètres</a>
+<p class="mt-30">
+    <a href="index.php?page=settings&tab=sauvegarde" class="btn btn-sm-action">← Retour aux paramètres</a>
 </p>
 
 <script>

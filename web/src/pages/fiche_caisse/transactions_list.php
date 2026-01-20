@@ -21,17 +21,42 @@ if (isset($_SESSION['transaction_message'])) {
     unset($_SESSION['transaction_message']);
 }
 
+// Filtres
+$dateStart = $_GET['date_start'] ?? '';
+$dateEnd = $_GET['date_end'] ?? '';
+
 // Récupération des transactions
 if (isset($pdo)) {
     try {
-        // Récupérer toutes les transactions pour le calcul du jour
-        // Récupérer toutes les transactions pour le calcul du jour
-        $stmt = $pdo->query("
+        // Construction de la requête avec filtres
+        $sql = "
             SELECT t.*, c.nom as client_nom, c.prenom as client_prenom 
             FROM FC_transactions t
             LEFT JOIN clients c ON t.id_client = c.ID
-            ORDER BY t.date_transaction DESC
-        ");
+        ";
+        
+        $where = [];
+        $params = [];
+        
+        if (!empty($dateStart)) {
+            $where[] = "t.date_transaction >= :date_start";
+            $params[':date_start'] = $dateStart . ' 00:00:00';
+        }
+        
+        if (!empty($dateEnd)) {
+            $where[] = "t.date_transaction <= :date_end";
+            $params[':date_end'] = $dateEnd . ' 23:59:59';
+        }
+        
+        if (!empty($where)) {
+            $sql .= " WHERE " . implode(' AND ', $where);
+        }
+        
+        $sql .= " ORDER BY t.date_transaction DESC";
+
+        // Récupérer toutes les transactions FILTRÉES pour la pagination
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
         $allTransactions = $stmt->fetchAll();
         
         // Pagination
@@ -47,55 +72,104 @@ if (isset($pdo)) {
     $errorMessage = "Erreur de configuration : la connexion à la base de données n'est pas disponible.";
 }
 
-// Calcul des totaux du jour (sur toutes les transactions, pas seulement la page courante)
+// Calcul des totaux du jour (Indépendant des filtres actuels pour toujours afficher l'activité du jour)
 $total_jour = 0;
 $nb_transactions_jour = 0;
-$today = date('Y-m-d');
-foreach ($allTransactions as $transaction) {
-    $transactionDate = date('Y-m-d', strtotime($transaction['date_transaction']));
-    if ($transactionDate === $today) {
-        $total_jour += $transaction['montant'];
-        $nb_transactions_jour++;
+try {
+    $stmtToday = $pdo->prepare("
+        SELECT COUNT(*) as count, SUM(montant) as total 
+        FROM FC_transactions 
+        WHERE date_transaction >= :start AND date_transaction <= :end
+    ");
+    $todayStart = date('Y-m-d 00:00:00');
+    $todayEnd = date('Y-m-d 23:59:59');
+    $stmtToday->execute([':start' => $todayStart, ':end' => $todayEnd]);
+    $resultToday = $stmtToday->fetch(PDO::FETCH_ASSOC);
+    
+    if ($resultToday) {
+        $nb_transactions_jour = $resultToday['count'];
+        $total_jour = $resultToday['total'] ?? 0;
     }
+} catch (Exception $e) {
+    // Silent fail for stats
 }
 ?>
 
-<h1>Transactions - Fiche de Caisse</h1>
-
-<p><a href="index.php?page=transaction_add" class="button-like" style="text-decoration: none; padding: 8px 15px; background-color: var(--accent-color); color: white; border-radius: 4px;">Nouvelle transaction</a></p>
+<div class="toolbar-stock bg-card p-15 rounded shadow-sm mb-20 flex-between-center">
+    <h1 class="text-color m-0 text-2xl">💳 Transactions - Fiche de Caisse</h1>
+    <a href="index.php?page=transaction_add" class="btn btn-primary">
+        <span>➕ Nouvelle transaction</span>
+    </a>
+</div>
 
 <?php if (!empty($sessionMessage)): ?>
-    <div class="session-message" style="margin-bottom: 15px; padding: 10px; border: 1px solid green; background-color: #e6ffe6;">
+    <div class="alert alert-success">
         <?= htmlspecialchars($sessionMessage) ?>
     </div>
 <?php endif; ?>
 
 <?php if (!empty($errorMessage)): ?>
-    <p style="color: red;"><?= htmlspecialchars($errorMessage) ?></p>
+    <div class="alert alert-error"><?= htmlspecialchars($errorMessage) ?></div>
 <?php endif; ?>
 
 <!-- Résumé du jour -->
-<div style="background-color: var(--card-bg); padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--accent-color); display: flex; align-items: center; gap: 20px;">
+<div class="card border-left-green mb-20 flex-between-center">
     <div>
-        <strong style="color: var(--accent-color);">📅 Transactions du jour (<?= date('d/m/Y') ?>)</strong>
+        <strong class="text-accent">📅 Transactions du jour (<?= date('d/m/Y') ?>)</strong>
     </div>
-    <div style="display: flex; gap: 30px;">
+    <div class="flex-wrap gap-20">
         <div>
-            <span style="color: var(--text-muted);">Nombre :</span>
+            <span class="text-muted">Nombre :</span>
             <strong><?= $nb_transactions_jour ?></strong>
         </div>
         <div>
-            <span style="color: var(--text-muted);">Total :</span>
-            <strong style="color: green;"><?= number_format($total_jour, 2) ?> €</strong>
+            <span class="text-muted">Total :</span>
+            <strong class="text-green"><?= number_format($total_jour, 2) ?> €</strong>
         </div>
     </div>
 </div>
 
+<!-- BARRE DE FILTRES -->
+<div class="card p-15 mb-20 bg-light border border-border rounded">
+    <form method="GET" action="index.php" class="flex flex-wrap items-end gap-10">
+        <input type="hidden" name="page" value="transactions_list">
+        
+        <div>
+            <label class="block text-xs font-bold text-muted uppercase mb-5">Du</label>
+            <input type="date" name="date_start" value="<?= htmlspecialchars($dateStart) ?>" class="form-control p-5 text-sm h-35">
+        </div>
+        
+        <div>
+            <label class="block text-xs font-bold text-muted uppercase mb-5">Au</label>
+            <input type="date" name="date_end" value="<?= htmlspecialchars($dateEnd) ?>" class="form-control p-5 text-sm h-35">
+        </div>
+        
+        <div>
+            <button type="submit" class="btn btn-secondary h-35 px-15">🔍 Filtrer</button>
+        </div>
+
+        <div class="border-l border-border mx-5 h-35"></div>
+
+        <!-- Boutons Rapides -->
+        <div class="flex gap-5">
+            <a href="index.php?page=transactions_list&date_start=<?= date('Y-m-d') ?>&date_end=<?= date('Y-m-d') ?>" class="btn h-35 flex-center <?= ($dateStart == date('Y-m-d') && $dateEnd == date('Y-m-d')) ? 'btn-primary' : 'btn-outline-primary' ?>">
+                ⚡ Aujourd'hui
+            </a>
+            <a href="index.php?page=transactions_list&date_start=<?= date('Y-m-01') ?>&date_end=<?= date('Y-m-t') ?>" class="btn h-35 flex-center <?= ($dateStart == date('Y-m-01')) ? 'btn-primary' : 'btn-outline-primary' ?>">
+                📅 Ce mois
+            </a>
+            <a href="index.php?page=transactions_list" class="btn h-35 flex-center <?= (empty($dateStart) && empty($dateEnd)) ? 'btn-primary' : 'btn-secondary' ?>">
+                ♾️ Tout
+            </a>
+        </div>
+    </form>
+</div>
+
 <!-- Contrôles de pagination -->
-<div style="background-color: var(--card-bg); padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-    <div style="display: flex; align-items: center; gap: 10px;">
+<div class="pagination-container">
+    <div class="pagination-controls">
         <label for="per_page">Afficher :</label>
-        <select id="per_page" onchange="changePerPage(this.value)" style="padding: 5px 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+        <select id="per_page" onchange="changePerPage(this.value)" class="form-control" style="width: auto; padding: 5px;">
             <option value="10" <?= $perPage == 10 ? 'selected' : '' ?>>10</option>
             <option value="20" <?= $perPage == 20 ? 'selected' : '' ?>>20</option>
             <option value="50" <?= $perPage == 50 ? 'selected' : '' ?>>50</option>
@@ -103,29 +177,36 @@ foreach ($allTransactions as $transaction) {
         </select>
         <span>par page</span>
     </div>
-    <div style="color: var(--text-muted);">
+    <div class="text-muted">
         <?php if ($totalTransactions > 0): ?>
             Affichage <?= $offset + 1 ?>-<?= min($offset + $perPage, $totalTransactions) ?> sur <?= $totalTransactions ?> transactions
         <?php else: ?>
-            Aucune transaction
+            Aucune transaction trouvée
         <?php endif; ?>
     </div>
-    <div style="display: flex; gap: 5px;">
+    <div class="pagination-controls">
+        <?php
+            // Helper pour garder les params de filtre dans l'URL de pagination
+            $filterParams = "&date_start=" . urlencode($dateStart) . "&date_end=" . urlencode($dateEnd);
+        ?>
         <?php if ($page > 1): ?>
-            <a href="index.php?page=transactions_list&per_page=<?= $perPage ?>&p=1" style="padding: 5px 10px; background-color: var(--accent-color); color: white; border-radius: 4px; text-decoration: none;">«</a>
-            <a href="index.php?page=transactions_list&per_page=<?= $perPage ?>&p=<?= $page - 1 ?>" style="padding: 5px 10px; background-color: var(--accent-color); color: white; border-radius: 4px; text-decoration: none;">‹</a>
+            <a href="index.php?page=transactions_list&per_page=<?= $perPage ?>&p=1<?= $filterParams ?>" class="pagination-btn">«</a>
+            <a href="index.php?page=transactions_list&per_page=<?= $perPage ?>&p=<?= $page - 1 ?><?= $filterParams ?>" class="pagination-btn">‹</a>
         <?php endif; ?>
-        <span style="padding: 5px 10px; background-color: var(--secondary-color); color: white; border-radius: 4px;">Page <?= $page ?>/<?= max(1, $totalPages) ?></span>
+        <span class="pagination-info">Page <?= $page ?>/<?= max(1, $totalPages) ?></span>
         <?php if ($page < $totalPages): ?>
-            <a href="index.php?page=transactions_list&per_page=<?= $perPage ?>&p=<?= $page + 1 ?>" style="padding: 5px 10px; background-color: var(--accent-color); color: white; border-radius: 4px; text-decoration: none;">›</a>
-            <a href="index.php?page=transactions_list&per_page=<?= $perPage ?>&p=<?= $totalPages ?>" style="padding: 5px 10px; background-color: var(--accent-color); color: white; border-radius: 4px; text-decoration: none;">»</a>
+            <a href="index.php?page=transactions_list&per_page=<?= $perPage ?>&p=<?= $page + 1 ?><?= $filterParams ?>" class="pagination-btn">›</a>
+            <a href="index.php?page=transactions_list&per_page=<?= $perPage ?>&p=<?= $totalPages ?><?= $filterParams ?>" class="pagination-btn">»</a>
         <?php endif; ?>
     </div>
 </div>
 
 <script>
 function changePerPage(value) {
-    window.location.href = 'index.php?page=transactions_list&per_page=' + value + '&p=1';
+    const urlParams = new URLSearchParams(window.location.search);
+    const dateStart = urlParams.get('date_start') || '';
+    const dateEnd = urlParams.get('date_end') || '';
+    window.location.href = 'index.php?page=transactions_list&per_page=' + value + '&p=1&date_start=' + dateStart + '&date_end=' + dateEnd;
 }
 </script>
 
@@ -151,14 +232,14 @@ function changePerPage(value) {
         </thead>
         <tbody>
             <?php foreach ($transactions as $transaction): ?>
-                <tr style="<?= $transaction['type'] === 'sortie' ? 'background-color: #fff5f5;' : '' ?>">
+                <tr class="<?= $transaction['type'] === 'sortie' ? 'bg-soft-red' : '' ?>">
                     <td><?= htmlspecialchars($transaction['id']) ?></td>
                     <td><?= date('d/m/Y H:i', strtotime($transaction['date_transaction'])) ?></td>
 
                     <td>
                         <?php if (!empty($transaction['client_nom'])): ?>
                             <!-- Affichage propre pour les clients liés -->
-                            <a href="index.php?page=clients_view&id=<?= $transaction['id_client'] ?>" style="text-decoration: none; color: inherit; font-weight: 500;" title="Voir la fiche client">
+                            <a href="index.php?page=clients_view&id=<?= $transaction['id_client'] ?>" class="text-reset" style="font-weight: 500;" title="Voir la fiche client">
                                 <span title="Client lié">👤 <?= htmlspecialchars($transaction['client_nom'] . ' ' . ($transaction['client_prenom'] ?? '')) ?></span>
                             </a>
                         <?php else: ?>
@@ -167,12 +248,12 @@ function changePerPage(value) {
                         <?php endif; ?>
                     </td>
                     <td>
-                        <span style="padding: 3px 8px; border-radius: 12px; font-size: 12px; color: white; 
-                                     background-color: <?= $transaction['type'] === 'entree' ? 'green' : ($transaction['type'] === 'sortie' ? 'red' : 'gray') ?>;">
+                        <?php $typeClass = $transaction['type'] === 'entree' ? 'bg-green' : ($transaction['type'] === 'sortie' ? 'bg-red' : 'bg-secondary'); ?>
+                        <span class="badge <?= $typeClass ?>">
                             <?= htmlspecialchars(ucfirst($transaction['type'] ?? 'N/A')) ?>
                         </span>
                     </td>
-                    <td style="font-weight: bold; color: <?= $transaction['type'] === 'entree' ? 'green' : ($transaction['type'] === 'sortie' ? 'red' : 'inherit') ?>;">
+                    <td style="font-weight: bold;" class="<?= $transaction['type'] === 'entree' ? 'text-green' : ($transaction['type'] === 'sortie' ? 'text-red' : '') ?>">
                         <?= $transaction['type'] === 'sortie' ? '-' : '' ?><?= number_format($transaction['montant'], 2) ?> €
                     </td>
                     <td><?= htmlspecialchars($transaction['banque'] ?? '') ?></td>
@@ -182,30 +263,22 @@ function changePerPage(value) {
                     <td><?= htmlspecialchars($transaction['num_facture'] ?? '') ?></td>
                     <td><?= (!empty($transaction['paye_le']) && $transaction['paye_le'] !== '0000-00-00') ? date('d/m/Y', strtotime($transaction['paye_le'])) : '' ?></td>
                     <td>
-                        <?php
-                        $transactionDate = date('Y-m-d', strtotime($transaction['date_transaction']));
-                        $today = date('Y-m-d');
-                        if ($transactionDate === $today):
-                        ?>
-                        <a href="index.php?page=transaction_edit&id=<?= htmlspecialchars($transaction['id']) ?>" 
-                           style="margin-right: 10px; color: var(--accent-color);">Modifier</a>
-                        <a href="actions/transaction_delete.php?id=<?= htmlspecialchars($transaction['id']) ?>" 
-                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?');" 
-                           style="color: red;">Supprimer</a>
-                        <?php endif; ?>
+                        <div class="flex items-center gap-10">
+                            <?php
+                            $transactionDate = date('Y-m-d', strtotime($transaction['date_transaction']));
+                            $today = date('Y-m-d');
+                            if ($transactionDate === $today):
+                            ?>
+                            <a href="index.php?page=transaction_edit&id=<?= htmlspecialchars($transaction['id']) ?>" 
+                               class="btn-sm-action" title="Modifier">✏️</a>
+                            <a href="actions/transaction_delete.php?id=<?= htmlspecialchars($transaction['id']) ?>" 
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette transaction ?');" 
+                               class="btn-sm-action text-danger" title="Supprimer">🗑️</a>
+                            <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 <?php endif; ?>
-
-<div style="margin-top: 30px; padding: 20px; background-color: var(--card-bg); border-radius: 8px;">
-    <h3>Types de transactions</h3>
-    <ul>
-        <li><strong>Entrée :</strong> Recettes (ventes, paiements clients, etc.)</li>
-        <li><strong>Sortie :</strong> Dépenses (achats, frais, etc.)</li>
-        <li><strong>Transfert :</strong> Mouvements entre comptes</li>
-    </ul>
-    <p><small>Les acomptes et soldes permettent de suivre les paiements partiels et les restes à payer.</small></p>
-</div>

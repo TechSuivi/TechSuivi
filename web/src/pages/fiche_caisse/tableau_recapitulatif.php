@@ -159,254 +159,69 @@ if (isset($pdo)) {
 }
 ?>
 
-<style>
-    /* Variables CSS pour le thème */
-    .tableau-recapitulatif {
-        --bg-color: #ffffff;
-        --text-color: #000000;
-        --card-bg: #f9f9f9;
-        --secondary-bg: #f0f0f0;
-        --border-color: #ddd;
-        --input-bg: #ffffff;
-        --accent-color: #333;
-        --header-bg: #007cba;
-        --header-text: #ffffff;
-    }
-    
-    /* Mode sombre */
-    body.dark .tableau-recapitulatif {
-        --bg-color: #121212;
-        --text-color: #dddddd;
-        --card-bg: #2b2b2b;
-        --secondary-bg: #333333;
-        --border-color: #444444;
-        --input-bg: #2b2b2b;
-        --accent-color: #2A4F9C;
-        --header-bg: #2A4F9C;
-        --header-text: #ffffff;
-    }
-    
-    .tableau-recapitulatif {
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-    }
-    
-    .tableau-recapitulatif .form-container {
-        background-color: var(--card-bg);
-        color: var(--text-color);
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        border: 1px solid var(--border-color);
-    }
-    
-    .tableau-recapitulatif .form-container input,
-    .tableau-recapitulatif .form-container button,
-    .tableau-recapitulatif .form-container a {
-        background-color: var(--input-bg);
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
-    }
-    
-    .tableau-recapitulatif .recap-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        background-color: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    
-    .tableau-recapitulatif .recap-table th {
-        background-color: var(--header-bg);
-        color: var(--header-text);
-        padding: 12px 8px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 11px;
-        border-bottom: 2px solid var(--border-color);
-    }
-    
-    .tableau-recapitulatif .recap-table td {
-        padding: 8px;
-        text-align: center;
-        border-bottom: 1px solid var(--border-color);
-        font-size: 11px;
-        background-color: var(--card-bg);
-        color: var(--text-color);
-    }
-    
-    .tableau-recapitulatif .recap-table .date-col {
-        text-align: left;
-        font-weight: bold;
-        background-color: var(--secondary-bg);
-        width: 100px;
-    }
-    
-    .tableau-recapitulatif .recap-table .montant {
-        text-align: right;
-        font-family: monospace;
-        font-size: 10px;
-    }
-    
-    .tableau-recapitulatif .recap-table .montant.positif {
-        color: #28a745;
-        font-weight: bold;
-    }
-    
-    .tableau-recapitulatif .recap-table .montant.zero {
-        color: #6c757d;
-    }
-    
-    .tableau-recapitulatif .recap-table .total-row {
-        background-color: var(--secondary-bg);
-        font-weight: bold;
-        border-top: 2px solid var(--border-color);
-    }
-    
-    .tableau-recapitulatif .recap-table .grand-total-row {
-        background-color: var(--accent-color);
-        color: var(--header-text);
-        font-weight: bold;
-        font-size: 12px;
-    }
-    
-    .tableau-recapitulatif .section-header {
-        background-color: var(--secondary-bg);
-        color: var(--text-color);
-        font-weight: bold;
-        text-align: center;
-        border-left: 4px solid var(--accent-color);
-    }
-    
-    .tableau-recapitulatif .stats-summary {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin: 20px 0;
-    }
-    
-    .tableau-recapitulatif .stat-card {
-        background-color: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 15px;
-        text-align: center;
-    }
-    
-    .tableau-recapitulatif .stat-card h4 {
-        margin: 0 0 10px 0;
-        color: var(--accent-color);
-        font-size: 14px;
-    }
-    
-    .tableau-recapitulatif .stat-card .stat-value {
-        font-size: 18px;
-        font-weight: bold;
-        color: var(--text-color);
-    }
 
-    @media print {
-        .no-print, .sidebar, header, .menu, nav, button, .content header {
-            display: none !important;
-        }
-        
-        body {
-            margin: 0 !important;
-            padding: 10px !important;
-            background: white !important;
-            color: black !important;
-            font-family: Arial, sans-serif !important;
-            font-size: 8pt !important;
-        }
-        
-        .content {
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            max-width: none !important;
-        }
-        
-        .tableau-recapitulatif .recap-table,
-        .tableau-recapitulatif .recap-table th,
-        .tableau-recapitulatif .recap-table td {
-            background: white !important;
-            color: black !important;
-            border-color: black !important;
-            font-size: 7pt !important;
-        }
-        
-        .tableau-recapitulatif .recap-table th {
-            background: #f0f0f0 !important;
-            color: black !important;
-        }
-        
-        .tableau-recapitulatif .recap-table {
-            page-break-inside: avoid;
-        }
-    }
-</style>
 
 <div class="tableau-recapitulatif">
 
 <div class="no-print">
-    <h1>Tableau Récapitulatif des Règlements</h1>
+    <div class="flex-between-center mb-20">
+        <h1 class="m-0">Tableau Récapitulatif</h1>
+        <a href="index.php?page=dashboard_caisse" class="btn btn-secondary">
+            ← Retour au tableau de bord
+        </a>
+    </div>
     
-    <div class="form-container">
-        <form method="GET" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+    <div class="card p-20 mb-20">
+        <form method="GET" class="flex align-center gap-15 flex-wrap">
             <input type="hidden" name="page" value="tableau_recapitulatif">
             
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label for="date_debut">Du :</label>
+            <div class="flex align-center gap-10">
+                <label for="date_debut" class="font-bold">Du :</label>
                 <input type="date" id="date_debut" name="date_debut" value="<?= htmlspecialchars($date_debut) ?>"
-                       style="padding: 8px; border-radius: 4px;">
+                       class="form-control">
             </div>
             
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <label for="date_fin">Au :</label>
+            <div class="flex align-center gap-10">
+                <label for="date_fin" class="font-bold">Au :</label>
                 <input type="date" id="date_fin" name="date_fin" value="<?= htmlspecialchars($date_fin) ?>"
-                       style="padding: 8px; border-radius: 4px;">
+                       class="form-control">
             </div>
             
-            <div style="display: flex; align-items: center; gap: 15px; padding: 8px; background-color: var(--secondary-bg); border-radius: 4px; border: 1px solid var(--border-color);">
-                <span style="font-weight: bold;">Afficher :</span>
-                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+            <div class="bg-secondary-light p-10 rounded-4 border border-light flex align-center gap-15">
+                <span class="font-bold">Afficher :</span>
+                <label class="flex align-center gap-5 cursor-pointer">
                     <input type="checkbox" name="afficher_cyber" value="1" <?= $afficher_cyber ? 'checked' : '' ?>
-                           style="cursor: pointer;">
+                           class="cursor-pointer">
                     💻 Cyber
                 </label>
-                <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                <label class="flex align-center gap-5 cursor-pointer">
                     <input type="checkbox" name="afficher_transactions" value="1" <?= $afficher_transactions ? 'checked' : '' ?>
-                           style="cursor: pointer;">
+                           class="cursor-pointer">
                     💰 Transactions
                 </label>
             </div>
             
-            <button type="submit" style="padding: 8px 16px; background-color: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                Afficher
-            </button>
-            <button type="button" onclick="window.print()" style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                🖨️ Imprimer
-            </button>
-            <a href="index.php?page=dashboard_caisse" style="padding: 8px 16px; background-color: #666; color: white; text-decoration: none; border-radius: 4px;">
-                ← Retour au tableau de bord
-            </a>
+            <div class="flex gap-10">
+                <button type="submit" class="btn btn-primary">
+                    Afficher
+                </button>
+                <button type="button" onclick="window.print()" class="btn btn-success">
+                    🖨️ Imprimer
+                </button>
+            </div>
         </form>
     </div>
 </div>
 
 <?php if (!empty($errorMessage)): ?>
-    <div style="color: red; margin-bottom: 15px; padding: 10px; border: 1px solid red; background-color: #ffe6e6;">
+    <div class="alert alert-error mb-15">
         <?= $errorMessage ?>
     </div>
 <?php else: ?>
 
-<div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--accent-color, #333); padding-bottom: 10px;">
-    <h1>Récapitulatif des Règlements</h1>
-    <h2>Du <?= date('d/m/Y', strtotime($date_debut)) ?> au <?= date('d/m/Y', strtotime($date_fin)) ?></h2>
+<div class="text-center mb-30 pb-10 border-b-2 border-accent">
+    <h1 class="m-0">Récapitulatif des Règlements</h1>
+    <h2 class="m-0 mt-5 text-muted">Du <?= date('d/m/Y', strtotime($date_debut)) ?> au <?= date('d/m/Y', strtotime($date_fin)) ?></h2>
 </div>
 
 <!-- Résumé statistique -->
@@ -547,7 +362,7 @@ if (isset($pdo)) {
 </table>
 
 <?php if (empty(array_filter($recapitulatif, function($jour) { return $jour['total_jour'] > 0; }))): ?>
-    <div style="text-align: center; padding: 40px; color: #666; font-style: italic;">
+    <div class="p-40 text-center text-muted italic">
         Aucune donnée trouvée pour la période sélectionnée.
     </div>
 <?php endif; ?>

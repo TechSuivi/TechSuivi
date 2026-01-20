@@ -54,155 +54,157 @@ foreach ($historique as $mouvement) {
 }
 ?>
 
-<?php if ($credit): ?>
-    <h1>Historique - <?= htmlspecialchars($credit['nom_client']) ?></h1>
-<?php else: ?>
-    <h1>Historique du crédit</h1>
-<?php endif; ?>
 
-<div style="margin-bottom: 20px;">
-    <a href="index.php?page=cyber_credits_list" style="color: var(--accent-color); text-decoration: none; margin-right: 15px;">
-        ← Retour à la liste des crédits
-    </a>
-    <?php if ($credit): ?>
-        <a href="index.php?page=cyber_credits_add&id=<?= $credit['id'] ?>" style="color: var(--accent-color); text-decoration: none;">
-            ✏️ Modifier ce crédit
+
+<div class="flex-between-center mb-20">
+    <h1 class="m-0">
+        <?php if ($credit): ?>
+            Historique - <?= htmlspecialchars($credit['nom_client']) ?>
+        <?php else: ?>
+            Historique du crédit
+        <?php endif; ?>
+    </h1>
+    <div>
+        <a href="index.php?page=cyber_credits_list" class="btn btn-secondary mr-10">
+            ← Retour à la liste des crédits
         </a>
-    <?php endif; ?>
+        <?php if ($credit): ?>
+            <a href="index.php?page=cyber_credits_add&id=<?= $credit['id'] ?>" class="btn btn-accent">
+                ✏️ Modifier ce crédit
+            </a>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php if (!empty($errorMessage)): ?>
-    <div style="color: red; margin-bottom: 15px; padding: 10px; border: 1px solid red; background-color: #ffe6e6; border-radius: 4px;">
+    <div class="alert alert-error mb-15">
         <?= $errorMessage ?>
     </div>
 <?php elseif ($credit): ?>
     
-    <!-- Informations du crédit -->
-    <div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-            <div>
-                <h3 style="margin: 0 0 10px 0; color: var(--accent-color);">Client</h3>
-                <div style="font-size: 18px; font-weight: bold;"><?= htmlspecialchars($credit['nom_client']) ?></div>
+    <!-- Résumé Global 3 Colonnes -->
+    <div class="card p-0 mb-20 overflow-hidden bg-secondary-light border-light">
+        <div class="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-light">
+            
+            <!-- Colonne 1 : Client & Infos -->
+            <div class="p-15 flex flex-col justify-center">
+                <div class="flex items-center gap-15">
+                    <div class="text-3xl">👤</div>
+                    <div>
+                        <div class="font-bold text-lg mb-2 text-primary"><?= htmlspecialchars($credit['nom_client']) ?></div>
+                        <div class="text-xs text-muted flex flex-col gap-2">
+                            <span>📅 Créé le <?= date('d/m/Y', strtotime($credit['date_creation'])) ?></span>
+                            <span>📝 Modifié le <?= date('d/m/Y', strtotime($credit['date_modification'])) ?></span>
+                        </div>
+                    </div>
+                </div>
                 <?php if (!empty($credit['notes'])): ?>
-                    <div style="color: var(--text-secondary); margin-top: 5px;">
-                        <?= htmlspecialchars($credit['notes']) ?>
+                    <div class="mt-10 pt-10 border-t border-light text-sm text-muted italic">
+                        "<?= htmlspecialchars($credit['notes']) ?>"
                     </div>
                 <?php endif; ?>
             </div>
-            
-            <div>
-                <h3 style="margin: 0 0 10px 0; color: var(--accent-color);">Solde actuel</h3>
+
+            <!-- Colonne 2 : Statistiques (Grille 2x2) -->
+            <div class="p-15 bg-card">
+                <div class="grid grid-cols-2 gap-10 h-full">
+                    <div class="flex flex-col justify-center p-5 rounded hover:bg-secondary-light transition-fast">
+                        <span class="text-muted text-xs uppercase tracking-wide">Mouvements</span>
+                        <span class="font-bold text-accent"><?= $nb_mouvements ?></span>
+                    </div>
+                    <div class="flex flex-col justify-center p-5 rounded hover:bg-secondary-light transition-fast">
+                        <span class="text-muted text-xs uppercase tracking-wide">Différence</span>
+                        <span class="font-bold text-info"><?= number_format($total_ajouts - $total_deductions, 2) ?> €</span>
+                    </div>
+                    <div class="flex flex-col justify-center p-5 rounded hover:bg-secondary-light transition-fast">
+                        <span class="text-muted text-xs uppercase tracking-wide">Total Ajouts</span>
+                        <span class="font-bold text-success">+<?= number_format($total_ajouts, 2) ?> €</span>
+                    </div>
+                    <div class="flex flex-col justify-center p-5 rounded hover:bg-secondary-light transition-fast">
+                        <span class="text-muted text-xs uppercase tracking-wide">Total Déductions</span>
+                        <span class="font-bold text-danger">-<?= number_format($total_deductions, 2) ?> €</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Colonne 3 : Solde Actuel -->
+            <div class="p-15 flex flex-col justify-center items-center lg:items-end text-center lg:text-right">
+                <div class="text-sm text-muted uppercase tracking-wider mb-5">Solde Actuel</div>
                 <?php 
                 $solde = $credit['solde_actuel'];
-                $color = $solde > 0 ? 'var(--success-color, #28a745)' : ($solde < 0 ? 'var(--danger-color, #dc3545)' : 'var(--text-secondary)');
+                $color_class = $solde > 0 ? 'text-success' : ($solde < 0 ? 'text-danger' : 'text-muted');
                 ?>
-                <div style="font-size: 24px; font-weight: bold; color: <?= $color ?>;">
+                <div class="text-4xl font-bold <?= $color_class ?> mb-5">
                     <?= number_format($solde, 2) ?> €
                 </div>
+                <div class="text-xs text-muted">Solde disponible immédiat</div>
             </div>
-            
-            <div>
-                <h3 style="margin: 0 0 10px 0; color: var(--accent-color);">Créé le</h3>
-                <div style="font-size: 16px;">
-                    <?= date('d/m/Y à H:i', strtotime($credit['date_creation'])) ?>
-                </div>
-            </div>
-            
-            <div>
-                <h3 style="margin: 0 0 10px 0; color: var(--accent-color);">Dernière modification</h3>
-                <div style="font-size: 16px;">
-                    <?= date('d/m/Y à H:i', strtotime($credit['date_modification'])) ?>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Statistiques -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
-        <div style="background-color: var(--card-bg); padding: 15px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 20px; font-weight: bold; color: var(--accent-color);"><?= $nb_mouvements ?></div>
-            <div style="color: var(--text-secondary); font-size: 14px;">Mouvements</div>
-        </div>
-        
-        <div style="background-color: var(--card-bg); padding: 15px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 20px; font-weight: bold; color: var(--success-color, #28a745);">+<?= number_format($total_ajouts, 2) ?> €</div>
-            <div style="color: var(--text-secondary); font-size: 14px;">Total ajouts</div>
-        </div>
-        
-        <div style="background-color: var(--card-bg); padding: 15px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 20px; font-weight: bold; color: var(--danger-color, #dc3545);">-<?= number_format($total_deductions, 2) ?> €</div>
-            <div style="color: var(--text-secondary); font-size: 14px;">Total déductions</div>
-        </div>
-        
-        <div style="background-color: var(--card-bg); padding: 15px; border-radius: 8px; text-align: center;">
-            <div style="font-size: 20px; font-weight: bold; color: var(--info-color, #17a2b8);"><?= number_format($total_ajouts - $total_deductions, 2) ?> €</div>
-            <div style="color: var(--text-secondary); font-size: 14px;">Différence</div>
         </div>
     </div>
 
     <!-- Historique des mouvements -->
     <?php if (empty($historique)): ?>
-        <div style="text-align: center; padding: 40px; background-color: var(--card-bg); border-radius: 8px;">
-            <p style="color: var(--text-secondary); font-size: 18px;">Aucun mouvement enregistré</p>
+        <div class="card p-40 text-center">
+            <p class="text-muted text-lg">Aucun mouvement enregistré</p>
         </div>
     <?php else: ?>
-        <div style="background-color: var(--card-bg); border-radius: 8px; overflow: hidden;">
-            <div style="background-color: var(--accent-color); color: white; padding: 15px; font-weight: bold;">
+        <div class="card overflow-hidden">
+            <div class="bg-accent text-white p-15 font-bold">
                 Historique complet des mouvements
             </div>
-            <table style="width: 100%; border-collapse: collapse;">
+            <table class="w-full border-collapse">
                 <thead>
-                    <tr style="background-color: var(--bg-color);">
-                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">Date & Heure</th>
-                        <th style="padding: 12px; text-align: center; border-bottom: 1px solid #ddd;">Type</th>
-                        <th style="padding: 12px; text-align: right; border-bottom: 1px solid #ddd;">Montant</th>
-                        <th style="padding: 12px; text-align: right; border-bottom: 1px solid #ddd;">Solde avant</th>
-                        <th style="padding: 12px; text-align: right; border-bottom: 1px solid #ddd;">Solde après</th>
-                        <th style="padding: 12px; text-align: left; border-bottom: 1px solid #ddd;">Description</th>
-                        <th style="padding: 12px; text-align: center; border-bottom: 1px solid #ddd;">Utilisateur</th>
+                    <tr class="bg-secondary-light">
+                        <th class="p-12 text-left border-b border-light">Date & Heure</th>
+                        <th class="p-12 text-center border-b border-light">Type</th>
+                        <th class="p-12 text-right border-b border-light">Montant</th>
+                        <th class="p-12 text-right border-b border-light">Solde avant</th>
+                        <th class="p-12 text-right border-b border-light">Solde après</th>
+                        <th class="p-12 text-left border-b border-light">Description</th>
+                        <th class="p-12 text-center border-b border-light">Utilisateur</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($historique as $index => $mouvement): ?>
-                        <tr style="border-bottom: 1px solid #eee; <?= $index % 2 === 0 ? 'background-color: var(--bg-color);' : '' ?>">
-                            <td style="padding: 12px;">
-                                <div style="font-weight: bold;"><?= date('d/m/Y', strtotime($mouvement['date_mouvement'])) ?></div>
-                                <div style="color: var(--text-secondary); font-size: 12px;"><?= date('H:i:s', strtotime($mouvement['date_mouvement'])) ?></div>
+                        <tr class="border-b border-light <?= $index % 2 === 0 ? 'bg-secondary-light' : '' ?>">
+                            <td class="p-12">
+                                <div class="font-bold"><?= date('d/m/Y', strtotime($mouvement['date_mouvement'])) ?></div>
+                                <div class="text-muted text-xs"><?= date('H:i:s', strtotime($mouvement['date_mouvement'])) ?></div>
                             </td>
-                            <td style="padding: 12px; text-align: center;">
+                            <td class="p-12 text-center">
                                 <?php
-                                $type_colors = [
-                                    'AJOUT' => 'var(--success-color, #28a745)',
-                                    'DEDUCTION' => 'var(--danger-color, #dc3545)',
-                                    'CORRECTION' => 'var(--warning-color, #ffc107)'
+                                $type_classes = [
+                                    'AJOUT' => 'badge-success',
+                                    'DEDUCTION' => 'badge-danger',
+                                    'CORRECTION' => 'badge-warning'
                                 ];
-                                $color = $type_colors[$mouvement['type_mouvement']] ?? 'var(--text-secondary)';
+                                $badge_class = $type_classes[$mouvement['type_mouvement']] ?? 'badge-secondary';
                                 ?>
-                                <span style="background-color: <?= $color ?>; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                                <span class="badge <?= $badge_class ?>">
                                     <?= $mouvement['type_mouvement'] ?>
                                 </span>
                             </td>
-                            <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 16px;">
+                            <td class="p-12 text-right font-bold text-lg">
                                 <?php if ($mouvement['type_mouvement'] === 'DEDUCTION'): ?>
-                                    <span style="color: var(--danger-color, #dc3545);">-<?= number_format($mouvement['montant'], 2) ?> €</span>
+                                    <span class="text-danger">-<?= number_format($mouvement['montant'], 2) ?> €</span>
                                 <?php else: ?>
-                                    <span style="color: var(--success-color, #28a745);">+<?= number_format($mouvement['montant'], 2) ?> €</span>
+                                    <span class="text-success">+<?= number_format($mouvement['montant'], 2) ?> €</span>
                                 <?php endif; ?>
                             </td>
-                            <td style="padding: 12px; text-align: right; color: var(--text-secondary);">
+                            <td class="p-12 text-right text-muted">
                                 <?= number_format($mouvement['solde_avant'], 2) ?> €
                             </td>
-                            <td style="padding: 12px; text-align: right; font-weight: bold;">
+                            <td class="p-12 text-right font-bold">
                                 <?php
                                 $solde = $mouvement['solde_apres'];
-                                $color = $solde > 0 ? 'var(--success-color, #28a745)' : ($solde < 0 ? 'var(--danger-color, #dc3545)' : 'var(--text-secondary)');
+                                $color_class = $solde > 0 ? 'text-success' : ($solde < 0 ? 'text-danger' : 'text-muted');
                                 ?>
-                                <span style="color: <?= $color ?>;"><?= number_format($solde, 2) ?> €</span>
+                                <span class="<?= $color_class ?>"><?= number_format($solde, 2) ?> €</span>
                             </td>
-                            <td style="padding: 12px;">
+                            <td class="p-12">
                                 <div><?= htmlspecialchars($mouvement['description']) ?></div>
                                 <?php if ($mouvement['session_nom']): ?>
-                                    <div style="margin-top: 5px; padding: 2px 6px; background-color: var(--info-color, #17a2b8); color: white; border-radius: 3px; font-size: 11px; display: inline-block;">
+                                    <div class="mt-5 inline-block badge badge-info">
                                         Session: <?= htmlspecialchars($mouvement['session_nom']) ?>
                                         <?php if ($mouvement['session_date']): ?>
                                             (<?= date('d/m/Y', strtotime($mouvement['session_date'])) ?>)
@@ -210,7 +212,7 @@ foreach ($historique as $mouvement) {
                                     </div>
                                 <?php endif; ?>
                             </td>
-                            <td style="padding: 12px; text-align: center; color: var(--text-secondary); font-size: 12px;">
+                            <td class="p-12 text-center text-muted text-xs">
                                 <?= htmlspecialchars($mouvement['utilisateur'] ?? 'Système') ?>
                             </td>
                         </tr>
@@ -221,21 +223,3 @@ foreach ($historique as $mouvement) {
     <?php endif; ?>
 
 <?php endif; ?>
-
-<div style="margin-top: 30px; padding: 20px; background-color: var(--card-bg); border-radius: 8px;">
-    <h3>Légende</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-        <div>
-            <span style="background-color: var(--success-color, #28a745); color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">AJOUT</span>
-            <span style="margin-left: 10px;">Crédit ajouté au compte</span>
-        </div>
-        <div>
-            <span style="background-color: var(--danger-color, #dc3545); color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">DEDUCTION</span>
-            <span style="margin-left: 10px;">Crédit utilisé ou retiré</span>
-        </div>
-        <div>
-            <span style="background-color: var(--warning-color, #ffc107); color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">CORRECTION</span>
-            <span style="margin-left: 10px;">Ajustement manuel du solde</span>
-        </div>
-    </div>
-</div>

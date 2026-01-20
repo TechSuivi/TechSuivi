@@ -69,15 +69,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['install_system']) && 
         $result = createDirectoryWithPermissions($uploadDir, 0775, true);
         
         if ($result['success']) {
-            $message = '<p style="color: green;">✅ Installation réussie ! Tables créées et dossier d\'upload configuré.</p>';
-            $message .= '<p style="color: blue;">ℹ️ ' . htmlspecialchars($result['message']) . '</p>';
+            $message = '<div class="alert alert-success">✅ Installation réussie ! Tables créées et dossier d\'upload configuré.</div>';
+            $message .= '<div class="alert alert-info">ℹ️ ' . htmlspecialchars($result['message']) . '</div>';
         } else {
-            $message = '<p style="color: red;">❌ Problème lors de la création du dossier d\'upload.</p>';
-            $message .= '<p style="color: orange;">⚠️ ' . htmlspecialchars($result['message']) . '</p>';
-            $message .= getPermissionErrorMessage('installation du système de photos', $uploadDir);
+            $message = '<div class="alert alert-error">❌ Problème lors de la création du dossier d\'upload.</div>';
+            $message .= '<div class="alert alert-warning">⚠️ ' . htmlspecialchars($result['message']) . '</div>';
+            $message .= '<div class="alert alert-error">' . getPermissionErrorMessage('installation du système de photos', $uploadDir) . '</div>';
         }
     } catch (Exception $e) {
-        $message = '<p style="color: red;">❌ Erreur lors de l\'installation : ' . htmlspecialchars($e->getMessage()) . '</p>';
+        $message = '<div class="alert alert-error">❌ Erreur lors de l\'installation : ' . htmlspecialchars($e->getMessage()) . '</div>';
     }
 }
 
@@ -142,12 +142,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_settings']) && i
                 $stmt->execute([':name' => $name, ':value' => $value]);
             }
             
-            $message = '<p style="color: green;">✅ Paramètres sauvegardés avec succès !</p>';
+            $message = '<div class="alert alert-success">✅ Paramètres sauvegardés avec succès !</div>';
         } catch (PDOException $e) {
-            $message = '<p style="color: red;">❌ Erreur lors de la sauvegarde : ' . htmlspecialchars($e->getMessage()) . '</p>';
+            $message = '<div class="alert alert-error">❌ Erreur lors de la sauvegarde : ' . htmlspecialchars($e->getMessage()) . '</div>';
         }
     } else {
-        $message = '<p style="color: red;">❌ ' . implode('<br>', $errors) . '</p>';
+        $message = '<div class="alert alert-error">❌ ' . implode('<br>', $errors) . '</div>';
     }
 }
 
@@ -192,9 +192,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['check_system']) && is
     $allOk = array_reduce($systemStatus, function($carry, $item) { return $carry && $item; }, true);
     
     if ($allOk) {
-        $message = '<p style="color: green;">✅ Système entièrement fonctionnel ! Tous les composants sont opérationnels.</p>';
+        $message = '<div class="alert alert-success">✅ Système entièrement fonctionnel ! Tous les composants sont opérationnels.</div>';
     } else {
-        $message = '<p style="color: orange;">⚠️ Certains composants nécessitent une attention. Voir les détails ci-dessous.</p>';
+        $message = '<div class="alert alert-warning">⚠️ Certains composants nécessitent une attention. Voir les détails ci-dessous.</div>';
     }
 }
 
@@ -222,296 +222,94 @@ if (isset($pdo)) {
 $systemStatus = isset($pdo) ? checkSystemStatus($pdo) : [];
 ?>
 
-<style>
-.settings-container {
-    width: 100%;
-    padding: 0 20px;
-    box-sizing: border-box;
-}
-
-.settings-section {
-    background-color: var(--bg-secondary, #f8f9fa);
-    border: 1px solid var(--border-color, #dee2e6);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-body.dark .settings-section {
-    background-color: #2b2b2b;
-    border-color: #555;
-    color: var(--text-color-dark);
-}
-
-.settings-section h3 {
-    margin-top: 0;
-    color: var(--accent-color);
-    border-bottom: 2px solid var(--accent-color);
-    padding-bottom: 10px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: var(--text-color, #333);
-}
-
-body.dark .form-group label {
-    color: var(--text-color-dark, #e2e8f0);
-}
-
-.settings-container * {
-    box-sizing: border-box;
-}
-
-.form-control {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid var(--border-color, #ccc);
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: var(--input-bg, white);
-    color: var(--text-color, #333);
-    box-sizing: border-box; /* Ensure padding doesn't increase width */
-}
-
-body.dark .form-control {
-    background-color: #1a1a1a;
-    border-color: #555;
-    color: var(--text-color-dark, #e2e8f0);
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 2px rgba(44, 90, 160, 0.2);
-}
-
-.help-text {
-    font-size: 12px;
-    color: var(--text-muted, #666);
-    margin-top: 3px;
-}
-
-body.dark .help-text {
-    color: #aaa;
-}
-
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    margin-right: 10px;
-}
-
-.btn-primary {
-    background-color: var(--accent-color);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #23428a;
-}
-
-.btn-secondary {
-    background-color: #6c757d;
-    color: white;
-}
-
-.btn-secondary:hover {
-    background-color: #545b62;
-}
-
-.preview-box {
-    background-color: var(--bg-color, white);
-    border: 1px solid var(--border-color, #dee2e6);
-    border-radius: 4px;
-    padding: 15px;
-    margin-top: 10px;
-}
-
-body.dark .preview-box {
-    background-color: #1a1a1a;
-    border-color: #555;
-}
-
-.status-item {
-    padding: 10px;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.status-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.status-error {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-body.dark .status-success {
-    background-color: #1e4d2b;
-    border-color: #2d5a3d;
-    color: #a3d9a5;
-}
-
-body.dark .status-error {
-    background-color: #4d1e1e;
-    border-color: #5a2d2d;
-    color: #f5a3a3;
-}
-
-.warning-box {
-    margin-top: 15px;
-    padding: 10px;
-    background-color: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 4px;
-    color: #856404;
-}
-
-body.dark .warning-box {
-    background-color: #4d4419;
-    border-color: #5a4f1f;
-    color: #f4e79d;
-}
-
-.warning-box code {
-    background: #f4f4f4;
-    padding: 2px 4px;
-    border-radius: 3px;
-    color: #333;
-}
-
-body.dark .warning-box code {
-    background: #2a2a2a;
-    color: #e2e8f0;
-}
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 15px;
-    align-items: end; /* Align bottoms of inputs if labels have different heights */
-}
-
-@media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-
-<div class="settings-container">
+<div class="page-header">
     <h1>Paramètres des Photos</h1>
-    
-    <?php echo $message; ?>
-    
+</div>
 
+<?php echo $message; ?>
+
+<form method="POST">
+    <input type="hidden" name="save_settings" value="1">
     
-    <form method="POST">
-        <input type="hidden" name="save_settings" value="1">
-        <div class="settings-section">
-            <h3>Redimensionnement des Images</h3>
-            
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="max_width">Largeur maximale (pixels)</label>
-                    <input type="number" id="max_width" name="max_width" class="form-control" 
-                           value="<?= htmlspecialchars($settings['max_width']) ?>" 
-                           min="100" max="4000" required>
-                    <div class="help-text">Les images plus larges seront redimensionnées</div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="max_height">Hauteur maximale (pixels)</label>
-                    <input type="number" id="max_height" name="max_height" class="form-control" 
-                           value="<?= htmlspecialchars($settings['max_height']) ?>" 
-                           min="100" max="4000" required>
-                    <div class="help-text">Les images plus hautes seront redimensionnées</div>
-                </div>
+    <div class="card mb-20">
+        <h3 class="card-title text-primary mb-15">Redimensionnement des Images</h3>
+        
+        <div class="grid-2 mb-15">
+            <div class="mb-15">
+                <label for="max_width" class="font-bold mb-5 block">Largeur maximale (pixels)</label>
+                <input type="number" id="max_width" name="max_width" class="form-control" 
+                       value="<?= htmlspecialchars($settings['max_width']) ?>" 
+                       min="100" max="4000" required>
+                <div class="text-xs text-muted mt-5">Les images plus larges seront redimensionnées</div>
             </div>
             
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="thumb_size">Taille des miniatures (pixels)</label>
-                    <input type="number" id="thumb_size" name="thumb_size" class="form-control" 
-                           value="<?= htmlspecialchars($settings['thumb_size']) ?>" 
-                           min="50" max="500" required>
-                    <div class="help-text">Taille carrée des miniatures (ex: 300x300)</div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="quality">Qualité JPEG (%)</label>
-                    <input type="number" id="quality" name="quality" class="form-control" 
-                           value="<?= htmlspecialchars($settings['quality']) ?>" 
-                           min="10" max="100" required>
-                    <div class="help-text">Qualité de compression (85% recommandé)</div>
-                </div>
+            <div class="mb-15">
+                <label for="max_height" class="font-bold mb-5 block">Hauteur maximale (pixels)</label>
+                <input type="number" id="max_height" name="max_height" class="form-control" 
+                       value="<?= htmlspecialchars($settings['max_height']) ?>" 
+                       min="100" max="4000" required>
+                <div class="text-xs text-muted mt-5">Les images plus hautes seront redimensionnées</div>
             </div>
         </div>
         
-        <div class="settings-section">
-            <h3>Limites de Fichiers</h3>
+        <div class="grid-2">
+            <div class="mb-15">
+                <label for="thumb_size" class="font-bold mb-5 block">Taille des miniatures (pixels)</label>
+                <input type="number" id="thumb_size" name="thumb_size" class="form-control" 
+                       value="<?= htmlspecialchars($settings['thumb_size']) ?>" 
+                       min="50" max="500" required>
+                <div class="text-xs text-muted mt-5">Taille carrée des miniatures (ex: 300x300)</div>
+            </div>
             
-            <div class="form-group">
-                <label for="max_file_size">Taille maximale par fichier (MB)</label>
-                <input type="number" id="max_file_size" name="max_file_size" class="form-control" 
-                       value="<?= htmlspecialchars($settings['max_file_size']) ?>" 
-                       min="1" max="50" required>
-                <div class="help-text">Taille maximale autorisée pour l'upload</div>
+            <div class="mb-15">
+                <label for="quality" class="font-bold mb-5 block">Qualité JPEG (%)</label>
+                <input type="number" id="quality" name="quality" class="form-control" 
+                       value="<?= htmlspecialchars($settings['quality']) ?>" 
+                       min="10" max="100" required>
+                <div class="text-xs text-muted mt-5">Qualité de compression (85% recommandé)</div>
             </div>
         </div>
-        
-        <div class="settings-section">
-            <h3>Aperçu des Paramètres</h3>
-            <div class="preview-box">
-                <p><strong>Images redimensionnées à :</strong> <span id="preview-size"><?= $settings['max_width'] ?>x<?= $settings['max_height'] ?></span> pixels maximum</p>
-                <p><strong>Miniatures :</strong> <span id="preview-thumb"><?= $settings['thumb_size'] ?>x<?= $settings['thumb_size'] ?></span> pixels</p>
-                <p><strong>Qualité :</strong> <span id="preview-quality"><?= $settings['quality'] ?></span>%</p>
-                <p><strong>Taille max :</strong> <span id="preview-filesize"><?= $settings['max_file_size'] ?></span> MB</p>
-            </div>
-        </div>
-        
-        <div style="margin-top: 20px; display: flex; gap: 15px; align-items: center;">
-            <button type="submit" class="btn btn-primary" style="padding: 12px 24px; font-size: 16px;">
-                 💾 Sauvegarder les Paramètres
-            </button>
-            <a href="index.php?page=interventions_list" class="btn btn-secondary" style="padding: 12px 24px; font-size: 16px;">
-                ← Retour aux Interventions
-            </a>
-        </div>
-    </form>
+    </div>
     
-    <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 20px;">
-        <div class="settings-section" style="background: transparent; border: 1px dashed var(--border-color);">
-            <h3 style="border-bottom: none; margin-bottom: 10px;">📱 Application Mobile</h3>
-            <p style="margin-bottom: 15px;">Utilisez l'application PWA pour envoyer des photos depuis votre mobile.</p>
-            <a href="pwa/" target="_blank" class="btn" style="background-color: #6f42c1; color: white; text-decoration: none;">
-                Ouvrir l'App PWA ↗
-            </a>
+    <div class="card mb-20">
+        <h3 class="card-title text-primary mb-15">Limites de Fichiers</h3>
+        
+        <div class="mb-15">
+            <label for="max_file_size" class="font-bold mb-5 block">Taille maximale par fichier (MB)</label>
+            <input type="number" id="max_file_size" name="max_file_size" class="form-control" 
+                   value="<?= htmlspecialchars($settings['max_file_size']) ?>" 
+                   min="1" max="50" required>
+            <div class="text-xs text-muted mt-5">Taille maximale autorisée pour l'upload</div>
         </div>
+    </div>
+    
+    <div class="card mb-20">
+        <h3 class="card-title text-primary mb-15">Aperçu des Paramètres</h3>
+        <div class="bg-light p-15 border rounded-4">
+            <p class="m-0 mb-5"><strong>Images redimensionnées à :</strong> <span id="preview-size"><?= $settings['max_width'] ?>x<?= $settings['max_height'] ?></span> pixels maximum</p>
+            <p class="m-0 mb-5"><strong>Miniatures :</strong> <span id="preview-thumb"><?= $settings['thumb_size'] ?>x<?= $settings['thumb_size'] ?></span> pixels</p>
+            <p class="m-0 mb-5"><strong>Qualité :</strong> <span id="preview-quality"><?= $settings['quality'] ?></span>%</p>
+            <p class="m-0"><strong>Taille max :</strong> <span id="preview-filesize"><?= $settings['max_file_size'] ?></span> MB</p>
+        </div>
+    </div>
+    
+    <div class="mt-20 flex gap-15 items-center">
+        <button type="submit" class="btn btn-primary">
+                💾 Sauvegarder les Paramètres
+        </button>
+        <a href="index.php?page=interventions_list" class="btn btn-sm-action">
+            ← Retour aux Interventions
+        </a>
+    </div>
+</form>
+
+<div class="mt-30 border-t pt-20">
+    <div class="card" style="background: transparent; border: 1px dashed var(--border-color);">
+        <h3 class="card-title mb-10">📱 Application Mobile</h3>
+        <p class="mb-15">Utilisez l'application PWA pour envoyer des photos depuis votre mobile.</p>
+        <a href="pwa/" target="_blank" class="btn" style="background-color: #6f42c1; color: white;">
+            Ouvrir l'App PWA ↗
+        </a>
     </div>
 </div>
 

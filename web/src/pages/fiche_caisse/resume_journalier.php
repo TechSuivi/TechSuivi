@@ -89,401 +89,95 @@ function afficherDetail($nombre, $valeur, $libelle) {
 }
 ?>
 
-<style>
-    /* Variables CSS pour le thème */
-    .resume-journalier {
-        --bg-color: #ffffff;
-        --text-color: #000000;
-        --card-bg: #f9f9f9;
-        --secondary-bg: #f0f0f0;
-        --border-color: #ddd;
-        --input-bg: #ffffff;
-        --accent-color: #333;
-    }
-    
-    /* Mode sombre */
-    body.dark .resume-journalier {
-        --bg-color: #121212;
-        --text-color: #dddddd;
-        --card-bg: #2b2b2b;
-        --secondary-bg: #333333;
-        --border-color: #444444;
-        --input-bg: #2b2b2b;
-        --accent-color: #2A4F9C;
-    }
-    
-    .resume-journalier {
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-    }
-    
-    .resume-journalier .form-container {
-        background-color: var(--card-bg);
-        color: var(--text-color);
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        border: 1px solid var(--border-color);
-    }
-    
-    .resume-journalier .form-container input,
-    .resume-journalier .form-container button,
-    .resume-journalier .form-container a {
-        background-color: var(--input-bg);
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
-    }
-    
-    .resume-journalier .section {
-        background-color: var(--card-bg);
-        color: var(--text-color);
-        margin-bottom: 20px;
-        break-inside: avoid;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-    }
-    
-    .resume-journalier .section h3 {
-        background-color: var(--secondary-bg);
-        color: var(--text-color);
-        padding: 8px;
-        margin: -15px -15px 10px -15px;
-        border-left: 4px solid var(--accent-color);
-        border-radius: 8px 8px 0 0;
-    }
-    
-    .resume-journalier table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-        background-color: var(--card-bg);
-    }
-    
-    .resume-journalier th,
-    .resume-journalier td {
-        padding: 6px;
-        text-align: left;
-        border-bottom: 1px solid var(--border-color);
-        font-size: 11px;
-        background-color: var(--card-bg);
-        color: var(--text-color);
-    }
-    
-    .resume-journalier th {
-        background-color: var(--secondary-bg);
-        font-weight: bold;
-    }
-    
-    .resume-journalier .total-row {
-        background-color: var(--secondary-bg);
-        font-weight: bold;
-    }
-    
-    .resume-journalier .montant-positif { color: #4CAF50; font-weight: bold; }
-    .resume-journalier .montant-negatif { color: #F44336; font-weight: bold; }
-    
-    .resume-journalier .total-final {
-        background-color: var(--accent-color);
-        color: white;
-        padding: 15px;
-        text-align: center;
-        font-size: 16px;
-        font-weight: bold;
-        margin: 20px 0;
-        border-radius: 8px;
-    }
-    
-    .resume-journalier .feuille-details {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-        margin: 15px 0;
-    }
-    
-    .resume-journalier .detail-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
-    }
-    
-    .resume-journalier .detail-table {
-        background-color: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        overflow: hidden;
-        margin-bottom: 10px;
-    }
-    
-    .resume-journalier .detail-table h4 {
-        background-color: var(--secondary-bg);
-        color: var(--text-color);
-        margin: 0;
-        padding: 8px;
-        font-size: 12px;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    @media print {
-        .no-print, .sidebar, header, .menu, nav, button, .content header {
-            display: none !important;
-        }
-        
-        .sidebar, .menu, .menu-item, .submenu {
-            display: none !important;
-        }
-        
-        header, footer, .header, .footer {
-            display: none !important;
-        }
-        
-        .logo, .sidebar-footer, .theme-toggle {
-            display: none !important;
-        }
-        
-        .total-final {
-            display: none !important;
-        }
-        
-        body {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            color: black !important;
-            font-family: Arial, sans-serif !important;
-            font-size: 10pt !important;
-        }
-        
-        html {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        
-        .resume-journalier {
-            margin: 0 !important;
-            padding: 10px !important;
-        }
-        
-        @page {
-            margin: 0;
-            size: A4;
-        }
-        
-        /* Tentative de masquage des en-têtes/pieds de page du navigateur */
-        @page :first {
-            margin-top: 0;
-        }
-        
-        @page :left {
-            margin: 0;
-        }
-        
-        @page :right {
-            margin: 0;
-        }
-        
-        .content {
-            margin: 0 !important;
-            padding: 0 !important;
-            width: 100% !important;
-            max-width: none !important;
-        }
-        
-        .resume-journalier .section,
-        .resume-journalier .form-container,
-        .resume-journalier table,
-        .resume-journalier th,
-        .resume-journalier td,
-        .resume-journalier div,
-        .resume-journalier p,
-        .resume-journalier span {
-            background: white !important;
-            color: black !important;
-            border-color: black !important;
-        }
-        
-        .resume-journalier .section h3 {
-            background: #f0f0f0 !important;
-            color: black !important;
-            border-left: none !important;
-            margin: 0 !important;
-            border-radius: 8px 8px 0 0 !important;
-        }
-        
-        .resume-journalier table {
-            font-size: 8pt !important;
-            border: 1px solid black !important;
-        }
-        
-        .resume-journalier th,
-        .resume-journalier td {
-            padding: 2px !important;
-            border: 1px solid black !important;
-            font-size: 8pt !important;
-        }
-        
-        .resume-journalier .section {
-            margin-bottom: 10px !important;
-            padding: 8px !important;
-            border: 1px solid black !important;
-        }
-        
-        .resume-journalier .total-final {
-            background: #333 !important;
-            color: white !important;
-            margin: 10px 0 !important;
-            padding: 10px !important;
-        }
-        
-        .resume-journalier .section,
-        .resume-journalier table,
-        .resume-journalier .detail-table {
-            page-break-inside: avoid;
-        }
-    }
 
-    /* Styles spécifiques pour la génération PDF (identiques à l'impression) */
-    .generating-pdf .section,
-    .generating-pdf .form-container,
-    .generating-pdf table,
-    .generating-pdf th,
-    .generating-pdf td,
-    .generating-pdf div,
-    .generating-pdf p,
-    .generating-pdf span {
-        background: white !important;
-        color: black !important;
-        border-color: black !important;
-        box-sizing: border-box !important;
-    }
-    
-    .generating-pdf * {
-        box-sizing: border-box !important;
-    }
-    
-    .generating-pdf .section h3 {
-        background: #f0f0f0 !important;
-        color: black !important;
-        border-left: none !important;
-        margin: 0 !important;
-        border-radius: 8px 8px 0 0 !important;
-    }
-    
-    .generating-pdf table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-        font-size: 9pt !important; /* Slightly larger for readability */
-        margin: 0 !important;
-    }
-    
-    .generating-pdf th,
-    .generating-pdf td {
-        padding: 4px !important; /* More breathing room */
-        border: 1px solid #333 !important; /* Slightly softer black */
-        font-size: 9pt !important;
-    }
-    
-    .generating-pdf .section {
-        margin-bottom: 10px !important;
-        padding: 8px !important;
-        border: 1px solid black !important;
-        box-shadow: none !important;
-        border-radius: 8px !important;
-    }
 
-    .generating-pdf .detail-table {
-        border: 1px solid black !important;
-        border-radius: 6px !important;
-        overflow: hidden !important;
-    }
-    
-    .generating-pdf .total-final {
-        display: none !important;
-    }
-
-    .generating-pdf .montant-positif,
-    .generating-pdf .montant-negatif {
-        color: black !important; /* Force black for PDF readability if desired, or keep colors */
-    }
-</style>
+<div class="resume-journalier">
 
 <div class="resume-journalier">
 
 <div class="no-print">
-    <h1>Résumé Journalier</h1>
+    <div class="flex-between-center mb-20">
+        <h1 class="m-0">Résumé Journalier</h1>
+        <a href="index.php?page=dashboard_caisse" class="btn btn-secondary">
+            ← Retour au tableau de bord
+        </a>
+    </div>
     
-    <div class="form-container">
-        <form method="GET" style="display: flex; align-items: center; gap: 15px;">
+    <div class="card p-20 mb-20">
+        <form method="GET" class="flex align-center gap-15 flex-wrap">
             <input type="hidden" name="page" value="resume_journalier">
-            <label for="date">Date :</label>
-            <input type="date" id="date" name="date" value="<?= htmlspecialchars($date_selectionnee) ?>"
-                   style="padding: 8px; border-radius: 4px;">
-            <button type="submit" style="padding: 8px 16px; background-color: #007cba; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            
+            <div class="flex align-center gap-10">
+                <label for="date" class="font-bold">Date :</label>
+                <input type="date" id="date" name="date" value="<?= htmlspecialchars($date_selectionnee) ?>"
+                       class="form-control">
+            </div>
+            
+            <button type="submit" class="btn btn-primary">
                 Afficher
             </button>
+            
             <?php
             // Calculer la date précédente
             $date_precedente = date('Y-m-d', strtotime($date_selectionnee . ' -1 day'));
             ?>
             <a href="index.php?page=resume_journalier&date=<?= $date_precedente ?>"
-               style="padding: 8px 16px; background-color: #FF9800; color: white; text-decoration: none; border-radius: 4px; cursor: pointer;"
+               class="btn btn-warning"
                title="Résumé du <?= date('d/m/Y', strtotime($date_precedente)) ?>">
                 ← Jour précédent
             </a>
-            <button type="button" onclick="downloadPDF()" style="padding: 8px 16px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                📥 PDF
-            </button>
-            <button type="button" onclick="sendPDFByEmail()" id="btn-email-pdf" style="padding: 8px 16px; background-color: #0d6efd; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                ✉️ Envoyer par Mail
-            </button>
-            <button type="button" onclick="window.print()" style="padding: 8px 16px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                🖨️ Imprimer
-            </button>
-            <a href="index.php?page=dashboard_caisse" style="padding: 8px 16px; background-color: #666; color: white; text-decoration: none; border-radius: 4px;">
-                ← Retour au tableau de bord
-            </a>
+            
+            <div class="flex gap-10">
+                <button type="button" onclick="downloadPDF()" class="btn btn-danger">
+                    📥 PDF
+                </button>
+                <button type="button" onclick="sendPDFByEmail()" id="btn-email-pdf" class="btn btn-info">
+                    ✉️ Envoyer par Mail
+                </button>
+                <button type="button" onclick="window.print()" class="btn btn-success">
+                    🖨️ Imprimer
+                </button>
+            </div>
         </form>
     </div>
 </div>
 
 <?php if (!empty($errorMessage)): ?>
-    <div style="color: red; margin-bottom: 15px; padding: 10px; border: 1px solid red; background-color: #ffe6e6;">
+    <div class="alert alert-error mb-15">
         <?= $errorMessage ?>
     </div>
 <?php else: ?>
 
-<div id="pdf-content" style="padding: 20px;">
-<div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--accent-color, #333); padding-bottom: 10px;">
-    <h1>Résumé Journalier - <?= date('d/m/Y', strtotime($date_selectionnee)) ?></h1>
+<div id="pdf-content" class="p-20">
+<div class="text-center mb-30 pb-10 border-b-2 border-accent">
+    <h1 class="m-0">Résumé Journalier - <?= date('d/m/Y', strtotime($date_selectionnee)) ?></h1>
 </div>
 
 <!-- Total final -->
-<div class="total-final">
+<div class="resume-journalier-total-final">
     Total Final de la Journée : <?= number_format($resume['totaux']['total_final'], 2) ?> €
 </div>
 
 <!-- Détail de la feuille de caisse -->
-<div class="section">
+<div class="resume-journalier-section">
     <h3>📊 Feuille de Caisse</h3>
     <?php if ($resume['feuille_caisse']): ?>
-        <div class="feuille-details">
+        <div class="resume-journalier-feuille-details">
             <div><strong>Date :</strong> <?= date('d/m/Y H:i', strtotime($resume['feuille_caisse']['date_comptage'])) ?></div>
             <div><strong>Total :</strong> <span class="montant-positif"><?= number_format($resume['feuille_caisse']['total_caisse'], 2) ?> €</span></div>
         </div>
         
         <!-- Détail des pièces, billets et totaux -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin: 20px 0;">
+        <div class="grid-3 gap-15 my-20">
             <!-- Détail des pièces -->
-            <div class="detail-table">
+            <div class="resume-journalier-detail-table">
                 <h4>🪙 Détail des Pièces</h4>
-                <table style="margin: 0;">
+                <table class="m-0 resume-journalier-table">
                     <thead>
                         <tr>
-                            <th style="font-size: 10px;">Valeur</th>
-                            <th style="font-size: 10px; text-align: center;">Qté</th>
-                            <th style="font-size: 10px; text-align: right;">Total</th>
+                            <th class="text-xs">Valeur</th>
+                            <th class="text-xs text-center">Qté</th>
+                            <th class="text-xs text-right">Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -496,9 +190,9 @@ function afficherDetail($nombre, $valeur, $libelle) {
                         <?= afficherDetail($resume['feuille_caisse']['pieces_100'], 1.00, '1,00 €') ?>
                         <?= afficherDetail($resume['feuille_caisse']['pieces_200'], 2.00, '2,00 €') ?>
                         <tr class="total-row">
-                            <td style="padding: 6px; font-size: 10px; font-weight: bold;">TOTAL</td>
-                            <td style="padding: 6px; text-align: center; font-size: 10px;">-</td>
-                            <td style="padding: 6px; text-align: right; font-weight: bold; font-size: 10px;">
+                            <td class="p-6 text-xs font-bold">TOTAL</td>
+                            <td class="p-6 text-center text-xs">-</td>
+                            <td class="p-6 text-right font-bold text-xs">
                                 <?= number_format($resume['feuille_caisse']['total_pieces'], 2) ?> €
                             </td>
                         </tr>
@@ -507,14 +201,14 @@ function afficherDetail($nombre, $valeur, $libelle) {
             </div>
 
             <!-- Détail des billets -->
-            <div class="detail-table">
+            <div class="resume-journalier-detail-table">
                 <h4>💵 Détail des Billets</h4>
-                <table style="margin: 0;">
+                <table class="m-0 resume-journalier-table">
                     <thead>
                         <tr>
-                            <th style="font-size: 10px;">Valeur</th>
-                            <th style="font-size: 10px; text-align: center;">Qté</th>
-                            <th style="font-size: 10px; text-align: right;">Total</th>
+                            <th class="text-xs">Valeur</th>
+                            <th class="text-xs text-center">Qté</th>
+                            <th class="text-xs text-right">Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -526,9 +220,9 @@ function afficherDetail($nombre, $valeur, $libelle) {
                         <?= afficherDetail($resume['feuille_caisse']['billets_200'], 200, '200 €') ?>
                         <?= afficherDetail($resume['feuille_caisse']['billets_500'], 500, '500 €') ?>
                         <tr class="total-row">
-                            <td style="padding: 6px; font-size: 10px; font-weight: bold;">TOTAL</td>
-                            <td style="padding: 6px; text-align: center; font-size: 10px;">-</td>
-                            <td style="padding: 6px; text-align: right; font-weight: bold; font-size: 10px;">
+                            <td class="p-6 text-xs font-bold">TOTAL</td>
+                            <td class="p-6 text-center text-xs">-</td>
+                            <td class="p-6 text-right font-bold text-xs">
                                 <?= number_format($resume['feuille_caisse']['total_billets'], 2) ?> €
                             </td>
                         </tr>
@@ -537,45 +231,45 @@ function afficherDetail($nombre, $valeur, $libelle) {
             </div>
 
             <!-- Totaux et récapitulatif -->
-            <div class="detail-table">
+            <div class="resume-journalier-detail-table">
                 <h4>📊 Récapitulatif</h4>
-                <table style="margin: 0;">
+                <table class="m-0 resume-journalier-table">
                     <tbody>
                         <tr>
-                            <td style="padding: 6px; font-size: 10px; font-weight: bold;">🪙 Pièces</td>
-                            <td style="padding: 6px; text-align: right; font-size: 10px; color: #17a2b8; font-weight: bold;">
+                            <td class="p-6 text-xs font-bold">🪙 Pièces</td>
+                            <td class="p-6 text-right text-xs font-bold text-info">
                                 <?= number_format($resume['feuille_caisse']['total_pieces'], 2) ?> €
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding: 6px; font-size: 10px; font-weight: bold;">💵 Billets</td>
-                            <td style="padding: 6px; text-align: right; font-size: 10px; color: #28a745; font-weight: bold;">
+                            <td class="p-6 text-xs font-bold">💵 Billets</td>
+                            <td class="p-6 text-right text-xs font-bold text-success">
                                 <?= number_format($resume['feuille_caisse']['total_billets'], 2) ?> €
                             </td>
                         </tr>
-                        <tr style="background-color: var(--secondary-bg, #f8f9fa);">
-                            <td style="padding: 6px; font-size: 10px; font-weight: bold;">💰 Espèces (Pièces + Billets)</td>
-                            <td style="padding: 6px; text-align: right; font-size: 10px; color: #007bff; font-weight: bold;">
+                        <tr class="bg-secondary-light">
+                            <td class="p-6 text-xs font-bold">💰 Espèces (Pièces + Billets)</td>
+                            <td class="p-6 text-right text-xs font-bold text-primary">
                                 <?= number_format($resume['feuille_caisse']['total_especes'], 2) ?> €
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding: 6px; font-size: 10px; font-weight: bold;">📄 Chèques</td>
-                            <td style="padding: 6px; text-align: right; font-size: 10px; color: #ffc107; font-weight: bold;">
+                            <td class="p-6 text-xs font-bold">📄 Chèques</td>
+                            <td class="p-6 text-right text-xs font-bold text-warning">
                                 <?= number_format($resume['feuille_caisse']['montant_cheques'], 2) ?> €
                             </td>
                         </tr>
                         <?php if (!empty($resume['feuille_caisse']['nb_cheques'])): ?>
                         <tr>
-                            <td style="padding: 6px; font-size: 9px; color: #666; padding-left: 20px;">Nombre de chèques</td>
-                            <td style="padding: 6px; text-align: right; font-size: 9px; color: #666;">
+                            <td class="p-6 text-xs text-muted pl-20">Nombre de chèques</td>
+                            <td class="p-6 text-right text-xs text-muted">
                                 <?= $resume['feuille_caisse']['nb_cheques'] ?>
                             </td>
                         </tr>
                         <?php endif; ?>
-                        <tr class="total-row" style="border-top: 2px solid var(--border-color, #ddd);">
-                            <td style="padding: 8px 6px; font-size: 11px; font-weight: bold;">🏦 TOTAL CAISSE</td>
-                            <td style="padding: 8px 6px; text-align: right; font-size: 11px; font-weight: bold; color: #333;">
+                        <tr class="total-row border-t-2 border-light">
+                            <td class="p-8 text-xs font-bold">🏦 TOTAL CAISSE</td>
+                            <td class="p-8 text-right text-xs font-bold text-accent">
                                 <?= number_format($resume['feuille_caisse']['total_caisse'], 2) ?> €
                             </td>
                         </tr>
@@ -592,50 +286,50 @@ function afficherDetail($nombre, $valeur, $libelle) {
                 $cheques_details = json_decode($resume['feuille_caisse']['cheques_details'], true) ?: [];
             }
             ?>
-            <div style="margin-top: 20px;">
-                <h4 style="margin: 0 0 10px 0; padding: 8px; background-color: var(--secondary-bg, #f8f9fa); border-radius: 6px; font-size: 12px;">
+            <div class="mt-20">
+                <h4 class="m-0 mb-10 p-8 bg-secondary border rounded-4 text-sm font-bold">
                     📄 Détail des Chèques (<?= $resume['feuille_caisse']['nb_cheques'] ?? count($cheques_details) ?> chèque<?= ($resume['feuille_caisse']['nb_cheques'] ?? count($cheques_details)) > 1 ? 's' : '' ?>)
                 </h4>
                 
                 <?php if (!empty($cheques_details)): ?>
-                    <table style="width: 100%; margin: 0; border-collapse: collapse;">
+                    <table class="w-full m-0 border-collapse">
                         <thead>
                             <tr>
-                                <th style="padding: 8px; text-align: left; background-color: var(--secondary-bg, #f8f9fa); border: 1px solid var(--border-color, #ddd); font-size: 10px;">Montant</th>
-                                <th style="padding: 8px; text-align: left; background-color: var(--secondary-bg, #f8f9fa); border: 1px solid var(--border-color, #ddd); font-size: 10px;">Émetteur</th>
-                                <th style="padding: 8px; text-align: left; background-color: var(--secondary-bg, #f8f9fa); border: 1px solid var(--border-color, #ddd); font-size: 10px;">N° Chèque</th>
+                                <th class="p-8 text-left bg-secondary border text-xs">Montant</th>
+                                <th class="p-8 text-left bg-secondary border text-xs">Émetteur</th>
+                                <th class="p-8 text-left bg-secondary border text-xs">N° Chèque</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($cheques_details as $cheque): ?>
                                 <tr>
-                                    <td style="padding: 6px 8px; border: 1px solid var(--border-color, #ddd); font-weight: bold; color: #ffc107; font-size: 10px;">
+                                    <td class="p-6 border font-bold text-warning text-xs">
                                         <?= number_format($cheque['montant'], 2) ?> €
                                     </td>
-                                    <td style="padding: 6px 8px; border: 1px solid var(--border-color, #ddd); font-size: 10px;">
+                                    <td class="p-6 border text-xs">
                                         <?= htmlspecialchars($cheque['emetteur'] ?: 'Non renseigné') ?>
                                     </td>
-                                    <td style="padding: 6px 8px; border: 1px solid var(--border-color, #ddd); font-size: 10px;">
+                                    <td class="p-6 border text-xs">
                                         <?= htmlspecialchars($cheque['numero'] ?: 'Non renseigné') ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                             <tr class="total-row">
-                                <td style="padding: 8px; border: 1px solid var(--border-color, #ddd); font-weight: bold; background-color: var(--secondary-bg, #f8f9fa); font-size: 10px;">
+                                <td class="p-8 border font-bold bg-secondary text-xs">
                                     TOTAL
                                 </td>
-                                <td style="padding: 8px; border: 1px solid var(--border-color, #ddd); background-color: var(--secondary-bg, #f8f9fa); font-size: 10px;">
+                                <td class="p-8 border bg-secondary text-xs">
                                     <?= count($cheques_details) ?> chèque<?= count($cheques_details) > 1 ? 's' : '' ?>
                                 </td>
-                                <td style="padding: 8px; border: 1px solid var(--border-color, #ddd); font-weight: bold; color: #ffc107; background-color: var(--secondary-bg, #f8f9fa); font-size: 10px;">
+                                <td class="p-8 border font-bold text-warning bg-secondary text-xs">
                                     <?= number_format($resume['feuille_caisse']['montant_cheques'], 2) ?> €
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <div style="padding: 10px; background-color: var(--secondary-bg, #f8f9fa); border-radius: 4px; font-size: 11px; color: #666; text-align: center;">
-                        Montant total des chèques : <strong style="color: #ffc107;"><?= number_format($resume['feuille_caisse']['montant_cheques'], 2) ?> €</strong><br>
+                    <div class="p-10 bg-secondary rounded-4 text-xs text-muted text-center">
+                        Montant total des chèques : <strong class="text-warning"><?= number_format($resume['feuille_caisse']['montant_cheques'], 2) ?> €</strong><br>
                         <em>Détail des chèques non disponible</em>
                     </div>
                 <?php endif; ?>
@@ -643,30 +337,30 @@ function afficherDetail($nombre, $valeur, $libelle) {
         <?php endif; ?>
 
         <?php if (!empty($resume['feuille_caisse']['commentaire'])): ?>
-            <div style="margin-top: 15px;">
-                <strong>Commentaire :</strong>
-                <div style="background-color: var(--secondary-bg, #f8f9fa); padding: 10px; border-radius: 4px; margin-top: 5px; font-size: 11px;">
+            <div class="mt-15">
+                <strong class="text-sm">Commentaire :</strong>
+                <div class="bg-secondary p-10 rounded-4 mt-5 text-sm">
                     <?= nl2br(htmlspecialchars($resume['feuille_caisse']['commentaire'])) ?>
                 </div>
             </div>
         <?php endif; ?>
     <?php else: ?>
-        <p style="font-style: italic;">Aucune feuille de caisse enregistrée pour cette date.</p>
+        <p class="italic text-muted">Aucune feuille de caisse enregistrée pour cette date.</p>
     <?php endif; ?>
 </div>
 
 <!-- Sessions cyber -->
-<div class="section">
+<div class="resume-journalier-section">
     <h3>💻 Sessions Cyber (<?= count($resume['sessions_cyber']) ?>) - Total : <?= number_format($resume['totaux']['recettes_cyber'], 2) ?> €</h3>
     <?php if (!empty($resume['sessions_cyber'])): ?>
-        <table>
+        <table class="resume-journalier-table">
             <thead>
                 <tr>
                     <th>Heure</th>
                     <th>Client</th>
                     <th>Durée</th>
                     <th>Impressions</th>
-                    <th style="text-align: right;">Tarif</th>
+                    <th class="text-right">Tarif</th>
                 </tr>
             </thead>
             <tbody>
@@ -688,7 +382,7 @@ function afficherDetail($nombre, $valeur, $libelle) {
                                 -
                             <?php endif; ?>
                         </td>
-                        <td style="text-align: right;" class="montant-positif">
+                        <td class="text-right montant-positif">
                             <?= number_format($session['tarif'] ?? 0, 2) ?> €
                         </td>
                     </tr>
@@ -696,15 +390,15 @@ function afficherDetail($nombre, $valeur, $libelle) {
             </tbody>
         </table>
     <?php else: ?>
-        <p style="font-style: italic;">Aucune session cyber enregistrée.</p>
+        <p class="italic text-muted">Aucune session cyber enregistrée.</p>
     <?php endif; ?>
 </div>
 
 <!-- Transactions -->
-<div class="section">
+<div class="resume-journalier-section">
     <h3>💰 Transactions (<?= count($resume['transactions']) ?>) - Solde : <?= number_format($resume['totaux']['solde_journee'], 2) ?> €</h3>
     <?php if (!empty($resume['transactions'])): ?>
-        <table>
+        <table class="resume-journalier-table">
             <thead>
                 <tr>
                     <th>Heure</th>
@@ -712,7 +406,7 @@ function afficherDetail($nombre, $valeur, $libelle) {
                     <th>Moyen</th>
                     <th>Acompte</th>
                     <th>Solde</th>
-                    <th style="text-align: right;">Montant</th>
+                    <th class="text-right">Montant</th>
                     <th>N° Facture</th>
                 </tr>
             </thead>
@@ -731,7 +425,7 @@ function afficherDetail($nombre, $valeur, $libelle) {
                             <?= htmlspecialchars($transaction['type']) ?>
                             <?php if (stripos($transaction['type'], 'chèque') !== false || stripos($transaction['type'], 'cheque') !== false): ?>
                                 <?php if (!empty($transaction['banque']) || !empty($transaction['num_cheque'])): ?>
-                                    <br><small style="font-size: 9px; color: #666;">
+                                    <br><small class="text-xs text-muted">
                                         <?php if (!empty($transaction['banque'])): ?>
                                             <?= htmlspecialchars($transaction['banque']) ?>
                                         <?php endif; ?>
@@ -745,7 +439,7 @@ function afficherDetail($nombre, $valeur, $libelle) {
                         </td>
                         <td><?= $transaction['acompte'] ? number_format($transaction['acompte'], 2) . ' €' : '-' ?></td>
                         <td><?= $transaction['solde'] ? number_format($transaction['solde'], 2) . ' €' : '-' ?></td>
-                        <td style="text-align: right;" class="montant-positif">
+                        <td class="text-right montant-positif">
                             <?= number_format($transaction['montant'], 2) ?> €
                         </td>
                         <td><?= htmlspecialchars($transaction['num_facture'] ?? '') ?></td>
@@ -754,7 +448,7 @@ function afficherDetail($nombre, $valeur, $libelle) {
             </tbody>
         </table>
     <?php else: ?>
-        <p style="font-style: italic;">Aucune transaction enregistrée.</p>
+        <p class="italic text-muted">Aucune transaction enregistrée.</p>
     <?php endif; ?>
 </div>
 

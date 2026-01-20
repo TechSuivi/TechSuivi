@@ -589,11 +589,12 @@ function showInstallInstructions() {
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
     
-    // Fermer en cliquant à l'extérieur
+    /* Fermer en cliquant à l'extérieur - DESACTIVE à la demande de l'utilisateur
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.remove();
         }
     });
+    */
 }
 </script>

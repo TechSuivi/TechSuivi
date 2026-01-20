@@ -94,46 +94,48 @@ function calculerPrixSession($ha, $hd, $imp, $imp_c, $tarif) {
 <h1>Tableau de Bord - Fiche de Caisse</h1>
 
 <?php if (!empty($errorMessage)): ?>
-    <p style="color: red;"><?= htmlspecialchars($errorMessage) ?></p>
+    <div class="alert alert-error"><?= htmlspecialchars($errorMessage) ?></div>
 <?php else: ?>
 
 <!-- Statistiques principales -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
-    <div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #4CAF50;">
-        <h3 style="margin: 0; color: #4CAF50;">Sessions Aujourd'hui</h3>
-        <p style="font-size: 32px; font-weight: bold; margin: 10px 0; color: #4CAF50;">
+<div class="stats-grid">
+    <div class="card text-center border-left-green">
+        <h3 class="card-title text-green">Sessions Aujourd'hui</h3>
+        <p class="kpi-value text-green">
             <?= $stats['sessions_aujourd_hui'] ?>
         </p>
     </div>
     
-    <div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #2196F3;">
-        <h3 style="margin: 0; color: #2196F3;">Recettes Aujourd'hui</h3>
-        <p style="font-size: 32px; font-weight: bold; margin: 10px 0; color: #2196F3;">
+    <div class="card text-center border-left-blue">
+        <h3 class="card-title text-blue">Recettes Aujourd'hui</h3>
+        <p class="kpi-value text-blue">
             <?= number_format($stats['recettes_aujourd_hui'], 2) ?> €
         </p>
     </div>
     
-    <div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #FF9800;">
-        <h3 style="margin: 0; color: #FF9800;">Total Transactions</h3>
-        <p style="font-size: 32px; font-weight: bold; margin: 10px 0; color: #FF9800;">
+    <div class="card text-center border-left-orange">
+        <h3 class="card-title text-orange">Total Transactions</h3>
+        <p class="kpi-value text-orange">
             <?= $stats['total_transactions'] ?>
         </p>
     </div>
     
-    <div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid <?= $stats['solde_total'] >= 0 ? '#4CAF50' : '#F44336' ?>;">
-        <h3 style="margin: 0; color: <?= $stats['solde_total'] >= 0 ? '#4CAF50' : '#F44336' ?>;">Solde Total</h3>
-        <p style="font-size: 32px; font-weight: bold; margin: 10px 0; color: <?= $stats['solde_total'] >= 0 ? '#4CAF50' : '#F44336' ?>;">
+    <?php $soldeClass = $stats['solde_total'] >= 0 ? 'text-green' : 'text-red'; 
+          $borderClass = $stats['solde_total'] >= 0 ? 'border-left-green' : 'border-left-red'; ?>
+    <div class="card text-center <?= $borderClass ?>">
+        <h3 class="card-title <?= $soldeClass ?>">Solde Total</h3>
+        <p class="kpi-value <?= $soldeClass ?>">
             <?= number_format($stats['solde_total'], 2) ?> €
         </p>
     </div>
     
-    <div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px; text-align: center; border-left: 4px solid #9C27B0;">
-        <h3 style="margin: 0; color: #9C27B0;">Dernière Feuille</h3>
-        <p style="font-size: 28px; font-weight: bold; margin: 10px 0; color: #9C27B0;">
+    <div class="card text-center border-left-purple">
+        <h3 class="card-title text-purple">Dernière Feuille</h3>
+        <p class="kpi-value text-purple">
             <?= number_format($stats['derniere_feuille'], 2) ?> €
         </p>
         <?php if (isset($stats['date_derniere_feuille'])): ?>
-            <small style="color: #666;">
+            <small class="text-muted">
                 <?= date('d/m/Y', strtotime($stats['date_derniere_feuille'])) ?>
             </small>
         <?php endif; ?>
@@ -141,70 +143,70 @@ function calculerPrixSession($ha, $hd, $imp, $imp_c, $tarif) {
 </div>
 
 <!-- Actions rapides -->
-<div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+<div class="card mb-25">
     <h2>Actions Rapides</h2>
     
     <!-- Rapports & Analyses -->
-    <div style="margin-bottom: 20px;">
-        <h3 style="font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+    <div class="mb-25">
+        <h3 class="section-header-sm">
             📈 Rapports & Analyses
         </h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            <a href="index.php?page=resume_journalier" class="button-like" style="text-decoration: none; padding: 10px 16px; background-color: #FF5722; color: white; border-radius: 4px; font-size: 14px;">
+        <div class="flex-wrap gap-15" style="display: flex;">
+            <a href="index.php?page=resume_journalier" class="button-like bg-orange">
                 📄 Résumé Journalier
             </a>
-            <a href="index.php?page=tableau_recapitulatif" class="button-like" style="text-decoration: none; padding: 10px 16px; background-color: #795548; color: white; border-radius: 4px; font-size: 14px;">
+            <a href="index.php?page=tableau_recapitulatif" class="button-like bg-brown">
                 📈 Tableau Récapitulatif
             </a>
         </div>
     </div>
     
     <!-- Gestion de Caisse -->
-    <div style="margin-bottom: 20px;">
-        <h3 style="font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+    <div class="mb-25">
+        <h3 class="section-header-sm">
             📋 Gestion de Caisse
         </h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            <a href="index.php?page=feuille_caisse_add" class="button-like" style="text-decoration: none; padding: 10px 16px; background-color: #9C27B0; color: white; border-radius: 4px; font-size: 14px;">
+        <div class="flex-wrap gap-15" style="display: flex;">
+            <a href="index.php?page=feuille_caisse_add" class="button-like bg-purple">
                 📋 Nouvelle Feuille de Caisse
             </a>
-            <a href="index.php?page=feuille_caisse_list" class="button-like" style="text-decoration: none; padding: 10px 16px; background-color: #673AB7; color: white; border-radius: 4px; font-size: 14px;">
+            <a href="index.php?page=feuille_caisse_list" class="button-like bg-deep-purple">
                 📚 Historique des Feuilles
             </a>
         </div>
     </div>
     
     <!-- Sessions & Transactions -->
-    <div style="margin-bottom: 20px;">
-        <h3 style="font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+    <div class="mb-25">
+        <h3 class="section-header-sm">
             💻 Sessions & Transactions
         </h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            <a href="index.php?page=cyber_add" class="button-like" style="text-decoration: none; padding: 10px 16px; background-color: var(--accent-color); color: white; border-radius: 4px; font-size: 14px;">
+        <div class="flex-wrap gap-15" style="display: flex;">
+            <a href="index.php?page=cyber_add" class="button-like bg-accent">
                 ➕ Nouvelle Session Cyber
             </a>
-            <a href="index.php?page=transaction_add" class="button-like" style="text-decoration: none; padding: 10px 16px; background-color: #4CAF50; color: white; border-radius: 4px; font-size: 14px;">
+            <a href="index.php?page=transaction_add" class="button-like bg-green">
                 💸 Nouvelle Transaction
             </a>
-            <a href="index.php?page=moyens_paiement" class="button-like" style="text-decoration: none; padding: 10px 16px; background-color: #2196F3; color: white; border-radius: 4px; font-size: 14px;">
+            <a href="index.php?page=moyens_paiement" class="button-like bg-blue">
                 ⚙️ Moyens de Paiement
             </a>
         </div>
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+<div class="two-col-grid">
     <!-- Dernières sessions -->
-    <div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px;">
+    <div class="card">
         <h3>Dernières Sessions Cyber</h3>
         <?php if (!empty($dernieres_sessions)): ?>
-            <table style="width: 100%; font-size: 14px;">
+            <table>
                 <thead>
                     <tr>
-                        <th style="text-align: left;">Client</th>
-                        <th style="text-align: left;">Date</th>
-                        <th style="text-align: left;">Horaires</th>
-                        <th style="text-align: right;">Prix</th>
+                        <th>Client</th>
+                        <th>Date</th>
+                        <th>Horaires</th>
+                        <th class="text-right">Prix</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -219,15 +221,15 @@ function calculerPrixSession($ha, $hd, $imp, $imp_c, $tarif) {
                                     Impression
                                 <?php endif; ?>
                             </td>
-                            <td style="text-align: right; font-weight: bold;">
+                            <td class="text-right font-weight-bold">
                                 <?= number_format(calculerPrixSession($session['ha'], $session['hd'], $session['imp'], $session['imp_c'], $session['tarif']), 2) ?> €
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <p style="text-align: center; margin-top: 15px;">
-                <a href="index.php?page=cyber_list" style="color: var(--accent-color);">Voir toutes les sessions →</a>
+            <p class="text-center mt-15">
+                <a href="index.php?page=cyber_list" class="text-accent">Voir toutes les sessions →</a>
             </p>
         <?php else: ?>
             <p>Aucune session enregistrée.</p>
@@ -235,16 +237,16 @@ function calculerPrixSession($ha, $hd, $imp, $imp_c, $tarif) {
     </div>
     
     <!-- Dernières transactions -->
-    <div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px;">
+    <div class="card">
         <h3>Dernières Transactions</h3>
         <?php if (!empty($dernieres_transactions)): ?>
-            <table style="width: 100%; font-size: 14px;">
+            <table>
                 <thead>
                     <tr>
-                        <th style="text-align: left;">Description</th>
-                        <th style="text-align: left;">Date</th>
-                        <th style="text-align: left;">Type</th>
-                        <th style="text-align: right;">Montant</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th class="text-right">Montant</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -259,20 +261,20 @@ function calculerPrixSession($ha, $hd, $imp, $imp_c, $tarif) {
                             </td>
                             <td><?= date('d/m/Y H:i', strtotime($transaction['date_transaction'])) ?></td>
                             <td>
-                                <span style="padding: 2px 6px; border-radius: 8px; font-size: 11px; color: white;
-                                             background-color: <?= $transaction['type'] === 'entree' ? 'green' : ($transaction['type'] === 'sortie' ? 'red' : 'gray') ?>;">
+                                <?php $typeClass = $transaction['type'] === 'entree' ? 'bg-green' : ($transaction['type'] === 'sortie' ? 'bg-red' : 'bg-secondary'); ?>
+                                <span class="badge <?= $typeClass ?>">
                                     <?= htmlspecialchars(ucfirst($transaction['type'])) ?>
                                 </span>
                             </td>
-                            <td style="text-align: right; font-weight: bold; color: <?= $transaction['type'] === 'entree' ? 'green' : ($transaction['type'] === 'sortie' ? 'red' : 'inherit') ?>;">
+                            <td class="text-right font-weight-bold <?= $transaction['type'] === 'entree' ? 'text-green' : ($transaction['type'] === 'sortie' ? 'text-red' : '') ?>">
                                 <?= $transaction['type'] === 'sortie' ? '-' : '' ?><?= number_format($transaction['montant'], 2) ?> €
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <p style="text-align: center; margin-top: 15px;">
-                <a href="index.php?page=transactions_list" style="color: var(--accent-color);">Voir toutes les transactions →</a>
+            <p class="text-center mt-15">
+                <a href="index.php?page=transactions_list" class="text-accent">Voir toutes les transactions →</a>
             </p>
         <?php else: ?>
             <p>Aucune transaction enregistrée.</p>
@@ -281,9 +283,9 @@ function calculerPrixSession($ha, $hd, $imp, $imp_c, $tarif) {
 </div>
 
 <!-- Tarifs en vigueur -->
-<div style="background-color: var(--card-bg); padding: 20px; border-radius: 8px; margin-top: 20px;">
+<div class="card mt-25">
     <h3>Tarifs Cyber Café</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+    <div class="details-split-grid">
         <div>
             <strong>Temps de connexion :</strong>
             <ul style="margin: 5px 0;">

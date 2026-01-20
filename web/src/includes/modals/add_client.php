@@ -1,83 +1,71 @@
 <!-- Modal d'ajout de client -->
-<div id="addClientModal" class="modal-overlay" style="display: none; z-index: 2500;">
-    <div class="modal-content">
+<div id="addClientModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content shadow-sm">
         <div class="modal-header">
-            <h2>➕ Ajouter un nouveau client V4</h2>
+            <h3 class="modal-title">👤 Nouveau client</h3>
             <span class="modal-close" onclick="closeAddClientModal()">&times;</span>
         </div>
         <div class="modal-body">
             <div id="addClientAlerts"></div>
             <form id="addClientForm">
-                <!-- Nom et Prénom sur la même ligne -->
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="client_add_nom">Nom *</label>
+                    <div class="form-group flex-1">
+                        <label for="client_add_nom" class="form-label">Nom *</label>
                         <input type="text" id="client_add_nom" name="nom" class="form-control" required>
                     </div>
-                    <div class="form-group">
-                        <label for="client_add_prenom">Prénom</label>
+                    <div class="form-group flex-1">
+                        <label for="client_add_prenom" class="form-label">Prénom</label>
                         <input type="text" id="client_add_prenom" name="prenom" class="form-control">
                     </div>
                 </div>
                 
-                <!-- Email sur toute la largeur -->
                 <div class="form-group">
-                    <label for="client_add_mail">Email</label>
+                    <label for="client_add_mail" class="form-label">Email</label>
                     <input type="email" id="client_add_mail" name="mail" class="form-control">
                 </div>
                 
-                <!-- Adresse 1 sur toute la largeur -->
                 <div class="form-group">
-                    <label for="client_add_adresse1">Adresse 1</label>
-                    <input type="text" id="client_add_adresse1" name="adresse1" class="form-control" data-minchars="3" data-autofirst>
+                    <label for="client_add_adresse1" class="form-label">Adresse 1</label>
+                    <input type="text" id="client_add_adresse1" name="adresse1" class="form-control">
                 </div>
                 
-                <!-- Adresse 2 sur toute la largeur -->
                 <div class="form-group">
-                    <label for="client_add_adresse2">Adresse 2 (complément)</label>
+                    <label for="client_add_adresse2" class="form-label">Adresse 2 (complément)</label>
                     <input type="text" id="client_add_adresse2" name="adresse2" class="form-control">
                 </div>
                 
-                <!-- Code Postal et Ville sur la même ligne -->
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="client_add_cp">Code Postal</label>
+                    <div class="form-group flex-1">
+                        <label for="client_add_cp" class="form-label">Code Postal</label>
                         <input type="text" id="client_add_cp" name="cp" class="form-control">
                     </div>
-                    <div class="form-group">
-                        <label for="client_add_ville">Ville</label>
+                    <div class="form-group flex-1">
+                        <label for="client_add_ville" class="form-label">Ville</label>
                         <input type="text" id="client_add_ville" name="ville" class="form-control">
                     </div>
                 </div>
                 
-                <!-- Téléphone et Portable sur la même ligne -->
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="client_add_telephone">Téléphone</label>
+                    <div class="form-group flex-1">
+                        <label for="client_add_telephone" class="form-label">Téléphone</label>
                         <input type="tel" id="client_add_telephone" name="telephone" class="form-control">
                     </div>
-                    <div class="form-group">
-                        <label for="client_add_portable">Portable</label>
+                    <div class="form-group flex-1">
+                        <label for="client_add_portable" class="form-label">Portable</label>
                         <input type="tel" id="client_add_portable" name="portable" class="form-control">
                     </div>
                 </div>
             </form>
             
             <!-- Section de vérification des doublons -->
-            <div id="duplicateCheckSection" style="display: none; margin-top: 15px; padding: 15px; background: var(--hover-bg); border-radius: 8px;">
-                <h4 style="margin: 0 0 10px 0;">⚠️ Doublons potentiels :</h4>
-                <div id="duplicatesContainer" style="max-height: 150px; overflow-y: auto;"></div>
+            <div id="duplicateCheckSection" class="mt-15 p-15 rounded bg-hover/10" style="display: none;">
+                <h4 class="text-sm font-semibold mb-10">⚠️ Doublons potentiels :</h4>
+                <div id="duplicatesContainer" class="flex flex-col gap-5 overflow-y-auto" style="max-height: 150px;"></div>
             </div>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeAddClientModal()">
-                <span>✕</span>
-                Annuler
-            </button>
-            <button type="button" class="btn btn-primary" onclick="submitAddClientForm()">
-                <span>✓</span>
-                Ajouter le client
-            </button>
+            <button type="button" class="btn btn-secondary" onclick="closeAddClientModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="submitAddClientForm()">Ajouter le client</button>
         </div>
     </div>
 </div>

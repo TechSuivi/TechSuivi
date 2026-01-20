@@ -27,6 +27,32 @@ try {
 
 $page = $_GET['page'] ?? 'dashboard'; // Default page is dashboard
 
+// --- AJAX Bypass ---
+if (isset($_GET['ajax_search']) && $_GET['ajax_search'] === '1') {
+    // Liste blanche des pages supportant l'AJAX search
+    $ajaxPages = ['clients']; 
+    
+    if (in_array($page, $ajaxPages)) {
+        if ($page === 'clients') {
+            if ($pdo) {
+                // Define constant to pass security check in clients.php
+                if (!defined('TECHSUIVI_INCLUDED')) {
+                    define('TECHSUIVI_INCLUDED', true);
+                }
+                
+                // Inclure seulement le fichier (qui contient déjà le exit après le JSON)
+                require_once 'pages/clients/clients.php';
+                exit; // Sécurité supplémentaire
+            } else {
+                 header('Content-Type: application/json');
+                 echo json_encode(['error' => 'Erreur de connexion DB']);
+                 exit;
+            }
+        }
+    }
+}
+// -------------------
+
 // Traitement spécial pour les actions de sauvegarde AVANT tout HTML
 if ($page === 'database_backup' && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_backup'])) {
     // Vérifier si c'est un téléchargement direct
@@ -95,7 +121,7 @@ $allowedPages = [
     'statuts_list', 'timezone_settings', 'autoit_logiciels_list',
     'autoit_commandes_list', 'autoit_nettoyage_list', 'autoit_personnalisation_list', 'autoit_installeur_list',
     'print_generator', 'agenda_list', 'agenda_add', 'agenda_edit', 'vnc', 'vnc_fullscreen', 'client_import', 'rustdesk_backup', 
-    'gemini_config', 'mail_ai_assistant'
+    'gemini_config', 'mail_ai_assistant', 'theme_config'
 ];
 
 // Validation sécurisée du paramètre page
@@ -115,14 +141,39 @@ if (!in_array($page, $allowedPages)) {
 <head>
     <meta charset="UTF-8">
     <title>TechSuivi - Tableau de bord</title>
-    <link rel="stylesheet" href="css/style.css">
+    <?php
+    // Récupérer le thème actif
+    $currentTheme = 'default';
+    try {
+        if ($pdo) {
+             $stmt = $pdo->prepare("SELECT config_value FROM configuration WHERE config_key = 'app_theme'");
+             $stmt->execute();
+             $res = $stmt->fetch(PDO::FETCH_ASSOC);
+             if ($res) $currentTheme = $res['config_value'];
+        }
+    } catch (Exception $e) {}
+    
+    // Sécurité : valider que le thème existe, sinon fallback
+    if (!is_dir("css/themes/$currentTheme")) {
+        $currentTheme = 'default';
+    }
+    ?>
+    <link rel="stylesheet" href="css/themes/<?= htmlspecialchars($currentTheme) ?>/theme.css">
+    <link rel="stylesheet" href="css/style.css?v=1.3">
     <link rel="stylesheet" href="css/modals.css">
     <link rel="stylesheet" href="css/awesomplete.css?v=1.1"> <!-- Autocomplete CSS -->
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="js/awesomplete.min.js?v=1.1"></script> <!-- Autocomplete JS -->
 </head>
-<body class="dark">
+<body>
+    <script>
+        // Check theme immediately to prevent flash
+        (function() {
+            var savedTheme = localStorage.getItem('theme') || 'dark';
+            document.body.classList.add(savedTheme);
+        })();
+    </script>
     <div class="sidebar">
         <ul class="menu">
             <li class="menu-item">
@@ -142,7 +193,7 @@ if (!in_array($page, $allowedPages)) {
                 </ul>
             </li>
             <li class="menu-item">
-                <a href="#" id="messages-main-link" <?php echo isMenuActive('messages', $page) ? 'class="active"' : ''; ?>>💬 Messages</a>
+                <a href="index.php?page=messages&category=all" id="messages-main-link" <?php echo isMenuActive('messages', $page) ? 'class="active"' : ''; ?>>💬 Messages</a>
                 <ul class="submenu" id="messages-submenu">
                     <!-- Les catégories seront chargées dynamiquement -->
                 </ul>
@@ -179,7 +230,7 @@ if (!in_array($page, $allowedPages)) {
                 </ul>
             </li>
             <li class="menu-item">
-                <a href="index.php?page=stock_list" <?php echo isMenuActive('stock', $page) ? 'class="active"' : ''; ?>>📦 Stock</a>
+                <a href="index.php?page=orders_list" <?php echo isMenuActive('stock', $page) ? 'class="active"' : ''; ?>>📦 Stock</a>
                 <ul class="submenu">
                     <li><a href="index.php?page=stock_list" <?php echo ($page === 'stock_list') ? 'class="active"' : ''; ?>>📋 Liste</a></li>
                     <li><a href="index.php?page=orders_list" <?php echo ($page === 'orders_list') ? 'class="active"' : ''; ?>>📋 Liste commande</a></li>
@@ -197,8 +248,8 @@ if (!in_array($page, $allowedPages)) {
                 </a>
             </div>
             <div class="header-controls">
-                <a href="index.php?page=vnc" class="settings-btn" style="background-color: #5e35b1; border-color: #5e35b1;">🖥️ VNC</a>
-                <a href="index.php?page=mail_ai_assistant" class="settings-btn" style="background-color: #a855f7; border-color: #a855f7;">🤖 Assistant IA</a>
+                <a href="index.php?page=vnc" class="settings-btn btn-vnc">🖥️ VNC</a>
+                <a href="index.php?page=mail_ai_assistant" class="settings-btn btn-ai">🤖 Assistant IA</a>
                 <a href="index.php?page=settings" class="settings-btn">⚙️ Paramètres</a>
                 <button id="theme-toggle">🌙 Light Mode</button>
                 <a href="logout.php" class="logout-btn">🚪 Déconnexion</a>
@@ -567,6 +618,12 @@ if (!in_array($page, $allowedPages)) {
                 } else {
                      echo "<p style='color: red;'>La configuration Acadia ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
                 }
+            } elseif ($page === 'theme_config') {
+                if ($pdo) {
+                    include 'pages/config/theme_config.php';
+                } else {
+                     echo "<p style='color: red;'>La configuration du thème ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
+                }
             } elseif ($page === 'gemini_config') {
                 if ($pdo) {
                     include 'pages/config/gemini_config.php';
@@ -651,6 +708,7 @@ if (!in_array($page, $allowedPages)) {
                 } else {
                     echo "<p style='color: red;'>La page VNC plein écran ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
                 }
+
             } else {
                 // Default dashboard content
                 include 'pages/dashboard.php';
@@ -659,7 +717,7 @@ if (!in_array($page, $allowedPages)) {
         </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/script.js"></script>
+    <script src="js/script.js?v=<?= time() ?>"></script>
     <script>
     // Charger les catégories dans le menu Messages
     document.addEventListener('DOMContentLoaded', function() {
@@ -675,6 +733,12 @@ if (!in_array($page, $allowedPages)) {
             .then(response => response.json())
             .then(categories => {
                 const submenu = document.getElementById('messages-submenu');
+                
+                // Récupérer la catégorie actuelle depuis l'URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentCategory = urlParams.get('category');
+                const currentPage = urlParams.get('page');
+
                 if (submenu && categories.length > 0) {
                     submenu.innerHTML = '';
                     categories.forEach(category => {
@@ -682,6 +746,12 @@ if (!in_array($page, $allowedPages)) {
                         const a = document.createElement('a');
                         a.href = `index.php?page=messages&category=${category.ID}`;
                         a.textContent = category.CATEGORIE;
+                        
+                        // Ajouter la classe active si c'est la catégorie courante
+                        if (currentPage === 'messages' && currentCategory === category.ID.toString()) {
+                            a.classList.add('active');
+                        }
+
                         li.appendChild(a);
                         submenu.appendChild(li);
                     });

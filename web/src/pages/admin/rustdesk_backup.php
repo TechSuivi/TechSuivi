@@ -8,46 +8,46 @@ if (!defined('TECHSUIVI_INCLUDED')) {
 require_once __DIR__ . '/../../components/settings_navigation.php';
 ?>
 
-<div class="container">
-    <h2>🔐 Sauvegarde et Restauration Rustdesk</h2>
+<div class="page-header">
+    <h1>🔐 Sauvegarde et Restauration Rustdesk</h1>
+</div>
 
-    <div class="info-section">
-        <p>Ici vous pouvez sauvegarder l'identité de votre serveur Rustdesk (Clés privée et publique) ou les restaurer après une réinstallation.</p>
-        
-        <div class="alert alert-info">
-            <strong>Note :</strong> Après avoir restauré des clés, il est nécessaire de 
-            <a href="index.php?page=docker_info" style="font-weight: bold; text-decoration: underline;">redémarrer le conteneur Rustdesk</a> 
-            pour qu'elles soient prises en compte.
-        </div>
-
-        <div class="info-card" style="max-width: 600px;">
-            <h4>🔑 Gestion des Clés</h4>
-            
-            <!-- Password input hidden due to env issues, keeping hidden for JS compatibility -->
-            <input type="hidden" id="rustdeskPassword" value="">
-
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px;">
-                <!-- Backup Button -->
-                <button onclick="downloadRustdeskBackup()" class="btn btn-primary" style="display: inline-flex; align-items: center;">
-                    📥 Télécharger la sauvegarde (.zip)
-                </button>
-
-                <!-- Restore Button -->
-                <button class="btn btn-warning" onclick="document.getElementById('rustdeskKeyInputBackup').click()" style="display: inline-flex; align-items: center;">
-                    📤 Restaurer depuis une sauvegarde
-                </button>
-                
-                <!-- Hidden Input -->
-                <input type="file" id="rustdeskKeyInputBackup" multiple style="display: none;" onchange="uploadRustdeskKeysBackup(this)">
-            </div>
-            
-            <p class="text-muted" style="margin-top: 15px; font-size: 0.9em;">
-                Pour restaurer, sélectionnez les fichiers <code>id_ed25519</code> et <code>id_ed25519.pub</code> (vous pouvez les extraire du zip).
-            </p>
-        </div>
-        
-        <div id="rustdesk-alert-area" style="margin-top: 20px; max-width: 600px;"></div>
+<div class="card bg-secondary">
+    <p class="m-0 mb-15">Ici vous pouvez sauvegarder l'identité de votre serveur Rustdesk (Clés privée et publique) ou les restaurer après une réinstallation.</p>
+    
+    <div class="alert alert-info mb-20">
+        <strong>Note :</strong> Après avoir restauré des clés, il est nécessaire de 
+        <a href="index.php?page=docker_info" class="font-bold underline">redémarrer le conteneur Rustdesk</a> 
+        pour qu'elles soient prises en compte.
     </div>
+
+    <div class="card mt-20" style="max-width: 600px;">
+        <h4 class="card-title mb-15">🔑 Gestion des Clés</h4>
+        
+        <!-- Password input hidden due to env issues, keeping hidden for JS compatibility -->
+        <input type="hidden" id="rustdeskPassword" value="">
+
+        <div class="flex gap-15 flex-wrap mt-15">
+            <!-- Backup Button -->
+            <button onclick="downloadRustdeskBackup()" class="btn btn-primary flex items-center gap-5">
+                📥 Télécharger la sauvegarde (.zip)
+            </button>
+
+            <!-- Restore Button -->
+            <button class="btn btn-warning flex items-center gap-5" onclick="document.getElementById('rustdeskKeyInputBackup').click()">
+                📤 Restaurer depuis une sauvegarde
+            </button>
+            
+            <!-- Hidden Input -->
+            <input type="file" id="rustdeskKeyInputBackup" multiple style="display: none;" onchange="uploadRustdeskKeysBackup(this)">
+        </div>
+        
+        <p class="text-muted text-sm mt-15">
+            Pour restaurer, sélectionnez les fichiers <code>id_ed25519</code> et <code>id_ed25519.pub</code> (vous pouvez les extraire du zip).
+        </p>
+    </div>
+    
+    <div id="rustdesk-alert-area" class="mt-20" style="max-width: 600px;"></div>
 </div>
 
 <script>
@@ -98,12 +98,12 @@ function uploadRustdeskKeysBackup(input) {
 
 function showRustdeskAlert(type, message) {
     const area = document.getElementById('rustdesk-alert-area');
-    const color = type === 'success' ? '#155724' : (type === 'danger' ? '#721c24' : '#0c5460');
-    const bg = type === 'success' ? '#d4edda' : (type === 'danger' ? '#f8d7da' : '#d1ecf1');
-    const border = type === 'success' ? '#c3e6cb' : (type === 'danger' ? '#f5c6cb' : '#bee5eb');
+    let alertClass = 'alert-info';
+    if (type === 'success') alertClass = 'alert-success';
+    if (type === 'danger') alertClass = 'alert-error';
     
     area.innerHTML = `
-        <div class="alert alert-${type}" style="padding: 15px; border-radius: 4px; color: ${color}; background-color: ${bg}; border: 1px solid ${border};">
+        <div class="alert ${alertClass}">
             ${message}
         </div>
     `;
@@ -113,35 +113,3 @@ function showRustdeskAlert(type, message) {
     }
 }
 </script>
-
-<style>
-.info-section {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
-}
-.info-card {
-    background: white;
-    padding: 20px;
-    border-radius: 6px;
-    border: 1px solid #dee2e6;
-    margin-top: 20px;
-}
-.btn {
-    padding: 8px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-    color: white;
-}
-.btn-primary { background-color: var(--accent-color); }
-.btn-primary:hover { opacity: 0.9; }
-.btn-warning { background-color: #ffc107; color: #212529; }
-.btn-warning:hover { background-color: #e0a800; }
-
-body.dark .info-section { background-color: #2c2c2c; border-color: #444; color: #e9ecef; }
-body.dark .info-card { background-color: #333; border-color: #555; }
-body.dark .text-muted { color: #adb5bd !important; }
-</style>

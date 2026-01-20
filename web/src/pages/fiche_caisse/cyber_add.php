@@ -278,13 +278,13 @@ try {
 <p><a href="index.php?page=cyber_list" style="color: var(--accent-color);">← Retour à la liste</a></p>
 
 <?php if (!empty($errorMessage)): ?>
-    <div style="color: red; margin-bottom: 15px; padding: 10px; border: 1px solid red; background-color: #ffe6e6; border-radius: 4px;">
+    <div class="alert alert-error">
         <?= $errorMessage ?>
     </div>
 <?php endif; ?>
 
 <?php if (isset($_SESSION['credit_warning'])): ?>
-    <div style="color: #856404; margin-bottom: 15px; padding: 15px; border: 1px solid #ffc107; background-color: #fff3cd; border-radius: 4px;">
+    <div class="alert alert-warning">
         <strong>⚠️ Avertissement Crédit :</strong><br>
         <?= $_SESSION['credit_warning'] ?>
         <br><br>
@@ -294,14 +294,17 @@ try {
 <?php endif; ?>
 
 <div style="max-width: 1200px; margin: 0 auto;">
-<form method="POST" style="background-color: var(--card-bg); padding: 20px; border-radius: 8px;">
+<form method="POST" class="card">
+    
+    
     <!-- Informations principales -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-15 mb-15">
         <div>
             <div style="position: relative;">
                 <input type="text" id="nom" name="nom"
                        value="<?= htmlspecialchars($editData['nom'] ?? $_POST['nom'] ?? 'CYBER') ?>"
-                       style="width: 100%; padding: 6px; margin-top: 3px; font-size: 14px; padding-right: 30px;"
+                       class="form-control"
+                       style="padding-right: 30px;"
                        placeholder="CYBER">
                 <span id="client_link_status" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: none; cursor: help;" title="Client lié">
                     ✅
@@ -314,26 +317,26 @@ try {
             <label for="ha">Heure d'arrivée :</label>
             <input type="time" id="ha" name="ha"
                    value="<?= $editData['ha'] ?? $_POST['ha'] ?? '' ?>"
-                   style="width: 100%; padding: 6px; margin-top: 3px; font-size: 14px;">
+                   class="form-control">
         </div>
         
         <div>
             <label for="hd">Heure de départ :</label>
             <input type="time" id="hd" name="hd"
                    value="<?= $editData['hd'] ?? $_POST['hd'] ?? '' ?>"
-                   style="width: 100%; padding: 6px; margin-top: 3px; font-size: 14px;">
+                   class="form-control">
         </div>
     </div>
     
     <!-- Impressions et tarif -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-15 mb-15">
         <div>
             <label for="imp_nb">Pages N&B :</label>
             <input type="number" id="imp_nb" name="imp_nb" min="0"
                    value="<?= htmlspecialchars($editData['imp'] ?? $_POST['imp_nb'] ?? '') ?>"
-                   style="width: 100%; padding: 6px; margin-top: 3px; font-size: 14px;"
+                   class="form-control"
                    placeholder="0">
-            <small style="color: var(--text-secondary); font-size: 11px;">
+            <small class="text-muted text-xs">
                 <?= number_format($price_nb_page, 2) ?> €/page
             </small>
         </div>
@@ -342,41 +345,41 @@ try {
             <label for="imp_couleur">Pages couleur :</label>
             <input type="number" id="imp_couleur" name="imp_couleur" min="0"
                    value="<?= htmlspecialchars($editData['imp_c'] ?? $_POST['imp_couleur'] ?? '') ?>"
-                   style="width: 100%; padding: 6px; margin-top: 3px; font-size: 14px;"
+                   class="form-control"
                    placeholder="0">
-            <small style="color: var(--text-secondary); font-size: 11px;">
+            <small class="text-muted text-xs">
                 <?= number_format($price_color_page, 2) ?> €/page
             </small>
         </div>
         
         <div>
             <label for="tarif_saisi">Tarif spécifique (€) :</label>
-            <div style="display: flex; gap: 5px; align-items: center;">
+            <div class="flex gap-5 align-center">
                 <input type="number" id="tarif_saisi" step="0.01" min="0"
                        value="<?= htmlspecialchars($editData['tarif'] ?? $_POST['tarif'] ?? '') ?>"
-                       style="flex: 1; padding: 6px; font-size: 14px;"
+                       class="form-control flex-1"
                        placeholder="Auto">
                 <input type="hidden" id="tarif" name="tarif" value="<?= htmlspecialchars($editData['tarif'] ?? $_POST['tarif'] ?? '') ?>">
                 
-                <div style="display: flex; flex-direction: column; gap: 2px;">
-                    <label style="display: flex; align-items: center; gap: 3px; font-size: 11px; cursor: pointer; white-space: nowrap;" title="Ajouter le prix des impressions au tarif spécifique">
+                <div class="flex-col gap-2">
+                    <label class="flex align-center gap-3 text-xs pointer whitespace-nowrap" title="Ajouter le prix des impressions au tarif spécifique">
                         <input type="checkbox" id="add_prints_option">
                         ➕ Imp.
                     </label>
                     
-                    <label style="display: flex; align-items: center; gap: 3px; font-size: 11px; cursor: pointer; white-space: nowrap;" title="Ajouter le prix du temps cyber au tarif spécifique">
+                    <label class="flex align-center gap-3 text-xs pointer whitespace-nowrap" title="Ajouter le prix du temps cyber au tarif spécifique">
                         <input type="checkbox" id="add_cyber_option">
                         ➕ Cyber
                     </label>
                 </div>
                 
                 <button type="button" id="recalculer_tarif"
-                        style="padding: 6px 10px; background-color: var(--secondary-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;"
+                        class="btn-sm btn-secondary font-bold"
                         title="Recalculer le tarif automatiquement">
                     🔄
                 </button>
             </div>
-            <small style="color: var(--text-secondary); font-size: 11px;">
+            <small class="text-muted text-xs">
                 Vide = calcul auto
             </small>
         </div>
@@ -384,27 +387,28 @@ try {
     
     <!-- Résumé des coûts -->
     <!-- Résumé des coûts -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 15px; margin-bottom: 15px; padding: 12px; background-color: var(--bg-color); border-radius: 4px; border-left: 4px solid var(--accent-color); align-items: center;">
-        <div style="text-align: center; font-size: 0.9em;">
-            <span style="color: var(--text-secondary);">Temps :</span> <strong style="color: var(--accent-color);"><span id="tarif_cyber">0,00 €</span></strong>
+    <!-- Résumé des coûts -->
+    <div class="cost-summary-grid">
+        <div class="text-center text-sm">
+            <span class="text-muted">Temps :</span> <strong class="text-accent"><span id="tarif_cyber">0,00 €</span></strong>
         </div>
-        <div style="text-align: center; font-size: 0.9em;">
-            <span style="color: var(--text-secondary);">Impressions :</span> <strong style="color: var(--accent-color);"><span id="total_impressions">0,00 €</span></strong>
+        <div class="text-center text-sm">
+            <span class="text-muted">Impressions :</span> <strong class="text-accent"><span id="total_impressions">0,00 €</span></strong>
         </div>
-        <div style="text-align: center; border-left: 1px solid var(--border-color); padding-left: 10px;">
-            <div style="font-size: 0.8em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 2px;">Total à payer</div>
-            <strong style="color: var(--success-color, #28a745); font-size: 1.4em;"><span id="cout_total_display">0,00 €</span></strong>
+        <div class="text-center border-l pl-10">
+            <div class="text-xs uppercase text-muted mb-2">Total à payer</div>
+            <strong class="text-success text-2xl"><span id="cout_total_display">0,00 €</span></strong>
         </div>
     </div>
     
     <!-- Sections de paiement et gestion crédit -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-15 mb-15">
         <!-- Paiement classique -->
-        <div id="paiement_classique" style="background-color: var(--card-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--accent-color);">
-            <h4 style="margin: 0 0 10px 0; color: var(--accent-color); font-size: 14px;">💰 Paiement classique</h4>
+        <div id="paiement_classique" class="payment-box">
+            <h4 class="box-title">💰 Paiement classique</h4>
             
-            <div style="margin-bottom: 10px;">
-                <select id="moyen_payement" name="moyen_payement" style="width: 100%; padding: 5px; font-size: 13px;">
+            <div class="mb-10">
+                <select id="moyen_payement" name="moyen_payement" class="form-control-sm w-full">
                     <option value="">Sélectionner...</option>
                     <?php
                     // Récupération des moyens de paiement
@@ -426,7 +430,7 @@ try {
             
             <!-- Champs spécifiques au chèque -->
             <div id="cheque_fields" style="display: none;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="grid-2 gap-8">
                     <input type="text" id="banque" name="banque"
                            value="<?php
                            if ($editData && $editData['info_chq']) {
@@ -439,7 +443,7 @@ try {
                                }
                            }
                            ?>"
-                           style="padding: 5px; font-size: 13px;"
+                           class="form-control-sm"
                            placeholder="Banque">
                     <input type="text" id="num_cheque" name="num_cheque"
                            value="<?php
@@ -453,17 +457,15 @@ try {
                                }
                            }
                            ?>"
-                           style="padding: 5px; font-size: 13px;"
+                           class="form-control-sm"
                            placeholder="N° chèque">
                 </div>
             </div>
             
             <?php if (!$editData): ?>
             <!-- Bouton paiement classique -->
-            <!-- Bouton paiement classique -->
-            <!-- Bouton paiement classique -->
-            <div style="margin-top: 10px;">
-                <button type="button" id="payer_maintenant" style="width: 100%; background-color: var(--accent-color); color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">
+            <div class="mt-10">
+                <button type="button" id="payer_maintenant" class="btn btn-accent w-full btn-sm">
                     💰 Payer maintenant
                 </button>
             </div>
@@ -472,11 +474,11 @@ try {
 
         <!-- Paiement par crédit -->
         <?php if (!empty($credits_clients)): ?>
-        <div style="background-color: var(--card-bg); padding: 12px; border-radius: 6px; border: 1px solid var(--info-color, #17a2b8);">
-            <h4 style="margin: 0 0 10px 0; color: var(--info-color, #17a2b8); font-size: 14px;">💳 Paiement par crédit</h4>
+        <div class="credit-box">
+            <h4 class="box-title-info">💳 Paiement par crédit</h4>
             
-            <div style="margin-bottom: 10px;">
-                <select id="credit_client_id" name="credit_client_id" style="width: 100%; padding: 5px; font-size: 13px;">
+            <div class="mb-10">
+                <select id="credit_client_id" name="credit_client_id" class="form-control-sm w-full">
                     <option value="">Sélectionner un client...</option>
                     <?php foreach ($credits_clients as $credit): ?>
                         <option value="<?= $credit['id'] ?>"
@@ -489,16 +491,16 @@ try {
                 </select>
             </div>
             
-            <div id="credit_info" style="margin-top: 8px; padding: 8px; background-color: white; border-radius: 3px; display: none; font-size: 12px;">
+            <div id="credit_info" class="info-bubble">
                 <div><strong>Disponible :</strong> <span id="solde_disponible">0,00 €</span></div>
                 <div><strong>Session :</strong> <span id="montant_session">0,00 €</span></div>
-                <div><strong>Après :</strong> <span id="solde_apres" style="font-weight: bold;">0,00 €</span></div>
+                <div><strong>Après :</strong> <span id="solde_apres" class="font-bold">0,00 €</span></div>
             </div>
             
             <?php if (!$editData): ?>
             <!-- Bouton paiement par crédit -->
-            <div style="margin-top: 10px;">
-                <button type="button" id="payer_par_credit" style="width: 100%; background-color: var(--info-color, #17a2b8); color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">
+            <div class="mt-10">
+                <button type="button" id="payer_par_credit" class="btn btn-info w-full btn-sm">
                     💳 Payer par crédit
                 </button>
             </div>
@@ -510,11 +512,11 @@ try {
 
         <!-- Ajouter crédit -->
         <?php if (!empty($credits_clients)): ?>
-        <div style="background-color: var(--success-color, #d4edda); padding: 12px; border-radius: 6px; border: 1px solid var(--success-color, #28a745);">
-            <h4 style="margin: 0 0 10px 0; color: var(--success-color, #155724); font-size: 14px;">💰 Ajouter crédit</h4>
+        <div class="success-box">
+            <h4 class="box-title-success">💰 Ajouter crédit</h4>
             
-            <div style="margin-bottom: 8px;">
-                <select id="credit_gestion_client" name="credit_gestion_client" style="width: 100%; padding: 5px; font-size: 13px;">
+            <div class="mb-8">
+                <select id="credit_gestion_client" name="credit_gestion_client" class="form-control-sm w-full">
                     <option value="">Sélectionner un client...</option>
                     <?php foreach ($credits_clients as $credit): ?>
                         <option value="<?= $credit['id'] ?>" data-solde="<?= $credit['solde_actuel'] ?>">
@@ -525,13 +527,13 @@ try {
                 </select>
             </div>
             
-            <div style="margin-bottom: 8px;">
+            <div class="mb-8">
                 <input type="number" id="credit_montant" step="0.01" min="0"
-                       style="width: 100%; padding: 5px; font-size: 13px;" placeholder="Montant à ajouter">
+                       class="form-control-sm w-full" placeholder="Montant à ajouter">
             </div>
             
-            <div style="margin-bottom: 8px;">
-                <select id="credit_moyen_payement" style="width: 100%; padding: 5px; font-size: 13px;">
+            <div class="mb-8">
+                <select id="credit_moyen_payement" class="form-control-sm w-full">
                     <option value="">Moyen de paiement...</option>
                     <?php
                     // Récupération des moyens de paiement pour le crédit
@@ -551,46 +553,46 @@ try {
             </div>
             
             <input type="text" id="credit_description"
-                   style="width: 100%; padding: 5px; font-size: 13px; margin-bottom: 8px;"
+                   class="form-control-sm w-full mb-8"
                    placeholder="Description (optionnel)">
             
             <button type="button" id="gerer_credit"
-                    style="width: 100%; padding: 6px; background-color: var(--success-color, #28a745); color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: bold;">
+                    class="btn btn-success w-full btn-sm">
                 💳 Ajouter crédit
             </button>
             
-            <div id="credit_gestion_info" style="margin-top: 8px; padding: 6px; background-color: white; border-radius: 3px; display: none; font-size: 11px;">
+            <div id="credit_gestion_info" class="info-bubble">
                 <div><strong>Solde actuel :</strong> <span id="solde_actuel_gestion">0,00 €</span></div>
                 <div><strong>Nouveau solde :</strong> <span id="nouveau_solde_gestion">0,00 €</span></div>
             </div>
         </div>
         <?php else: ?>
-        <div style="background-color: var(--card-bg); padding: 12px; border-radius: 6px; border: 1px solid #ddd; text-align: center; color: var(--text-secondary);">
+        <div class="empty-box">
             <small>Aucun crédit client<br>disponible</small>
         </div>
         <?php endif; ?>
     </div>
     
     <!-- Boutons d'action -->
-    <div style="text-align: center; margin: 20px 0;">
-        <button type="submit" name="save_only" value="1" style="background-color: var(--success-color, #28a745); color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+    <div class="text-center mt-20">
+        <button type="submit" name="save_only" value="1" class="btn btn-success mr-10">
             <?= $editData ? '💾 Mettre à jour' : '💾 Enregistrer' ?>
         </button>
         
         <?php if ($editData): ?>
-            <button type="submit" style="background-color: var(--accent-color); color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+            <button type="submit" class="btn btn-accent mr-10">
                 💰 Enregistrer le paiement
             </button>
         <?php endif; ?>
         
-        <a href="index.php?page=cyber_list" style="padding: 10px 20px; background-color: var(--secondary-color); color: white; text-decoration: none; border-radius: 4px; font-size: 14px; margin-right: 10px;">
+        <a href="index.php?page=cyber_list" class="btn btn-secondary mr-10">
             ❌ Annuler
         </a>
 
         <?php if ($editData): ?>
             <a href="actions/cyber_delete.php?id=<?= $editData['id'] ?>" 
                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette session ?');"
-               style="padding: 10px 20px; background-color: var(--danger-color, #dc3545); color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">
+               class="btn btn-danger">
                 🗑️ Supprimer
             </a>
         <?php endif; ?>
@@ -599,8 +601,8 @@ try {
 </div>
 
 <!-- Aide compacte -->
-<div style="max-width: 1200px; margin: 20px auto 0; padding: 15px; background-color: var(--card-bg); border-radius: 6px;">
-    <h4 style="margin: 0 0 10px 0; color: var(--accent-color);">💡 Aide rapide</h4>
+<div class="card mt-20 p-15">
+    <h4 class="text-accent mb-10">💡 Aide rapide</h4>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; font-size: 13px;">
         <div><strong>Session complète :</strong> Nom + heures d'arrivée/départ</div>
         <div><strong>Impressions seules :</strong> Seulement pages N&B/couleur</div>

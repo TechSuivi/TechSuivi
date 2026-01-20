@@ -21,11 +21,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Fallback : logique basée sur l'URL pour les cas où PHP n'aurait pas mis la classe active
         // (Garde la compatibilité avec l'ancien système si nécessaire)
-        var currentPage = new URLSearchParams(window.location.search).get('page');
+        var urlParams = new URLSearchParams(window.location.search);
+        var currentPage = urlParams.get('page');
+
         if (currentPage) {
-            // ... Code existant conservé pour sécurité ou cas spécifiques ...
             if (currentPage.startsWith('stock_') || currentPage.startsWith('inventory_') || currentPage.startsWith('orders_')) {
-                var stockMenu = document.querySelector('.menu-item a[href*="stock_list"]')?.parentElement;
+                // Essayer de trouver le menu "Stock" même si le lien principal est différent
+                var stockMenu = document.querySelector('.menu-item a[href*="page=stock_list"]')?.parentElement ||
+                    document.querySelector('.menu-item a[href*="page=orders_list"]')?.parentElement;
                 if (stockMenu) stockMenu.classList.add('open');
             }
         }
@@ -34,27 +37,32 @@ document.addEventListener('DOMContentLoaded', function () {
     // Ouvrir le menu approprié au chargement de la page
     openMenuForCurrentPage();
 
-    // Submenu toggle
+    // Submenu toggle - Robust Implementation
     document.querySelectorAll('.menu-item > a').forEach(function (element) {
         element.addEventListener('click', function (e) {
+            // Check if this item has a submenu sibling
             var parent = element.parentElement;
+            var submenu = parent.querySelector('.submenu');
             var href = element.getAttribute('href');
 
-            // Si le lien est "#", on empêche la navigation et on toggle le menu
-            if (href === '#') {
-                if (parent.classList.contains('open')) {
-                    parent.classList.remove('open');
-                } else {
-                    // Close other open menus
-                    document.querySelectorAll('.menu-item.open').forEach(function (openItem) {
-                        openItem.classList.remove('open');
-                    });
-                    parent.classList.add('open');
+            if (submenu) {
+                // Only prevent default if it's not a real link
+                if (!href || href === '#' || href === 'javascript:void(0)') {
+                    e.preventDefault();
+                    // Toggle 'open' class only if we are taking over navigation
+                    if (parent.classList.contains('open')) {
+                        parent.classList.remove('open');
+                    } else {
+                        // Close other open menus
+                        document.querySelectorAll('.menu-item.open').forEach(function (openItem) {
+                            openItem.classList.remove('open');
+                        });
+                        parent.classList.add('open');
+                    }
                 }
-                e.preventDefault();
+                // If it IS a real link (e.g. index.php?page=...), we do nothing here.
+                // The browser navigates, page reloads, and openMenuForCurrentPage() handles opening the menu.
             }
-            // Pour les liens avec vraie URL, on laisse la navigation se faire normalement
-            // Le menu sera ouvert automatiquement par openMenuForCurrentPage() après le rechargement
         });
     });
 
@@ -72,20 +80,31 @@ document.addEventListener('DOMContentLoaded', function () {
     // Theme toggle
     var body = document.body;
     var themeToggle = document.getElementById('theme-toggle');
-    function setTheme(theme) {
-        body.className = theme;
+
+    function updateToggleUI(theme) {
+        if (!themeToggle) return;
         if (theme === 'dark') {
             themeToggle.innerHTML = '🌙 Light Mode';
         } else {
             themeToggle.innerHTML = '☀️ Dark Mode';
         }
     }
-    // Load theme from localStorage or default dark
-    var savedTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(savedTheme);
-    themeToggle.addEventListener('click', function () {
-        var newTheme = body.classList.contains('dark') ? 'light' : 'dark';
-        setTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
-    });
+
+    function setTheme(theme) {
+        body.classList.remove('dark', 'light');
+        body.classList.add(theme);
+        updateToggleUI(theme);
+        localStorage.setItem('theme', theme);
+    }
+
+    // Initialize UI based on already applied theme (from index.php script)
+    var currentTheme = body.classList.contains('light') ? 'light' : 'dark';
+    updateToggleUI(currentTheme);
+
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function () {
+            var newTheme = body.classList.contains('dark') ? 'light' : 'dark';
+            setTheme(newTheme);
+        });
+    }
 });

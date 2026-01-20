@@ -42,12 +42,6 @@ if (isset($pdo)) {
             $params[':searchFournisseur'] = '%' . strtolower($searchTerm) . '%';
         }
         
-        // 1. Compter le nombre total de commandes uniques (pour la pagination)
-        // Note: COUNT(DISTINCT numero_commande) est une approximation si on regroupe par fournisseur aussi,
-        // mais ici on suppose que numero_commande est unique par commande.
-        // Si numero_commande peut être le même pour différents fournisseurs (peu probable mais possible),
-        // il faudrait grouper par numero_commande, fournisseur.
-        
         $countSql = "SELECT COUNT(*) FROM (
                         SELECT numero_commande 
                         FROM Stock 
@@ -78,8 +72,6 @@ if (isset($pdo)) {
                 ORDER BY $sortBy $sortDir 
                 LIMIT :limit OFFSET :offset";
                 
-        // Ajout des params de pagination
-        // PDO::PARAM_INT est nécessaire pour LIMIT/OFFSET dans certaines configs MySQL/PDO
         $stmt = $pdo->prepare($sql);
         foreach ($params as $key => $val) {
             $stmt->bindValue($key, $val);
@@ -91,223 +83,102 @@ if (isset($pdo)) {
         $orders = $stmt->fetchAll();
 
     } catch (PDOException $e) {
-        echo "<p>Erreur lors de la récupération des commandes : " . htmlspecialchars($e->getMessage()) . "</p>";
+        echo "<div class='alert alert-danger'>Erreur lors de la récupération des commandes : " . htmlspecialchars($e->getMessage()) . "</div>";
     }
 } else {
-    echo "<p>Erreur de configuration : la connexion à la base de données n'est pas disponible.</p>";
+    echo "<div class='alert alert-danger'>Erreur de configuration : la connexion à la base de données n'est pas disponible.</div>";
 }
 ?>
 
-<style>
-    /* Réutilisation des styles du tableau stock */
-    .orders-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        background-color: #fff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        margin-top: 20px;
-        font-size: 14px;
-        color: #212529;
-    }
-    .orders-table thead {
-        background-color: #f1f3f5;
-    }
-    .orders-table th {
-        padding: 15px 12px;
-        text-align: left;
-        font-weight: 600;
-        color: #495057;
-        text-transform: uppercase;
-        font-size: 0.85em;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid #dee2e6;
-    }
-    .orders-table td {
-        padding: 12px;
-        border-bottom: 1px solid #e9ecef;
-        vertical-align: middle;
-        color: inherit;
-    }
-    .orders-table tr:hover {
-        background-color: #f8f9fa;
-        cursor: pointer;
-    }
-    
-    .col-cmd { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-weight: bold; color: #495057; }
-    .col-supplier { color: #0d6efd; font-weight: 500; }
-    .col-date { color: #868e96; }
-    .col-count { text-align: center; font-weight: 600; }
-    .col-total { text-align: right; font-weight: bold; color: #198754; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-
-    /* Search Box */
-    .search-container {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 25px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        border: 1px solid #e9ecef;
-    }
-    .search-input {
-        width: 100%;
-        max-width: 400px;
-        padding: 10px 15px;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-    .btn-search {
-        padding: 10px 20px;
-        background-color: #0d6efd;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-    .btn-clear {
-        padding: 10px 15px;
-        background-color: #e9ecef;
-        color: #495057;
-        text-decoration: none;
-        border-radius: 6px;
-        font-weight: 500;
-    }
-
-    /* DARK MODE SUPPORT */
-    body.dark .orders-table,
-    body.dark .search-container {
-        background-color: var(--card-bg) !important;
-        color: var(--text-color) !important;
-        border-color: var(--border-color) !important;
-    }
-    body.dark .orders-table thead {
-        background-color: #343a40;
-    }
-    body.dark .orders-table th {
-        color: #adb5bd;
-        border-bottom-color: var(--border-color);
-    }
-    body.dark .orders-table td {
-        border-bottom-color: #343a40;
-        color: var(--text-color);
-    }
-    body.dark .orders-table tr:hover {
-        background-color: var(--hover-color) !important;
-    }
-    body.dark .search-input {
-        background-color: #343a40;
-        border-color: var(--border-color);
-        color: var(--text-color);
-    }
-    body.dark .col-cmd { color: #f8f9fa; }
-    body.dark .col-supplier { color: #74c0fc; }
-    body.dark .col-total { color: #69db7c; }
-    body.dark h1 { color: var(--text-color) !important; }
-    body.dark .btn-clear { background-color: var(--border-color); color: var(--text-color); }
-    body.dark .btn-clear:hover { background-color: #343a40; }
-</style>
-
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h1 style="color: #343a40; font-size: 24px; margin: 0;">📋 Liste des Commandes</h1>
+<div class="flex-between-center mb-20">
+    <h1 class="text-color m-0 text-2xl">📋 Liste des Commandes</h1>
 </div>
 
 <!-- Search Form -->
-<form method="GET" action="index.php" class="search-container">
+<form method="GET" action="index.php" class="card p-20 flex items-center gap-10 border border-border rounded shadow-sm mb-25">
     <input type="hidden" name="page" value="orders_list">
-    <input type="text" name="search_term" class="search-input" placeholder="🔍 Rechercher par n° de commande ou fournisseur..." value="<?= htmlspecialchars($searchTerm) ?>">
-    <input type="submit" value="Rechercher" class="btn-search">
+    <input type="text" name="search_term" class="form-control flex-1 max-w-400 p-10 border rounded text-sm bg-input text-color" placeholder="🔍 Rechercher par n° de commande ou fournisseur..." value="<?= htmlspecialchars($searchTerm) ?>">
+    <button type="submit" class="btn btn-primary">Rechercher</button>
     <?php
     $clearSearchUrl = "index.php?page=orders_list";
     if (isset($_GET['sort_by'])) $clearSearchUrl .= "&sort_by=" . urlencode($_GET['sort_by']);
     if (isset($_GET['sort_dir'])) $clearSearchUrl .= "&sort_dir=" . urlencode($_GET['sort_dir']);
     ?>
     <?php if (!empty($searchTerm)): ?>
-        <a href="<?= $clearSearchUrl ?>" class="btn-clear">Effacer</a>
+        <a href="<?= $clearSearchUrl ?>" class="btn btn-secondary text-decoration-none">Effacer</a>
     <?php endif; ?>
 </form>
 
 <?php if (empty($orders) && $totalItems == 0): ?>
-    <div style="text-align: center; padding: 40px; color: #868e96; background: #fff; border-radius: 8px;">
+    <div class="card p-40 text-center text-muted border border-border rounded">
         <h3>Aucune commande trouvée <?= !empty($searchTerm) ? 'pour la recherche "' . htmlspecialchars($searchTerm) . '"' : '' ?>.</h3>
     </div>
 <?php else: ?>
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; color: #6c757d; font-size: 0.9em;">
+    <div class="flex-between-center mb-10 text-muted text-sm">
         <span><?= $totalItems ?> commandes trouvées</span>
         <span>Page <?= $currentPage ?> sur <?= $totalPages ?></span>
     </div>
 
-    <table class="orders-table">
-        <thead>
-            <tr>
-                <?php
-                function getOrderSortLink($columnKey, $columnDisplay, $currentSortBy, $currentSortDir, $currentSearchTerm) {
-                    $linkSortDir = ($currentSortBy === $columnKey && strtoupper($currentSortDir) === 'ASC') ? 'DESC' : 'ASC';
-                    $arrow = '';
-                    $style = "color: inherit; text-decoration: none; display: block;";
-                    if ($currentSortBy === $columnKey) {
-                        $arrow = (strtoupper($currentSortDir) === 'ASC') ? ' ▲' : ' ▼';
-                        $style .= " color: #0d6efd;";
-                    }
-                    $url = "index.php?page=orders_list&sort_by={$columnKey}&sort_dir={$linkSortDir}";
-                    if (!empty($currentSearchTerm)) {
-                        $url .= "&search_term=" . urlencode($currentSearchTerm);
-                    }
-                    return "<a href='{$url}' style='{$style}'>{$columnDisplay}{$arrow}</a>";
-                }
-                ?>
-                <th class="col-cmd"><?= getOrderSortLink('numero_commande', 'N° Commande', $sortBy, $sortDir, $searchTerm) ?></th>
-                <th class="col-supplier"><?= getOrderSortLink('fournisseur', 'Fournisseur', $sortBy, $sortDir, $searchTerm) ?></th>
-                <th class="col-date"><?= getOrderSortLink('date_commande', 'Date', $sortBy, $sortDir, $searchTerm) ?></th>
-                <th class="col-count" style="text-align: center;"><?= getOrderSortLink('nb_articles', 'Nb Articles', $sortBy, $sortDir, $searchTerm) ?></th>
-                <th class="col-total"><?= getOrderSortLink('total_ht', 'Total HT', $sortBy, $sortDir, $searchTerm) ?></th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($orders as $order): ?>
-                <tr onclick="window.location.href='index.php?page=stock_list&search_term=<?= urlencode($order['numero_commande']) ?>'" title="Voir les détails de la commande">
-                    <td class="col-cmd"><?= htmlspecialchars($order['numero_commande']) ?></td>
-                    <td class="col-supplier"><?= htmlspecialchars($order['fournisseur'] ?? '-') ?></td>
-                    <td class="col-date">
-                        <?php 
-                        if (!empty($order['date_commande'])) {
-                            echo htmlspecialchars(date('d/m/Y', strtotime($order['date_commande']))); 
-                        } else {
-                            echo '-';
+    <div class="card p-0 overflow-hidden shadow-sm">
+        <table class="w-full border-separate border-spacing-0">
+            <thead>
+                <tr>
+                    <?php
+                    function getOrderSortLink($columnKey, $columnDisplay, $currentSortBy, $currentSortDir, $currentSearchTerm) {
+                        $linkSortDir = ($currentSortBy === $columnKey && strtoupper($currentSortDir) === 'ASC') ? 'DESC' : 'ASC';
+                        $arrow = '';
+                        $activeClass = "";
+                        if ($currentSortBy === $columnKey) {
+                            $arrow = (strtoupper($currentSortDir) === 'ASC') ? ' ▲' : ' ▼';
+                            $activeClass = "text-primary";
                         }
-                        ?>
-                    </td>
-                    <td class="col-count"><?= htmlspecialchars($order['nb_articles']) ?></td>
-                    <td class="col-total"><?= htmlspecialchars(number_format((float)($order['total_ht'] ?? 0), 2, ',', ' ')) ?> €</td>
-                    <td style="text-align: center; white-space: nowrap;">
-                        <a href="index.php?page=stock_list&search_term=<?= urlencode($order['numero_commande']) ?>" style="text-decoration: none; margin-right: 10px;" title="Voir la liste">🔍</a>
-                        <a href="index.php?page=orders_edit&supplier=<?= urlencode($order['fournisseur']) ?>&order=<?= urlencode($order['numero_commande']) ?>" style="text-decoration: none; margin-right: 10px;" title="Modifier (Date/Fichiers)">✏️</a>
-                        <a href="index.php?page=stock_add&supplier=<?= urlencode($order['fournisseur']) ?>&order=<?= urlencode($order['numero_commande']) ?>" style="text-decoration: none;" title="Ajouter un article à cette commande">➕</a>
-                    </td>
+                        $url = "index.php?page=orders_list&sort_by={$columnKey}&sort_dir={$linkSortDir}";
+                        if (!empty($currentSearchTerm)) {
+                            $url .= "&search_term=" . urlencode($currentSearchTerm);
+                        }
+                        return "<a href='{$url}' class='text-dark no-underline block hover:text-primary {$activeClass}'>{$columnDisplay}{$arrow}</a>";
+                    }
+                    ?>
+                    <th class="p-15 text-left font-bold border-b border-border text-xs uppercase tracking-wide text-muted"><?= getOrderSortLink('numero_commande', 'N° Commande', $sortBy, $sortDir, $searchTerm) ?></th>
+                    <th class="p-15 text-left font-bold border-b border-border text-xs uppercase tracking-wide text-muted"><?= getOrderSortLink('fournisseur', 'Fournisseur', $sortBy, $sortDir, $searchTerm) ?></th>
+                    <th class="p-15 text-left font-bold border-b border-border text-xs uppercase tracking-wide text-muted"><?= getOrderSortLink('date_commande', 'Date', $sortBy, $sortDir, $searchTerm) ?></th>
+                    <th class="p-15 text-center font-bold border-b border-border text-xs uppercase tracking-wide text-muted"><?= getOrderSortLink('nb_articles', 'Nb Articles', $sortBy, $sortDir, $searchTerm) ?></th>
+                    <th class="p-15 text-right font-bold border-b border-border text-xs uppercase tracking-wide text-muted"><?= getOrderSortLink('total_ht', 'Total HT', $sortBy, $sortDir, $searchTerm) ?></th>
+                    <th class="p-15 text-left font-bold border-b border-border text-xs uppercase tracking-wide text-muted">Action</th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($orders as $order): ?>
+                    <tr class="hover:bg-hover cursor-pointer transition-colors" onclick="window.location.href='index.php?page=stock_list&search_term=<?= urlencode($order['numero_commande']) ?>'" title="Voir les détails de la commande">
+                        <td class="p-12 border-b border-border font-mono font-bold text-color"><?= htmlspecialchars($order['numero_commande']) ?></td>
+                        <td class="p-12 border-b border-border font-medium text-info"><?= htmlspecialchars($order['fournisseur'] ?? '-') ?></td>
+                        <td class="p-12 border-b border-border text-muted">
+                            <?php 
+                            if (!empty($order['date_commande'])) {
+                                echo htmlspecialchars(date('d/m/Y', strtotime($order['date_commande']))); 
+                            } else {
+                                echo '-';
+                            }
+                            ?>
+                        </td>
+                        <td class="p-12 border-b border-border text-center font-bold text-color"><?= htmlspecialchars($order['nb_articles']) ?></td>
+                        <td class="p-12 border-b border-border text-right font-bold text-success font-sans"><?= htmlspecialchars(number_format((float)($order['total_ht'] ?? 0), 2, ',', ' ')) ?> €</td>
+                        <td class="p-12 border-b border-border text-center whitespace-nowrap">
+                            <a href="index.php?page=stock_list&search_term=<?= urlencode($order['numero_commande']) ?>" class="no-underline mr-10 hover:opacity-80 transition-opacity" title="Voir la liste">🔍</a>
+                            <a href="index.php?page=orders_edit&supplier=<?= urlencode($order['fournisseur']) ?>&order=<?= urlencode($order['numero_commande']) ?>" class="no-underline mr-10 hover:opacity-80 transition-opacity" title="Modifier (Date/Fichiers)">✏️</a>
+                            <a href="index.php?page=stock_add&supplier=<?= urlencode($order['fournisseur']) ?>&order=<?= urlencode($order['numero_commande']) ?>" class="no-underline hover:opacity-80 transition-opacity" title="Ajouter un article à cette commande">➕</a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 
     <!-- Pagination -->
     <?php if ($totalPages > 1): ?>
-    <div class="pagination" style="margin-top: 20px; text-align: center;">
-        <?php
-        $baseUrl = "index.php?page=orders_list";
-        if (!empty($searchTerm)) {
-            $baseUrl .= "&search_term=" . urlencode($searchTerm);
-        }
-        $baseUrl .= "&sort_by=" . urlencode($sortBy) . "&sort_dir=" . urlencode($sortDir);
-
-        if ($currentPage > 1): ?>
-            <a href="<?= $baseUrl ?>&p=<?= $currentPage - 1 ?>" style="padding: 5px 10px; margin: 0 2px; border: 1px solid #ddd; text-decoration: none;">&laquo; Précédent</a>
+    <div class="mt-20 text-center flex justify-center gap-5">
+        <?php if ($currentPage > 1): ?>
+            <a href="<?= $baseUrl ?>&p=<?= $currentPage - 1 ?>" class="btn btn-sm btn-secondary">&laquo; Précédent</a>
         <?php endif; ?>
 
         <?php
@@ -315,20 +186,20 @@ if (isset($pdo)) {
         $windowStart = max(1, $currentPage - $pageWindow);
         $windowEnd = min($totalPages, $currentPage + $pageWindow);
 
-        if ($windowStart > 1) echo '<span style="padding: 5px 10px; margin: 0 2px;">...</span>';
+        if ($windowStart > 1) echo '<span class="px-10 py-5 text-muted opacity-50">...</span>';
 
         for ($i = $windowStart; $i <= $windowEnd; $i++):
             if ($i == $currentPage): ?>
-                <strong style="padding: 5px 10px; margin: 0 2px; border: 1px solid #007bff; background-color: #007bff; color: white;"><?= $i ?></strong>
+                <strong class="btn btn-sm btn-primary"><?= $i ?></strong>
             <?php else: ?>
-                <a href="<?= $baseUrl ?>&p=<?= $i ?>" style="padding: 5px 10px; margin: 0 2px; border: 1px solid #ddd; text-decoration: none;"><?= $i ?></a>
+                <a href="<?= $baseUrl ?>&p=<?= $i ?>" class="btn btn-sm btn-secondary"><?= $i ?></a>
             <?php endif;
         endfor;
 
-        if ($windowEnd < $totalPages) echo '<span style="padding: 5px 10px; margin: 0 2px;">...</span>';
+        if ($windowEnd < $totalPages) echo '<span class="px-10 py-5 text-muted opacity-50">...</span>';
         
         if ($currentPage < $totalPages): ?>
-            <a href="<?= $baseUrl ?>&p=<?= $currentPage + 1 ?>" style="padding: 5px 10px; margin: 0 2px; border: 1px solid #ddd; text-decoration: none;">Suivant &raquo;</a>
+            <a href="<?= $baseUrl ?>&p=<?= $currentPage + 1 ?>" class="btn btn-sm btn-secondary">Suivant &raquo;</a>
         <?php endif; ?>
     </div>
     <?php endif; ?>

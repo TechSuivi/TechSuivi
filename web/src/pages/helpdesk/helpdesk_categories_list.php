@@ -104,296 +104,7 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
 }
 ?>
 
-<style>
-/* Styles modernes pour la page catégories helpdesk */
-.list-page {
-    background: var(--bg-color);
-    color: var(--text-color);
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.page-header {
-    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-
-.page-header h1 {
-    margin: 0;
-    font-size: 1.4em;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.form-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    border: 1px solid var(--border-color);
-}
-
-.form-card h2 {
-    margin: 0 0 20px 0;
-    font-size: 1.1em;
-    color: var(--text-color);
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    font-size: 0.95em;
-}
-
-.form-control {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 1em;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #e74c3c;
-    box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.1);
-}
-
-.form-actions {
-    display: flex;
-    gap: 12px;
-    padding-top: 15px;
-}
-
-.btn {
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: none;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
-}
-
-.btn-secondary {
-    background: var(--input-bg);
-    color: var(--text-color);
-    border: 2px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    background: var(--hover-bg);
-}
-
-.alert {
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.alert-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.alert-icon {
-    font-size: 1.5em;
-    flex-shrink: 0;
-}
-
-.categories-container {
-    display: grid;
-    gap: 12px;
-}
-
-.category-card {
-    background: var(--card-bg);
-    border-radius: 10px;
-    padding: 15px 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border: 1px solid var(--border-color);
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-}
-
-.category-card:hover {
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.category-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex: 1;
-}
-
-.category-id {
-    font-size: 0.85em;
-    color: var(--text-muted);
-    background: var(--input-bg);
-    padding: 4px 10px;
-    border-radius: 6px;
-    min-width: 50px;
-    text-align: center;
-}
-
-.category-name {
-    font-weight: 600;
-    font-size: 1.05em;
-    color: var(--text-color);
-}
-
-.category-actions {
-    display: flex;
-    gap: 10px;
-}
-
-.btn-edit {
-    background: #3498db;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.85em;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.btn-edit:hover {
-    background: #2980b9;
-}
-
-.btn-delete {
-    background: #e74c3c;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.85em;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.btn-delete:hover {
-    background: #c0392b;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--text-muted);
-}
-
-.empty-icon {
-    font-size: 3.5em;
-    margin-bottom: 15px;
-    opacity: 0.5;
-}
-
-.list-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.list-title {
-    font-size: 1.2em;
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.count-badge {
-    background: var(--input-bg);
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 0.9em;
-    color: var(--text-muted);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .category-card {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .category-actions {
-        width: 100%;
-    }
-    
-    .btn-edit, .btn-delete {
-        flex: 1;
-        justify-content: center;
-    }
-}
-</style>
-
-<div class="list-page">
+<div class="container container-center max-w-800">
     <div class="page-header">
         <h1>
             <span>📂</span>
@@ -402,52 +113,53 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
     </div>
 
     <?php if ($sessionMessage): ?>
-        <div class="alert alert-success">
-            <span class="alert-icon">✅</span>
+        <div class="alert alert-success mb-20">
+            <span class="mr-10">✅</span>
             <div><?= htmlspecialchars($sessionMessage) ?></div>
         </div>
     <?php endif; ?>
 
     <?php if ($errorMessage): ?>
-        <div class="alert alert-error">
-            <span class="alert-icon">⚠️</span>
+        <div class="alert alert-danger mb-20">
+            <span class="mr-10">⚠️</span>
             <div><?= htmlspecialchars($errorMessage) ?></div>
         </div>
     <?php endif; ?>
 
     <!-- Formulaire d'ajout/modification -->
-    <div class="form-card">
-        <h2><?= $editData ? '✏️ Modifier la catégorie' : '➕ Ajouter une catégorie' ?></h2>
+    <div class="card bg-secondary border mb-30">
+        <h2 class="mt-0 mb-20 text-lg flex items-center gap-10">
+            <?= $editData ? '✏️ Modifier la catégorie' : '➕ Ajouter une catégorie' ?>
+        </h2>
         <form method="POST">
             <?php if ($editData): ?>
                 <input type="hidden" name="id" value="<?= htmlspecialchars($editData['ID']) ?>">
             <?php endif; ?>
             
-            <div class="form-group">
-                <label for="categorie">Nom de la catégorie</label>
+            <div class="mb-20">
+                <label for="categorie" class="block mb-8 font-bold">Nom de la catégorie</label>
                 <input type="text" 
                        id="categorie" 
                        name="categorie" 
-                       class="form-control"
+                       class="form-control w-full p-10 border rounded-8 bg-input text-dark"
                        required
                        placeholder="Ex: Support technique, Facturation..."
                        value="<?= htmlspecialchars($editData['CATEGORIE'] ?? '') ?>">
             </div>
 
-            <div class="form-group">
-                <label for="couleur">Couleur</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="mb-20">
+                <label for="couleur" class="block mb-8 font-bold">Couleur</label>
+                <div class="flex items-center gap-10">
                     <input type="color" 
                            id="couleur" 
                            name="couleur" 
-                           class="form-control"
-                           style="width: 60px; padding: 2px; height: 40px; cursor: pointer;"
+                           class="h-40 w-60 p-2 cursor-pointer border rounded-4 bg-input"
                            value="<?= htmlspecialchars($editData['couleur'] ?? '#3498db') ?>">
-                    <span style="font-size: 0.9em; color: var(--text-muted);">(Choisir une couleur pour l'affichage)</span>
+                    <span class="text-sm text-muted opacity-80">(Choisir une couleur pour l'affichage)</span>
                 </div>
             </div>
             
-            <div class="form-actions">
+            <div class="flex gap-15 pt-15 border-t border-border">
                 <button type="submit" class="btn btn-primary">
                     <span><?= $editData ? '✅' : '➕' ?></span>
                     <?= $editData ? 'Modifier' : 'Ajouter' ?>
@@ -463,36 +175,38 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
     </div>
 
     <!-- Liste des catégories -->
-    <div class="list-header">
-        <div class="list-title">Liste des catégories</div>
-        <div class="count-badge"><?= count($categories) ?> catégorie<?= count($categories) > 1 ? 's' : '' ?></div>
+    <div class="flex justify-between items-center mb-20">
+        <div class="text-lg font-bold">Liste des catégories</div>
+        <div class="bg-light px-12 py-4 rounded-12 text-sm text-muted font-bold shadow-sm border border-border">
+            <?= count($categories) ?> catégorie<?= count($categories) > 1 ? 's' : '' ?>
+        </div>
     </div>
 
     <?php if (empty($categories) && empty($errorMessage)): ?>
-        <div class="empty-state">
-            <div class="empty-icon">📂</div>
-            <h3>Aucune catégorie trouvée</h3>
-            <p>Ajoutez votre première catégorie helpdesk ci-dessus</p>
+        <div class="card text-center p-40 border-dashed">
+            <div class="text-4xl mb-15 opacity-50">📂</div>
+            <h3 class="mt-0">Aucune catégorie trouvée</h3>
+            <p class="text-muted">Ajoutez votre première catégorie helpdesk ci-dessus</p>
         </div>
     <?php else: ?>
-        <div class="categories-container">
+        <div class="grid gap-12">
             <?php foreach ($categories as $category): ?>
-                <div class="category-card">
-                    <div class="category-info">
-                        <div class="category-id">#<?= htmlspecialchars((string)($category['ID'] ?? '')) ?></div>
-                        <div class="category-color-badge" style="width: 20px; height: 20px; border-radius: 50%; background-color: <?= htmlspecialchars($category['couleur'] ?? '#3498db') ?>; border: 1px solid rgba(0,0,0,0.1);" title="Couleur: <?= htmlspecialchars($category['couleur'] ?? '#3498db') ?>"></div>
-                        <div class="category-name"><?= htmlspecialchars($category['CATEGORIE'] ?? '') ?></div>
+                <div class="card p-15 flex items-center justify-between gap-15 hover:shadow-md transition-transform transform hover:translate-x-1 border">
+                    <div class="flex items-center gap-15 flex-1">
+                        <div class="bg-light px-10 py-4 rounded-6 text-sm text-muted min-w-40 text-center font-mono">#<?= htmlspecialchars((string)($category['ID'] ?? '')) ?></div>
+                        <div class="w-20 h-20 rounded-50 shadow-sm border border-black-opacity-10" style="background-color: <?= htmlspecialchars($category['couleur'] ?? '#3498db') ?>;" title="Couleur: <?= htmlspecialchars($category['couleur'] ?? '#3498db') ?>"></div>
+                        <div class="font-bold text-lg"><?= htmlspecialchars($category['CATEGORIE'] ?? '') ?></div>
                     </div>
-                    <div class="category-actions">
-                        <a href="index.php?page=helpdesk_categories&edit=<?= htmlspecialchars((string)($category['ID'])) ?>" class="btn-edit">
+                    <div class="flex gap-10">
+                        <a href="index.php?page=helpdesk_categories&edit=<?= htmlspecialchars((string)($category['ID'])) ?>" class="btn btn-sm btn-primary flex items-center gap-5">
                             <span>✏️</span>
-                            Modifier
+                            <span class="hidden sm:inline">Modifier</span>
                         </a>
                         <a href="actions/helpdesk_categories_delete.php?id=<?= htmlspecialchars((string)($category['ID'])) ?>" 
                            onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?');" 
-                           class="btn-delete">
+                           class="btn btn-sm btn-danger flex items-center gap-5">
                             <span>🗑️</span>
-                            Supprimer
+                            <span class="hidden sm:inline">Supprimer</span>
                         </a>
                     </div>
                 </div>

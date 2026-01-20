@@ -30,262 +30,7 @@ if (isset($pdo)) {
 }
 ?>
 
-<style>
-/* Styles modernes pour la page de liste des liens */
-.list-page {
-    background: var(--bg-color);
-    color: var(--text-color);
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.page-header {
-    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.page-header h1 {
-    margin: 0;
-    font-size: 1.4em;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.btn-add {
-    background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-    color: white;
-    text-decoration: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-}
-
-.btn-add:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.3);
-}
-
-.alert {
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 25px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.alert-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.alert-icon {
-    font-size: 1.5em;
-    flex-shrink: 0;
-}
-
-.links-container {
-    display: grid;
-    gap: 15px;
-}
-
-.link-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
-}
-
-.link-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-}
-
-.link-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    gap: 15px;
-}
-
-.link-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-}
-
-.link-name {
-    font-weight: 600;
-    font-size: 1.1em;
-    color: var(--text-color);
-}
-
-.link-id {
-    font-size: 0.85em;
-    color: var(--text-muted);
-    background: var(--input-bg);
-    padding: 2px 8px;
-    border-radius: 4px;
-}
-
-.link-badges {
-    display: flex;
-    gap: 8px;
-}
-
-.badge {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.75em;
-    font-weight: 500;
-}
-
-.badge-login-yes {
-    background: #d4edda;
-    color: #155724;
-}
-
-.badge-login-no {
-    background: #e2e3e5;
-    color: #6c757d;
-}
-
-.link-description {
-    color: var(--text-muted);
-    margin-bottom: 12px;
-    line-height: 1.5;
-}
-
-.link-url {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px;
-    background: var(--input-bg);
-    border-radius: 6px;
-    margin-bottom: 12px;
-}
-
-.link-url a {
-    color: #3498db;
-    text-decoration: none;
-    word-break: break-all;
-    flex: 1;
-}
-
-.link-url a:hover {
-    text-decoration: underline;
-}
-
-.link-actions {
-    display: flex;
-    gap: 10px;
-    padding-top: 12px;
-    border-top: 1px solid var(--border-color);
-}
-
-.btn {
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 0.9em;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.btn-edit {
-    background: #3498db;
-    color: white;
-}
-
-.btn-edit:hover {
-    background: #2980b9;
-}
-
-.btn-delete {
-    background: #e74c3c;
-    color: white;
-}
-
-.btn-delete:hover {
-    background: #c0392b;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--text-muted);
-}
-
-.empty-icon {
-    font-size: 4em;
-    margin-bottom: 20px;
-    opacity: 0.5;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .link-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .link-actions {
-        flex-direction: column;
-    }
-    
-    .btn {
-        width: 100%;
-        justify-content: center;
-    }
-}
-</style>
+<!-- Inline CSS Removed for Audit -->
 
 <div class="list-page">
     <div class="page-header">
@@ -293,7 +38,7 @@ if (isset($pdo)) {
             <span>🔗</span>
             Liste des Liens
         </h1>
-        <button onclick="openAddLinkModal()" class="btn-add" style="border: none; cursor: pointer; font-size: 1em;">
+        <button onclick="openAddLinkModal()" class="btn btn-success flex items-center gap-10">
             <span>➕</span>
             Ajouter un lien
         </button>
@@ -318,54 +63,56 @@ if (isset($pdo)) {
             <div class="empty-icon">🔗</div>
             <h3>Aucun lien trouvé</h3>
             <p>Commencez par ajouter votre premier lien utile</p>
-            <button onclick="openAddLinkModal()" class="btn-add" style="margin-top: 15px; border: none; cursor: pointer;">
+            <button onclick="openAddLinkModal()" class="btn btn-success mt-15">
                 <span>➕</span> Ajouter un lien
             </button>
         </div>
     <?php else: ?>
         <div class="links-container">
             <?php foreach ($liens as $lien): ?>
-                <div class="link-card">
-                    <div class="link-header">
-                        <div class="link-title">
-                            <span class="link-name"><?= htmlspecialchars($lien['NOM'] ?? '') ?></span>
-                            <span class="link-id">#<?= htmlspecialchars((string)($lien['ID'] ?? '')) ?></span>
+                <div class="card border flex flex-col justify-between transition-transform hover:translate-y-2 hover:shadow-lg">
+                    <div class="mb-15">
+                        <div class="flex items-start justify-between gap-15 mb-10">
+                            <div class="flex items-center gap-10 flex-1">
+                                <span class="font-bold text-lg text-dark"><?= htmlspecialchars($lien['NOM'] ?? '') ?></span>
+                                <span class="text-xs text-muted bg-light px-5 rounded-4">#<?= htmlspecialchars((string)($lien['ID'] ?? '')) ?></span>
+                            </div>
+                            <div class="flex gap-5">
+                                <?php if (isset($lien['show_on_login']) && $lien['show_on_login']): ?>
+                                    <span class="badge badge-success">📋 Public</span>
+                                <?php else: ?>
+                                    <span class="badge badge-secondary">🔒 Privé</span>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                        <div class="link-badges">
-                            <?php if (isset($lien['show_on_login']) && $lien['show_on_login']): ?>
-                                <span class="badge badge-login-yes">📋 Visible sur login</span>
-                            <?php else: ?>
-                                <span class="badge badge-login-no">🔒 Privé</span>
-                            <?php endif; ?>
+
+                        <?php if (!empty($lien['DESCRIPTION'])): ?>
+                            <div class="text-muted text-sm mb-10 leading-normal">
+                                <?= nl2br(htmlspecialchars($lien['DESCRIPTION'])) ?>
+                            </div>
+                        <?php endif; ?>
+
+                        <div class="bg-light p-10 rounded-6 flex items-center gap-8 mb-10">
+                            <span>🌐</span>
+                            <a href="<?= htmlspecialchars($lien['URL'] ?? '') ?>" target="_blank" class="text-primary no-underline break-all hover:underline text-sm flex-1">
+                                <?= htmlspecialchars($lien['URL'] ?? '') ?>
+                            </a>
                         </div>
                     </div>
 
-                    <?php if (!empty($lien['DESCRIPTION'])): ?>
-                        <div class="link-description">
-                            <?= nl2br(htmlspecialchars($lien['DESCRIPTION'])) ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <div class="link-url">
-                        <span>🌐</span>
-                        <a href="<?= htmlspecialchars($lien['URL'] ?? '') ?>" target="_blank">
-                            <?= htmlspecialchars($lien['URL'] ?? '') ?>
-                        </a>
-                    </div>
-
-                    <div class="link-actions">
+                    <div class="flex justify-end gap-10 pt-10 border-t border-border">
                         <button onclick="openEditLinkModal(this)" 
                                 data-id="<?= htmlspecialchars((string)($lien['ID'])) ?>"
                                 data-nom="<?= htmlspecialchars($lien['NOM'] ?? '') ?>"
                                 data-url="<?= htmlspecialchars($lien['URL'] ?? '') ?>"
                                 data-desc="<?= htmlspecialchars($lien['DESCRIPTION'] ?? '') ?>"
                                 data-login="<?= isset($lien['show_on_login']) && $lien['show_on_login'] ? '1' : '0' ?>"
-                                class="btn btn-edit" style="border:none; cursor:pointer;">
+                                class="btn btn-primary btn-sm">
                             <span>✏️</span>
                             Modifier
                         </button>
                         <button onclick="openDeleteConfirm(<?= htmlspecialchars((string)($lien['ID'])) ?>)" 
-                                class="btn btn-delete" style="border:none; cursor:pointer;">
+                                class="btn btn-danger btn-sm">
                             <span>🗑️</span>
                             Supprimer
                         </button>
@@ -379,113 +126,11 @@ if (isset($pdo)) {
 <!-- ========================================== -->
 <!-- MODAL AJOUT LIEN (POPUP) -->
 <!-- ========================================== -->
-<style>
-/* Modal Styles (Consistent with other pages) */
-.custom-modal {
-    display: none;
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    backdrop-filter: blur(5px);
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 0.2s ease;
-}
+<!-- Modal CSS Removed for Audit -->
 
-.modal-content {
-    background-color: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    width: 90%;
-    max-width: 600px;
-    border: 1px solid var(--border-color);
-    animation: slideUp 0.3s ease;
-    overflow: hidden;
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-title {
-    font-size: 1.2em;
-    font-weight: 600;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.close-modal {
-    font-size: 1.5em;
-    color: rgba(255,255,255,0.8);
-    cursor: pointer;
-    line-height: 1;
-}
-.close-modal:hover { color: white; }
-
-.modal-body {
-    padding: 20px;
-    max-height: 70vh;
-    overflow-y: auto;
-}
-
-.modal-footer {
-    padding: 15px 20px;
-    background: var(--input-bg);
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-/* Form Elements inside Modal */
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-color); }
-.required { color: #e74c3c; margin-left: 3px; }
-
-.form-control {
-    width: 100%;
-    padding: 10px 12px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 1em;
-    box-sizing: border-box;
-}
-.form-control:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-}
-
-.checkbox-wrapper {
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 12px;
-}
-.checkbox-label { display: flex; gap: 10px; cursor: pointer; align-items: flex-start; }
-.checkbox-title { font-weight: 500; font-size: 0.95em; }
-.checkbox-description { font-size: 0.85em; color: var(--text-muted); }
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-</style>
-
-<div id="addLinkModal" class="custom-modal">
+<div id="addLinkModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
     <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-gradient-primary">
             <h2 class="modal-title"><span>🔗</span> Nouveau lien</h2>
             <span class="close-modal" onclick="closeAddLinkModal()">&times;</span>
         </div>
@@ -524,8 +169,8 @@ if (isset($pdo)) {
         </div>
         
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeAddLinkModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-color);">Annuler</button>
-            <button type="button" class="btn btn-add" onclick="submitAddLinkForm()" style="border:none; cursor:pointer;">Ajouter</button>
+            <button type="button" class="btn btn-secondary" onclick="closeAddLinkModal()">Annuler</button>
+            <button type="button" class="btn btn-success" onclick="submitAddLinkForm()">Ajouter</button>
         </div>
     </div>
 </div>
@@ -534,9 +179,9 @@ if (isset($pdo)) {
 <!-- ========================================== -->
 <!-- MODAL MODIFICATION LIEN -->
 <!-- ========================================== -->
-<div id="editLinkModal" class="custom-modal">
+<div id="editLinkModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
     <div class="modal-content">
-        <div class="modal-header" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
+        <div class="modal-header bg-gradient-info">
             <h2 class="modal-title"><span>✏️</span> Modifier le lien</h2>
             <span class="close-modal" onclick="closeEditLinkModal()">&times;</span>
         </div>
@@ -577,8 +222,8 @@ if (isset($pdo)) {
         </div>
         
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeEditLinkModal()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-color);">Annuler</button>
-            <button type="button" class="btn btn-edit" onclick="submitEditLinkForm()" style="border:none; cursor:pointer;">Enregistrer</button>
+            <button type="button" class="btn btn-secondary" onclick="closeEditLinkModal()">Annuler</button>
+            <button type="button" class="btn btn-info" onclick="submitEditLinkForm()">Enregistrer</button>
         </div>
     </div>
 </div>
@@ -586,9 +231,9 @@ if (isset($pdo)) {
 <!-- ========================================== -->
 <!-- MODAL CONFIRMATION SUPPRESSION -->
 <!-- ========================================== -->
-<div id="deleteConfirmModal" class="custom-modal">
+<div id="deleteConfirmModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
     <div class="modal-content" style="max-width: 400px;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+        <div class="modal-header bg-gradient-danger">
             <h2 class="modal-title"><span>⚠️</span> Confirmation</h2>
             <span class="close-modal" onclick="closeDeleteConfirm()">&times;</span>
         </div>
@@ -597,8 +242,8 @@ if (isset($pdo)) {
             <p style="font-size:0.9em; color:var(--text-muted);">Cette action est irréversible.</p>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirm()" style="background:transparent; border:1px solid var(--border-color); color:var(--text-color);">Annuler</button>
-            <button type="button" class="btn btn-delete" onclick="confirmDeleteAction()" style="border:none; cursor:pointer;">Supprimer</button>
+            <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirm()">Annuler</button>
+            <button type="button" class="btn btn-danger" onclick="confirmDeleteAction()">Supprimer</button>
         </div>
     </div>
 </div>
@@ -635,7 +280,7 @@ function submitAddLinkForm() {
         return;
     }
     
-    const btn = document.querySelector('#addLinkModal .btn-add');
+    const btn = document.querySelector('#addLinkModal .btn-success');
     const originalText = btn.innerHTML;
     btn.innerHTML = 'Ajout...';
     btn.disabled = true;
@@ -692,7 +337,7 @@ function submitEditLinkForm() {
     
     alertsDiv.innerHTML = '';
     
-    const btn = document.querySelector('#editLinkModal .btn-edit');
+    const btn = document.querySelector('#editLinkModal .btn-info');
     const originalText = btn.innerHTML;
     btn.innerHTML = 'Enregistrement...';
     btn.disabled = true;
@@ -734,7 +379,7 @@ function closeDeleteConfirm() {
 function confirmDeleteAction() {
     if (!deleteTargetId) return;
     
-    const btn = document.querySelector('#deleteConfirmModal .btn-delete');
+    const btn = document.querySelector('#deleteConfirmModal .btn-danger');
     const originalText = btn.innerHTML;
     btn.innerHTML = 'Suppression...';
     btn.disabled = true;
@@ -766,10 +411,11 @@ function confirmDeleteAction() {
     });
 }
 
-// Global Click listener for all modals
+/* Global Click listener for all modals - DISABLED as per user request
 window.onclick = function(event) {
     if (event.target == document.getElementById('addLinkModal')) closeAddLinkModal();
     if (event.target == document.getElementById('editLinkModal')) closeEditLinkModal();
     if (event.target == document.getElementById('deleteConfirmModal')) closeDeleteConfirm();
 }
+*/
 </script>

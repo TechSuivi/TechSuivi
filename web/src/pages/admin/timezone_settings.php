@@ -29,7 +29,7 @@ if (isset($pdo)) {
             $current_offset = floatval($result['config_value']);
         }
     } catch (PDOException $e) {
-        $message = '<p style="color: red;">Erreur lors de l\'accès à la configuration : ' . htmlspecialchars($e->getMessage()) . '</p>';
+        $message = '<div class="alert alert-error">Erreur lors de l\'accès à la configuration : ' . htmlspecialchars($e->getMessage()) . '</div>';
     }
 }
 
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
     
     // Valider l'offset (entre -12 et +14 heures)
     if ($new_offset < -12 || $new_offset > 14) {
-        $message = '<p style="color: red;">L\'offset doit être compris entre -12 et +14 heures.</p>';
+        $message = '<div class="alert alert-error">L\'offset doit être compris entre -12 et +14 heures.</div>';
     } else {
         try {
             // Sauvegarder la configuration dans la base de données
@@ -48,9 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
             $stmt->execute([$new_offset, $new_offset]);
             
             $current_offset = $new_offset;
-            $message = '<p style="color: green;">Configuration du fuseau horaire sauvegardée avec succès !</p>';
+            $message = '<div class="alert alert-success">Configuration du fuseau horaire sauvegardée avec succès !</div>';
         } catch (PDOException $e) {
-            $message = '<p style="color: red;">Erreur lors de la sauvegarde : ' . htmlspecialchars($e->getMessage()) . '</p>';
+            $message = '<div class="alert alert-error">Erreur lors de la sauvegarde : ' . htmlspecialchars($e->getMessage()) . '</div>';
         }
     }
 }
@@ -60,120 +60,36 @@ $utc_time = time();
 $local_time = $utc_time + ($current_offset * 3600);
 ?>
 
-<style>
-.timezone-config {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.time-display {
-    background-color: var(--bg-secondary, #f8f9fa);
-    border: 1px solid var(--border-color, #dee2e6);
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-    text-align: center;
-}
-
-.time-display h3 {
-    margin-top: 0;
-    color: var(--accent-color, #007bff);
-}
-
-.time-value {
-    font-size: 24px;
-    font-weight: bold;
-    color: var(--text-color, #333);
-    margin: 10px 0;
-}
-
-.offset-selector {
-    margin: 20px 0;
-}
-
-.offset-selector label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-.offset-selector select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid var(--border-color, #ccc);
-    border-radius: 4px;
-    background-color: var(--input-bg, white);
-    color: var(--text-color, #333);
-    font-size: 16px;
-}
-
-.timezone-info {
-    background-color: #e7f3ff;
-    border: 1px solid #b3d9ff;
-    border-radius: 8px;
-    padding: 15px;
-    margin: 20px 0;
-}
-
-.timezone-info h4 {
-    margin-top: 0;
-    color: #0066cc;
-}
-
-/* Mode sombre */
-body.dark .time-display {
-    background-color: #2b2b2b;
-    border-color: #555;
-}
-
-body.dark .time-value {
-    color: #fff;
-}
-
-body.dark .offset-selector select {
-    background-color: #1a1a1a;
-    border-color: #555;
-    color: #fff;
-}
-
-body.dark .timezone-info {
-    background-color: #1a3a5c;
-    border-color: #4dabf7;
-}
-
-body.dark .timezone-info h4 {
-    color: #4dabf7;
-}
-</style>
-
-<div class="timezone-config">
-    <h1>⏰ Configuration du Fuseau Horaire</h1>
+<div class="max-w-600 container-center">
+    <div class="page-header">
+        <h1>⏰ Configuration du Fuseau Horaire</h1>
+    </div>
     
     <?php echo $message; ?>
     
     <?php if (!isset($pdo)): ?>
-        <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 8px; padding: 15px; margin: 20px 0; color: #721c24;">
-            <h4>❌ Erreur de connexion</h4>
+        <div class="alert alert-error mb-20">
+            <h4 class="mt-0 text-danger">❌ Erreur de connexion</h4>
             <p>La configuration du fuseau horaire nécessite une connexion à la base de données.</p>
         </div>
     <?php else: ?>
     
-    <div class="time-display">
-        <h3>🌍 Heure Actuelle</h3>
-        <div class="time-value">
+    <div class="card mb-20 text-center">
+        <h3 class="card-title text-primary mb-15">🌍 Heure Actuelle</h3>
+        <div class="text-2xl font-bold my-10">
             <?= date('d/m/Y à H:i:s', $utc_time) ?> (UTC)
         </div>
-        <div class="time-value">
+        <div class="text-2xl font-bold my-10 text-success">
             <?= date('d/m/Y à H:i:s', $local_time) ?> (Local)
         </div>
-        <p>Décalage configuré : <?= $current_offset >= 0 ? '+' : '' ?><?= $current_offset ?> heures</p>
+        <p class="text-muted">Décalage configuré : <?= $current_offset >= 0 ? '+' : '' ?><?= $current_offset ?> heures</p>
     </div>
     
-    <div class="timezone-info">
-        <h4>ℹ️ Information</h4>
+    <div class="alert alert-info mb-30">
+        <h4 class="mt-0 text-info">ℹ️ Information</h4>
         <p>Cette configuration permet de corriger l'affichage des heures dans l'application lorsque le serveur utilise un fuseau horaire différent de votre fuseau horaire local.</p>
         <p><strong>Exemples courants :</strong></p>
-        <ul>
+        <ul class="pl-20">
             <li><strong>France (heure d'hiver) :</strong> +1 heure</li>
             <li><strong>France (heure d'été) :</strong> +2 heures</li>
             <li><strong>Belgique/Suisse :</strong> +1 ou +2 heures selon la saison</li>
@@ -181,10 +97,10 @@ body.dark .timezone-info h4 {
         </ul>
     </div>
     
-    <form method="POST" style="margin-top: 30px;">
-        <div class="offset-selector">
-            <label for="timezone_offset">Décalage horaire (en heures) :</label>
-            <select id="timezone_offset" name="timezone_offset" required>
+    <form method="POST" class="card mt-30">
+        <div class="mb-20">
+            <label for="timezone_offset" class="font-bold block mb-10">Décalage horaire (en heures) :</label>
+            <select id="timezone_offset" name="timezone_offset" required class="form-control">
                 <?php for ($i = -12; $i <= 14; $i += 0.5): ?>
                     <option value="<?= $i ?>" <?= $i == $current_offset ? 'selected' : '' ?>>
                         <?= $i >= 0 ? '+' : '' ?><?= $i ?> heures
@@ -196,11 +112,11 @@ body.dark .timezone-info h4 {
             </select>
         </div>
         
-        <div style="margin-top: 20px; text-align: center;">
-            <button type="submit" style="padding: 12px 30px; background-color: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+        <div class="text-center mt-20 flex justify-center gap-15">
+            <button type="submit" class="btn btn-primary">
                 💾 Sauvegarder la Configuration
             </button>
-            <a href="index.php?page=settings&tab=system" style="margin-left: 15px; text-decoration: none; padding: 12px 20px; background-color: #6c757d; color: white; border-radius: 4px; display: inline-block;">
+            <a href="index.php?page=settings&tab=system" class="btn btn-secondary">
                 ← Retour aux Paramètres
             </a>
         </div>
@@ -208,8 +124,8 @@ body.dark .timezone-info h4 {
     
     <?php endif; ?>
     
-    <div style="margin-top: 30px; text-align: center;">
-        <a href="test_timezone.php" target="_blank" style="color: var(--accent-color); text-decoration: underline;">
+    <div class="text-center mt-30">
+        <a href="test_timezone.php" target="_blank" class="text-primary underline">
             🔍 Tester la Configuration du Fuseau Horaire
         </a>
     </div>

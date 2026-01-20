@@ -50,21 +50,19 @@
 }
 
 .modal-header {
-    background: var(--card-bg);
-    color: var(--text-color);
-    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%) !important;
+    color: white;
+    padding: 15px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border-radius: 12px 12px 0 0;
 }
 
-.modal-header h2,
-.modal-header h3 {
+.modal-header h2 {
     margin: 0;
-    font-size: 1.2rem;
-    font-weight: 700;
+    font-size: 1.2em;
+    font-weight: 500;
 }
 
 /* Button Styles for Modals */

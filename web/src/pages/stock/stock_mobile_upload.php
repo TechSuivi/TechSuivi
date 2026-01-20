@@ -7,43 +7,32 @@ if (!defined('TECHSUIVI_INCLUDED')) {
 $fournisseur = $_GET['supplier'] ?? '';
 $numero_commande = $_GET['order'] ?? '';
 ?>
-<div style="padding: 20px; max-width: 600px; margin: 0 auto; text-align: center; font-family: sans-serif;">
-    <h2 style="color: #2196f3;">📷 Ajout Photo Rapide</h2>
+<div class="container container-center max-w-600 p-20 text-center font-sans">
+    <h2 class="text-primary mt-0">📷 Ajout Photo Rapide</h2>
     
     <?php if (empty($fournisseur) || empty($numero_commande)): ?>
-        <div style="color: red; padding: 20px; background: #ffebee; border-radius: 8px;">
+        <div class="alert alert-danger">
             ⚠️ Informations manquantes (Fournisseur ou N° Commande).<br>
             Veuillez rescanner le QR Code.
         </div>
     <?php else: ?>
-        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
-            <div style="margin-bottom: 5px;"><strong>Fournisseur:</strong> <?= htmlspecialchars($fournisseur) ?></div>
-            <div><strong>N° Commande:</strong> <?= htmlspecialchars($numero_commande) ?></div>
+        <div class="card p-15 text-left mb-20 border-l-4 border-l-info">
+            <div class="mb-5 text-color"><strong>Fournisseur:</strong> <?= htmlspecialchars($fournisseur) ?></div>
+            <div class="text-color"><strong>N° Commande:</strong> <?= htmlspecialchars($numero_commande) ?></div>
         </div>
 
-        <div style="margin: 30px 0;">
-            <input type="file" id="camera_input" accept="image/*" capture="environment" style="display: none;">
-            <button onclick="document.getElementById('camera_input').click()" style="
-                background-color: #2196f3; 
-                color: white; 
-                border: none; 
-                padding: 20px 30px; 
-                border-radius: 50px; 
-                font-size: 1.2em; 
-                font-weight: bold;
-                box-shadow: 0 4px 10px rgba(33, 150, 243, 0.4);
-                width: 100%;
-                cursor: pointer;
-            ">
+        <div class="my-30">
+            <input type="file" id="camera_input" accept="image/*" capture="environment" class="hidden">
+            <button onclick="document.getElementById('camera_input').click()" class="btn btn-primary w-full py-20 px-30 rounded-full text-xl shadow-lg font-bold cursor-pointer">
                 📸 PRENDRE UNE PHOTO
             </button>
         </div>
 
-        <div id="preview_container" style="display: none; margin-bottom: 20px;">
-            <img id="preview_img" style="max-width: 100%; border-radius: 8px; border: 2px solid #ccc;">
+        <div id="preview_container" class="hidden mb-20">
+            <img id="preview_img" class="max-w-full rounded border-2 border-border shadow-sm">
         </div>
 
-        <div id="status_msg" style="margin-top: 20px; font-weight: bold;"></div>
+        <div id="status_msg" class="mt-20 font-bold"></div>
     <?php endif; ?>
 </div>
 
@@ -61,12 +50,12 @@ document.getElementById('camera_input').addEventListener('change', function(e) {
         const reader = new FileReader();
         reader.onload = function(e) {
             previewImg.src = e.target.result;
-            previewDiv.style.display = 'block';
+            previewDiv.classList.remove('hidden');
         }
         reader.readAsDataURL(file);
 
         // Upload
-        statusDiv.innerHTML = '<span style="color: orange;">⏳ Envoi en cours...</span>';
+        statusDiv.innerHTML = '<span class="text-warning">⏳ Envoi en cours...</span>';
         
         const formData = new FormData();
         formData.append('file', file);
@@ -80,15 +69,15 @@ document.getElementById('camera_input').addEventListener('change', function(e) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                statusDiv.innerHTML = '<span style="color: green; font-size: 1.2em;">✅ Envoyé avec succès !</span>';
+                statusDiv.innerHTML = '<span class="text-success text-lg">✅ Envoyé avec succès !</span>';
                 // Reset input
                 document.getElementById('camera_input').value = '';
             } else {
-                statusDiv.innerHTML = '<span style="color: red;">❌ Erreur: ' + data.error + '</span>';
+                statusDiv.innerHTML = '<span class="text-danger">❌ Erreur: ' + data.error + '</span>';
             }
         })
         .catch(err => {
-            statusDiv.innerHTML = '<span style="color: red;">❌ Erreur réseau</span>';
+            statusDiv.innerHTML = '<span class="text-danger">❌ Erreur réseau</span>';
             console.error(err);
         });
     }

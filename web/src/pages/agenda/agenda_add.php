@@ -154,279 +154,31 @@ $formData = [
 <script src="js/awesomplete.min.js"></script>
 
 
-<style>
-/* Modern Orange Theme for Agenda Form */
-.agenda-page {
-    background: var(--bg-color);
-    color: var(--text-color);
-}
 
-.page-header {
-    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-
-.page-header h1 {
-    margin: 0;
-    font-size: 1.4em;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.agenda-form-container {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.form-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.form-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    padding: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    font-size: 0.95em;
-}
-
-.form-control {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 1em;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-    background: var(--input-bg);
-    color: var(--text-color);
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #e67e22;
-    box-shadow: 0 0 0 4px rgba(230, 126, 34, 0.1);
-}
-
-.form-control.textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-.form-row {
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-.form-col {
-    flex: 1;
-    min-width: 200px;
-}
-
-.form-col .form-group {
-    margin-bottom: 0;
-}
-
-.form-col-small {
-    flex: 0 0 180px;
-}
-
-.priority-colors {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-    flex-wrap: wrap;
-}
-
-.priority-color {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 3px solid transparent;
-    cursor: pointer;
-    transition: all 0.3s;
-    position: relative;
-}
-
-.priority-color:hover {
-    transform: scale(1.15);
-    border-color: #e67e22;
-}
-
-.priority-color.selected {
-    border-color: #e67e22;
-    transform: scale(1.15);
-    box-shadow: 0 0 0 2px rgba(230, 126, 34, 0.2);
-}
-
-.priority-color::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-weight: bold;
-    font-size: 18px;
-    opacity: 0;
-    transition: opacity 0.3s;
-    text-shadow: 0 0 3px rgba(0,0,0,0.5);
-}
-
-.priority-color.selected::after {
-    opacity: 1;
-}
-
-.btn-group {
-    display: flex;
-    gap: 12px;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
-    flex-wrap: wrap;
-}
-
-.btn {
-    padding: 12px 24px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1em;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s ease;
-    text-align: center;
-    justify-content: center;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(230, 126, 34, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(230, 126, 34, 0.4);
-}
-
-.btn-secondary {
-    background: var(--input-bg);
-    color: var(--text-color);
-    border: 2px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    background: var(--hover-bg);
-    text-decoration: none;
-    color: var(--text-color);
-}
-
-.alert {
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.alert-success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.alert-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.form-help {
-    font-size: 0.85em;
-    color: var(--text-muted);
-    margin-top: 6px;
-}
-
-.color-preview {
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    border: 2px solid var(--border-color);
-    display: inline-block;
-    vertical-align: middle;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.datetime-local-wrapper input[type="datetime-local"] {
-    width: 100%;
-}
-
-.status-badge-preview {
-    display: inline-block;
-    padding: 5px 14px;
-    border-radius: 15px;
-    font-size: 0.75em;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    vertical-align: middle;
-}
-
-.status-planned { background: #3498db; color: white; }
-.status-progress { background: #f39c12; color: white; }
-.status-completed { background: #27ae60; color: white; }
-.status-postponed { background: #e67e22; color: white; }
-.status-cancelled { background: #e74c3c; color: white; }
-</style>
 
 
 <div class="agenda-page">
+<div class="agenda-page">
     <div class="page-header">
-        <h1>
-            <span><?= $isEdit ? '✏️' : '➕' ?></span>
-            <?= $isEdit ? 'Modifier la tâche' : 'Nouvelle tâche' ?>
-        </h1>
-    </div>
-    
-    <div class="agenda-form-container">
-        <div class="form-header">
-            <div></div>
+        <div class="header-content">
+            <h1>
+                <span><?= $isEdit ? '✏️' : '➕' ?></span>
+                <?= $isEdit ? 'Modifier la tâche' : 'Nouvelle tâche' ?>
+            </h1>
+            <p class="subtitle"><?= $isEdit ? 'Modifiez les détails de l\'événement ci-dessous' : 'Planifiez un nouvel événement dans l\'agenda' ?></p>
+        </div>
+        <div class="header-actions">
             <a href="index.php?page=agenda_list" class="btn btn-secondary">
                 <span>←</span>
                 Retour à la liste
             </a>
+        </div>
+    </div>
+    
+    <div class="agenda-form-container">
+        <!-- Form Header removed (button moved up) -->
+        <div class="form-header">
+            <div></div> <!-- Empty div kept if needed for flex spacing, or remove entirely if unused -->
         </div>
 
         <?php if ($message): ?>
@@ -564,10 +316,10 @@ $formData = [
 </div>
 
 <!-- Nested Client Modal -->
-<div id="nestedClientModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 600px;">
+<div id="nestedClientModal" class="modal-overlay hidden fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
+    <div class="modal-content max-w-600">
         <div class="modal-header">
-            <h3 style="margin: 0;">Nouveau Client</h3>
+            <h3 class="m-0">Nouveau Client</h3>
             <span class="modal-close" onclick="closeNestedClientModal()">×</span>
         </div>
         <div class="modal-body">
@@ -617,12 +369,12 @@ $formData = [
                 </div>
             </form>
             
-            <div id="nestedDuplicateCheckSection" style="display: none; margin-top: 15px; padding: 15px; background: var(--hover-bg); border-radius: 8px;">
-                <h4 style="margin: 0 0 10px 0;">⚠️ Doublons potentiels :</h4>
-                <div id="nestedDuplicatesContainer" style="max-height: 150px; overflow-y: auto;"></div>
+            <div id="nestedDuplicateCheckSection" class="hidden mt-15 p-15 bg-hover rounded">
+                <h4 class="m-0 mb-10 text-warning">⚠️ Doublons potentiels :</h4>
+                <div id="nestedDuplicatesContainer" class="max-h-150 overflow-y-auto"></div>
             </div>
         </div>
-        <div class="modal-footer" style="padding: 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px;">
+        <div class="modal-footer flex justify-end gap-10 p-20 border-t border-border">
             <button type="button" class="btn btn-secondary" onclick="closeNestedClientModal()">
                 <span>✕</span> Annuler
             </button>
@@ -633,69 +385,7 @@ $formData = [
     </div>
 </div>
 
-<style>
-/* CSS for autocomplete and modal */
-.client-search-container { position: relative; }
-.client-suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 2000;
-    display: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-.client-suggestion-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-color);
-}
-.client-suggestion-item:hover { background: var(--hover-bg); }
 
-/* Modal Styles Reuse */
-.modal-overlay {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    animation: fadeIn 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.modal-content {
-    background: var(--card-bg);
-    margin: auto;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 700px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    animation: slideIn 0.3s ease;
-    border: 1px solid var(--border-color);
-}
-.modal-header {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 12px 12px 0 0;
-}
-.modal-close { font-size: 24px; cursor: pointer; }
-.modal-body { padding: 25px; max-height: 70vh; overflow-y: auto; }
-</style>
 
 <script>
 function selectColor(color) {

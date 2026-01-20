@@ -111,15 +111,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <p><a href="index.php?page=transactions_list" style="color: var(--accent-color);">← Retour à la liste</a></p>
 
 <?php if (!empty($errorMessage)): ?>
-    <div style="color: red; margin-bottom: 15px; padding: 10px; border: 1px solid red; background-color: #ffe6e6; border-radius: 4px;">
+    <div class="alert alert-error">
         <?= $errorMessage ?>
     </div>
 <?php endif; ?>
 
-<form method="POST" style="background-color: var(--card-bg); padding: 20px; border-radius: 8px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+<form method="POST" class="card form-grid-4">
     
     <!-- Row 1: Client/Desc (2 cols) -->
-    <div style="grid-column: span 2;">
+    <div class="col-span-2">
         <label for="nom">Client OU Description * :</label>
         <div style="position: relative;">
             <?php 
@@ -131,12 +131,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ?>
             <input type="text" id="nom" name="nom" required autocomplete="off"
                    value="<?= htmlspecialchars($defaultValue) ?>"
-                   style="width: 100%; padding: 8px; margin-top: 5px;"
+                   class="form-control"
                    placeholder="Nom du client ou description libre">
             <input type="hidden" id="id_client" name="id_client" value="<?= htmlspecialchars($editData['id_client'] ?? '') ?>">
-            <div id="client_suggestions" style="position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"></div>
+            <div id="client_suggestions" class="suggestions-dropdown"></div>
         </div>
-        <div style="font-size: 0.8em; color: var(--text-muted); margin-top: 4px;">
+        <div class="text-muted small mt-5">
             Tapez un nom pour rechercher un client, ou écrivez simplement une description.
         </div>
     </div>
@@ -146,13 +146,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="montant">Montant (€) * :</label>
         <input type="number" id="montant" name="montant" step="0.01" min="0.01" required
                value="<?= htmlspecialchars($editData['montant'] ?? '') ?>"
-               style="width: 100%; padding: 8px; margin-top: 5px;">
+               class="form-control">
     </div>
     
     <!-- Row 1: Type (1 col) -->
     <div>
         <label for="type">Moyen de paiement * :</label>
-        <select id="type" name="type" required style="width: 100%; padding: 8px; margin-top: 5px;" onchange="toggleChequeFields()">
+        <select id="type" name="type" required class="form-control" onchange="toggleChequeFields()">
             <option value="">Sélectionner...</option>
             <?php foreach ($moyens_paiement as $moyen): ?>
                 <option value="<?= htmlspecialchars($moyen) ?>" <?= ($editData['type'] ?? '') === $moyen ? 'selected' : '' ?>>
@@ -163,20 +163,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <!-- Cheque Fields (Full Width Wrapper -> Inner Grid) -->
-    <div id="cheque-fields" style="display: none; grid-column: 1 / -1; grid-template-columns: 1fr 1fr; gap: 20px;">
-        <div>
+    <div id="cheque-fields" class="col-span-full form-grid-4" style="display: none; padding: 15px; background: var(--bg-secondary); border-radius: 8px;">
+        <div class="col-span-2">
             <label for="banque">Banque :</label>
             <input type="text" id="banque" name="banque"
                    value="<?= htmlspecialchars($editData['banque'] ?? '') ?>"
-                   style="width: 100%; padding: 8px; margin-top: 5px;"
+                   class="form-control"
                    placeholder="Nom de la banque">
         </div>
         
-        <div>
+        <div class="col-span-2">
             <label for="num_cheque">N° Chèque :</label>
             <input type="text" id="num_cheque" name="num_cheque"
                    value="<?= htmlspecialchars($editData['num_cheque'] ?? '') ?>"
-                   style="width: 100%; padding: 8px; margin-top: 5px;"
+                   class="form-control"
                    placeholder="Numéro de chèque">
         </div>
     </div>
@@ -186,21 +186,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="acompte">Acompte (€) :</label>
         <input type="number" id="acompte" name="acompte" step="0.01" min="0"
                value="<?= htmlspecialchars($editData['acompte'] ?? '') ?>"
-               style="width: 100%; padding: 8px; margin-top: 5px;">
+               class="form-control">
     </div>
     
     <div>
         <label for="solde">Solde (€) :</label>
         <input type="number" id="solde" name="solde" step="0.01"
                value="<?= htmlspecialchars($editData['solde'] ?? '') ?>"
-               style="width: 100%; padding: 8px; margin-top: 5px;">
+               class="form-control">
     </div>
     
     <div>
         <label for="num_facture">N° Facture * :</label>
         <input type="text" id="num_facture" name="num_facture" required
                value="<?= htmlspecialchars($editData['num_facture'] ?? '') ?>"
-               style="width: 100%; padding: 8px; margin-top: 5px;"
+               class="form-control"
                placeholder="Numéro de facture">
     </div>
     
@@ -208,29 +208,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="paye_le">Payé le :</label>
         <input type="date" id="paye_le" name="paye_le"
                value="<?= htmlspecialchars($editData['paye_le'] ?? date('Y-m-d')) ?>"
-               style="width: 100%; padding: 8px; margin-top: 5px;">
+               class="form-control">
     </div>
     
     <!-- Actions (Full Width) -->
-    <div style="grid-column: 1 / -1; margin-top: 10px;">
-        <button type="submit" style="background-color: var(--accent-color); color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
+    <!-- Actions (Full Width) -->
+    <div class="col-span-full mt-10">
+        <button type="submit" class="btn btn-primary">
             <?= $editData ? 'Modifier la transaction' : 'Enregistrer la transaction' ?>
         </button>
-        <a href="index.php?page=transactions_list" style="margin-left: 15px; padding: 12px 24px; background-color: var(--secondary-color); color: white; text-decoration: none; border-radius: 4px;">
+        <a href="index.php?page=transactions_list" class="btn btn-secondary ml-15">
             Annuler
         </a>
     </div>
 </form>
 
-<div style="margin-top: 30px; padding: 20px; background-color: var(--card-bg); border-radius: 8px;">
-    <h3>Aide</h3>
-    <ul>
-        <li><strong>Moyen de paiement :</strong> Sélectionnez le moyen de paiement utilisé</li>
-        <li><strong>Chèque :</strong> Les champs Banque et N° Chèque apparaissent automatiquement</li>
-        <li><strong>Acompte/Solde :</strong> Saisissez les montants sans calcul automatique</li>
-        <li><strong>Montants :</strong> Tous les champs peuvent être laissés vides si nécessaire</li>
-    </ul>
-</div>
+
 
 <script>
 // Fonction pour afficher/masquer les champs chèque
@@ -284,12 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.length > 0) {
                         data.forEach(client => {
                             const div = document.createElement('div');
-                            div.style.padding = '8px 12px';
-                            div.style.cursor = 'pointer';
-                            div.style.borderBottom = '1px solid var(--border-color)';
-                            div.onmouseover = function() { this.style.backgroundColor = 'var(--input-bg)'; };
-                            div.onmouseout = function() { this.style.backgroundColor = 'transparent'; };
-                            
+                            div.className = 'suggestion-item';
                             div.textContent = client.label;
                             div.onclick = function() {
                                 clientSearch.value = client.value; // Use just Name Firstname

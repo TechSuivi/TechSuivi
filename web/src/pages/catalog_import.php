@@ -35,15 +35,14 @@ $catalogPdo = $pdo;
 $catalogExists = isset($pdo);
 
 if (!$catalogExists) {
-    $message = '<p style="color: red;">❌ Erreur de connexion à la base de données principale.</p>';
+    $message = '<p class="text-danger">❌ Erreur de connexion à la base de données principale.</p>';
 } elseif (empty($catalogUrl)) {
-    $message = '<div style="background-color: #fff3cd; padding: 15px; border-radius: 4px; border: 1px solid #ffc107; margin-bottom: 20px;">
-                <h4 style="color: #856404; margin-top: 0;">⚠️ Configuration requise</h4>
-                <p style="color: #856404; margin-bottom: 10px;">
+    $message = '<div class="alert alert-warning mb-20">
+                <h4 class="text-warning mt-0">⚠️ Configuration requise</h4>
+                <p class="text-warning mb-10">
                     L\'URL du catalogue Acadia n\'est pas configurée. Vous devez d\'abord configurer l\'URL et le token API.
                 </p>
-                <a href="index.php?page=acadia_config"
-                   style="background: linear-gradient(135deg, #ffc107, #e0a800); color: #212529; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                <a href="index.php?page=acadia_config" class="btn btn-warning font-bold">
                     🔧 Configurer maintenant
                 </a>
                 </div>';
@@ -72,9 +71,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $rowCount = 0;
                 
                 // Afficher les en-têtes pour debug
-                $message = '<div style="background-color: #e3f2fd; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-                           <h4 style="color: #1976d2; margin-top: 0;">📋 En-têtes CSV détectés :</h4>
-                           <p style="font-family: monospace; font-size: 12px; background-color: #f8f9fa; padding: 10px; border-radius: 4px;">' .
+                $message = '<div class="alert alert-info mb-15">
+                           <h4 class="text-info mt-0">📋 En-têtes CSV détectés :</h4>
+                           <p class="font-mono text-xs bg-light p-10 rounded">' .
                            htmlspecialchars(implode(' | ', $headers)) . '</p></div>';
                 
                 while (($row = fgetcsv($handle, 0, ';')) !== false && $rowCount < 10) {
@@ -87,15 +86,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 fclose($handle);
                 
-                $message .= '<p style="color: green;">✅ Fichier CSV téléchargé et analysé avec succès ! Aperçu des 10 premières lignes :</p>';
+                $message .= '<p class="text-success font-bold">✅ Fichier CSV téléchargé et analysé avec succès ! Aperçu des 10 premières lignes :</p>';
             } else {
-                $message = '<p style="color: red;">❌ Erreur lors de l\'ouverture du fichier CSV</p>';
+                $message = '<p class="text-danger">❌ Erreur lors de l\'ouverture du fichier CSV</p>';
             }
             
             // Nettoyer le fichier temporaire
             unlink($tempFile);
         } else {
-            $message = '<p style="color: red;">❌ Erreur lors du téléchargement du fichier CSV</p>';
+            $message = '<p class="text-danger">❌ Erreur lors du téléchargement du fichier CSV</p>';
         }
     } elseif (isset($_POST['import_catalog']) && isset($catalogPdo)) {
         // Vérifier si c'est un appel AJAX
@@ -124,9 +123,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 // Afficher les en-têtes en mode debug
                 if (isset($_POST['debug_mode'])) {
-                    echo '<div style="background-color: #e3f2fd; padding: 15px; border-radius: 4px; margin-bottom: 15px;">
-                          <h4 style="color: #1976d2; margin-top: 0;">📋 En-têtes CSV détectés :</h4>
-                          <p style="font-family: monospace; font-size: 12px; background-color: #f8f9fa; padding: 10px; border-radius: 4px;">' .
+                    echo '<div class="alert alert-info mb-15">
+                          <h4 class="text-info mt-0">📋 En-têtes CSV détectés :</h4>
+                          <p class="font-mono text-xs bg-light p-10 rounded">' .
                           htmlspecialchars(implode(' | ', $headers)) . '</p></div>';
                     flush();
                 }
@@ -168,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (count($row) !== count($headers)) {
                         $errors++;
                         if (isset($_POST['debug_mode'])) {
-                            echo "<p style='color: red; font-size: 12px;'>Ligne $lineNumber: Nombre de colonnes incorrect (" . count($row) . " vs " . count($headers) . ")</p>";
+                            echo "<p class='text-danger text-xs'>Ligne $lineNumber: Nombre de colonnes incorrect (" . count($row) . " vs " . count($headers) . ")</p>";
                         }
                         continue;
                     }
@@ -208,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         // Afficher le progrès tous les 100 produits
                         if (($imported + $updated) % 100 === 0 && isset($_POST['debug_mode'])) {
-                            echo "<p style='color: green; font-size: 12px;'>Traité: " . ($imported + $updated) . " produits...</p>";
+                            echo "<p class='text-success text-xs'>Traité: " . ($imported + $updated) . " produits...</p>";
                             flush();
                         }
                         
@@ -216,8 +215,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $errors++;
                         // En mode debug, afficher les erreurs
                         if (isset($_POST['debug_mode'])) {
-                            echo "<p style='color: red; font-size: 12px;'>Erreur ligne $lineNumber: " . htmlspecialchars($e->getMessage()) . "</p>";
-                            echo "<p style='color: orange; font-size: 11px;'>Données: " . htmlspecialchars(substr(json_encode($data), 0, 200)) . "...</p>";
+                            echo "<p class='text-danger text-xs'>Erreur ligne $lineNumber: " . htmlspecialchars($e->getMessage()) . "</p>";
+                            echo "<p class='text-warning text-xxs'>Données: " . htmlspecialchars(substr(json_encode($data), 0, 200)) . "...</p>";
                             flush();
                         }
                     }
@@ -247,13 +246,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                     exit;
                 } else {
-                    $message = "<div style='background-color: #d4edda; padding: 15px; border-radius: 4px; border: 1px solid #c3e6cb;'>
-                               <h4 style='color: #155724; margin-top: 0;'>✅ Importation terminée !</h4>
+                    $message = "<div class='alert alert-success mt-20'>
+                               <h4 class='text-success mt-0'>✅ Importation terminée !</h4>
                                <p><strong>🆕 Nouveaux produits :</strong> {$imported}</p>
                                <p><strong>🔄 Produits mis à jour :</strong> {$updated}</p>
                                <p><strong>❌ Erreurs :</strong> {$errors}</p>
                                <p><strong>📊 Total traité :</strong> {$importStats['total']}</p>
-                               <p style='color: #666; font-size: 14px; margin-bottom: 0;'>
+                               <p class='text-muted text-sm m-0'>
                                    <em>Le champ updated_at a été automatiquement mis à jour pour tous les produits modifiés.</em>
                                </p>
                                </div>";
@@ -264,25 +263,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-
-<h1>Import Catalogue Acadia</h1>
+<div class="page-header">
+    <h1 class="m-0 text-dark">Import Catalogue Acadia</h1>
+</div>
 
 <?php echo $message; ?>
 
-<div style="max-width: 1000px;">
+<div class="max-w-1000 mx-auto">
     <!-- Section d'information -->
-    <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; border: 1px solid #2196f3; margin-bottom: 20px;">
-        <h3 style="margin-top: 0; color: #1976d2;">📦 Import du catalogue Acadia</h3>
-        <p style="color: #666;">
+    <div class="alert alert-info mb-20 bg-secondary border-l-4 border-l-primary p-20">
+        <h3 class="mt-0 text-primary">📦 Import du catalogue Acadia</h3>
+        <p class="text-muted">
             Cet outil télécharge automatiquement le catalogue depuis Acadia et l'importe dans la table <strong>catalog</strong> de votre base de données.
         </p>
-        <p style="color: #666;">
-            <strong>URL source :</strong> <a href="<?= $catalogUrl ?>" target="_blank" style="color: #2196f3;">Catalogue Acadia</a>
+        <p class="text-muted">
+            <strong>URL source :</strong> <a href="<?= $catalogUrl ?>" target="_blank" class="text-primary underline">Catalogue Acadia</a>
         </p>
         
-        <div style="background-color: #fff; padding: 15px; border-radius: 4px; margin-top: 15px; border-left: 4px solid #2196f3;">
-            <h4 style="margin-top: 0; color: #1976d2;">🕒 Gestion automatique des dates</h4>
-            <ul style="color: #666; margin-bottom: 0;">
+        <div class="bg-white p-15 rounded-md mt-15 border border-border">
+            <h4 class="mt-0 text-primary">🕒 Gestion automatique des dates</h4>
+            <ul class="text-muted m-0 pl-20">
                 <li><strong>Nouveaux produits :</strong> Le champ <code>updated_at</code> est défini à la date/heure actuelle</li>
                 <li><strong>Mises à jour :</strong> Le champ <code>updated_at</code> est automatiquement mis à jour lors de modifications</li>
                 <li><strong>Traçabilité :</strong> Vous pouvez ainsi suivre quand chaque produit a été modifié pour la dernière fois</li>
@@ -291,34 +291,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <!-- Actions -->
-    <div style="display: flex; gap: 20px; margin-bottom: 30px;">
-        <form method="POST" style="flex: 1;">
-            <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; border: 1px solid #ffc107;">
-                <h4 style="margin-top: 0; color: #856404;">🔍 Aperçu du fichier CSV</h4>
-                <p style="color: #856404; margin-bottom: 15px;">
-                    Téléchargez et analysez les 10 premières lignes pour vérifier la structure.
-                </p>
-                <button type="submit" name="download_csv" 
-                        style="width: 100%; padding: 12px; background-color: #ffc107; color: #212529; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-20 mb-30">
+        <form method="POST" class="h-full">
+            <div class="card bg-secondary border border-border h-full flex flex-col justify-between p-20 shadow-sm">
+                <div>
+                    <h4 class="mt-0 text-warning-dark">🔍 Aperçu du fichier CSV</h4>
+                    <p class="text-muted mb-15">
+                        Téléchargez et analysez les 10 premières lignes pour vérifier la structure.
+                    </p>
+                </div>
+                <button type="submit" name="download_csv" class="btn btn-warning w-full font-bold">
                     📥 Télécharger et Analyser
                 </button>
             </div>
         </form>
 
-        <form method="POST" style="flex: 1;">
-            <div style="background-color: #d4edda; padding: 20px; border-radius: 8px; border: 1px solid #c3e6cb;">
-                <h4 style="margin-top: 0; color: #155724;">🚀 Import complet</h4>
-                <p style="color: #155724; margin-bottom: 15px;">
-                    Importer tout le catalogue dans la base de données.
-                </p>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: flex; align-items: center; gap: 8px; font-size: 14px;">
-                        <input type="checkbox" name="debug_mode" value="1">
-                        <span>Mode debug (afficher les erreurs détaillées)</span>
-                    </label>
+        <form method="POST" class="h-full">
+            <div class="card bg-secondary border border-border h-full flex flex-col justify-between p-20 shadow-sm">
+                <div>
+                    <h4 class="mt-0 text-success-dark">🚀 Import complet</h4>
+                    <p class="text-muted mb-15">
+                        Importer tout le catalogue dans la base de données.
+                    </p>
+                    <div class="mb-15">
+                        <label class="flex items-center gap-10 text-sm cursor-pointer text-dark select-none hover:text-primary transition-colors">
+                            <input type="checkbox" name="debug_mode" value="1" class="form-checkbox">
+                            <span>Mode debug (afficher les erreurs détaillées)</span>
+                        </label>
+                    </div>
                 </div>
                 <button type="submit" name="import_catalog"
-                        style="width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;"
+                        class="btn btn-success w-full font-bold"
                         onclick="return confirm('Êtes-vous sûr de vouloir importer tout le catalogue ? Cette opération peut prendre plusieurs minutes.')">
                     🗄️ Importer le Catalogue
                 </button>
@@ -328,23 +331,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <!-- Aperçu des données CSV -->
     <?php if (!empty($csvData)): ?>
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6; margin-bottom: 20px;">
-        <h3 style="margin-top: 0; color: #495057;">📊 Aperçu des données CSV</h3>
+    <div class="card bg-white border border-border mb-20 p-0 overflow-hidden shadow-sm">
+        <div class="p-15 border-b border-border bg-light">
+            <h3 class="m-0 text-dark">📊 Aperçu des données CSV</h3>
+        </div>
         
-        <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs border-collapse">
                 <thead>
-                    <tr style="background-color: #e9ecef;">
+                    <tr class="bg-secondary text-muted">
                         <?php foreach (array_keys($csvData[0]) as $header): ?>
-                            <th style="padding: 8px; border: 1px solid #dee2e6; text-align: left;"><?= htmlspecialchars($header) ?></th>
+                            <th class="p-10 border-b border-border text-left font-bold whitespace-nowrap"><?= htmlspecialchars($header) ?></th>
                         <?php endforeach; ?>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($csvData as $row): ?>
-                        <tr>
+                        <tr class="hover:bg-hover transition-colors">
                             <?php foreach ($row as $cell): ?>
-                                <td style="padding: 8px; border: 1px solid #dee2e6;"><?= htmlspecialchars(substr($cell, 0, 50)) ?><?= strlen($cell) > 50 ? '...' : '' ?></td>
+                                <td class="p-8 border-b border-border text-dark whitespace-nowrap" title="<?= htmlspecialchars($cell) ?>">
+                                    <?= htmlspecialchars(substr($cell, 0, 50)) ?><?= strlen($cell) > 50 ? '...' : '' ?>
+                                </td>
                             <?php endforeach; ?>
                         </tr>
                     <?php endforeach; ?>
@@ -355,46 +362,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <!-- Mapping des colonnes -->
-    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
-        <h3 style="margin-top: 0; color: #495057;">🔄 Mapping des colonnes</h3>
-        <p style="color: #666; margin-bottom: 15px;">Correspondance entre les colonnes CSV et la base de données :</p>
+    <div class="card bg-white border border-border p-20 shadow-sm">
+        <h3 class="mt-0 text-dark">🔄 Mapping des colonnes</h3>
+        <p class="text-muted mb-15">Correspondance entre les colonnes CSV et la base de données :</p>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
-            <div><strong>CSV Acadia → Base de données</strong></div>
-            <div></div>
-            <div>MARQUE → marque</div>
-            <div>FAMILLE → famille</div>
-            <div>Part Number → part_number</div>
-            <div>REF ACADIA → ref_acadia</div>
-            <div>EAN CODE → ean_code</div>
-            <div>REF CONSTRUCTEUR → ref_constructeur</div>
-            <div>DESIGNATION 1 → designation</div>
-            <div>STOCK REEL → stock_reel</div>
-            <div>PRIX HT → prix_ht</div>
-            <div>PRIX CLIENT → prix_client</div>
-            <div>ECOTAXE → ecotaxe</div>
-            <div>COPIE PRIVEE → copie_privee</div>
-            <div>POIDS → poids</div>
-            <div>IMAGE → image</div>
-            <div>CATEGORIE PRINCIPALE → categorie_principale</div>
-            <div>CATEGORIE SECONDAIRE → categorie_secondaire</div>
-            <div>CATEGORIE TERTIAIRE → categorie_tertiaire</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-10 text-sm">
+            <div class="font-bold text-primary mb-5 border-b border-border pb-5">CSV Acadia</div>
+            <div class="font-bold text-primary mb-5 border-b border-border pb-5">Base de données</div>
+            
+            <div class="text-dark">MARQUE</div><div class="text-muted font-mono">marque</div>
+            <div class="text-dark">FAMILLE</div><div class="text-muted font-mono">famille</div>
+            <div class="text-dark">Part Number</div><div class="text-muted font-mono">part_number</div>
+            <div class="text-dark">REF ACADIA</div><div class="text-muted font-mono">ref_acadia</div>
+            <div class="text-dark">EAN CODE</div><div class="text-muted font-mono">ean_code</div>
+            <div class="text-dark">REF CONSTRUCTEUR</div><div class="text-muted font-mono">ref_constructeur</div>
+            <div class="text-dark">DESIGNATION 1</div><div class="text-muted font-mono">designation</div>
+            <div class="text-dark">STOCK REEL</div><div class="text-muted font-mono">stock_reel</div>
+            <div class="text-dark">PRIX HT</div><div class="text-muted font-mono">prix_ht</div>
+            <div class="text-dark">PRIX CLIENT</div><div class="text-muted font-mono">prix_client</div>
+            <div class="text-dark">ECOTAXE</div><div class="text-muted font-mono">ecotaxe</div>
+            <div class="text-dark">COPIE PRIVEE</div><div class="text-muted font-mono">copie_privee</div>
+            <div class="text-dark">POIDS</div><div class="text-muted font-mono">poids</div>
+            <div class="text-dark">IMAGE</div><div class="text-muted font-mono">image</div>
+            <div class="text-dark">CATEGORIE PRINCIPALE</div><div class="text-muted font-mono">categorie_principale</div>
+            <div class="text-dark">CATEGORIE SECONDAIRE</div><div class="text-muted font-mono">categorie_secondaire</div>
+            <div class="text-dark">CATEGORIE TERTIAIRE</div><div class="text-muted font-mono">categorie_tertiaire</div>
         </div>
     </div>
 </div>
-
-<style>
-.content h1 {
-    margin-bottom: 20px;
-}
-
-button:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
-}
-
-table {
-    font-family: monospace;
-}
-</style>

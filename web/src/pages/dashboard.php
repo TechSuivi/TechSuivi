@@ -164,472 +164,7 @@ if (isset($pdo)) {
 }
 ?>
 
-<style>
-:root {
-    --dashboard-header-start: #2c3e50;
-    --dashboard-header-end: #34495e;
-    --card-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    --card-hover-shadow: 0 8px 15px rgba(0,0,0,0.1);
-}
-
-.dashboard-container {
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-/* Welcome Header */
-.welcome-header {
-    background: linear-gradient(135deg, var(--dashboard-header-start) 0%, var(--dashboard-header-end) 100%);
-    color: white;
-    padding: 30px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.welcome-text h1 {
-    margin: 0 0 5px 0;
-    font-size: 1.8em;
-    font-weight: 600;
-}
-
-.welcome-text p {
-    margin: 0;
-    opacity: 0.8;
-    font-size: 1em;
-}
-
-.current-date {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid var(--border-color);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.kpi-card:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--card-hover-shadow);
-}
-
-.kpi-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2em;
-}
-
-.kpi-content {
-    flex: 1;
-}
-
-.kpi-value {
-    font-size: 1.4em;
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--text-color);
-}
-
-.kpi-label {
-    font-size: 0.75em;
-    color: var(--text-muted);
-    margin-top: 2px;
-}
-
-/* Theme Colors for KPI */
-.kpi-blue .kpi-icon { background: rgba(52, 152, 219, 0.1); color: #3498db; }
-.kpi-blue .kpi-value { color: #2980b9; }
-
-.kpi-green .kpi-icon { background: rgba(46, 204, 113, 0.1); color: #2ecc71; }
-.kpi-green .kpi-value { color: #27ae60; }
-
-.kpi-orange .kpi-icon { background: rgba(230, 126, 34, 0.1); color: #e67e22; }
-.kpi-orange .kpi-value { color: #d35400; }
-
-.kpi-red .kpi-icon { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
-.kpi-red .kpi-value { color: #c0392b; }
-
-/* Quick Actions */
-.kpi-card {
-    background: transparent;
-    border-radius: 0;
-    padding: 10px 15px;
-    border: none;
-    border-right: 1px solid var(--border-color);
-    box-shadow: none;
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.kpi-card:last-child {
-    border-right: none;
-}
-
-.kpi-card .kpi-icon {
-    font-size: 1.2em;
-    width: auto;
-    height: auto;
-    background: none !important;
-}
-
-.kpi-card .kpi-content {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.kpi-card .kpi-value {
-    font-size: 1.3em;
-    margin: 0;
-}
-
-.kpi-card .kpi-label {
-    font-size: 0.8em;
-    margin: 0;
-    white-space: nowrap;
-}
-
-.stats-grid {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 0px;
-    margin-bottom: 20px;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    overflow: hidden;
-    padding: 0;
-}
-
-.stats-grid .kpi-card {
-    flex: 1;
-}
-
-.quick-actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.action-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 15px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-weight: 600;
-    color: white;
-    transition: all 0.2s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
-    color: white;
-}
-
-.btn-inter { background: linear-gradient(135deg, #3498db, #2980b9); }
-.btn-client { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
-.btn-agenda { background: linear-gradient(135deg, #e67e22, #d35400); }
-.btn-cyber { background: linear-gradient(135deg, #1abc9c, #16a085); }
-.btn-caisse { background: linear-gradient(135deg, #f1c40f, #f39c12); }
-.btn-transaction { background: linear-gradient(135deg, #27ae60, #2ecc71); }
-
-/* Main Columns Layout */
-.dashboard-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 20px;
-    margin: 0;
-}
-
-.column-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--border-color);
-}
-
-.column-title {
-    font-size: 1.2em;
-    font-weight: 600;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.view-all {
-    font-size: 0.85em;
-    text-decoration: none;
-    color: var(--text-muted);
-    transition: color 0.2s;
-}
-
-.view-all:hover {
-    color: var(--accent-color);
-}
-
-/* Activity Cards */
-.activity-card {
-    background: var(--card-bg);
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-}
-
-.activity-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.05);
-}
-
-/* Card Borders by Type */
-.card-inter { border-left: 4px solid #3498db; }
-.card-msg { border-left: 4px solid #2ecc71; }
-.card-agenda { border-left: 4px solid #e67e22; }
-
-.card-header-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 8px;
-}
-
-.card-title {
-    font-weight: 600;
-    font-size: 1em;
-    margin: 0;
-    color: var(--text-color);
-}
-
-.card-meta {
-    font-size: 0.8em;
-    color: var(--text-muted);
-}
-
-.card-content {
-    font-size: 0.9em;
-    color: var(--text-muted);
-    line-height: 1.5;
-    margin-bottom: 10px;
-}
-
-.card-footer {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 10px;
-    border-top: 1px solid var(--border-color);
-}
-
-.btn-sm-action {
-    font-size: 0.8em;
-    padding: 4px 10px;
-    border-radius: 4px;
-    text-decoration: none;
-    background: var(--input-bg);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    transition: all 0.2s;
-}
-
-.btn-sm-action:hover {
-    background: var(--hover-bg);
-    border-color: var(--accent-color);
-}
-
-/* Badges */
-.badge {
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 0.75em;
-    font-weight: 600;
-    display: inline-block;
-}
-
-.badge-blue { background: rgba(52, 152, 219, 0.15); color: #2980b9; }
-.badge-green { background: rgba(46, 204, 113, 0.15); color: #27ae60; }
-.badge-orange { background: rgba(230, 126, 34, 0.15); color: #d35400; }
-.badge-red { background: rgba(231, 76, 60, 0.15); color: #c0392b; }
-
-/* Dark Mode Adjustments */
-body.dark .welcome-header {
-    background: linear-gradient(135deg, #1a252f 0%, #2c3e50 100%);
-}
-
-body.dark .kpi-card,
-body.dark .activity-card {
-    background: #2b2b2b;
-    border-color: #444;
-}
-
-body.dark .kpi-value,
-body.dark .card-title {
-    color: #ecf0f1;
-}
-
-body.dark .kpi-label,
-body.dark .card-meta,
-body.dark .card-content {
-    color: #bdc3c7;
-}
-
-body.dark .btn-sm-action {
-    background: #333;
-    border-color: #555;
-    color: #ecf0f1;
-}
-
-body.dark .btn-sm-action:hover {
-    background: #444;
-}
-
-
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: var(--text-muted);
-}
-
-.form-control {
-    width: 100%;
-    padding: 10px 15px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 0.95em;
-    transition: all 0.2s;
-    box-sizing: border-box;
-}
-
-.form-control:focus {
-    border-color: #2ecc71;
-    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
-    outline: none;
-}
-
-.btn-modern {
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
-    font-size: 0.9em;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-    color: white;
-    box-shadow: 0 2px 6px rgba(46, 204, 113, 0.3);
-}
-
-.btn-primary:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
-}
-
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-/* Ping Indicator Styles */
-@keyframes blink-grey {
-    0% { opacity: 0.4; }
-    50% { opacity: 1; }
-    100% { opacity: 0.4; }
-}
-.ping-indicator {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: #999;
-    animation: blink-grey 2s infinite;
-    margin-right: 5px;
-}
-.ping-online {
-    background-color: #2ecc71 !important;
-    box-shadow: 0 0 5px rgba(46, 204, 113, 0.6);
-    animation: none !important;
-}
-.ping-offline {
-    background-color: #e74c3c !important;
-    animation: none !important;
-}
-
-/* Split Button Styles */
-.action-btn-group {
-    display: flex;
-    padding: 0;
-    overflow: hidden;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.action-btn-group:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(0,0,0,0.15);
-}
-
-.action-btn-group .action-btn {
-    border-radius: 0;
-    box-shadow: none;
-    margin: 0;
-    padding: 15px 10px;
-    transform: none !important; /* Disable hover transform on individual buttons, handled by group */
-}
-
-.action-btn-group .action-btn:hover {
-    box-shadow: none;
-    filter: brightness(1.1);
-}
-
-.action-btn-group .btn-add {
-    flex: 0 0 50px; /* Fixed width for the add button */
-    border-right: 1px solid rgba(255,255,255,0.2);
-    justify-content: center;
-}
-
-.action-btn-group .btn-main {
-    flex: 1;
-    justify-content: flex-start; /* Align text to left */
-    padding-left: 15px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-</style>
+<!-- dashboard.php -->
 
 <div class="dashboard-container">
     
@@ -638,60 +173,52 @@ body.dark .btn-sm-action:hover {
     <?php else: ?>
         
         <!-- Quick Actions -->
+        <!-- Quick Actions - SaaS Enterprise Style -->
         <div class="quick-actions-grid">
             <!-- CLIENTS -->
-            <div class="action-btn-group btn-client">
-                <a href="#" class="action-btn btn-client btn-add" title="Nouveau Client" onclick="event.preventDefault(); openNestedClientModal('quick_add');">
-                    <span>➕</span>
+            <div class="saas-quick-action">
+                <a href="index.php?page=clients" class="saas-action-main">
+                    <span class="saas-icon">👥</span>
+                    <span class="saas-label">Clients</span>
                 </a>
-                <a href="index.php?page=clients" class="action-btn btn-client btn-main" title="Liste des clients">
-                    <span>👥 Clients</span>
+                <a href="index.php?page=add_client" class="saas-action-add" onclick="event.preventDefault(); openNestedClientModal('quick_add');" title="Ajouter Client">
+                    <span>+</span>
                 </a>
             </div>
 
             <!-- CYBER -->
-            <div class="action-btn-group btn-cyber">
-                <a href="index.php?page=cyber_add" class="action-btn btn-cyber btn-add" title="Nouvelle session">
-                    <span>➕</span>
+            <div class="saas-quick-action">
+                <a href="index.php?page=cyber_list" class="saas-action-main">
+                    <span class="saas-icon">💻</span>
+                    <span class="saas-label">Cyber</span>
                 </a>
-                <?php if (!empty($activeCyberSessions)): ?>
-                    <?php if (count($activeCyberSessions) === 1): ?>
-                        <a href="index.php?page=cyber_add&id=<?= $activeCyberSessions[0]['id'] ?>" class="action-btn btn-cyber btn-main" title="Reprendre session <?= htmlspecialchars($activeCyberSessions[0]['nom']) ?>">
-                            <span>🖥️ Sessions Cyber (1)</span>
-                        </a>
-                    <?php else: ?>
-                        <a href="index.php?page=cyber_list" class="action-btn btn-cyber btn-main" title="Voir les <?= count($activeCyberSessions) ?> sessions en cours">
-                            <span>🖥️ Sessions Cyber (<?= count($activeCyberSessions) ?>)</span>
-                        </a>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <a href="index.php?page=cyber_list" class="action-btn btn-cyber btn-main" title="Historique des sessions">
-                        <span>🖥️ Sessions Cyber</span>
-                    </a>
-                <?php endif; ?>
+                <a href="index.php?page=cyber_add" class="saas-action-add" title="Nouvelle Session">
+                    <span>+</span>
+                </a>
             </div>
 
             <!-- CAISSE -->
-            <div class="action-btn-group btn-caisse">
-                <a href="index.php?page=feuille_caisse_add" class="action-btn btn-caisse btn-add" title="Nouvelle feuille">
-                    <span>➕</span>
+            <div class="saas-quick-action">
+                <a href="index.php?page=feuille_caisse_list" class="saas-action-main">
+                    <span class="saas-icon">💰</span>
+                    <span class="saas-label">Caisse</span>
                 </a>
-                <a href="index.php?page=feuille_caisse_list" class="action-btn btn-caisse btn-main" title="Historique de caisse">
-                    <span>💰 Caisse</span>
+                <a href="index.php?page=feuille_caisse_add" class="saas-action-add" title="Nouvelle Feuille">
+                    <span>+</span>
                 </a>
             </div>
 
             <!-- TRANSACTION -->
-            <div class="action-btn-group btn-transaction">
-                <a href="index.php?page=transaction_add" class="action-btn btn-transaction btn-add" title="Nouvelle transaction">
-                    <span>➕</span>
+            <div class="saas-quick-action">
+                <a href="index.php?page=transactions_list" class="saas-action-main">
+                    <span class="saas-icon">💳</span>
+                    <span class="saas-label">Transaction</span>
                 </a>
-                <a href="index.php?page=transactions_list" class="action-btn btn-transaction btn-main" title="Liste transactions">
-                    <span>💳 Transactions</span>
+                <a href="index.php?page=transaction_add" class="saas-action-add" title="Nouvelle Transaction">
+                    <span>+</span>
                 </a>
             </div>
         </div>
-
         <!-- KPI Stats -->
         <div class="stats-grid">
             <div class="kpi-card kpi-blue">
@@ -730,165 +257,223 @@ body.dark .btn-sm-action:hover {
         </div>
 
         <!-- Main Content Columns -->
-        <div class="dashboard-columns">
+        <div class="three-col-grid">
             
-            <!-- Interventions Column -->
-            <div class="dashboard-column">
-                <div class="column-header">
-                    <h3 class="column-title" style="color: #3498db;">🔧 Interventions</h3>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <button onclick="openAddInterventionModal()" class="btn-sm-action" style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; border: none; padding: 5px 10px; border-radius: 6px; font-weight: 600; text-decoration: none; cursor: pointer;" title="Nouvelle intervention">➕</button>
-                        <a href="index.php?page=interventions_list" class="view-all">Voir tout →</a>
-                    </div>
-                </div>
-                
-                <?php if (empty($recentInterventions)): ?>
-                    <div class="no-messages">Rien à signaler 🎉</div>
-                <?php else: ?>
-                    <?php foreach ($recentInterventions as $inter): ?>
-                        <div class="activity-card card-inter">
-                            <div class="card-header-row">
-                                <h4 class="card-title">#<?= $inter['id'] ?></h4>
-                                <span class="badge badge-blue">En cours</span>
-                            </div>
-                            <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 5px;">
-                                👤 <a href="index.php?page=clients_view&id=<?= $inter['id_client'] ?>" style="color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-muted); transition: color 0.2s;"><?= htmlspecialchars($inter['client_nom'] ?? 'Inconnu') ?></a>
-                                <?php if (!empty($inter['client_telephone'])): ?>
-                                    <span style="margin-left: 8px;">📞 <?= htmlspecialchars($inter['client_telephone']) ?></span>
-                                <?php elseif (!empty($inter['client_portable'])): ?>
-                                    <span style="margin-left: 8px;">📱 <?= htmlspecialchars($inter['client_portable']) ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <div class="card-content">
-                                <?= nl2br(htmlspecialchars(substr($inter['info'], 0, 80))) . (strlen($inter['info']) > 80 ? '...' : '') ?>
-                            </div>
-                            <div class="card-footer" style="gap: 10px; justify-content: space-between;">
-                                <span class="card-meta" style="margin: 0; font-size: 0.8em;">📅 <?= date('d/m H:i', strtotime($inter['date'])) ?></span>
-                                <div style="display: flex; gap: 10px;">
-                                    <?php if (!empty($inter['ip_vnc'])): ?>
-                                        <div style="display: flex; align-items: center; gap: 6px;">
-                                            <span class="ping-indicator" data-ip="<?= htmlspecialchars($inter['ip_vnc']) ?>" title="Statut ping"></span>
-                                            <a href="vnc_viewer.php?id=<?= $inter['id'] ?>" target="_blank" class="btn-sm-action" style="background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7;" title="Accès VNC">
-                                                🖥️ VNC
-                                            </a>
-                                        </div>
-                                    <?php endif; ?>
-                                    <a href="index.php?page=interventions_view&id=<?= $inter['id'] ?>" class="btn-sm-action">Voir</a>
-                                </div>
-                            </div>
+            <!-- Left content (Interventions & Messages) -->
+            <div class="col-span-2 flex flex-col gap-30">
+                <!-- Interventions Column -->
+                <div class="dashboard-column">
+                    <h3 class="column-title" style="color: #3498db; border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>🔧 Interventions</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button onclick="openAddInterventionModal()" class="btn-sm-action" style="background: #3498db; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-weight: 600; cursor: pointer;" title="Nouvelle intervention">➕</button>
+                            <a href="index.php?page=interventions_list" class="view-all" style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); text-decoration: none;">Voir tout →</a>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </div>
+                    </h3>
+                    
+                    <?php if (empty($recentInterventions)): ?>
+                        <div class="no-messages">Rien à signaler 🎉</div>
+                    <?php else: ?>
+                        <div class="card p-0 overflow-hidden shadow-sm">
+                            <table class="m-0 border-none w-full" style="table-layout: fixed;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 15%;">Statut / Date</th>
+                                            <th style="width: 25%;">Client</th>
+                                            <th style="width: 40%;">Informations / Problème</th>
+                                            <th style="width: 20%;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($recentInterventions as $inter): ?>
+                                            <tr>
+                                                <td>
+                                                    <div class="flex flex-col gap-5">
+                                                        <div><span class="badge badge-blue">En cours</span></div>
+                                                        <div class="text-xs text-muted">
+                                                            📅 <?= date('d/m H:i', strtotime($inter['date'])) ?>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex flex-col">
+                                                        <a href="index.php?page=clients_view&id=<?= $inter['id_client'] ?>" class="font-semibold text-sm hover:underline">
+                                                            <?= htmlspecialchars($inter['client_nom'] ?? 'Inconnu') ?>
+                                                            <span class="text-muted font-mono" style="font-size: 0.8em; margin-left: 5px;">#<?= $inter['id'] ?></span>
+                                                        </a>
+                                                        <span class="text-xs text-muted">
+                                                            <?php if (!empty($inter['client_portable'])): ?>
+                                                                📱 <?= htmlspecialchars($inter['client_portable']) ?>
+                                                            <?php endif; ?>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td class="text-sm">
+                                                    <div class="line-clamp-2" title="<?= htmlspecialchars($inter['info']) ?>">
+                                                        <?= nl2br(htmlspecialchars($inter['info'])) ?>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex gap-5">
+                                                        <?php if (!empty($inter['ip_vnc'])): ?>
+                                                            <a href="vnc_viewer.php?id=<?= $inter['id'] ?>" target="_blank" class="btn btn-sm-action" style="padding: 4px 5px;" title="Accès VNC">🖥️</a>
+                                                        <?php endif; ?>
+                                                        <a href="index.php?page=interventions_view&id=<?= $inter['id'] ?>" class="btn btn-sm-action px-10">Voir</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <?php endif; ?>
+                    </div>
 
-            <!-- Messages Column -->
-            <div class="dashboard-column">
-                <div class="column-header">
-                    <h3 class="column-title" style="color: #2ecc71;">💬 Messages</h3>
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <button id="addMessageBtn" class="btn-sm-action" style="cursor: pointer; background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; border: none; padding: 5px 10px; border-radius: 6px; font-weight: 600;" title="Nouveau message">➕</button>
-                        <a href="index.php?page=messages&category=all" class="view-all">Voir tout →</a>
-                    </div>
-                </div>
-                
-                <?php if (empty($recentMessages)): ?>
-                    <div class="no-messages">Aucun message en attente 🎉</div>
-                <?php else: ?>
-                    <?php foreach ($recentMessages as $msg): ?>
-                        <div class="activity-card card-msg">
-                            <div class="card-header-row">
-                                <h4 class="card-title"><?= htmlspecialchars($msg['TITRE']) ?></h4>
-                                <?php if (!empty($msg['CATEGORIE_NOM'])): ?>
-                                    <span class="badge" style="background-color: <?= htmlspecialchars($msg['CATEGORIE_COULEUR'] . '26') ?? 'rgba(46, 204, 113, 0.15)' ?>; color: <?= htmlspecialchars($msg['CATEGORIE_COULEUR']) ?? '#27ae60' ?>;">
-                                        <?= htmlspecialchars($msg['CATEGORIE_NOM']) ?>
-                                    </span>
-                                <?php endif; ?>
+                    <!-- Messages Column -->
+                    <div class="dashboard-column">
+                        <h3 class="column-title" style="color: #2ecc71; border-bottom: 2px solid #2ecc71; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                            <span>💬 Messages</span>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <button id="addMessageBtn" class="btn-sm-action" style="background: #2ecc71; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-weight: 600; cursor: pointer;" title="Nouveau message">➕</button>
+                                <a href="index.php?page=messages&category=all" class="view-all" style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); text-decoration: none;">Voir tout →</a>
                             </div>
-                            <?php if (!empty($msg['client_nom'])): ?>
-                                <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 5px;">
-                                    👤 <a href="index.php?page=clients_view&id=<?= $msg['id_client'] ?>" style="color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-muted); transition: color 0.2s;"><?= htmlspecialchars($msg['client_nom'] . ' ' . $msg['client_prenom']) ?></a>
-                                    <?php if (!empty($msg['client_telephone'])): ?>
-                                        <span style="margin-left:8px;">📞 <?= htmlspecialchars($msg['client_telephone']) ?></span>
-                                    <?php endif; ?>
-                                    <?php if (!empty($msg['client_portable'])): ?>
-                                        <span style="margin-left:8px;">📱 <?= htmlspecialchars($msg['client_portable']) ?></span>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                            <div class="card-content">
-                                <?= nl2br(htmlspecialchars(substr($msg['MESSAGE'], 0, 80))) . (strlen($msg['MESSAGE']) > 80 ? '...' : '') ?>
-                            </div>
-                            <?php if (!empty($msg['REPLIES'])): ?>
-                                <div class="replies-preview" style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border-color);">
-                                    <?php foreach ($msg['REPLIES'] as $reply): ?>
-                                        <div class="reply-item" style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 5px;">
-                                            <span style="font-weight: 600; color: var(--emerald-end);">↪</span> 
-                                            <?= nl2br(htmlspecialchars(substr($reply['MESSAGE'], 0, 50))) . (strlen($reply['MESSAGE']) > 50 ? '...' : '') ?>
-                                        </div>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
-                            <div class="card-footer" style="justify-content: space-between;">
-                                <span class="card-meta" style="margin: 0; font-size: 0.8em;">📅 <?= date('d/m H:i', strtotime($msg['DATE'])) ?></span>
-                                <div style="display: flex; gap: 5px;">
-                                    <button onclick="openViewMessageModal(<?= $msg['ID'] ?>)" class="btn-sm-action" style="cursor: pointer;">Voir</button>
-                                    <button onclick="openReplyModal(<?= $msg['ID'] ?>, '<?= htmlspecialchars(addslashes($msg['TITRE'])) ?>', '<?= htmlspecialchars(addslashes(substr(str_replace(["\r", "\n"], ' ', $msg['MESSAGE']), 0, 50))) ?>...')" class="btn-sm-action" style="cursor: pointer; background: transparent; border: 1px solid var(--border-color);">Répondre</button>
-                                </div>
-                            </div>
+                        </h3>
+                        
+                        <?php if (empty($recentMessages)): ?>
+                            <div class="no-messages">Aucun message en attente 🎉</div>
+                        <?php else: ?>
+                            <div class="card p-0 overflow-hidden shadow-sm">
+                                <table class="m-0 border-none w-full" style="table-layout: fixed;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 15%;">Cat. / Date</th>
+                                            <th style="width: 25%;">Client</th>
+                                            <th style="width: 40%;">Objet / Message / Rép.</th>
+                                            <th style="width: 20%;">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($recentMessages as $msg): ?>
+                                            <tr>
+                                                <td>
+                                                    <div class="flex flex-col gap-5">
+                                                        <?php if (!empty($msg['CATEGORIE_NOM'])): ?>
+                                                            <div>
+                                                                <span class="badge" style="background-color: <?= htmlspecialchars($msg['CATEGORIE_COULEUR'] . '26') ?? 'rgba(46, 204, 113, 0.15)' ?>; color: <?= htmlspecialchars($msg['CATEGORIE_COULEUR']) ?? '#27ae60' ?>;">
+                                                                    <?= htmlspecialchars($msg['CATEGORIE_NOM']) ?>
+                                                                </span>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                        <div class="text-xs text-muted">
+                                                            📅 <?= date('d/m H:i', strtotime($msg['DATE'])) ?>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="flex flex-col">
+                                                        <a href="index.php?page=clients_view&id=<?= $msg['id_client'] ?>" class="font-semibold text-sm hover:underline">
+                                                            <?= htmlspecialchars($msg['client_nom'] . ' ' . $msg['client_prenom']) ?>
+                                                        </a>
+                                                        <span class="text-xs text-muted">
+                                                            <?php if (!empty($msg['client_portable'])): ?>
+                                                                📱 <?= htmlspecialchars($msg['client_portable']) ?>
+                                                            <?php endif; ?>
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td class="text-sm">
+                                                    <div class="font-semibold mb-5 truncate" title="<?= htmlspecialchars($msg['TITRE']) ?>">
+                                                        Objet: <?= htmlspecialchars($msg['TITRE']) ?>
+                                                    </div>
+                                                    <div class="line-clamp-2" title="<?= htmlspecialchars($msg['MESSAGE']) ?>">
+                                                        <?= nl2br(htmlspecialchars($msg['MESSAGE'])) ?>
+                                                    </div>
+                                                    <?php if (!empty($msg['REPLIES'])): ?>
+                                                        <div class="mt-5 pt-5 border-t border-dashed border-color-muted">
+                                                            <?php foreach ($msg['REPLIES'] as $reply): ?>
+                                                                <div class="flex items-start gap-5 text-xs text-muted mb-2">
+                                                                    <span class="font-bold text-success">↪</span>
+                                                                    <span class="line-clamp-1"><?= htmlspecialchars($reply['MESSAGE']) ?></span>
+                                                                </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <div class="flex gap-5">
+                                                        <button onclick="openViewMessageModal(<?= $msg['ID'] ?>)" class="btn btn-sm-action px-10" title="Voir">Voir</button>
+                                                        <button onclick="openReplyModal(<?= $msg['ID'] ?>, '<?= htmlspecialchars(addslashes($msg['TITRE'])) ?>', '<?= htmlspecialchars(addslashes(substr(str_replace(["\r", "\n"], ' ', $msg['MESSAGE']), 0, 50))) ?>...')" class="btn btn-sm btn-primary px-10">Répondre</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         </div>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <!-- Agenda Column -->
             <div class="dashboard-column">
-                <div class="column-header">
-                    <h3 class="column-title" style="color: #e67e22;">📅 Agenda</h3>
+                <h3 class="column-title" style="color: #e67e22; border-bottom: 2px solid #e67e22; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <span>📅 Agenda</span>
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <button onclick="openAddAgendaModal()" class="btn-sm-action" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); color: white; border: none; padding: 5px 10px; border-radius: 6px; font-weight: 600; text-decoration: none; cursor: pointer;" title="Nouvel événement">➕</button>
-                        <a href="index.php?page=agenda_list" class="view-all">Voir tout →</a>
+                        <button onclick="openAddAgendaModal()" class="btn-sm-action" style="background: #e67e22; color: white; border: none; padding: 5px 10px; border-radius: 6px; font-weight: 600; cursor: pointer;" title="Nouvel événement">➕</button>
+                        <a href="index.php?page=agenda_list" class="view-all" style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted); text-decoration: none;">Voir tout →</a>
                     </div>
-                </div>
+                </h3>
                 
                 <?php if (empty($recentAgendaItems)): ?>
                     <div class="no-messages">Rien de prévu 📅</div>
                 <?php else: ?>
-                    <?php foreach ($recentAgendaItems as $task): ?>
-                        <?php $isOverdue = strtotime($task['date_planifiee']) < time() && $task['statut'] !== 'termine'; ?>
-                        <div class="activity-card card-agenda" style="<?= $isOverdue ? 'border-left-color: #e74c3c;' : '' ?>">
-                            <div class="card-header-row">
-                                <h4 class="card-title"><?= htmlspecialchars($task['titre']) ?></h4>
-                                <?php if ($isOverdue): ?>
-                                    <span class="badge badge-red">Retard</span>
-                                <?php else: ?>
-                                    <span class="badge badge-orange"><?= ucfirst($task['statut']) ?></span>
-                                <?php endif; ?>
-                            </div>
-                            <?php if (!empty($task['client_nom'])): ?>
-                                <div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 5px;">
-                                    👤 <a href="index.php?page=clients_view&id=<?= $task['id_client'] ?>" style="color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-muted); transition: color 0.2s;"><?= htmlspecialchars($task['client_nom'] . ' ' . $task['client_prenom']) ?></a>
-                                    <?php if (!empty($task['client_telephone'])): ?>
-                                        <span style="margin-left:8px;">📞 <?= htmlspecialchars($task['client_telephone']) ?></span>
-                                    <?php endif; ?>
-                                    <?php if (!empty($task['client_portable'])): ?>
-                                        <span style="margin-left:8px;">📱 <?= htmlspecialchars($task['client_portable']) ?></span>
-                                    <?php endif; ?>
-                                </div>
-                            <?php endif; ?>
-                            <?php if (!empty($task['description'])): ?>
-                                <div class="card-content">
-                                    <?= nl2br(htmlspecialchars(substr($task['description'], 0, 80))) . (strlen($task['description']) > 80 ? '...' : '') ?>
-                                </div>
-                            <?php endif; ?>
-                            <div class="card-footer" style="justify-content: space-between;">
-                                <span class="card-meta" style="margin: 0; font-size: 0.8em;">📅 <?= date('d/m H:i', strtotime($task['date_planifiee'])) ?></span>
-                                <div style="display: flex; gap: 5px;">
-                                    <button onclick="openViewAgendaModal(<?= $task['id'] ?>)" class="btn-sm-action" style="cursor: pointer;">Voir</button>
-                                    <a href="index.php?page=agenda_edit&id=<?= $task['id'] ?>" class="btn-sm-action">Modifier</a>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+                    <div class="card p-0 overflow-hidden shadow-sm">
+                        <table class="m-0 border-none w-full" style="table-layout: fixed;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 35%;">Date / Statut</th>
+                                    <th style="width: 45%;">Événement / Client</th>
+                                    <th style="width: 20%;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($recentAgendaItems as $task): ?>
+                                    <?php $isOverdue = strtotime($task['date_planifiee']) < time() && $task['statut'] !== 'termine'; ?>
+                                    <tr>
+                                        <td>
+                                            <div class="flex flex-col gap-5">
+                                                <div class="text-xs font-semibold <?= $isOverdue ? 'text-danger' : 'text-muted' ?>">
+                                                    📅 <?= date('d/m H:i', strtotime($task['date_planifiee'])) ?>
+                                                </div>
+                                                <div>
+                                                    <?php if ($isOverdue): ?>
+                                                        <span class="badge badge-red">Retard</span>
+                                                    <?php else: ?>
+                                                        <span class="badge badge-orange" style="font-size: 0.75em;"><?= ucfirst($task['statut']) ?></span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="flex flex-col">
+                                                <div class="font-semibold text-sm truncate" title="<?= htmlspecialchars($task['titre']) ?>">
+                                                    <?= htmlspecialchars($task['titre']) ?>
+                                                </div>
+                                                <?php if (!empty($task['client_nom'])): ?>
+                                                    <a href="index.php?page=clients_view&id=<?= $task['id_client'] ?>" class="text-xs text-muted hover:underline truncate">
+                                                        👤 <?= htmlspecialchars($task['client_nom'] . ' ' . $task['client_prenom']) ?>
+                                                    </a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <button onclick="openViewAgendaModal(<?= $task['id'] ?>)" class="btn btn-sm-action px-10">Voir</button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 <?php endif; ?>
             </div>
             
@@ -944,10 +529,10 @@ body.dark .btn-sm-action:hover {
 <script src="js/awesomplete.min.js"></script>
 
 <!-- Modal d'ajout d'intervention -->
-<div id="addInterventionModal" class="modal-overlay" style="display: none; z-index: 1000;">
+<div id="addInterventionModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
         <div class="modal-header">
-            <h2>➕ Nouvelle Intervention</h2>
+            <h3 class="modal-title">🛠️ Nouvelle Intervention</h3>
             <span class="modal-close" onclick="closeAddInterventionModal()">&times;</span>
         </div>
         <div class="modal-body">
@@ -955,263 +540,48 @@ body.dark .btn-sm-action:hover {
             <form id="addInterventionForm">
                 <!-- Client Search -->
                 <div class="form-group">
-                    <label for="interv_client_search">Client *</label>
-                    <div style="display: flex; gap: 8px; align-items: flex-start;">
-                        <div class="client-search-container" style="flex: 1;">
+                    <label for="interv_client_search" class="form-label">Client *</label>
+                    <div class="flex gap-10">
+                        <div class="client-search-container flex-1">
                             <input type="text" id="interv_client_search" class="form-control" autocomplete="off" placeholder="Rechercher un client (nom, email...)" required>
                             <input type="hidden" id="interv_id_client" name="id_client" required>
                             <div id="interv_client_suggestions" class="client-suggestions"></div>
                         </div>
-                        <button type="button" class="btn" onclick="openNestedClientModal('intervention')" style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); color: white; border: none; padding: 0 20px; white-space: nowrap; height: 45px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'" title="Créer un nouveau client">
-                            <span>➕</span> Nouveau client
+                        <button type="button" class="btn btn-primary" style="padding: 0 15px;" onclick="openNestedClientModal('intervention')" title="Créer un nouveau client">
+                            <span>➕</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- Date (Ligne unique) -->
+                <!-- Date -->
                 <div class="form-group">
-                    <label for="interv_date">Date et Heure *</label>
+                    <label for="interv_date" class="form-label">Date et Heure *</label>
                     <input type="datetime-local" id="interv_date" name="date" class="form-control" required>
                 </div>
 
-                <!-- En cours (Ligne) -->
-                <div class="checkbox-group">
+                <!-- En cours -->
+                <div class="checkbox-group mb-20">
                     <input type="checkbox" id="interv_en_cours" name="en_cours" value="1" checked>
-                    <label for="interv_en_cours">Intervention en cours (visible sur l'accueil)</label>
+                    <label for="interv_en_cours" class="form-label">Intervention en cours (visible sur l'accueil)</label>
                 </div>
 
                 <!-- Informations -->
                 <div class="form-group">
-                    <label for="interv_info">Informations / Problème *</label>
-                    <textarea id="interv_info" name="info" class="form-control" placeholder="Description du problème à résoudre..." required></textarea>
+                    <label for="interv_info" class="form-label">Informations / Problème *</label>
+                    <textarea id="interv_info" name="info" class="form-control" placeholder="Description du problème à résoudre..." required rows="4"></textarea>
                 </div>
             </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeAddInterventionModal()">
-                <span>✕</span>
-                Annuler
-            </button>
-            <button type="button" class="btn btn-primary" onclick="submitAddInterventionForm()">
-                <span>✓</span>
-                Ajouter l'intervention
-            </button>
+            <button type="button" class="btn btn-secondary" onclick="closeAddInterventionModal()">Annuler</button>
+            <button type="button" class="btn btn-primary" onclick="submitAddInterventionForm()">Ajouter l'intervention</button>
         </div>
     </div>
 </div>
 
 </div>
 
-<style>
-/* Styles Modal */
-.modal-overlay {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    animation: fadeIn 0.2s ease;
-}
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.modal-content {
-    background: var(--card-bg);
-    margin: 3% auto;
-    padding: 0;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 700px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    animation: slideInModal 0.3s ease;
-    border: 1px solid var(--border-color);
-}
-
-@keyframes slideInModal {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-header {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 12px 12px 0 0;
-}
-
-.modal-close {
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
-    opacity: 0.8;
-}
-
-.modal-close:hover { opacity: 1; }
-
-.modal-body {
-    padding: 25px;
-    max-height: 65vh;
-    overflow-y: auto;
-}
-
-.modal-footer {
-    padding: 15px 20px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-}
-
-/* Missing Form Styles */
-.modal-footer .btn {
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: none;
-    font-size: 1em;
-}
-
-.modal-footer .btn-primary {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-    color: white;
-}
-
-.modal-footer .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
-}
-
-.modal-footer .btn-secondary {
-    background: var(--input-bg);
-    color: var(--text-color);
-    border: 2px solid var(--border-color);
-}
-
-.modal-footer .btn-secondary:hover {
-    background: var(--hover-bg);
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    font-size: 0.95em;
-    color: var(--text-color);
-}
-
-.form-group .form-control {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 1em;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-}
-
-.form-group .form-control:focus {
-    outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
-}
-
-.form-group textarea.form-control {
-    resize: vertical;
-    min-height: 120px;
-    font-family: inherit;
-}
-
-.form-hint {
-    display: block;
-    margin-top: 6px;
-    font-size: 0.85em;
-    color: var(--text-muted);
-    line-height: 1.4;
-}
-
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.checkbox-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #3498db;
-}
-
-.checkbox-group label {
-    margin: 0;
-    cursor: pointer;
-    user-select: none;
-    font-weight: 500;
-}
-
-/* Form Styles */
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.client-search-container { position: relative; }
-.client-suggestions {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    max-height: 200px;
-    overflow-y: auto;
-    z-index: 2000; /* Augmenté pour être sûr */
-    display: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-.client-suggestion-item {
-    padding: 10px 15px;
-    cursor: pointer;
-    border-bottom: 1px solid var(--border-color);
-    color: var(--text-color);
-}
-.client-suggestion-item:hover { background: var(--hover-bg); }
-
-/* Fix Awesomplete z-index */
-.awesomplete { z-index: 1500; position: relative; }
-.awesomplete > ul { z-index: 1500 !important; background: white; border: 1px solid #ccc; }
-
-.alert-modal.success {
-    padding: 10px; margin-bottom: 15px; border-radius: 6px;
-    background: #d4edda; border: 1px solid #c3e6cb; color: #155724;
-}
-.alert-modal.error {
-    padding: 10px; margin-bottom: 15px; border-radius: 6px;
-    background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24;
-}
-</style>
 
 <script>
 // ===== GESTION MODAL INTERVENTION =====
@@ -1728,11 +1098,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const cancelAddMessage = document.getElementById('cancelAddMessage'); // Not in shared
     const addMessageForm = document.getElementById('msg_add_form');
 
-    // Close modals on outside click
+    /* Close modals on outside click - DISABLED as per user request
     window.addEventListener('click', (e) => {
         if (e.target === replyMessageModal) closeModal(replyMessageModal);
         if (e.target === addMessageModal) closeModal(addMessageModal);
     });
+    */
 
     if (closeReplyMessageModal) {
         closeReplyMessageModal.addEventListener('click', () => closeModal(replyMessageModal));
@@ -1945,12 +1316,13 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('viewAgendaModal').style.display = 'none';
     }
 
-    // Close modals on outside click
+    /* Close modals on outside click - DISABLED as per user request
     window.addEventListener('click', function(event) {
         if (event.target.classList.contains('modal-overlay')) {
             event.target.style.display = 'none';
         }
     });
+    */
     // Message Client Search Logic
     let messageSearchInitialized = false;
     function initMessageClientSearch() {

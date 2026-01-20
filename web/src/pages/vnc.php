@@ -77,136 +77,45 @@ if ($pdo) {
 }
 ?>
 
-<style>
-.vnc-container {
-    max-width: 95%; /* Utiliser quasi toute la largeur */
-    margin: 0 auto;
-}
-
-.page-header {
-    background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-
-.page-header h1 {
-    margin: 0;
-    font-size: 1.4em;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.vnc-grid {
-    display: grid;
-    /* Force 2 colonnes max en augmentant la taille mini de 450px à 600px+ */
-    grid-template-columns: repeat(auto-fit, minmax(650px, 1fr));
-    gap: 30px;
-}
-
-.vnc-content-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    text-align: center;
-    min-height: 420px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-/* Miniature VNC */
-.vnc-mini {
-    width: 100%;
-    max-width: 700px;
-    height: 400px;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-    box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    background: #000;
-}
-
-/* Iframe plein écran dans l’overlay */
-.vnc-full {
-    width: 90vw;
-    height: 90vh;
-    border-radius: 8px;
-    background: #000;
-}
-
-/* Overlay plein écran */
-.vnc-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.85);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 99999;
-}
-
-/* Bouton fermeture */
-.vnc-close {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    font-size: 2rem;
-    color: #fff;
-    cursor: pointer;
-    user-select: none;
-}
-</style>
-
-<div class="vnc-container">
-    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; width: 100%; box-sizing: border-box;">
-        <h1 style="margin: 0; font-size: 1.4em; font-weight: 400; display: flex; align-items: center; gap: 10px;">
+<div class="container w-full max-w-full px-20">
+    <div class="page-header flex justify-between items-center text-white p-15 mb-25 rounded-4 shadow-sm bg-gradient-primary">
+        <h1 class="m-0 text-xl font-normal flex items-center gap-10">
             <span>🖥️</span>
             VNC - Accès distant multiposte
         </h1>
-        <div style="display: flex; gap: 10px; align-items: center;">
-                <button type="button" class="layout-btn" data-cols="2" title="2 colonnes" style="border:none; background:transparent; color:white; cursor:pointer; opacity:0.7; font-size:1.1em; padding: 2px 8px; border-radius: 4px;">2</button>
-                <button type="button" class="layout-btn" data-cols="3" title="3 colonnes" style="border:none; background:transparent; color:white; cursor:pointer; opacity:0.7; font-size:1.1em; padding: 2px 8px; border-radius: 4px;">3</button>
-                <button type="button" class="layout-btn" data-cols="4" title="4 colonnes" style="border:none; background:transparent; color:white; cursor:pointer; opacity:0.7; font-size:1.1em; padding: 2px 8px; border-radius: 4px;">4</button>
-            </div>
+        <div class="flex gap-10 items-center">
+            <button type="button" class="layout-btn bg-transparent border-0 text-white cursor-pointer opacity-70 text-lg px-10 rounded-4" data-cols="2" title="2 colonnes">2</button>
+            <button type="button" class="layout-btn bg-transparent border-0 text-white cursor-pointer opacity-70 text-lg px-10 rounded-4" data-cols="3" title="3 colonnes">3</button>
+            <button type="button" class="layout-btn bg-transparent border-0 text-white cursor-pointer opacity-70 text-lg px-10 rounded-4" data-cols="4" title="4 colonnes">4</button>
+        </div>
 
+        <div class="flex items-center gap-10">
             <button 
                 id="refreshVncBtn" 
-                style="padding: 8px 16px; border-radius: 8px; border: none; background: #4caf50; color: white; cursor: pointer; font-size: 0.9em; transition: all 0.2s;"
-                onmouseover="this.style.background='#45a049'"
-                onmouseout="this.style.background='#4caf50'"
+                class="btn btn-success btn-sm flex items-center gap-5 transition-all text-sm"
             >
                 🔄 Rafraîchir
             </button>
             <?php if ($tokensError): ?>
-                <span style="color: #ff9800; font-size: 0.85em;">⚠️ <?= htmlspecialchars($tokensError) ?></span>
+                <span class="text-warning text-xs font-bold">⚠️ <?= htmlspecialchars($tokensError) ?></span>
             <?php elseif ($tokensGenerated): ?>
-                <span style="color: #4caf50; font-size: 0.85em;">✓</span>
+                <span class="text-success text-xs font-bold">✓</span>
             <?php endif; ?>
         </div>
     </div>
 
     <?php if (empty($vncMachines)): ?>
-        <div style="background: var(--card-bg); border-radius: 12px; padding: 30px; text-align: center; border: 1px solid var(--border-color);">
-            <p style="font-size: 1.1em; color: var(--text-muted); margin: 0;">
+        <div class="card text-center p-30 border-dashed">
+            <p class="text-lg text-muted m-0">
                 ℹ️ Aucune connexion VNC configurée
             </p>
-            <p style="font-size: 0.9em; color: var(--text-muted); margin-top: 10px;">
+            <p class="text-sm text-muted mt-10">
                 Pour ajouter une connexion VNC, renseignez les champs <code>ip_vnc</code> et <code>pass_vnc</code> dans la table <code>inter</code>.
             </p>
         </div>
     <?php else: ?>
 
-    <div class="vnc-grid">
+    <div class="vnc-grid grid gap-30" style="grid-template-columns: repeat(auto-fit, minmax(650px, 1fr));">
         <?php foreach ($vncMachines as $machine): 
             $iframeId  = 'vncFrame_' . $machine['id'];
             $buttonId  = 'vncExpandBtn_' . $machine['id'];
@@ -218,37 +127,29 @@ if ($pdo) {
             $host      = htmlspecialchars($machine['host'], ENT_QUOTES, 'UTF-8');
             $password  = htmlspecialchars($machine['password'], ENT_QUOTES, 'UTF-8');
 
-            // URL noVNC : On utilise le port dédié (qui pointe directement vers le bon VNC)
-            // Plus besoin de token dans l'URL car le port EST le sélecteur
-            // On charge le viewer JS depuis le serveur 8085 (fichiers statiques) mais on connecte le Websocket au port dédié
-            // Note: vnc_lite.html permet "path" ou "port". Ici on hack l'URL pour pointer le websocket vers le bon port
-            
-            // vnc_lite.html?host=192.168.10.248&port=60XX
-            // Utilisation de scale=true au lieu de resize=scale pour adapter l'image à l'iframe
             $vncUrl = "http://{$host}:8085/vnc_lite.html?host={$host}&port={$vncPort}&password={$password}&autoconnect=true&scale=true";
         ?>
-        <div class="vnc-content-card" style="overflow: hidden;">
-            <h2 style="margin-top: 0; margin-bottom: 5px; font-size: 1.1em;">
+        <div class="card p-20 flex flex-col items-center justify-start min-h-420 border overflow-hidden">
+            <h2 class="mt-0 mb-5 text-lg font-bold">
                 <?= $label ?>
             </h2>
-            <div style="margin-bottom: 15px;">
-                <a href="index.php?page=interventions_view&id=<?= $machine['intervention_id'] ?>" style="color: #3498db; text-decoration: none; font-size: 0.9em;">
+            <div class="mb-15">
+                <a href="index.php?page=interventions_view&id=<?= $machine['intervention_id'] ?>" class="text-primary no-underline text-sm hover:underline">
                     🔗 Voir l'intervention
                 </a>
             </div>
 
             <iframe
                 id="<?= $iframeId ?>"
-                class="vnc-mini"
+                class="w-full max-w-700 h-400 border-0 rounded-4 shadow-md bg-black transition-all"
                 src="<?= $vncUrl ?>"
-                style="border: none;"
                 allowfullscreen
             ></iframe>
 
             <button
                 type="button"
                 id="<?= $buttonId ?>"
-                style="margin-top: 15px; padding: 8px 16px; border-radius: 999px; border: none; background: #5e35b1; color: #fff; cursor: pointer;"
+                class="btn btn-primary rounded-50 mt-15 px-20 py-10"
             >
                 🔍 Agrandir <?= $label ?>
             </button>
@@ -266,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
         refreshBtn.addEventListener('click', function() {
             this.disabled = true;
             this.textContent = '⏳ Rafraîchissement...';
-            this.style.background = '#9e9e9e';
+            this.classList.add('bg-muted');
             
             // Recharger la page pour regénérer les tokens
             setTimeout(() => {
@@ -331,19 +232,18 @@ document.addEventListener('DOMContentLoaded', function () {
         expandBtn.addEventListener('click', function () {
             // Crée l’overlay plein écran
             const overlay = document.createElement('div');
-            overlay.className = 'vnc-overlay';
+            overlay.className = 'fixed top-0 left-0 w-full h-full bg-black-opacity flex items-center justify-center z-50';
 
             // Bouton fermeture
             const closeBtn = document.createElement('div');
-            closeBtn.className = 'vnc-close';
+            closeBtn.className = 'absolute top-20 right-30 text-2xl text-white cursor-pointer select-none';
             closeBtn.textContent = '✖';
 
             // Iframe en grand (même URL que la miniature)
             const fullFrame = document.createElement('iframe');
-            fullFrame.className = 'vnc-full';
+            fullFrame.className = 'w-90vw h-90vh rounded-4 bg-black border-0 shadow-lg';
             fullFrame.src = miniFrame.src;
             fullFrame.setAttribute('allowfullscreen', 'true');
-            fullFrame.style.border = 'none';
 
             overlay.appendChild(closeBtn);
             overlay.appendChild(fullFrame);

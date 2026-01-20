@@ -36,45 +36,45 @@ try {
 }
 ?>
 
-<div class="inventory-container" style="padding: 20px;">
+<div class="container container-center p-20">
     
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1>📋 Inventaire Valorisé</h1>
-        <div style="background-color: #28a745; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            <div style="font-size: 0.9em; opacity: 0.9;">VALEUR TOTALE DU STOCK (HT)</div>
-            <div style="font-size: 1.8em; font-weight: bold;"><?= number_format($grandTotal, 2, ',', ' ') ?> €</div>
+    <div class="flex-between-center mb-20">
+        <h1 class="text-color m-0 text-2xl">📋 Inventaire Valorisé</h1>
+        <div class="bg-gradient-success text-white p-15 rounded-12 shadow-md">
+            <div class="text-xs opacity-90 uppercase tracking-wider font-bold">VALEUR TOTALE DU STOCK (HT)</div>
+            <div class="text-2xl font-bold"><?= number_format($grandTotal, 2, ',', ' ') ?> €</div>
         </div>
     </div>
 
-    <div class="card" style="background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); overflow: hidden;">
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead style="background-color: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+    <div class="card p-0 overflow-hidden shadow-sm">
+        <table class="w-full border-collapse">
+            <thead>
                 <tr>
-                    <th style="padding: 12px; text-align: left; color: #495057;">Désignation</th>
-                    <th style="padding: 12px; text-align: left; color: #495057;">EAN</th>
-                    <th style="padding: 12px; text-align: left; color: #495057;">Fournisseur (Dernier)</th>
-                    <th style="padding: 12px; text-align: center; color: #495057;">Quantité</th>
-                    <th style="padding: 12px; text-align: right; color: #495057;">Prix Unitaire HT</th>
-                    <th style="padding: 12px; text-align: right; color: #495057;">Total HT</th>
+                    <th class="p-12 text-left text-muted font-bold border-b border-border">Désignation</th>
+                    <th class="p-12 text-left text-muted font-bold border-b border-border">EAN</th>
+                    <th class="p-12 text-left text-muted font-bold border-b border-border">Fournisseur (Dernier)</th>
+                    <th class="p-12 text-center text-muted font-bold border-b border-border">Quantité</th>
+                    <th class="p-12 text-right text-muted font-bold border-b border-border">Prix Unitaire HT</th>
+                    <th class="p-12 text-right text-muted font-bold border-b border-border">Total HT</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($inventory)): ?>
                     <tr>
-                        <td colspan="6" style="padding: 20px; text-align: center; color: #6c757d;">Aucun article en stock.</td>
+                        <td colspan="6" class="p-20 text-center text-muted">Aucun article en stock.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($inventory as $row): ?>
-                        <tr style="border-bottom: 1px solid #f1f3f5;">
-                            <td style="padding: 12px; font-weight: 500;"><?= htmlspecialchars($row['designation']) ?></td>
-                            <td style="padding: 12px; font-family: monospace; color: #666;"><?= htmlspecialchars($row['ean_code']) ?></td>
-                            <td style="padding: 12px; color: #666; font-size: 0.9em;"><?= htmlspecialchars($row['fournisseur']) ?></td>
-                            <td style="padding: 12px; text-align: center;">
-                                <span style="background-color: #e3f2fd; color: #0d47a1; padding: 4px 10px; border-radius: 12px; font-weight: bold;">
+                        <tr class="border-b border-border hover:bg-hover transition-colors">
+                            <td class="p-12 font-medium text-color"><?= htmlspecialchars($row['designation']) ?></td>
+                            <td class="p-12 font-mono text-muted text-sm"><?= htmlspecialchars($row['ean_code']) ?></td>
+                            <td class="p-12 text-muted text-sm"><?= htmlspecialchars($row['fournisseur']) ?></td>
+                            <td class="p-12 text-center">
+                                <span class="badge badge-info">
                                     <?= $row['quantite'] ?>
                                 </span>
                             </td>
-                            <td style="padding: 12px; text-align: right;">
+                            <td class="p-12 text-right text-color">
                                 <?php 
                                     // S'il y a variation de prix pour le même produit, on l'indique
                                     if ($row['prix_min_ht'] != $row['prix_max_ht']) {
@@ -84,21 +84,21 @@ try {
                                     }
                                 ?>
                             </td>
-                            <td style="padding: 12px; text-align: right; font-weight: bold; color: #2e7d32;">
+                            <td class="p-12 text-right font-bold text-success">
                                 <?= number_format($row['total_ht'], 2, ',', ' ') ?> €
                             </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </tbody>
-            <tfoot>
-                <tr style="background-color: #f8f9fa; font-weight: bold; border-top: 2px solid #dde2e6;">
-                    <td colspan="3" style="padding: 12px; text-align: right;">TOTAL GÉNÉRAL</td>
-                    <td style="padding: 12px; text-align: center;">
+            <tfoot class="font-bold border-t-2 border-border bg-input">
+                <tr>
+                    <td colspan="3" class="p-12 text-right text-color">TOTAL GÉNÉRAL</td>
+                    <td class="p-12 text-center text-color">
                         <?= array_sum(array_column($inventory, 'quantite')) ?> unités
                     </td>
                     <td></td>
-                    <td style="padding: 12px; text-align: right; color: #2e7d32; font-size: 1.1em;">
+                    <td class="p-12 text-right text-success text-lg">
                         <?= number_format($grandTotal, 2, ',', ' ') ?> €
                     </td>
                 </tr>

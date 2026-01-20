@@ -10,17 +10,34 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '4.3.5',
-    'release_date' => '2026-01-13',
+    'current_version' => '5.0.0',
+    'release_date' => '2026-01-20',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
 ];
 
-// ... (Contributors list remains same) ...
+// ... (Contributors list remains same - omitted for brevity in this refactor view but assumed present in logic) ...
+// NOTE: I am preserving the data structures but replacing the HTML/CSS presentation.
 
-// Historique des versions
+// Historique des versions (Data structure preserved)
 $versionHistory = [
+    [
+        'version' => '5.0.0',
+        'date' => '2026-01-20',
+        'type' => 'Major Release',
+        'changes' => [
+            'UI : Refonte complète vers une esthétique SaaS Enterprise (Centralisation CSS, Variables, Grid Layout)',
+            'UX : Nouveau Dashboard (Layout 3 colonnes, tableaux denses, empilement intelligent)',
+            'UX : Harmonisation des modales (Design épuré, backdrop-blur, suppression des dégradés intenses)',
+            'UX : Comportement des modales sécurisé (Fermeture explicite uniquement, stop aux clics accidentels sur l\'overlay)',
+            'Performance : Correction du "Theme Flash" (FOUC) via initialisation synchrone au chargement',
+            'Feature : Nouveau système de configuration Mail & SMTP complet',
+            'Feature : Nouveau module de personnalisation du Thème et de l\'apparence',
+            'UI : Standardisation de toutes les listes (Interventions, Clients, Agenda, Liens, Téléchargements)',
+            'Nettoyage : Optimisation du cache CSS et suppression du versioning dynamique superflu'
+        ]
+    ],
     [
         'version' => '4.3.5',
         'date' => '2026-01-13',
@@ -29,6 +46,7 @@ $versionHistory = [
             'UX : Page Contributeurs - Bouton d\'accès direct à la mise à jour structure BDD'
         ]
     ],
+    // ... (rest of history) ...
     [
         'version' => '4.3.4',
         'date' => '2026-01-12',
@@ -42,7 +60,9 @@ $versionHistory = [
             'Feature : Stock - Modification de date de commande et gestion de fichiers (Factures/BL) depuis la liste',
             'UX : Stock - Ajout rapide d\'articles dans une commande existante',
             'UX : Stock - Affichage d\'un en-tête de commande avec actions (Edit/Add) et documents lors de la recherche d\'une commande unique',
-            'Bugfix : UI - Correction de l\'ouverture du menu latéral sur les pages secondaires (ex: Liste commande)'
+            'Bugfix : UI - Correction de l\'ouverture du menu latéral sur les pages secondaires (ex: Liste commande)',
+            'Bugfix : UI - Correction du style du sous-menu Messages (alignement et fond)',
+            'Bugfix : UI - Rétablissement de la navigation au clic sur les menus parents (Stock, Messages, Agenda)'
         ]
     ],
     [
@@ -227,34 +247,36 @@ $technologies = [
 ];
 ?>
 
-<div class="container">
-    <h2>📈 Versions</h2>
+<div class="container container-center max-w-1200">
+    <div class="page-header">
+        <h1>📈 Versions</h1>
+    </div>
     
     <!-- Informations générales du projet -->
-    <div class="info-section">
-        <h3>📋 Informations Générales</h3>
-        <div class="info-grid">
-            <div class="info-card">
-                <h4>🏷️ Projet</h4>
-                <table class="info-table">
-                    <tr><td><strong>Nom :</strong></td><td><?= htmlspecialchars($projectInfo['name']) ?></td></tr>
-                    <tr><td><strong>Version actuelle :</strong></td><td><span class="version-badge" id="currentVersionDisplay"><?= htmlspecialchars($projectInfo['current_version']) ?></span> <button onclick="checkVersion()" style="background:none;border:none;cursor:pointer;font-size:1.2em;" title="Vérifier MAJ">🔄</button></td></tr>
-                    <tr><td><strong>Base de données :</strong></td><td><a href="install/update_db_structure.php" target="_blank" style="text-decoration: none; padding: 4px 10px; background-color: #ffc107; color: #333; border-radius: 4px; font-size: 13px; font-weight: bold;">🛠️ Mettre à jour Structure</a></td></tr>
-                    <tr><td><strong>Date de release :</strong></td><td><?= htmlspecialchars($projectInfo['release_date']) ?></td></tr>
-                    <tr><td><strong>Statut :</strong></td><td><span class="status-active"><?= htmlspecialchars($projectInfo['status']) ?></span></td></tr>
-                    <tr><td><strong>Licence :</strong></td><td><?= htmlspecialchars($projectInfo['license']) ?></td></tr>
-                    <tr><td><strong>Repository :</strong></td><td><?= htmlspecialchars($projectInfo['repository']) ?></td></tr>
+    <div class="card mb-30">
+        <h3 class="card-title text-primary mb-20">📋 Informations Générales</h3>
+        <div class="grid-2 gap-20">
+            <div class="card bg-secondary border">
+                <h4 class="text-accent mt-0 mb-15">🏷️ Projet</h4>
+                <table class="table w-full">
+                    <tr><td class="font-bold py-5">Nom :</td><td><?= htmlspecialchars($projectInfo['name']) ?></td></tr>
+                    <tr><td class="font-bold py-5">Version actuelle :</td><td><span class="badge badge-primary rounded-20 px-10" id="currentVersionDisplay"><?= htmlspecialchars($projectInfo['current_version']) ?></span> <button onclick="checkVersion()" class="cursor-pointer border-0 bg-transparent text-lg" title="Vérifier MAJ">🔄</button></td></tr>
+                    <tr><td class="font-bold py-5">Base de données :</td><td><a href="install/update_db_structure.php" target="_blank" class="badge badge-warning text-xs font-bold no-underline">🛠️ Mettre à jour Structure</a></td></tr>
+                    <tr><td class="font-bold py-5">Date de release :</td><td><?= htmlspecialchars($projectInfo['release_date']) ?></td></tr>
+                    <tr><td class="font-bold py-5">Statut :</td><td><span class="badge badge-success"><?= htmlspecialchars($projectInfo['status']) ?></span></td></tr>
+                    <tr><td class="font-bold py-5">Licence :</td><td><?= htmlspecialchars($projectInfo['license']) ?></td></tr>
+                    <tr><td class="font-bold py-5">Repository :</td><td><?= htmlspecialchars($projectInfo['repository']) ?></td></tr>
                 </table>
             </div>
             
-            <div class="info-card">
-                <h4>🛠️ Stack Technique</h4>
+            <div class="card bg-secondary border">
+                <h4 class="text-accent mt-0 mb-15">🛠️ Stack Technique</h4>
                 <?php foreach ($technologies as $category => $techs): ?>
-                    <div class="tech-category">
-                        <h5><?= htmlspecialchars($category) ?></h5>
-                        <ul class="tech-list">
+                    <div class="mb-15">
+                        <h5 class="text-accent m-0 mb-5 text-sm"><?= htmlspecialchars($category) ?></h5>
+                        <ul class="list-none p-0 m-0">
                             <?php foreach ($techs as $tech => $version): ?>
-                                <li><strong><?= htmlspecialchars($tech) ?>:</strong> <?= htmlspecialchars($version) ?></li>
+                                <li class="text-sm py-2"><strong><?= htmlspecialchars($tech) ?>:</strong> <?= htmlspecialchars($version) ?></li>
                             <?php endforeach; ?>
                         </ul>
                     </div>
@@ -264,21 +286,21 @@ $technologies = [
     </div>
 
     <!-- Historique des versions -->
-    <div class="info-section">
-        <h3>📈 Historique des Versions</h3>
-        <div class="version-timeline">
+    <div class="card">
+        <h3 class="card-title text-primary mb-20">📈 Historique des Versions</h3>
+        <div class="flex flex-col gap-20">
             <?php foreach ($versionHistory as $version): ?>
-                <div class="version-item">
-                    <div class="version-header">
-                        <span class="version-number"><?= htmlspecialchars($version['version']) ?></span>
-                        <span class="version-type type-<?= strtolower(str_replace(' ', '-', $version['type'])) ?>"><?= htmlspecialchars($version['type']) ?></span>
-                        <span class="version-date"><?= htmlspecialchars($version['date']) ?></span>
+                <div class="card bg-secondary border">
+                    <div class="flex items-center gap-15 mb-15 flex-wrap">
+                        <span class="badge badge-primary rounded-20 px-10 text-lg"><?= htmlspecialchars($version['version']) ?></span>
+                        <span class="badge <?= strpos($version['type'], 'Major') !== false ? 'badge-danger' : (strpos($version['type'], 'Minor') !== false ? 'badge-warning' : 'badge-success') ?>"><?= htmlspecialchars($version['type']) ?></span>
+                        <span class="text-muted text-sm"><?= htmlspecialchars($version['date']) ?></span>
                     </div>
-                    <div class="version-changes">
-                        <h5>Changements :</h5>
-                        <ul>
+                    <div>
+                        <h5 class="text-accent m-0 mb-10">Changements :</h5>
+                        <ul class="pl-20 m-0">
                             <?php foreach ($version['changes'] as $change): ?>
-                                <li><?= htmlspecialchars($change) ?></li>
+                                <li class="text-sm py-2"><?= htmlspecialchars($change) ?></li>
                             <?php endforeach; ?>
                         </ul>
                     </div>
@@ -287,199 +309,6 @@ $technologies = [
         </div>
     </div>
 </div>
-
-<style>
-.version-badge {
-    background: linear-gradient(135deg, var(--accent-color), #23428a);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 14px;
-}
-
-.status-active {
-    background: #28a745;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.tech-category {
-    margin-bottom: 15px;
-}
-
-.tech-category h5 {
-    margin: 0 0 5px 0;
-    color: var(--accent-color);
-    font-size: 14px;
-}
-
-.tech-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.tech-list li {
-    padding: 2px 0;
-    font-size: 13px;
-}
-
-.contributors-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 20px;
-}
-
-.contributor-card {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.contributor-header h4 {
-    margin: 0 0 5px 0;
-    color: var(--accent-color);
-}
-
-.contributor-role {
-    background: #f8f9fa;
-    color: #6c757d;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.contributor-info {
-    margin: 15px 0;
-    font-size: 14px;
-}
-
-.contributor-info p {
-    margin: 5px 0;
-}
-
-.contributor-contributions h5 {
-    margin: 15px 0 10px 0;
-    color: var(--accent-color);
-    font-size: 14px;
-}
-
-.contributor-contributions ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.contributor-contributions li {
-    margin: 5px 0;
-    font-size: 13px;
-}
-
-.version-timeline {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.version-item {
-    background: white;
-    border-radius: 8px;
-    padding: 20px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.version-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-.version-number {
-    background: linear-gradient(135deg, var(--accent-color), #23428a);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-.version-type {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.type-major-release {
-    background: #dc3545;
-    color: white;
-}
-
-.type-minor-release {
-    background: #ffc107;
-    color: #212529;
-}
-
-.type-patch {
-    background: #28a745;
-    color: white;
-}
-
-.version-date {
-    color: #6c757d;
-    font-size: 14px;
-}
-
-.version-changes h5 {
-    margin: 0 0 10px 0;
-    color: var(--accent-color);
-}
-
-.version-changes ul {
-    margin: 0;
-    padding-left: 20px;
-}
-
-.version-changes li {
-    margin: 5px 0;
-    font-size: 14px;
-}
-
-/* Mode sombre */
-body.dark .contributor-card,
-body.dark .version-item {
-    background-color: #333;
-    border-color: #555;
-    color: var(--text-color-dark);
-}
-
-body.dark .contributor-role {
-    background-color: #444;
-    color: #aaa;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .contributors-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .version-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-}
-</style>
 
 <script>
 function checkVersion() {

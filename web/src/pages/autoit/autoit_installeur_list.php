@@ -258,238 +258,244 @@ function isEditableFile($filename) {
 }
 ?>
 
-<h1>Gestion des Installeurs</h1>
-<p class="description">Explorez et gérez les fichiers d'installation dans le répertoire <code><?= htmlspecialchars($currentRelativePath ?: $baseInstallDir) ?></code></p>
+<div class="container container-center max-w-1600">
+    <div class="flex items-center justify-between mb-20 bg-light p-20 rounded shadow-sm border border-border">
+        <div>
+            <h1 class="m-0 text-xl font-bold">Gestion des Installeurs</h1>
+            <p class="text-sm text-muted m-0 mt-5">Explorez et gérez les fichiers d'installation dans le répertoire <code class="bg-dark text-white rounded px-5"><?= htmlspecialchars($currentRelativePath ?: $baseInstallDir) ?></code></p>
+        </div>
+        <button onclick="togglePermissionsHelp()" class="btn btn-sm btn-info flex items-center gap-5">🔧 Permissions</button>
+    </div>
 
-<?php if (isset($success)): ?>
-    <div class="alert alert-success"><?= htmlspecialchars($success) ?></div>
-<?php endif; ?>
-
-<?php if (isset($error)): ?>
-    <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
-
-<!-- Fil d'Ariane -->
-<div class="breadcrumb-container">
-    <nav class="breadcrumb">
-        <?php foreach ($breadcrumb as $index => $crumb): ?>
-            <?php if ($index === count($breadcrumb) - 1): ?>
-                <span class="breadcrumb-current">📁 <?= htmlspecialchars($crumb['name']) ?></span>
-            <?php else: ?>
-                <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($crumb['path']) ?>" class="breadcrumb-link">
-                    📁 <?= htmlspecialchars($crumb['name']) ?>
-                </a>
-                <span class="breadcrumb-separator">›</span>
-            <?php endif; ?>
-        <?php endforeach; ?>
-    </nav>
-</div>
-
-<!-- Actions rapides -->
-<div class="quick-actions">
-    <button onclick="toggleCreateFolder()" class="btn btn-success">📁 Nouveau Dossier</button>
-    <button onclick="toggleUploadForm()" class="btn btn-primary">📤 Uploader Fichier</button>
-    <?php if (!empty($currentPath)): ?>
-        <a href="index.php?page=autoit_installeur_list&path=<?= urlencode(dirname($currentPath) === '.' ? '' : dirname($currentPath)) ?>" class="btn btn-secondary">⬆️ Dossier Parent</a>
+    <?php if (isset($success)): ?>
+        <div class="alert alert-success mb-20"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
-    <button onclick="togglePermissionsHelp()" class="btn btn-info">🔧 Aide Permissions</button>
-</div>
 
-<!-- Aide pour les permissions (masquée par défaut) -->
-<div id="permissions-help" class="form-container" style="display: none;">
-    <h3>🔧 Résolution des problèmes de permissions</h3>
-    <div class="permissions-info">
-        <p><strong>Si vous rencontrez des erreurs de permissions :</strong></p>
-        <div class="command-box">
-            <h4>Commandes à exécuter sur le serveur :</h4>
-            <code>chmod -R 755 <?= htmlspecialchars($currentRelativePath ?: $baseInstallDir) ?></code><br>
-            <code>chown -R www-data:www-data <?= htmlspecialchars($currentRelativePath ?: $baseInstallDir) ?></code>
-        </div>
-        <div class="permissions-status">
-            <h4>État actuel des permissions :</h4>
-            <ul>
-                <li>📁 Répertoire : <?= is_writable($currentFullPath) ? '✅ Écriture autorisée' : '❌ Écriture refusée' ?></li>
-                <li>🔍 Chemin complet : <code><?= htmlspecialchars($currentFullPath) ?></code></li>
-                <li>👤 Propriétaire : <?= function_exists('posix_getpwuid') ? posix_getpwuid(fileowner($currentFullPath))['name'] ?? 'Inconnu' : 'Non disponible' ?></li>
-                <li>🔐 Permissions : <?= substr(sprintf('%o', fileperms($currentFullPath)), -4) ?></li>
-            </ul>
-        </div>
+    <?php if (isset($error)): ?>
+        <div class="alert alert-danger mb-20"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
+
+    <!-- Fil d'Ariane -->
+    <div class="mb-20">
+        <nav class="flex items-center gap-5 bg-card p-10 px-15 rounded border border-border text-sm flex-wrap">
+            <?php foreach ($breadcrumb as $index => $crumb): ?>
+                <?php if ($index === count($breadcrumb) - 1): ?>
+                    <span class="font-bold text-dark flex items-center gap-5">📁 <?= htmlspecialchars($crumb['name']) ?></span>
+                <?php else: ?>
+                    <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($crumb['path']) ?>" class="text-primary hover:underline flex items-center gap-5 font-bold">
+                        📁 <?= htmlspecialchars($crumb['name']) ?>
+                    </a>
+                    <span class="text-muted">›</span>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </nav>
     </div>
-    <div class="form-actions">
-        <button type="button" onclick="togglePermissionsHelp()" class="btn btn-secondary">Fermer</button>
+
+    <!-- Actions rapides -->
+    <div class="flex gap-10 mb-20 flex-wrap">
+        <button onclick="toggleCreateFolder()" class="btn btn-success flex items-center gap-5">📁 Nouveau Dossier</button>
+        <button onclick="toggleUploadForm()" class="btn btn-primary flex items-center gap-5">📤 Uploader Fichier</button>
+        <?php if (!empty($currentPath)): ?>
+            <a href="index.php?page=autoit_installeur_list&path=<?= urlencode(dirname($currentPath) === '.' ? '' : dirname($currentPath)) ?>" class="btn btn-secondary flex items-center gap-5">⬆️ Dossier Parent</a>
+        <?php endif; ?>
     </div>
-</div>
 
-<!-- Formulaire de création de dossier (masqué par défaut) -->
-<div id="create-folder-form" class="form-container" style="display: none;">
-    <h3>Créer un nouveau dossier</h3>
-    <form method="POST" class="installeur-form">
-        <input type="hidden" name="action" value="create_folder">
-        
-        <div class="form-group">
-            <label for="folder_name">Nom du dossier :</label>
-            <input type="text" id="folder_name" name="folder_name" required placeholder="Nom du nouveau dossier">
-        </div>
-        
-        <div class="form-actions">
-            <button type="submit" class="btn btn-success">📁 Créer</button>
-            <button type="button" onclick="toggleCreateFolder()" class="btn btn-secondary">Annuler</button>
-        </div>
-    </form>
-</div>
-
-<!-- Formulaire d'upload (masqué par défaut) -->
-<div id="upload-form" class="form-container" style="display: none;">
-    <h3>Uploader un fichier</h3>
-    <form method="POST" enctype="multipart/form-data" class="installeur-form">
-        <input type="hidden" name="action" value="upload">
-        
-        <div class="form-group">
-            <label for="fichier_installeur">Sélectionner un fichier :</label>
-            <input type="file" id="fichier_installeur" name="fichier_installeur" required>
-            <small class="form-help">Tous les formats de fichiers sont acceptés</small>
-        </div>
-        
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">📤 Uploader</button>
-            <button type="button" onclick="toggleUploadForm()" class="btn btn-secondary">Annuler</button>
-        </div>
-    </form>
-</div>
-
-<!-- Formulaire de renommage (si applicable) -->
-<?php if ($renameFile): ?>
-<div class="form-container">
-    <h3>Renommer le fichier</h3>
-    <form method="POST" class="installeur-form">
-        <input type="hidden" name="action" value="rename">
-        <input type="hidden" name="old_filename" value="<?= htmlspecialchars($renameFile) ?>">
-        
-        <div class="form-group">
-            <label for="new_filename">Nouveau nom :</label>
-            <input type="text" id="new_filename" name="new_filename" required value="<?= htmlspecialchars($renameFile) ?>">
-        </div>
-        
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">✏️ Renommer</button>
-            <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath) ?>" class="btn btn-secondary">Annuler</a>
-        </div>
-    </form>
-</div>
-<?php endif; ?>
-
-<!-- Éditeur de fichier texte (si applicable) -->
-<?php if ($editFile): ?>
-<div class="form-container editor-container">
-    <h3>📝 Édition du fichier : <?= htmlspecialchars($editFile) ?></h3>
-    <form method="POST" class="installeur-form">
-        <input type="hidden" name="action" value="save_file">
-        <input type="hidden" name="filename" value="<?= htmlspecialchars($editFile) ?>">
-        
-        <div class="form-group">
-            <label for="file_content">Contenu du fichier :</label>
-            <div class="editor-toolbar">
-                <button type="button" onclick="insertText('[Section]')" class="btn btn-sm btn-secondary">📁 Section</button>
-                <button type="button" onclick="insertText('key=value')" class="btn btn-sm btn-secondary">🔑 Clé=Valeur</button>
-                <button type="button" onclick="insertText(';Commentaire')" class="btn btn-sm btn-secondary">💬 Commentaire</button>
-                <button type="button" onclick="formatContent()" class="btn btn-sm btn-info">🎨 Formater</button>
-                <span class="file-info">
-                    📄 <?= htmlspecialchars($editFile) ?>
-                    (<?= formatFileSize(strlen($editFileContent)) ?>)
-                </span>
+    <!-- Aide pour les permissions (masquée par défaut) -->
+    <div id="permissions-help" class="card bg-info-subtle border border-info p-20 mb-20 hidden">
+        <h3 class="mt-0 text-info">🔧 Résolution des problèmes de permissions</h3>
+        <div class="mb-15">
+            <p><strong>Si vous rencontrez des erreurs de permissions :</strong></p>
+            <div class="bg-input p-10 rounded border border-border font-mono text-sm mb-10">
+                <code class="block mb-5">chmod -R 755 <?= htmlspecialchars($currentRelativePath ?: $baseInstallDir) ?></code>
+                <code class="block">chown -R www-data:www-data <?= htmlspecialchars($currentRelativePath ?: $baseInstallDir) ?></code>
             </div>
-            <textarea id="file_content" name="file_content" rows="20" class="code-editor" spellcheck="false"><?= htmlspecialchars($editFileContent) ?></textarea>
-            <div class="editor-info">
-                <small>
-                    💡 Conseils :
-                    • Utilisez Ctrl+S pour sauvegarder rapidement
-                    • Les modifications sont sauvegardées immédiatement
-                    • Formats supportés : ini, txt, cfg, conf, log, xml, json, md, yml, au3, php, js, css, html
-                </small>
+            <div class="bg-card p-15 rounded border border-border">
+                <h4 class="mt-0 mb-10 text-sm font-bold uppercase text-muted">État actuel des permissions :</h4>
+                <ul class="list-none p-0 m-0 text-sm">
+                    <li class="border-b border-border py-5">📁 Répertoire : <?= is_writable($currentFullPath) ? '<span class="text-success font-bold">✅ Écriture autorisée</span>' : '<span class="text-danger font-bold">❌ Écriture refusée</span>' ?></li>
+                    <li class="border-b border-border py-5">🔍 Chemin complet : <code class="bg-light px-5 rounded"><?= htmlspecialchars($currentFullPath) ?></code></li>
+                    <li class="border-b border-border py-5">👤 Propriétaire : <?= function_exists('posix_getpwuid') ? posix_getpwuid(fileowner($currentFullPath))['name'] ?? 'Inconnu' : 'Non disponible' ?></li>
+                    <li class="py-5">🔐 Permissions : <?= substr(sprintf('%o', fileperms($currentFullPath)), -4) ?></li>
+                </ul>
             </div>
         </div>
-        
-        <div class="form-actions">
-            <button type="submit" class="btn btn-success">💾 Sauvegarder</button>
-            <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath) ?>" class="btn btn-secondary">❌ Annuler</a>
+        <div class="flex justify-end">
+            <button type="button" onclick="togglePermissionsHelp()" class="btn btn-sm btn-secondary">Fermer</button>
         </div>
-    </form>
-</div>
-<?php endif; ?>
+    </div>
 
-<!-- Liste des fichiers et dossiers -->
-<div class="list-container">
-    <h3>Contenu du dossier (<?= count($items) ?> élément<?= count($items) > 1 ? 's' : '' ?>)</h3>
-    
-    <?php if (empty($items)): ?>
-        <div class="empty-state">
-            <p>📁 Ce dossier est vide.</p>
-            <p>Utilisez les boutons ci-dessus pour ajouter des fichiers ou créer des sous-dossiers.</p>
+    <!-- Formulaire de création de dossier (masqué par défaut) -->
+    <div id="create-folder-form" class="card bg-secondary border p-20 mb-20 hidden">
+        <h3 class="mt-0 mb-15 text-lg border-b border-border pb-10">Créer un nouveau dossier</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="create_folder">
+            
+            <div class="mb-15">
+                <label for="folder_name" class="block mb-5 font-bold">Nom du dossier :</label>
+                <input type="text" id="folder_name" name="folder_name" required class="form-control w-full p-8 border rounded bg-input text-dark" placeholder="Nom du nouveau dossier">
+            </div>
+            
+            <div class="flex gap-10">
+                <button type="submit" class="btn btn-success flex items-center gap-5">📁 Créer</button>
+                <button type="button" onclick="toggleCreateFolder()" class="btn btn-secondary">Annuler</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Formulaire d'upload (masqué par défaut) -->
+    <div id="upload-form" class="card bg-secondary border p-20 mb-20 hidden">
+        <h3 class="mt-0 mb-15 text-lg border-b border-border pb-10">Uploader un fichier</h3>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="upload">
+            
+            <div class="mb-15">
+                <label for="fichier_installeur" class="block mb-5 font-bold">Sélectionner un fichier :</label>
+                <input type="file" id="fichier_installeur" name="fichier_installeur" required class="form-control w-full p-8 border rounded bg-input text-dark">
+                <small class="text-muted text-xs mt-5 block">Tous les formats de fichiers sont acceptés</small>
+            </div>
+            
+            <div class="flex gap-10">
+                <button type="submit" class="btn btn-primary flex items-center gap-5">📤 Uploader</button>
+                <button type="button" onclick="toggleUploadForm()" class="btn btn-secondary">Annuler</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Formulaire de renommage (si applicable) -->
+    <?php if ($renameFile): ?>
+    <div class="card bg-secondary border p-20 mb-20">
+        <h3 class="mt-0 mb-15 text-lg border-b border-border pb-10">Renommer le fichier</h3>
+        <form method="POST">
+            <input type="hidden" name="action" value="rename">
+            <input type="hidden" name="old_filename" value="<?= htmlspecialchars($renameFile) ?>">
+            
+            <div class="mb-15">
+                <label for="new_filename" class="block mb-5 font-bold">Nouveau nom :</label>
+                <input type="text" id="new_filename" name="new_filename" required class="form-control w-full p-8 border rounded bg-input text-dark" value="<?= htmlspecialchars($renameFile) ?>">
+            </div>
+            
+            <div class="flex gap-10">
+                <button type="submit" class="btn btn-primary flex items-center gap-5">✏️ Renommer</button>
+                <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath) ?>" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+    <?php endif; ?>
+
+    <!-- Éditeur de fichier texte (si applicable) -->
+    <?php if ($editFile): ?>
+    <div class="card bg-secondary border p-0 overflow-hidden mb-20 border-l-4 border-l-primary shadow-lg">
+        <div class="bg-light p-10 px-20 border-b border-border flex justify-between items-center">
+            <h3 class="m-0 text-base font-bold flex items-center gap-8">📝 Édition : <?= htmlspecialchars($editFile) ?></h3>
+            <span class="text-xs text-muted font-mono"><?= formatFileSize(strlen($editFileContent)) ?></span>
         </div>
-    <?php else: ?>
-        <div class="table-responsive">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>📄 Nom</th>
-                        <th>📏 Taille</th>
-                        <th>🗓️ Modifié</th>
-                        <th>🔧 Type</th>
-                        <th>⚡ Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($items as $item): ?>
-                    <tr>
-                        <td>
-                            <?php if ($item['is_directory']): ?>
-                                <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath ? $currentPath . '/' . $item['name'] : $item['name']) ?>" class="folder-link">
-                                    📁 <strong><?= htmlspecialchars($item['name']) ?></strong>
-                                </a>
-                            <?php else: ?>
-                                📄 <strong><?= htmlspecialchars($item['name']) ?></strong>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <?= $item['is_directory'] ? '-' : formatFileSize($item['size']) ?>
-                        </td>
-                        <td><?= date('d/m/Y H:i', $item['modified']) ?></td>
-                        <td>
-                            <?php if ($item['is_directory']): ?>
-                                <span class="badge badge-folder">DOSSIER</span>
-                            <?php else: ?>
-                                <span class="badge <?= getFileTypeBadgeClass($item['extension']) ?>">
-                                    <?= strtoupper($item['extension']) ?>
-                                </span>
-                            <?php endif; ?>
-                        </td>
-                        <td class="actions">
-                            <?php if ($item['is_directory']): ?>
-                                <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath ? $currentPath . '/' . $item['name'] : $item['name']) ?>" class="btn btn-sm btn-info">📂 Ouvrir</a>
-                                <form method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier ? Il doit être vide.')">
-                                    <input type="hidden" name="action" value="delete_folder">
-                                    <input type="hidden" name="foldername" value="<?= htmlspecialchars($item['name']) ?>">
-                                    <button type="submit" class="btn btn-sm btn-danger">🗑️ Supprimer</button>
-                                </form>
-                            <?php else: ?>
-                                <a href="<?= $currentRelativePath . '/' . urlencode($item['name']) ?>" class="btn btn-sm btn-info" download>📥 Télécharger</a>
-                                <?php if (isEditableFile($item['name'])): ?>
-                                    <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath) ?>&edit=<?= urlencode($item['name']) ?>" class="btn btn-sm btn-success">📝 Éditer</a>
+        <form method="POST" class="p-20">
+            <input type="hidden" name="action" value="save_file">
+            <input type="hidden" name="filename" value="<?= htmlspecialchars($editFile) ?>">
+            
+            <div class="mb-15">
+                <div class="flex gap-5 mb-10 flex-wrap bg-light p-5 rounded border border-border">
+                    <button type="button" onclick="insertText('[Section]')" class="btn btn-xs btn-secondary">📁 Section</button>
+                    <button type="button" onclick="insertText('key=value')" class="btn btn-xs btn-secondary">🔑 Clé=Valeur</button>
+                    <button type="button" onclick="insertText(';Commentaire')" class="btn btn-xs btn-secondary">💬 Commentaire</button>
+                    <button type="button" onclick="formatContent()" class="btn btn-xs btn-info">🎨 Formater</button>
+                </div>
+                <textarea id="file_content" name="file_content" rows="20" class="form-control w-full p-15 border rounded bg-dark text-light font-mono text-sm leading-relaxed" spellcheck="false" style="min-height: 400px;"><?= htmlspecialchars($editFileContent) ?></textarea>
+                <div class="bg-info-subtle text-info text-xs p-10 rounded mt-10 border border-info flex items-center gap-10">
+                    <span>💡</span>
+                    <span><strong>Astuce :</strong> Ctrl+S pour sauvegarder rapidement. Formats supportés: ini, txt, cfg, ...</span>
+                </div>
+            </div>
+            
+            <div class="flex gap-10">
+                <button type="submit" class="btn btn-success flex items-center gap-5">💾 Sauvegarder</button>
+                <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath) ?>" class="btn btn-secondary flex items-center gap-5">❌ Annuler</a>
+            </div>
+        </form>
+    </div>
+    <?php endif; ?>
+
+    <!-- Liste des fichiers et dossiers -->
+    <div class="card bg-secondary border p-20">
+        <h3 class="mt-0 mb-15 text-lg border-b border-border pb-10">Contenu du dossier (<?= count($items) ?> élément<?= count($items) > 1 ? 's' : '' ?>)</h3>
+        
+        <?php if (empty($items)): ?>
+            <div class="text-center p-40 opacity-50">
+                <div class="text-4xl mb-10">📁</div>
+                <p>Ce dossier est vide.</p>
+                <p class="text-sm">Utilisez les boutons ci-dessus pour ajouter des fichiers.</p>
+            </div>
+        <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse">
+                    <thead>
+                        <tr class="text-left border-b border-border text-muted uppercase text-xs">
+                            <th class="p-10">📄 Nom</th>
+                            <th class="p-10">📏 Taille</th>
+                            <th class="p-10">🗓️ Modifié</th>
+                            <th class="p-10">🔧 Type</th>
+                            <th class="p-10 text-right">⚡ Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($items as $item): ?>
+                        <tr class="border-b border-border hover:bg-hover transition-colors">
+                            <td class="p-10 align-middle">
+                                <?php if ($item['is_directory']): ?>
+                                    <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath ? $currentPath . '/' . $item['name'] : $item['name']) ?>" class="text-warning font-bold no-underline hover:underline flex items-center gap-8">
+                                        <span class="text-xl">📁</span> <?= htmlspecialchars($item['name']) ?>
+                                    </a>
+                                <?php else: ?>
+                                    <span class="flex items-center gap-8 font-medium">
+                                        <span class="text-xl opacity-70">📄</span> <?= htmlspecialchars($item['name']) ?>
+                                    </span>
                                 <?php endif; ?>
-                                <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath) ?>&rename=<?= urlencode($item['name']) ?>" class="btn btn-sm btn-warning">✏️ Renommer</a>
-                                <form method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')">
-                                    <input type="hidden" name="action" value="delete">
-                                    <input type="hidden" name="filename" value="<?= htmlspecialchars($item['name']) ?>">
-                                    <button type="submit" class="btn btn-sm btn-danger">🗑️ Supprimer</button>
-                                </form>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    <?php endif; ?>
+                            </td>
+                            <td class="p-10 align-middle text-sm text-muted font-mono">
+                                <?= $item['is_directory'] ? '-' : formatFileSize($item['size']) ?>
+                            </td>
+                            <td class="p-10 align-middle text-sm text-muted">
+                                <?= date('d/m/Y H:i', $item['modified']) ?>
+                            </td>
+                            <td class="p-10 align-middle">
+                                <?php if ($item['is_directory']): ?>
+                                    <span class="badge badge-warning">DOSSIER</span>
+                                <?php else: ?>
+                                    <span class="badge <?= getFileTypeBadgeClass($item['extension']) ?>">
+                                        <?= strtoupper($item['extension']) ?>
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="p-10 align-middle text-right whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-5">
+                                    <?php if ($item['is_directory']): ?>
+                                        <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath ? $currentPath . '/' . $item['name'] : $item['name']) ?>" class="btn btn-xs btn-info">📂 Ouvrir</a>
+                                        <form method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce dossier ? Il doit être vide.')">
+                                            <input type="hidden" name="action" value="delete_folder">
+                                            <input type="hidden" name="foldername" value="<?= htmlspecialchars($item['name']) ?>">
+                                            <button type="submit" class="btn btn-xs btn-danger p-5 bg-transparent text-danger hover:scale-110" title="Supprimer">🗑️</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <a href="<?= $currentRelativePath . '/' . urlencode($item['name']) ?>" class="btn btn-xs btn-secondary p-5" download title="Télécharger">📥</a>
+                                        <?php if (isEditableFile($item['name'])): ?>
+                                            <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath) ?>&edit=<?= urlencode($item['name']) ?>" class="btn btn-xs btn-success p-5" title="Éditer">📝</a>
+                                        <?php endif; ?>
+                                        <a href="index.php?page=autoit_installeur_list&path=<?= urlencode($currentPath) ?>&rename=<?= urlencode($item['name']) ?>" class="btn btn-xs btn-warning p-5" title="Renommer">✏️</a>
+                                        <form method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce fichier ?')">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="filename" value="<?= htmlspecialchars($item['name']) ?>">
+                                            <button type="submit" class="btn btn-xs btn-danger p-5 bg-transparent text-danger hover:scale-110" title="Supprimer">🗑️</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 
 <?php
@@ -527,431 +533,17 @@ function getFileTypeBadgeClass($extension) {
 }
 ?>
 
-<style>
-.installeur-form {
-    background: var(--bg-color);
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    margin-bottom: 30px;
-}
-
-.form-container {
-    margin-bottom: 30px;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    color: var(--text-color);
-}
-
-.form-group input {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--input-bg);
-    color: var(--text-color);
-}
-
-.form-help {
-    display: block;
-    margin-top: 5px;
-    font-size: 12px;
-    color: #6c757d;
-}
-
-.form-actions {
-    margin-top: 20px;
-}
-
-.btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    margin-right: 10px;
-    font-weight: 500;
-}
-
-.btn-primary {
-    background: var(--accent-color);
-    color: white;
-}
-
-.btn-secondary {
-    background: #6c757d;
-    color: white;
-}
-
-.btn-info {
-    background: #17a2b8;
-    color: white;
-}
-
-.btn-warning {
-    background: #ffc107;
-    color: #212529;
-}
-
-.btn-danger {
-    background: #dc3545;
-    color: white;
-}
-
-.btn-success {
-    background: #28a745;
-    color: white;
-}
-
-.btn-sm {
-    padding: 5px 10px;
-    font-size: 12px;
-}
-
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--bg-color);
-}
-
-.data-table th,
-.data-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.data-table th {
-    background: var(--accent-color);
-    color: white;
-    font-weight: bold;
-}
-
-.badge {
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.badge-primary {
-    background: var(--accent-color);
-    color: white;
-}
-
-.badge-secondary {
-    background: #6c757d;
-    color: white;
-}
-
-.badge-info {
-    background: #17a2b8;
-    color: white;
-}
-
-.badge-success {
-    background: #28a745;
-    color: white;
-}
-
-.badge-warning {
-    background: #ffc107;
-    color: #212529;
-}
-
-.badge-folder {
-    background: #fd7e14;
-    color: white;
-}
-
-.actions {
-    white-space: nowrap;
-}
-
-.alert {
-    padding: 12px;
-    border-radius: 4px;
-    margin-bottom: 20px;
-}
-
-.alert-success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.alert-error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.table-responsive {
-    overflow-x: auto;
-}
-
-.empty-state {
-    text-align: center;
-    padding: 40px 20px;
-    background: var(--bg-color);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    color: #6c757d;
-}
-
-.description {
-    margin-bottom: 20px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-left: 4px solid var(--accent-color);
-    border-radius: 4px;
-}
-
-.breadcrumb-container {
-    margin-bottom: 20px;
-}
-
-.breadcrumb {
-    background: #f8f9fa;
-    padding: 10px 15px;
-    border-radius: 6px;
-    border: 1px solid var(--border-color);
-    font-size: 14px;
-}
-
-.breadcrumb-link {
-    color: var(--accent-color);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.breadcrumb-link:hover {
-    text-decoration: underline;
-}
-
-.breadcrumb-separator {
-    margin: 0 8px;
-    color: #6c757d;
-}
-
-.breadcrumb-current {
-    color: #6c757d;
-    font-weight: 600;
-}
-
-.quick-actions {
-    margin-bottom: 20px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.folder-link {
-    color: #fd7e14;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.folder-link:hover {
-    text-decoration: underline;
-}
-
-code {
-    background: #f8f9fa;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-family: monospace;
-    font-size: 90%;
-}
-
-body.dark .description {
-    background: #2c2c2c;
-}
-
-body.dark .breadcrumb {
-    background: #2c2c2c;
-    border-color: #444;
-}
-
-body.dark code {
-    background: #2c2c2c;
-    color: #e9ecef;
-}
-
-body.dark .folder-link {
-    color: #ffa726;
-}
-
-/* Styles pour l'éditeur de fichiers */
-.editor-container {
-    border: 2px solid var(--accent-color);
-}
-
-.editor-toolbar {
-    background: #f8f9fa;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.file-info {
-    margin-left: auto;
-    font-size: 12px;
-    color: #6c757d;
-    font-weight: bold;
-}
-
-.code-editor {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: #f8f9fa;
-    color: var(--text-color);
-    font-family: 'Courier New', Consolas, monospace;
-    font-size: 14px;
-    line-height: 1.4;
-    resize: vertical;
-    min-height: 300px;
-}
-
-.editor-info {
-    margin-top: 10px;
-    padding: 8px;
-    background: #e9ecef;
-    border-radius: 4px;
-    font-size: 12px;
-}
-
-
-body.dark .editor-toolbar {
-    background: #2c2c2c;
-    border-color: #444;
-}
-
-body.dark .code-editor {
-    background: #2c2c2c;
-    color: #e9ecef;
-    border-color: #444;
-}
-
-body.dark .editor-info {
-    background: #333;
-    color: #e9ecef;
-}
-
-
-/* Styles pour l'aide aux permissions */
-.permissions-info {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
-
-.command-box {
-    background: #e9ecef;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 10px;
-    margin: 10px 0;
-}
-
-.command-box code {
-    display: block;
-    margin: 5px 0;
-    padding: 5px;
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 3px;
-}
-
-.permissions-status {
-    margin-top: 15px;
-}
-
-.permissions-status ul {
-    list-style: none;
-    padding: 0;
-}
-
-.permissions-status li {
-    padding: 5px 0;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.permissions-status li:last-child {
-    border-bottom: none;
-}
-
-body.dark .permissions-info {
-    background: #2c2c2c;
-    border-color: #444;
-}
-
-body.dark .command-box {
-    background: #333;
-    border-color: #555;
-}
-
-body.dark .command-box code {
-    background: #2c2c2c;
-    border-color: #444;
-    color: #e9ecef;
-}
-
-body.dark .permissions-status li {
-    border-bottom-color: #444;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .quick-actions {
-        flex-direction: column;
-    }
-    
-    .btn {
-        margin-bottom: 5px;
-    }
-    
-    .editor-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .file-info {
-        margin-left: 0;
-        text-align: center;
-    }
-}
-</style>
-
 <script>
 function toggleCreateFolder() {
     const form = document.getElementById('create-folder-form');
     const uploadForm = document.getElementById('upload-form');
     
-    if (form.style.display === 'none') {
-        form.style.display = 'block';
-        uploadForm.style.display = 'none';
+    if (form.classList.contains('hidden')) {
+        form.classList.remove('hidden');
+        uploadForm.classList.add('hidden');
         document.getElementById('folder_name').focus();
     } else {
-        form.style.display = 'none';
+        form.classList.add('hidden');
     }
 }
 
@@ -959,26 +551,22 @@ function toggleUploadForm() {
     const form = document.getElementById('upload-form');
     const createForm = document.getElementById('create-folder-form');
     
-    if (form.style.display === 'none') {
-        form.style.display = 'block';
-        createForm.style.display = 'none';
+    if (form.classList.contains('hidden')) {
+        form.classList.remove('hidden');
+        createForm.classList.add('hidden');
         document.getElementById('fichier_installeur').focus();
     } else {
-        form.style.display = 'none';
+        form.classList.add('hidden');
     }
 }
 
 function togglePermissionsHelp() {
     const help = document.getElementById('permissions-help');
-    const uploadForm = document.getElementById('upload-form');
-    const createForm = document.getElementById('create-folder-form');
     
-    if (help.style.display === 'none') {
-        help.style.display = 'block';
-        uploadForm.style.display = 'none';
-        createForm.style.display = 'none';
+    if (help.classList.contains('hidden')) {
+        help.classList.remove('hidden');
     } else {
-        help.style.display = 'none';
+        help.classList.add('hidden');
     }
 }
 
@@ -1029,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auto-resize du textarea
         textarea.addEventListener('input', function() {
             this.style.height = 'auto';
-            this.style.height = Math.max(300, this.scrollHeight) + 'px';
+            this.style.height = Math.max(400, this.scrollHeight) + 'px';
         });
     }
 });

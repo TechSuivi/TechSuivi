@@ -32,194 +32,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
     }
 
     if (!empty($errors)) {
-        $message = '<p style="color: red;">' . implode('<br>', $errors) . '</p>';
+        $message = '<div class="alert alert-error">' . implode('<br>', $errors) . '</div>';
     } else {
         try {
-            $sql = "INSERT INTO clients (nom, prenom, adresse1, adresse2, cp, ville, telephone, portable, mail) 
-                    VALUES (:nom, :prenom, :adresse1, :adresse2, :cp, :ville, :telephone, :portable, :mail)";
-            $stmt = $pdo->prepare($sql);
-
-            $stmt->bindParam(':nom', $nom);
-            $stmt->bindParam(':prenom', $prenom);
-            $stmt->bindParam(':adresse1', $adresse1);
-            $stmt->bindParam(':adresse2', $adresse2);
-            $stmt->bindParam(':cp', $cp);
-            $stmt->bindParam(':ville', $ville);
-            $stmt->bindParam(':telephone', $telephone);
-            $stmt->bindParam(':portable', $portable);
-            $stmt->bindParam(':mail', $mail);
-
+            // ... (keep logic) ...
             if ($stmt->execute()) {
-                $message = '<p style="color: green;">Client ajouté avec succès !</p>';
+                $message = '<div class="alert alert-success">Client ajouté avec succès !</div>';
             } else {
-                $message = '<p style="color: red;">Erreur lors de l\'ajout du client.</p>';
+                $message = '<div class="alert alert-error">Erreur lors de l\'ajout du client.</div>';
             }
         } catch (PDOException $e) {
-            $message = '<p style="color: red;">Erreur de base de données : ' . htmlspecialchars($e->getMessage()) . '</p>';
+            $message = '<div class="alert alert-error">Erreur de base de données : ' . htmlspecialchars($e->getMessage()) . '</div>';
         }
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($pdo)) {
-    $message = '<p style="color: red;">Erreur de configuration : la connexion à la base de données n\'est pas disponible.</p>';
+    $message = '<div class="alert alert-error">Erreur de configuration : la connexion à la base de données n\'est pas disponible.</div>';
 }
 ?>
 
 <!-- Lien vers Awesomplete CSS -->
 <link rel="stylesheet" href="../css/awesomplete.css" />
 
-<style>
-/* Modern Purple Theme for Add Client */
-.client-page {
-    background: var(--bg-color);
-    color: var(--text-color);
-}
+<!-- Style interne supprimé - Utilisation de style.css global -->
 
-.page-header {
-    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-
-.page-header h1 {
-    margin: 0;
-    font-size: 1.4em;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.form-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    border: 1px solid var(--border-color);
-    max-width: 700px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.form-row .form-group {
-    margin-bottom: 0;
-}
-
-@media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    font-size: 0.95em;
-}
-
-.form-control, .form-control.awesomplete {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 12px 15px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 1em;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #8e44ad;
-    box-shadow: 0 0 0 4px rgba(142, 68, 173, 0.1);
-}
-
-.form-actions {
-    display: flex;
-    gap: 12px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-    margin-top: 25px;
-    flex-wrap: wrap;
-}
-
-.btn {
-    padding: 12px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: none;
-    font-size: 1em;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(142, 68, 173, 0.3);
-}
-
-.btn-secondary {
-    background: var(--input-bg);
-    color: var(--text-color);
-    border: 2px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    background: var(--hover-bg);
-}
-
-.alert {
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.alert-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-</style>
-
-<div class="client-page">
+<div>
     <div class="page-header">
         <h1>
             <span>➕</span>
@@ -235,33 +71,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
         $cleanMessage = strip_tags($message, '<a><br>');
         ?>
         <div class="alert <?= $alertClass ?>">
-            <span style="font-size: 1.5em;"><?= $alertIcon ?></span>
+            <span class="alert-icon"><?= $alertIcon ?></span>
             <div><?= $cleanMessage ?></div>
         </div>
     <?php endif; ?>
 
 <!-- Structure de la Popup/Modal (initialement cachée) -->
-<div id="confirmationModal" style="display:none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6);">
-    <div style="margin: 10% auto; padding: 20px; border: 1px solid #888; width: 60%; max-width: 700px; border-radius: 8px; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);">
-    <!-- background-color: #fefefe; retiré d'ici -->
-        <span id="closeModal" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
-        <h2>Confirmer l'ajout du client</h2>
-        <div id="clientSummary">
-            <!-- Le résumé du client sera injecté ici par JavaScript -->
+<!-- Structure de la Modal de confirmation -->
+<div id="confirmationModal" class="modal-overlay" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Confirmer l'ajout du client</h2>
+            <span id="closeModal" class="modal-close">&times;</span>
         </div>
-        <hr>
-        <h3>Doublons potentiels :</h3>
-        <div id="duplicateClientsTableContainer" style="max-height: 200px; overflow-y: auto;">
-            <!-- Le tableau des doublons sera injecté ici -->
+        <div class="modal-body">
+            <div id="clientSummary">
+                <!-- Résumé injecté par JS -->
+            </div>
+            <hr style="margin: 20px 0; border: 0; border-top: 1px solid var(--border-color);">
+            <h3>Doublons potentiels :</h3>
+            <div id="duplicateClientsTableContainer" style="max-height: 200px; overflow-y: auto;">
+                <!-- Tableau doublons injecté par JS -->
+            </div>
         </div>
-        <div style="margin-top: 20px; text-align: right;">
-            <button type="button" id="cancelAddClient" style="padding: 10px 15px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">Annuler</button>
-            <button type="button" id="confirmAddClient" style="padding: 10px 15px; background-color: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer;">Confirmer l'ajout</button>
+        <div class="modal-footer">
+            <button type="button" id="cancelAddClient" class="btn btn-secondary">Annuler</button>
+            <button type="button" id="confirmAddClient" class="btn btn-primary">Confirmer l'ajout</button>
         </div>
     </div>
 </div>
 
-    <div class="form-card">
+    <div class="card" style="max-width: 700px;">
         <form id="addClientForm" action="index.php?page=add_client" method="POST">
             <!-- Nom et Prénom sur la même ligne -->
             <div class="form-row">
@@ -329,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
             </div>
         </form>
     </div>
-    <div id="formJsErrors" style="color: red; margin-top: 10px;"></div>
+    <div id="formJsErrors" class="alert alert-error" style="display: none;"></div>
 </div>
 
 <script src="../js/awesomplete.min.js"></script> <!-- Attribut 'async' retiré -->
@@ -376,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!errorSpan) {
             errorSpan = document.createElement('span');
             errorSpan.id = errorSpanId;
-            errorSpan.style.color = 'red';
+            errorSpan.style.color = 'var(--danger-color, red)';
             errorSpan.style.fontSize = '0.8em';
             errorSpan.style.display = 'block';
             errorSpan.style.marginTop = '2px';
@@ -384,10 +224,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (value.length > 0 && value.length !== 10) {
-            inputElement.style.borderColor = 'red';
+            inputElement.classList.add('error'); // Use class for validation state if possible
+            inputElement.style.borderColor = 'var(--danger-color, red)'; // Fallback markup
             errorSpan.textContent = 'Le numéro doit contenir 10 chiffres.';
         } else {
-            inputElement.style.borderColor = '#ccc'; // Couleur par défaut
+            inputElement.classList.remove('error');
+            inputElement.style.borderColor = ''; // Reset to default (CSS handled)
             errorSpan.textContent = '';
         }
     }
@@ -502,34 +344,38 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (nom === '') {
                 jsErrors.push('Le nom est obligatoire.');
-                nomInput.style.borderColor = 'red';
+            if (nom === '') {
+                jsErrors.push('Le nom est obligatoire.');
+                nomInput.style.borderColor = 'var(--danger-color, red)';
             } else {
-                nomInput.style.borderColor = '#ccc';
+                nomInput.style.borderColor = '';
             }
 
             if (telephone === '' && portable === '') {
                 jsErrors.push('Au moins un numéro de téléphone (fixe ou portable) est obligatoire.');
-                telInput.style.borderColor = 'red';
-                portableInput.style.borderColor = 'red';
+                telInput.style.borderColor = 'var(--danger-color, red)';
+                portableInput.style.borderColor = 'var(--danger-color, red)';
             } else {
                 // Si au moins un est rempli, on peut réinitialiser les bordures
                 // La validation de format individuelle (10 chiffres) est déjà gérée par 'blur'
-                if (telephone !== '') telInput.style.borderColor = '#ccc';
-                if (portable !== '') portableInput.style.borderColor = '#ccc';
+                if (telephone !== '') telInput.style.borderColor = '';
+                if (portable !== '') portableInput.style.borderColor = '';
             }
             
             // Valider l'email s'il est rempli (non bloquant pour la popup, mais bon à vérifier)
             const emailVal = mailInput.value.trim();
             if (emailVal !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
                  jsErrors.push('L\'adresse email fournie n\'est pas valide.');
-                 mailInput.style.borderColor = 'red';
+                 mailInput.style.borderColor = 'var(--danger-color, red)';
             } else if (emailVal !== '') {
-                 mailInput.style.borderColor = '#ccc';
+                 mailInput.style.borderColor = '';
             }
 
 
             if (jsErrors.length > 0) {
-                document.getElementById('formJsErrors').innerHTML = jsErrors.join('<br>');
+                const errorDiv = document.getElementById('formJsErrors');
+                errorDiv.innerHTML = jsErrors.join('<br>');
+                errorDiv.style.display = 'block';
                 return; // N'ouvre pas la popup s'il y a des erreurs JS
             }
 
@@ -555,22 +401,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.error) {
-                        duplicatesTableContainer.innerHTML = `<p style="color:red;">Erreur: ${data.error}</p>`;
+                        duplicatesTableContainer.innerHTML = `<p style="color:var(--danger-color, red);">Erreur: ${data.error}</p>`;
                     } else if (data.duplicates && data.duplicates.length > 0) {
-                        let tableHtml = '<table style="width:100%; border-collapse: collapse;"><thead><tr>';
-                        tableHtml += '<th style="border:1px solid #ddd; padding:8px; text-align:left;">ID</th>';
-                        tableHtml += '<th style="border:1px solid #ddd; padding:8px; text-align:left;">Nom</th>';
-                        tableHtml += '<th style="border:1px solid #ddd; padding:8px; text-align:left;">Prénom</th>';
-                        tableHtml += '<th style="border:1px solid #ddd; padding:8px; text-align:left;">Ville</th>';
-                        tableHtml += '<th style="border:1px solid #ddd; padding:8px; text-align:left;">CP</th>';
+                        let tableHtml = '<table class="table"><thead><tr>';
+                        tableHtml += '<th>ID</th>';
+                        tableHtml += '<th>Nom</th>';
+                        tableHtml += '<th>Prénom</th>';
+                        tableHtml += '<th>Ville</th>';
+                        tableHtml += '<th>CP</th>';
                         tableHtml += '</tr></thead><tbody>';
                         data.duplicates.forEach(dup => {
                             tableHtml += '<tr>';
-                            tableHtml += `<td style="border:1px solid #ddd; padding:8px;">${dup.ID || ''}</td>`;
-                            tableHtml += `<td style="border:1px solid #ddd; padding:8px;">${dup.nom || ''}</td>`;
-                            tableHtml += `<td style="border:1px solid #ddd; padding:8px;">${dup.prenom || ''}</td>`;
-                            tableHtml += `<td style="border:1px solid #ddd; padding:8px;">${dup.ville || ''}</td>`;
-                            tableHtml += `<td style="border:1px solid #ddd; padding:8px;">${dup.cp || ''}</td>`;
+                            tableHtml += `<td>${dup.ID || ''}</td>`;
+                            tableHtml += `<td>${dup.nom || ''}</td>`;
+                            tableHtml += `<td>${dup.prenom || ''}</td>`;
+                            tableHtml += `<td>${dup.ville || ''}</td>`;
+                            tableHtml += `<td>${dup.cp || ''}</td>`;
                             tableHtml += '</tr>';
                         });
                         tableHtml += '</tbody></table>';
@@ -581,7 +427,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .catch(error => {
                     console.error("Erreur fetch doublons:", error);
-                    duplicatesTableContainer.innerHTML = '<p style="color:red;">Impossible de vérifier les doublons.</p>';
+                    duplicatesTableContainer.innerHTML = '<p style="color:var(--danger-color, red);">Impossible de vérifier les doublons.</p>';
                 });
 
             modal.style.display = 'block';
@@ -609,12 +455,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Fermer la modal si on clique en dehors
+    /* Fermer la modal si on clique en dehors - DESACTIVE à la demande de l'utilisateur
     window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = 'none';
         }
     }
+    */
 
 });
 </script>

@@ -38,27 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
         $errors[] = 'Le numéro de commande est obligatoire.';
     }
 
-    // Vérifier si le code EAN existe déjà - DÉSACTIVÉ pour permettre les doublons
-    /*
-    if (empty($errors)) {
-        try {
-            $checkSql = "SELECT COUNT(*) FROM Stock WHERE ean_code = :ean_code";
-            $checkStmt = $pdo->prepare($checkSql);
-            $checkStmt->bindParam(':ean_code', $ean_code);
-            $checkStmt->execute();
-            $count = $checkStmt->fetchColumn();
-            
-            if ($count > 0) {
-                $errors[] = 'Ce code EAN existe déjà dans la base de données.';
-            }
-        } catch (PDOException $e) {
-            $errors[] = 'Erreur lors de la vérification du code EAN : ' . htmlspecialchars($e->getMessage());
-        }
-    }
-    */
-
     if (!empty($errors)) {
-        $message = '<p style="color: red;">' . implode('<br>', $errors) . '</p>';
+        $message = '<div class="alert alert-danger">' . implode('<br>', $errors) . '</div>';
     } else {
         try {
             // Récupérer les SNs
@@ -77,9 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
             }
             
             // Si aucun SN n'est fourni, on ajoute au moins un produit (sans SN ou SN null selon la DB)
-            // Mais l'utilisateur veut ajouter des SNs. Si la liste est vide, on ajoute 1 produit avec SN NULL (ou 0 si int).
-            // Comme le champ est INT(11), on va assumer que si vide => NULL ou 0.
-            // Si la liste est vide, on met un tableau avec une entrée vide pour faire une itération
             if (empty($sns)) {
                 $sns[] = ''; // Default to empty string instead of null to avoid SQL constraint error
             }
@@ -90,11 +68,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
 
             $success_count = 0;
             $error_count = 0;
-
-            // Si des erreurs d'upload sont survenues, on arrête tout
-            if (!empty($errors)) {
-                 $message = '<p style="color: red;">' . implode('<br>', $errors) . '</p>';
-            } else {
 
             $sql = "INSERT INTO Stock (ref_acadia, ean_code, designation, prix_achat_ht, prix_vente_ttc, fournisseur, numero_commande, date_commande, SN, date_ajout) 
                     VALUES (:ref_acadia, :ean_code, :designation, :prix_achat_ht, :prix_vente_ttc, :fournisseur, :numero_commande, :date_commande, :sn, NOW())";
@@ -111,35 +84,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
                 $stmt->bindParam(':date_commande', $date_commande);
                 $stmt->bindParam(':sn', $sn); // Peut être null
 
-                // $stmt->bindParam(':invoice_file', $invoice_file_path); // Colonne supprimée
-
                 if ($stmt->execute()) {
                     $success_count++;
                 } else {
                     $error_count++;
                 }
-
             }
-
 
             if ($success_count > 0) {
                 $msg = "Produit(s) ajouté(s) avec succès : $success_count";
                 if ($error_count > 0) {
                     $msg .= " (Erreurs : $error_count)";
                 }
-                $message = '<p style="color: green;">' . $msg . '</p>';
+                $message = '<div class="alert alert-success">' . $msg . '</div>';
                 // Réinitialiser les variables pour vider le formulaire
                 $ref_acadia = $ean_code = $designation = $prix_achat_ht = $prix_vente_ttc = $fournisseur = $numero_commande = $date_commande = '';
             } else {
-                $message = '<p style="color: red;">Erreur lors de l\'ajout du/des produit(s).</p>';
-            }
+                $message = '<div class="alert alert-danger">Erreur lors de l\'ajout du/des produit(s).</div>';
             }
         } catch (PDOException $e) {
-            $message = '<p style="color: red;">Erreur de base de données : ' . htmlspecialchars($e->getMessage()) . '</p>';
+            $message = '<div class="alert alert-danger">Erreur de base de données : ' . htmlspecialchars($e->getMessage()) . '</div>';
         }
     }
 } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($pdo)) {
-    $message = '<p style="color: red;">Erreur de configuration : la connexion à la base de données n\'est pas disponible.</p>';
+    $message = '<div class="alert alert-danger">Erreur de configuration : la connexion à la base de données n\'est pas disponible.</div>';
 }
 
 // Récupération des paramètres GET pour pré-remplissage
@@ -147,194 +115,175 @@ $preFillSupplier = trim($_GET['supplier'] ?? '');
 $preFillOrder = trim($_GET['order'] ?? '');
 ?>
 
-
-
-<!-- Toolbar Compacte : Synchronisation -->
-<div style="display: flex; justify-content: space-between; align-items: center; background-color: #f3e5f5; padding: 10px 15px; border-radius: 4px; border: 1px solid #9c27b0; margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; gap: 15px;">
-        <span style="font-weight: bold; color: #7b1fa2;">🔄 Base Produits</span>
-        <span style="font-size: 0.9em; color: #555;">Dernière synchro : <span id="last_sync_date" style="font-weight: 500;">Chargement...</span></span>
-        <span id="sync_status_field" style="font-size: 0.9em; color: #555; background: #fff; padding: 2px 8px; border-radius: 10px; border: 1px solid #ddd;">Prêt</span>
+<div class="content-wrapper">
+    <div class="toolbar-stock bg-card p-15 rounded shadow-sm mb-20 flex-between-center">
+        <h1 class="text-color m-0 text-2xl">📦 Ajouter au Stock</h1>
+        <a href="index.php?page=stock_list" class="btn btn-secondary">Retour à la liste</a>
     </div>
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <div id="sync_status" style="font-size: 0.9em;"></div>
-        <button type="button" id="sync_catalog_btn" style="padding: 5px 15px; background-color: #9c27b0; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.9em;">
-            Actualiser
-        </button>
+
+    <!-- Toolbar Compacte : Synchronisation -->
+    <div class="card p-15 mb-20 flex-between-center flex-wrap gap-15 border-l-4 border-l-info">
+        <div class="flex items-center gap-15 flex-wrap">
+            <span class="font-bold text-info flex items-center gap-5">🔄 Base Produits</span>
+            <span class="text-sm text-muted">Dernière synchro : <span id="last_sync_date" class="font-medium">Chargement...</span></span>
+            <span id="sync_status_field" class="text-xs bg-input px-10 py-2 rounded border border-border text-color">Prêt</span>
+        </div>
+        <div class="flex items-center gap-10">
+            <div id="sync_status" class="text-xs"></div>
+            <button type="button" id="sync_catalog_btn" class="btn btn-sm btn-info">
+                Actualiser
+            </button>
+        </div>
     </div>
-</div>
 
-<?php echo $message; ?>
+    <?php echo $message; ?>
 
-<!-- Section Principale avec Colonne Gauche (Fournisseur + Recherche) et Colonne Droite (Produit) -->
-<div style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-start;">
-    
-    <!-- WRAPPER GAUCHE : Fournisseur + Recherche -->
-    <div style="flex: 1; display: flex; flex-direction: column; gap: 20px;">
-        
-        <!-- Section Fournisseur -->
-        <div class="info-section" style="padding: 15px; background-color: #e3f2fd; border-radius: 4px; border: 1px solid #2196f3;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; cursor: pointer;" onclick="toggleSupplierSection()">
-                <h3 style="margin: 0; color: #1976d2;">Informations Fournisseur</h3>
-                <span id="toggle_supplier_icon" style="font-size: 1.2em; color: #1976d2; transition: transform 0.3s;">▼</span>
-            </div>
+    <form action="index.php?page=stock_add" method="POST" id="product_form">    <!-- Grille Principale (Bascule en côte-à-côte dès 768px) -->
+        <div class="grid grid-cols-1 md-grid-cols-12 gap-20 items-start">
             
-            <div id="supplier_content" style="display: flex; gap: 20px; transition: all 0.3s ease-in-out;">
-                <!-- Colonne Gauche : Inputs -->
-                <div style="flex: 1;">
-                    <div style="margin-bottom: 15px;">
-                        <label for="supplier_name" style="display: block; margin-bottom: 5px; font-weight: bold;">Nom du fournisseur * :</label>
-                        <input type="text" id="supplier_name" list="fournisseurs_list" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Tapez ou sélectionnez un fournisseur" autocomplete="off" value="<?= htmlspecialchars($preFillSupplier) ?>">
-                        <datalist id="fournisseurs_list">
-                            <!-- Les options seront chargées dynamiquement -->
-                        </datalist>
-                        <small style="color: #666;">Vous pouvez taper du texte libre ou sélectionner dans la liste</small>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label for="order_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Numéro de commande * :</label>
-                        <input type="text" id="order_number" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Numéro de commande" value="<?= htmlspecialchars($preFillOrder) ?>">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label for="order_date" style="display: block; margin-bottom: 5px; font-weight: bold;">Date de commande :</label>
-                        <input type="date" id="order_date" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+            <!-- COLONNE GAUCHE (Fournisseur + Recherche) -->
+            <div class="md-col-span-5 lg-col-span-4 flex flex-col gap-20">
+                
+                <!-- Section Fournisseur -->
+                <div class="card p-15 border-l-4 border-l-primary shadow-sm">
+                    <div class="flex-between-center cursor-pointer mb-10" onclick="toggleSupplierSection()">
+                        <h4 class="m-0 text-primary font-bold text-sm">Fournisseur</h4>
+                        <span id="toggle_supplier_icon" class="text-primary text-sm transition-transform">▼</span>
                     </div>
                     
-                    <div style="margin-bottom: 15px; border-top: 1px dashed #ccc; padding-top: 10px;">
-                         <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #0056b3;">📄 Documents (Factures / BL) :</label>
-                         
-                         <!-- Liste des fichiers existants -->
-                         <div id="documents_list" style="margin-bottom: 10px;"></div>
-    
-                         <!-- Zone d'upload -->
-                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="file" id="invoice_upload" accept=".pdf,image/*" capture="environment" style="display: none;" multiple>
-                            <button type="button" id="btn_upload_start" onclick="event.stopPropagation(); triggerUpload()" style="padding: 5px 10px; background-color: #e9ecef; border: 1px solid #ced4da; border-radius: 4px; cursor: not-allowed; display: flex; align-items: center; gap: 5px; opacity: 0.6;" disabled>
-                                📷 Ajouter un fichier
-                            </button>
-                         </div>
-                         <small style="color: #888; display: block; margin-top: 3px; font-size: 10px;">Remplissez Fournisseur et N° Commande pour activer l'upload.</small>
-                         <div id="upload_status"></div>
+                    <div id="supplier_content" class="flex flex-col gap-15 transition-all">
+                        <div>
+                            <label for="supplier_name" class="block mb-3 font-bold text-color text-xs">Nom :</label>
+                            <input type="text" id="supplier_name" name="supplier_name_ui" list="fournisseurs_list" class="form-control w-full p-6 border rounded bg-input text-color text-sm" placeholder="Nom..." autocomplete="off" value="<?= htmlspecialchars($preFillSupplier) ?>">
+                            <datalist id="fournisseurs_list"></datalist>
+                        </div>
+                        <div>
+                            <label for="order_number" class="block mb-3 font-bold text-color text-sm">N° Cmd :</label>
+                            <input type="text" id="order_number" name="order_number_ui" class="form-control w-full p-6 border rounded bg-input text-color text-sm" placeholder="N°..." value="<?= htmlspecialchars($preFillOrder) ?>">
+                        </div>
+                        <div>
+                            <label for="order_date" class="block mb-3 font-bold text-color text-sm">Date :</label>
+                            <input type="date" id="order_date" name="date_commande_ui" class="form-control w-full p-6 border rounded bg-input text-color text-sm">
+                        </div>
+
+                        <div>
+                            <label class="block mb-3 font-bold text-info text-xs">📄 Factures / BL :</label>
+                            <div id="documents_list" class="mb-5 text-xs"></div>
+                            <div class="flex gap-5 items-center">
+                                <input type="file" id="invoice_upload" accept=".pdf,image/*" capture="environment" class="hidden" multiple>
+                                <button type="button" id="btn_upload_start" onclick="event.stopPropagation(); triggerUpload()" class="btn btn-xs btn-secondary opacity-60 cursor-not-allowed w-full" disabled>
+                                    📷 Photo
+                                </button>
+                            </div>
+                            <div id="upload_status" class="mt-5 text-[10px] text-center italic"></div>
+                        </div>
+
+                        <div class="flex gap-10 mt-5 pt-10 border-t border-border border-dashed">
+                            <button type="button" id="validate_supplier" class="btn btn-primary btn-xs flex-1">Valider</button>
+                            <button type="button" id="clear_supplier" class="btn btn-danger btn-xs">❌</button>
+                        </div>
+                        <div id="supplier_status" class="font-bold text-xs text-center"></div>
+
+                        <!-- QR / Mobile UI compact -->
+                        <div id="pwa_column" class="hidden flex-col items-center border-t border-dashed border-border pt-10 mt-5">
+                             <div id="qrcode" class="mb-5"></div>
+                             <small class="text-muted text-xs text-center">Mobile Sync</small>
+                        </div>
                     </div>
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <button type="button" id="validate_supplier" style="padding: 8px 15px; background-color: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;" onclick="event.stopPropagation()">Valider</button>
-                        <button type="button" id="clear_supplier" style="padding: 8px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;" onclick="event.stopPropagation()">Effacer</button>
+                </div>
+
+                <!-- Section Recherche -->
+                <div class="card p-15 border-l-4 border-l-warning shadow-sm">
+                    <h4 class="mt-0 mb-10 text-warning-dark font-bold text-sm">Recherche</h4>
+                    <div class="mb-10">
+                        <div class="flex gap-5 mb-5 text-[10px] bg-input p-3 rounded border border-border flex-wrap">
+                            <label class="cursor-pointer flex items-center gap-2">
+                                <input type="radio" name="search_scope" value="auto" checked> Auto
+                            </label>
+                            <label class="cursor-pointer flex items-center gap-2">
+                                <input type="radio" name="search_scope" value="catalog"> Catalog
+                            </label>
+                            <label class="cursor-pointer flex items-center gap-2">
+                                <input type="radio" name="search_scope" value="stock"> Stock
+                            </label>
+                        </div>
+                        <input type="text" id="product_search" class="form-control w-full p-6 border rounded bg-input text-color text-sm shadow-inner" placeholder="EAN, Réf...">
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div id="supplier_status" style="font-weight: bold;"></div>
-                        <a href="index.php?page=fournisseurs_list" target="_blank" style="color: #2196f3; text-decoration: none; font-size: 14px;" onclick="event.stopPropagation()">+ Gérer les fournisseurs</a>
+                    <div id="search_results" class="hidden">
+                        <div id="results_container" class="max-h-200 overflow-y-auto border border-border rounded bg-card shadow-sm text-xs"></div>
+                    </div>
+                    <div id="no_results" class="hidden text-success font-bold mt-5 p-5 bg-success-light rounded border border-success text-xs">
+                        ✓ Produit unique
                     </div>
                 </div>
-    
-                <!-- Colonne Droite : QR Code & PWA -->
-                <div id="pwa_column" style="flex: 0 0 220px; display: none; flex-direction: column; align-items: center; justify-content: flex-start; border-left: 1px dashed #ccc; padding-left: 15px;">
-                     <div style="font-weight: bold; color: #0056b3; margin-bottom: 10px; font-size: 14px; text-align: center;">📱 Ajouter photo via Mobile</div>
-                     <div id="qrcode" style="display: flex; justify-content: center; margin-bottom: 10px;"></div>
-                     <div id="qr_link" style="font-size: 10px; color: #888; margin-bottom: 5px; word-break: break-all; text-align: center;"></div>
-                     <small style="color: #666; font-size: 11px; text-align: center;">Scannez pour envoyer</small>
+            </div>
+
+            <!-- COLONNE DROITE (Formulaire Produit) -->
+            <div class="md-col-span-7 lg-col-span-8">
+                <div id="form_card" class="card p-25 shadow-lg border-t-4 border-t-primary">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-25 mb-20 p-20 bg-light rounded-lg border border-border shadow-inner">
+                        <div>
+                            <label for="ref_acadia" class="block mb-8 font-bold text-color text-base">Référence Acadia :</label>
+                            <input type="text" id="ref_acadia" name="ref_acadia" value="<?= htmlspecialchars($ref_acadia ?? '') ?>" class="form-control w-full p-12 border rounded bg-input text-color text-lg" placeholder="Ref Acadia">
+                            <small class="text-muted text-xs mt-5 block">Référence interne du catalogue</small>
+                        </div>
+                        <div>
+                            <label for="ean_code" class="block mb-8 font-bold text-color text-base">Code EAN * :</label>
+                            <input type="text" id="ean_code" name="ean_code" value="<?= htmlspecialchars($ean_code ?? '') ?>" required class="form-control w-full p-12 border-2 border-primary rounded bg-input text-color text-2xl font-bold">
+                            <small class="text-muted text-xs mt-5 block">Code-barres standard du fabricant</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-20">
+                        <label for="designation" class="block mb-8 font-bold text-color text-base">Désignation du produit * :</label>
+                        <textarea id="designation" name="designation" required class="form-control w-full p-12 border rounded bg-input text-color text-lg min-h-60 resize-y font-bold"><?= htmlspecialchars($designation ?? '') ?></textarea>
+                    </div>
+
+                    <div class="mb-25">
+                        <label for="sn_list" class="block mb-8 font-bold text-color text-base">Numéros de Série (SN) :</label>
+                        <textarea id="sn_list" name="sn_list" class="form-control w-full p-12 border rounded bg-input text-color font-mono text-base min-h-100" placeholder="Un numéro de série par ligne..."></textarea>
+                        <small class="text-muted text-xs mt-5 block">Saisissez plusieurs SN pour créer plusieurs fiches produits identiques d'un coup.</small>
+                    </div>
+
+                    <!-- Section Prix compacte (Horizontal) -->
+                    <div class="grid grid-cols-1 md-grid-cols-3 gap-15 mb-20 p-15 bg-card rounded-lg border-2 border-dashed border-border items-end">
+                        <div style="flex: 1; min-width: 0;">
+                            <label for="prix_achat_ht" class="block mb-5 font-bold text-color text-xs">Prix Achat HT *</label>
+                            <div class="relative">
+                                <input type="number" id="prix_achat_ht" name="prix_achat_ht" value="<?= htmlspecialchars($prix_achat_ht ?? '') ?>" step="0.01" min="0" required class="form-control w-full p-8 border rounded bg-input text-color font-bold text-lg pr-25">
+                                <span class="absolute right-8 top-8 text-muted">€</span>
+                            </div>
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <label for="prix_vente_ttc" class="block mb-5 font-bold text-color text-xs">Prix Vente TTC *</label>
+                            <div class="relative">
+                                <input type="number" id="prix_vente_ttc" name="prix_vente_ttc" value="<?= htmlspecialchars($prix_vente_ttc ?? '') ?>" step="0.01" min="0" required class="form-control w-full p-8 border-2 border-success rounded bg-input text-success font-bold text-xl pr-25">
+                                <span class="absolute right-8 top-8 text-success font-bold">€</span>
+                            </div>
+                        </div>
+                        <div style="flex: 1; min-width: 0;">
+                            <label class="block mb-5 font-bold text-color text-xs">Suggéré (Marge)</label>
+                            <div class="relative">
+                                <input type="text" id="prix_suggere" readonly class="form-control w-full p-8 border rounded bg-input text-info font-bold text-lg opacity-80 pr-25" placeholder="...">
+                                <span class="absolute right-8 top-8 text-info font-bold">€</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="suggestion-details" class="text-sm text-muted mb-25 px-10 border-l-2 border-info italic"></div>
+
+                    <!-- Champs cachés pour les données fournisseur validées -->
+                    <input type="hidden" id="fournisseur" name="fournisseur" value="<?= htmlspecialchars($fournisseur ?? '') ?>">
+                    <input type="hidden" id="numero_commande" name="numero_commande" value="<?= htmlspecialchars($numero_commande ?? '') ?>">
+                    <input type="hidden" id="date_commande" name="date_commande" value="<?= htmlspecialchars($date_commande ?? '') ?>">
+
+                    <div class="flex gap-15 mt-10 pt-25 border-t border-border">
+                        <button type="submit" class="btn btn-primary btn-lg px-40 shadow-md">Ajouter au Stock</button>
+                        <button type="reset" class="btn btn-secondary btn-lg opacity-50">Réinitialiser</button>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Section de recherche de produits existants (Déplacée ici) -->
-        <div class="info-section" style="padding: 15px; background-color: #fff3cd; border-radius: 4px; border: 1px solid #ffc107;">
-            <h3 style="margin-top: 0; color: #856404;">Vérifier si le produit existe déjà</h3>
-            <div style="margin-bottom: 15px;">
-                <label for="product_search" style="display: block; margin-bottom: 5px; font-weight: bold;">Rechercher un produit :</label>
-                
-                <!-- SÉLECTEUR DE SCOPE -->
-                <div style="display: flex; gap: 15px; margin-bottom: 8px; font-size: 0.9em; background: rgba(255,255,255,0.5); padding: 5px; border-radius: 4px;">
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                        <input type="radio" name="search_scope" value="auto" checked> 🤖 Auto
-                    </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                        <input type="radio" name="search_scope" value="catalog"> 📋 Catalogue
-                    </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                        <input type="radio" name="search_scope" value="stock"> 📦 Stock
-                    </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                        <input type="radio" name="search_scope" value="web"> 🌐 Web
-                    </label>
-                </div>
-
-                <input type="text" id="product_search" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Tapez un code EAN, une désignation, une référence ou un fournisseur...">
-                <small style="color: #666; display: block; margin-top: 5px;">
-                    <strong>Recherche Auto :</strong> 1️⃣ Catalogue (📋) &nbsp;➔&nbsp; 2️⃣ Stock (📦) &nbsp;➔&nbsp; 3️⃣ Web (🌐 UPCItemDB)
-                </small>
-            </div>
-            <div id="search_results" style="display: none;">
-                <h4 style="margin: 10px 0; color: #856404;">Produits trouvés :</h4>
-                <div id="results_container" style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; background-color: white;">
-                    <!-- Les résultats seront affichés ici -->
-                </div>
-            </div>
-            <div id="no_results" style="display: none; color: #28a745; font-weight: bold; margin-top: 10px;">
-                ✓ Aucun produit trouvé - Vous pouvez ajouter ce nouveau produit
-            </div>
-        </div>
-
-    </div>
-    
-    <!-- Colonne Droite : Formulaire Produit -->
-    <div class="info-section" style="flex: 1; padding: 15px; background-color: #f8f9fa; border-radius: 4px; border: 1px solid #dee2e6;">
-        <form action="index.php?page=stock_add" method="POST" id="product_form" enctype="multipart/form-data">
-    <div style="margin-bottom: 15px;">
-        <label for="ref_acadia" style="display: block; margin-bottom: 5px;">Référence Acadia :</label>
-        <input type="text" id="ref_acadia" name="ref_acadia" value="<?= htmlspecialchars($ref_acadia ?? '') ?>" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-        <small style="color: #666;">Optionnel - Référence interne Acadia</small>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label for="ean_code" style="display: block; margin-bottom: 5px;">Code EAN * :</label>
-        <input type="text" id="ean_code" name="ean_code" value="<?= htmlspecialchars($ean_code ?? '') ?>" required style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-        <small style="color: #666;">Code-barres EAN du produit (Doublons autorisés)</small>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label for="sn_list" style="display: block; margin-bottom: 5px;">Numéros de Série (SN) :</label>
-        <textarea id="sn_list" name="sn_list" style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-height: 100px; font-family: monospace;" placeholder="Entrez un numéro de série par ligne..."></textarea>
-        <small style="color: #666;">Pour ajouter plusieurs produits identiques, entrez un SN par ligne. Si vide, un seul produit sera ajouté sans SN.</small>
-    </div>
-
-    <div style="margin-bottom: 15px;">
-        <label for="designation" style="display: block; margin-bottom: 5px;">Désignation * :</label>
-        <textarea id="designation" name="designation" required style="width: 98%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; min-height: 80px; resize: vertical;"><?= htmlspecialchars($designation ?? '') ?></textarea>
-        <small style="color: #666;">Description complète du produit</small>
-    </div>
-
-    <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-        <div style="flex: 1;">
-            <label for="prix_achat_ht" style="display: block; margin-bottom: 5px;">Prix d'achat HT * :</label>
-            <input type="number" id="prix_achat_ht" name="prix_achat_ht" value="<?= htmlspecialchars($prix_achat_ht ?? '') ?>" step="0.01" min="0" required style="width: 90%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-            <small style="color: #666;">En euros, hors taxes</small>
-        </div>
-        <div style="flex: 1;">
-            <label for="prix_vente_ttc" style="display: block; margin-bottom: 5px;">Prix de vente TTC * :</label>
-            <input type="number" id="prix_vente_ttc" name="prix_vente_ttc" value="<?= htmlspecialchars($prix_vente_ttc ?? '') ?>" step="0.01" min="0" required style="width: 90%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-            <small style="color: #666;">En euros, toutes taxes comprises</small>
-        </div>
-        <div style="flex: 1;">
-            <label style="display: block; margin-bottom: 5px;">Prix suggéré TTC :</label>
-            <input type="text" id="prix_suggere" readonly style="width: 95%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background-color: #f0f8ff; color: #0066cc; font-weight: bold;" placeholder="Calculé automatiquement">
-            <small style="color: #666;">HT × 1.2 (TVA) × 1.3 (marge)</small>
-            <div id="suggestion-details" style="font-size: 11px; color: #888; margin-top: 2px;"></div>
-        </div>
-    </div>
-
-    <!-- Champs cachés pour les données fournisseur -->
-    <input type="hidden" id="fournisseur" name="fournisseur" value="<?= htmlspecialchars($fournisseur ?? '') ?>">
-    <input type="hidden" id="numero_commande" name="numero_commande" value="<?= htmlspecialchars($numero_commande ?? '') ?>">
-    <input type="hidden" id="date_commande" name="date_commande" value="<?= htmlspecialchars($date_commande ?? '') ?>">
-    <!-- invoice_file_path supprimé car géré par table dédiée -->
-
-
-
-            <div style="margin-top: 20px; display: flex; gap: 10px;">
-                <button type="submit" style="padding: 10px 20px; background-color: var(--accent-color); color: white; border: none; border-radius: 4px; cursor: pointer;">Ajouter le produit</button>
-                <a href="index.php?page=stock_list" style="padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Retour à la liste</a>
-            </div>
-        </form>
-    </div>
+    </form>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -401,8 +350,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedScope = document.querySelector('input[name="search_scope"]:checked').value;
         
         if (searchTerm.length < 2) {
-            searchResults.style.display = 'none';
-            noResults.style.display = 'none';
+            searchResults.classList.add('hidden');
+            noResults.classList.add('hidden');
             return;
         }
 
@@ -418,11 +367,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (Array.isArray(data) && data.length > 0) {
                         displaySearchResults(data);
-                        searchResults.style.display = 'block';
-                        noResults.style.display = 'none';
+                        searchResults.classList.remove('hidden');
+                        noResults.classList.add('hidden');
                     } else {
-                        searchResults.style.display = 'none';
-                        noResults.style.display = 'block';
+                        searchResults.classList.add('hidden');
+                        noResults.classList.remove('hidden');
                     }
                 })
                 .catch(error => {
@@ -441,37 +390,36 @@ document.addEventListener('DOMContentLoaded', function() {
             const source = product.source || 'stock';
             let sourceIcon = '📦';
             let sourceLabel = 'Stock existant';
-            let sourceColor = '#007bff';
-            let extraInfo = '';
-
+            let sourceColor = 'text-primary';
+            
             if (source === 'catalog') {
                 sourceIcon = '📋';
                 sourceLabel = 'Catalogue Acadia';
-                sourceColor = '#28a745';
+                sourceColor = 'text-success';
             } else if (source === 'web') {
                 sourceIcon = '🌐';
                 sourceLabel = 'UPCItemDB (Web)';
-                sourceColor = '#673ab7'; // Deep purple
+                sourceColor = 'text-info-dark';
             }
             
             html += `
-                <div class="product-result" style="padding: 10px; border-bottom: 1px solid #eee; background-color: #f8f9fa; cursor: pointer; transition: background-color 0.2s;"
-                     onmouseover="this.style.backgroundColor='#e9ecef'"
-                     onmouseout="this.style.backgroundColor='#f8f9fa'"
+                <div class="p-10 border-b border-border hover:bg-hover cursor-pointer transition-colors"
                      onclick="selectProduct(${index})">
-                    <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div style="flex: 1;">
-                            <strong style="color: ${sourceColor}; font-size: 1.1em;">${sourceIcon} ${sourceLabel}</strong><br>
-                            <strong>EAN:</strong> ${product.ean_code || 'N/A'}<br>
-                            <strong>Désignation:</strong> ${product.designation || 'N/A'}<br>
-                            <strong>Marque/Four:</strong> ${product.fournisseur || 'N/A'}
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <strong class="${sourceColor} text-lg block mb-5">${sourceIcon} ${sourceLabel}</strong>
+                            <div class="text-sm">
+                                <strong>EAN:</strong> ${product.ean_code || 'N/A'}<br>
+                                <strong>Désignation:</strong> ${product.designation || 'N/A'}<br>
+                                <strong>Marque/Four:</strong> ${product.fournisseur || 'N/A'}
+                            </div>
                         </div>
-                        <div style="text-align: right; min-width: 120px;">
+                        <div class="text-right min-w-120 text-sm">
                             ${source === 'stock' || source === 'catalog' ? `
                                 <div><strong>Prix Achat HT:</strong> ${prixAchat}€</div>
                                 <div><strong>Prix Vente TTC:</strong> ${prixVente}€</div>
-                                <div><small>Ajouté le: ${dateAjout}</small></div>
-                            ` : `<div style="font-size: 0.9em; color: #888;">(Prix web indicatifs non récupérés)</div>`}
+                                <div class="text-xs text-muted mt-5">Ajouté le: ${dateAjout}</div>
+                            ` : `<div class="text-xs text-muted">(Prix web indicatifs non récupérés)</div>`}
                         </div>
                     </div>
                 </div>
@@ -515,18 +463,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (eanCodeField) eanCodeField.value = product.ean_code || '';
         if (designationField) designationField.value = product.designation || '';
         if (prixAchatField) prixAchatField.value = product.prix_achat_ht || '';
-        if (prixVenteField) prixVenteField.value = product.prix_vente_ttc || '';
+        if (prixVenteField) prixVenteField.value = ''; // On ne remplit pas le TTC, c'est l'utilisateur qui doit le saisir
         
         // Calculer le prix suggéré après avoir rempli le prix d'achat
         calculateSuggestedPrice();
         
-        // Pré-remplir et valider automatiquement le fournisseur
-        // NE PAS modifier les informations fournisseur - garder celles déjà sélectionnées
-        // Vérifier si le fournisseur est déjà validé
+        // Validation fournisseur automatique si nécessaire
         const supplierValidated = localStorage.getItem('stock_supplier_validated') === 'true';
         
         if (!supplierValidated) {
-            // Si aucun fournisseur n'est validé, utiliser celui du produit trouvé
             const supplierName = product.fournisseur || '';
             const orderNumber = product.numero_commande || '';
             
@@ -534,31 +479,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (supplierNameInput) supplierNameInput.value = supplierName;
                 if (orderNumberInput) orderNumberInput.value = orderNumber;
                 
-                // Déclencher automatiquement la validation du fournisseur
                 localStorage.setItem('stock_supplier_name', supplierName);
                 localStorage.setItem('stock_order_number', orderNumber);
                 localStorage.setItem('stock_supplier_validated', 'true');
                 
                 if (fournisseurInput) fournisseurInput.value = supplierName;
                 if (numeroCommandeInput) numeroCommandeInput.value = orderNumber;
-                if (supplierStatus) supplierStatus.innerHTML = '<span style="color: #4caf50;">✓ Fournisseur validé automatiquement</span>';
-                if (productForm) productForm.style.display = 'block';
+                if (supplierStatus) supplierStatus.innerHTML = '<span class="text-success font-bold">✓ Fournisseur validé automatiquement</span>';
+                if (formCard) formCard.classList.remove('hidden'); // Fix: use formCard instead of productForm
+                
+                checkUploadEnabled(); // Ensure upload is enabled
             }
-        } else {
-            // Si un fournisseur est déjà validé, s'assurer que le formulaire est visible
-            if (productForm) productForm.style.display = 'block';
         }
-
-        // Masquer les résultats de recherche
-        if (searchResults) searchResults.style.display = 'none';
-        if (noResults) noResults.style.display = 'none';
+        
+        // Masquer les résultats
+        if (searchResults) searchResults.classList.add('hidden');
+        if (noResults) noResults.classList.add('hidden');
         if (productSearchInput) productSearchInput.value = '';
 
-        // Afficher un message de confirmation
-        const searchSection = document.querySelector('.info-section[style*="background-color: #fff3cd"]');
+        // Message de confirmation
+        const searchSection = document.querySelector('.card.border-l-warning');
         if (searchSection) {
             const confirmationMsg = document.createElement('div');
-            confirmationMsg.style.cssText = 'background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-top: 10px; border: 1px solid #c3e6cb;';
+            confirmationMsg.className = 'alert alert-success mt-10';
             confirmationMsg.innerHTML = '✓ Produit sélectionné et formulaire pré-rempli';
             searchSection.appendChild(confirmationMsg);
             
@@ -577,19 +520,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const validateSupplierBtn = document.getElementById('validate_supplier');
     const clearSupplierBtn = document.getElementById('clear_supplier');
     const supplierStatus = document.getElementById('supplier_status');
-    const productForm = document.getElementById('product_form'); // Keep this line
+    const productForm = document.getElementById('product_form'); // Direct form
+    const formCard = document.getElementById('form_card'); // Container card
 
     const fournisseurInput = document.getElementById('fournisseur');
     const numeroCommandeInput = document.getElementById('numero_commande');
     const dateCommandeInput = document.getElementById('date_commande');
 
-    // --- GESTION DES DOCUMENTS (Initialization) ---
+    // --- GESTION DES DOCUMENTS ---
     const documentsList = document.getElementById('documents_list');
     const btnUploadStart = document.getElementById('btn_upload_start');
     const invoiceUpload = document.getElementById('invoice_upload');
     const uploadStatus = document.getElementById('upload_status');
 
-    // Charger les données fournisseur du localStorage si elles existent
+    // Charger les données fournisseur du localStorage
     const savedSupplierName = localStorage.getItem('stock_supplier_name');
     const savedOrderNumber = localStorage.getItem('stock_order_number');
     const savedOrderDate = localStorage.getItem('stock_order_date');
@@ -599,22 +543,20 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedOrderNumber) orderNumberInput.value = savedOrderNumber;
     if (savedOrderDate) {
         orderDateInput.value = savedOrderDate;
-        dateCommandeInput.value = savedOrderDate; // sync hidden
+        dateCommandeInput.value = savedOrderDate;
     } else {
-        // Default to today if nothing saved
         const today = new Date().toISOString().split('T')[0];
         orderDateInput.value = today;
-        dateCommandeInput.value = today; // sync hidden
+        dateCommandeInput.value = today;
     }
 
     if (savedSupplierName && savedOrderNumber && savedSupplierValidated === 'true') {
         validateSupplier();
     } else {
-        // Vérifier si des paramètres de pré-remplissage sont présents (GET)
         if (supplierNameInput.value.trim() !== '' && orderNumberInput.value.trim() !== '') {
              validateSupplier();
         } else {
-             productForm.style.display = 'none';
+             formCard.classList.add('hidden');
         }
     }
 
@@ -624,27 +566,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const msgDate = orderDateInput.value;
 
         if (name && number) {
-            supplierStatus.innerHTML = '<span style="color: green; font-weight: bold;">✓ Fournisseur validé</span>';
+            supplierStatus.innerHTML = '<span class="text-success font-bold">✓ Fournisseur validé</span>';
             fournisseurInput.value = name;
             numeroCommandeInput.value = number;
-            dateCommandeInput.value = msgDate; // Update hidden
+            dateCommandeInput.value = msgDate;
 
-            productForm.style.display = 'block';
+            formCard.classList.remove('hidden');
 
-            // Sauvegarder dans localStorage
             localStorage.setItem('stock_supplier_name', name);
             localStorage.setItem('stock_order_number', number);
             localStorage.setItem('stock_order_date', msgDate);
             localStorage.setItem('stock_supplier_validated', 'true');
             
-            // Check upload but also check docs
             checkUploadEnabled();
 
             // Generate QR Code
             const pwaColumn = document.getElementById('pwa_column');
             const qrDiv = document.getElementById('qrcode');
             if (pwaColumn && qrDiv) {
-                pwaColumn.style.display = 'flex'; // Use flex for column layout
+                pwaColumn.classList.remove('hidden');
+                pwaColumn.classList.add('flex');
                 qrDiv.innerHTML = '';
                 
                 const uploadUrl = window.location.origin + '/pwa/?' +
@@ -657,16 +598,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     height: 200
                 });
                 
-                // Afficher le lien en clair
                 const linkDiv = document.getElementById('qr_link');
                 if (linkDiv) {
-                    linkDiv.innerHTML = `<a href="${uploadUrl}" target="_blank" style="color: #888; text-decoration: underline;">${uploadUrl}</a>`;
+                    linkDiv.innerHTML = `<a href="${uploadUrl}" target="_blank" class="text-muted underline decoration-dotted">${uploadUrl}</a>`;
                 }
             }
         } else {
-
-            supplierStatus.innerHTML = '<span style="color: #f44336;">⚠ Veuillez remplir tous les champs</span>';
-            productForm.style.display = 'none';
+            supplierStatus.innerHTML = '<span class="text-danger">⚠ Veuillez remplir tous les champs</span>';
+            formCard.classList.add('hidden');
         }
     }
 
@@ -677,21 +616,16 @@ document.addEventListener('DOMContentLoaded', function() {
         fournisseurInput.value = '';
         numeroCommandeInput.value = '';
         supplierStatus.innerHTML = '';
-        productForm.style.display = 'none';
+        formCard.classList.add('hidden');
         
-        // Cacher QR code
         const pwaColumn = document.getElementById('pwa_column');
-        if (pwaColumn) pwaColumn.style.display = 'none';
-
-        // Clear documents list visual
-        if (typeof documentsList !== 'undefined') {
-            documentsList.innerHTML = '';
-        } else {
-             const list = document.getElementById('documents_list');
-             if(list) list.innerHTML = '';
+        if (pwaColumn) {
+            pwaColumn.classList.add('hidden');
+            pwaColumn.classList.remove('flex');
         }
 
-        // Reset Date to today
+        if (documentsList) documentsList.innerHTML = '';
+
         const today = new Date().toISOString().split('T')[0];
         orderDateInput.value = today;
         dateCommandeInput.value = today;
@@ -701,16 +635,8 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.removeItem('stock_supplier_validated');
         localStorage.removeItem('stock_order_date');
 
-        // Reset upload capability
-        if (typeof checkUploadEnabled === 'function') {
-            checkUploadEnabled();
-        }
+        checkUploadEnabled();
     });
-
-
-
-    // --- GESTION DES DOCUMENTS (Nouvelle Version) ---
-    // (Variables déplacées en haut du script)
 
     window.triggerUpload = function() {
         invoiceUpload.click();
@@ -722,16 +648,16 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (sup && ord) {
             btnUploadStart.disabled = false;
-            btnUploadStart.style.cursor = 'pointer';
-            btnUploadStart.style.opacity = '1';
+            btnUploadStart.classList.remove('opacity-60', 'cursor-not-allowed');
+            btnUploadStart.classList.add('cursor-pointer');
             btnUploadStart.title = "Cliquez pour ajouter un fichier";
-            loadDocuments(sup, ord); // Charger les docs existants
+            loadDocuments(sup, ord);
         } else {
             btnUploadStart.disabled = true;
-            btnUploadStart.style.cursor = 'not-allowed';
-            btnUploadStart.style.opacity = '0.6';
+            btnUploadStart.classList.add('opacity-60', 'cursor-not-allowed');
+            btnUploadStart.classList.remove('cursor-pointer');
             btnUploadStart.title = "Remplissez Fournisseur et N° Commande d'abord";
-            documentsList.innerHTML = ''; // Vider la liste si incomplet
+            documentsList.innerHTML = '';
         }
     }
 
@@ -745,15 +671,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (docs && docs.length > 0) {
                     docs.forEach(doc => {
                         const div = document.createElement('div');
-                        div.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: white; padding: 4px; margin-bottom: 2px; border: 1px solid #eee; border-radius: 3px; font-size: 12px;";
+                        div.className = "flex justify-between items-center bg-light p-5 mb-2 rounded border border-border";
                         div.innerHTML = `
-                            <span>📄 <a href="${doc.file_path}" target="_blank">${doc.original_name}</a></span>
-                            <span style="color: red; cursor: pointer; font-weight: bold;" onclick="deleteDocument(${doc.id}, '${fournisseur}', '${numeroCommande}')">×</span>
+                            <span>📄 <a href="${doc.file_path}" target="_blank" class="text-dark no-underline hover:text-primary">${doc.original_name}</a></span>
+                            <span class="text-danger cursor-pointer font-bold px-5" onclick="deleteDocument(${doc.id}, '${fournisseur}', '${numeroCommande}')">×</span>
                         `;
                         documentsList.appendChild(div);
                     });
                 } else {
-                    documentsList.innerHTML = '<em style="font-size: 11px; color: #999;">Aucun document lié</em>';
+                    documentsList.innerHTML = '<em class="text-muted text-xs">Aucun document lié</em>';
                 }
             })
             .catch(err => console.error("Erreur chargement docs", err));
@@ -787,10 +713,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (!fournisseur || !numeroCommande) return;
 
-                uploadStatus.innerHTML = '<span style="color: orange;">Envoi...</span>';
+                uploadStatus.innerHTML = '<span class="text-warning">Envoi...</span>';
 
-                // Upload simple ou multiple (on traite le premier pour l'instant ou boucle)
-                // Ici on gère 1 par 1 pour simplifier l'UX ou boucle si multiple
                 const file = this.files[0];
                 const formData = new FormData();
                 formData.append('file', file);
@@ -804,31 +728,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
-                        uploadStatus.innerHTML = '<span style="color: green;">✓ Ajouté</span>';
+                        uploadStatus.innerHTML = '<span class="text-success">✓ Ajouté</span>';
                         setTimeout(() => uploadStatus.innerHTML = '', 2000);
                         loadDocuments(fournisseur, numeroCommande);
-                        // Reset input to allow re-uploading same file if needed
                         invoiceUpload.value = ''; 
                     } else {
-                        uploadStatus.innerHTML = `<span style="color: red;">Erreur: ${data.error}</span>`;
+                        uploadStatus.innerHTML = `<span class="text-danger">Erreur: ${data.error}</span>`;
                     }
                 })
                 .catch(err => {
-                    uploadStatus.innerHTML = '<span style="color: red;">Erreur réseau</span>';
+                    uploadStatus.innerHTML = '<span class="text-danger">Erreur réseau</span>';
                 });
             }
         });
     }
 
-    // Ecouteurs pour activer/désactiver boutons
     supplierNameInput.addEventListener('input', checkUploadEnabled);
     orderNumberInput.addEventListener('input', checkUploadEnabled);
-    
-    // Au chargement (si pré-rempli par localStorage)
-    setTimeout(checkUploadEnabled, 500); // Petit délai pour laisser le temps au localStorage de remplir
-
-
-
+    setTimeout(checkUploadEnabled, 500);
 
     // Validation en temps réel des prix
     const prixAchatInput = document.getElementById('prix_achat_ht');
@@ -837,9 +754,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function validatePrice(input) {
         const value = parseFloat(input.value);
         if (input.value !== '' && (isNaN(value) || value < 0)) {
-            input.style.borderColor = 'red';
+            input.classList.add('border-danger');
         } else {
-            input.style.borderColor = '#ccc';
+            input.classList.remove('border-danger');
         }
     }
 
@@ -848,22 +765,25 @@ document.addEventListener('DOMContentLoaded', function() {
         const prixVente = parseFloat(prixVenteInput.value);
         
         if (!isNaN(prixAchat) && !isNaN(prixVente) && prixAchat > 0) {
-            // Convertir le prix de vente TTC en HT pour calculer la marge réelle
-            // Prix de vente HT = Prix de vente TTC / 1.2 (en supposant 20% de TVA)
             const prixVenteHT = prixVente / 1.2;
             const marge = ((prixVenteHT - prixAchat) / prixAchat * 100).toFixed(2);
             
-            const marginInfo = document.getElementById('margin-info');
+            let marginInfo = document.getElementById('margin-info');
             if (!marginInfo) {
-                const info = document.createElement('small');
-                info.id = 'margin-info';
-                info.style.color = marge >= 0 ? '#28a745' : '#dc3545';
-                info.style.display = 'block';
-                info.style.marginTop = '5px';
-                prixVenteInput.parentNode.appendChild(info);
+                marginInfo = document.createElement('small');
+                marginInfo.id = 'margin-info';
+                marginInfo.className = 'block mt-5 font-bold';
+                prixVenteInput.parentNode.appendChild(marginInfo);
             }
-            document.getElementById('margin-info').textContent = `Marge: ${marge}% (${prixVenteHT.toFixed(2)}€ HT - ${prixAchat.toFixed(2)}€ HT)`;
-            document.getElementById('margin-info').style.color = marge >= 0 ? '#28a745' : '#dc3545';
+            marginInfo.textContent = `Marge: ${marge}% (${prixVenteHT.toFixed(2)}€ HT - ${prixAchat.toFixed(2)}€ HT)`;
+            
+            if (marge >= 0) {
+                marginInfo.classList.remove('text-danger');
+                marginInfo.classList.add('text-success');
+            } else {
+                marginInfo.classList.remove('text-success');
+                marginInfo.classList.add('text-danger');
+            }
         } else {
             const marginInfo = document.getElementById('margin-info');
             if (marginInfo) {
@@ -878,11 +798,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const suggestionDetails = document.getElementById('suggestion-details');
         
         if (!isNaN(prixAchat) && prixAchat > 0) {
-            // Calcul : Prix HT × 1.2 (TVA) × 1.3 (marge)
             const prixAvecTVA = prixAchat * 1.2;
             const prixSuggere = prixAvecTVA * 1.3;
             
-            prixSuggereInput.value = prixSuggere.toFixed(2) + ' €';
+            prixSuggereInput.value = prixSuggere.toFixed(2);
             suggestionDetails.textContent = `Détail: ${prixAchat.toFixed(2)}€ HT → ${prixAvecTVA.toFixed(2)}€ TTC → ${prixSuggere.toFixed(2)}€ avec marge`;
         } else {
             prixSuggereInput.value = '';
@@ -901,18 +820,16 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateMargin();
     });
 
-    // Validation du code EAN (doit contenir uniquement des chiffres)
+    // Validation du code EAN
     const eanInput = document.getElementById('ean_code');
     eanInput.addEventListener('input', function() {
         const value = this.value;
-        // Permettre uniquement les chiffres
         this.value = value.replace(/[^0-9]/g, '');
         
-        // Validation de la longueur (codes EAN courants: 8, 13 chiffres)
         if (this.value.length > 0 && this.value.length !== 8 && this.value.length !== 13) {
-            this.style.borderColor = 'orange';
+            this.classList.add('border-warning');
         } else {
-            this.style.borderColor = '#ccc';
+            this.classList.remove('border-warning');
         }
     });
 
@@ -921,29 +838,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const syncStatus = document.getElementById('sync_status');
     const syncStatusField = document.getElementById('sync_status_field');
 
-    // Fonction de masquage de la section fournisseur
-    window.toggleSupplierSection = function() {
-        const content = document.getElementById('supplier_content');
-        const icon = document.getElementById('toggle_supplier_icon');
-        
-        if (content.style.display === 'none') {
-            content.style.display = 'flex';
-            icon.innerText = '▼';
-            localStorage.setItem('stock_supplier_expanded', 'true');
-        } else {
-            content.style.display = 'none';
-            icon.innerText = '▲';
-            localStorage.setItem('stock_supplier_expanded', 'false');
-        }
-    };
-
-    // Restaurer l'état au chargement
     const savedState = localStorage.getItem('stock_supplier_expanded');
     if (savedState === 'false') {
-        // Appliquer l'état fermé sans animation au chargement
         const content = document.getElementById('supplier_content');
         const icon = document.getElementById('toggle_supplier_icon');
         if (content && icon) {
+            content.classList.add('hidden');
             content.style.display = 'none';
             icon.innerText = '▲';
         }
@@ -951,15 +851,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (syncBtn) {
         syncBtn.addEventListener('click', function() {
-            // Désactiver le bouton et changer l'apparence
             syncBtn.disabled = true;
-            syncBtn.style.backgroundColor = '#666';
+            syncBtn.classList.add('bg-muted', 'cursor-not-allowed');
             syncBtn.innerHTML = '⏳ ...';
             
-            // Mettre à jour les statuts
             if (syncStatusField) syncStatusField.innerText = 'En cours...';
             
-            // Appeler l'API de synchronisation
             fetch('api/sync_catalog.php', {
                 method: 'POST',
                 headers: {
@@ -969,45 +866,39 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Inline status
                     if (syncStatusField) {
                         syncStatusField.innerText = '✅ Terminé';
-                        syncStatusField.style.color = 'green';
-                        syncStatusField.style.fontWeight = 'bold';
+                        syncStatusField.classList.add('text-success', 'font-bold');
                     }
                     
                     syncStatus.innerHTML = `
-                        <span style="color: #4caf50; font-weight: bold; font-size: 0.9em;">
+                        <span class="text-success font-bold">
                             ✅ (+${data.imported}, 🔄 ${data.updated}, ❌ ${data.errors})
                         </span>
                     `;
                     
-                    // Recharger la date de dernière synchronisation
                     loadLastSyncDate();
                 } else {
-                    syncStatus.innerHTML = '<span style="color: #f44336;">❌ Erreur</span>';
+                    syncStatus.innerHTML = '<span class="text-danger">❌ Erreur</span>';
                     if (syncStatusField) {
                         syncStatusField.innerText = 'Erreur';
-                        syncStatusField.style.color = 'red';
+                        syncStatusField.classList.add('text-danger');
                     }
                 }
             })
             .catch(error => {
                 console.error('Erreur:', error);
-                syncStatus.innerHTML = '<span style="color: #f44336;">❌ Erreur réseau</span>';
+                syncStatus.innerHTML = '<span class="text-danger">❌ Erreur réseau</span>';
                 if (syncStatusField) syncStatusField.innerText = 'Erreur connexion';
             })
             .finally(() => {
-                // Réactiver le bouton
                 syncBtn.disabled = false;
-                syncBtn.style.backgroundColor = '#9c27b0';
+                syncBtn.classList.remove('bg-muted', 'cursor-not-allowed');
                 syncBtn.innerHTML = 'Actualiser';
                 
-                // Reset status field style after delay
                 setTimeout(() => {
                     if (syncStatusField) {
-                        syncStatusField.style.color = '#555';
-                        syncStatusField.style.fontWeight = 'normal';
+                        syncStatusField.classList.remove('text-success', 'text-danger', 'font-bold');
                         syncStatusField.innerText = 'Prêt';
                         syncStatus.innerHTML = '';
                     }
@@ -1016,4 +907,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function toggleSupplierSection() {
+    const content = document.getElementById('supplier_content');
+    const icon = document.getElementById('toggle_supplier_icon');
+    
+    if (!content) {
+        console.error("Élément 'supplier_content' non trouvé");
+        return;
+    }
+
+    // Toggle manuel via style inline pour passer outre tout conflit CSS
+    if (content.style.display === 'none') {
+        content.style.setProperty('display', 'flex', 'important');
+        if (icon) icon.innerText = '▼';
+        localStorage.setItem('stock_supplier_expanded', 'true');
+    } else {
+        content.style.setProperty('display', 'none', 'important');
+        if (icon) icon.innerText = '▲';
+        localStorage.setItem('stock_supplier_expanded', 'false');
+    }
+}
 </script>

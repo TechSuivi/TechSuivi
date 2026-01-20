@@ -12,7 +12,7 @@ $client = null; // Pour stocker les données du client
 $clientId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($clientId <= 0) {
-    $message = '<p style="color: red;">ID client invalide.</p>';
+    $message = '<div class="alert alert-error">ID client invalide.</div>';
 } else {
     // Récupérer les données du client
     if (isset($pdo)) {
@@ -24,13 +24,13 @@ if ($clientId <= 0) {
             $client = $stmt->fetch();
             
             if (!$client) {
-                $message = '<p style="color: red;">Client non trouvé.</p>';
+                $message = '<div class="alert alert-error">Client non trouvé.</div>';
             }
         } catch (PDOException $e) {
-            $message = '<p style="color: red;">Erreur lors de la récupération du client : ' . htmlspecialchars($e->getMessage()) . '</p>';
+            $message = '<div class="alert alert-error">Erreur lors de la récupération du client : ' . htmlspecialchars($e->getMessage()) . '</div>';
         }
     } else {
-        $message = '<p style="color: red;">Erreur de configuration : la connexion à la base de données n\'est pas disponible.</p>';
+        $message = '<div class="alert alert-error">Erreur de configuration : la connexion à la base de données n\'est pas disponible.</div>';
     }
 }
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo) && $client) {
     }
 
     if (!empty($errors)) {
-        $message = '<p style="color: red;">' . implode('<br>', $errors) . '</p>';
+        $message = '<div class="alert alert-error">' . implode('<br>', $errors) . '</div>';
     } else {
         try {
             $sql = "UPDATE clients SET nom = :nom, prenom = :prenom, adresse1 = :adresse1, adresse2 = :adresse2, 
@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo) && $client) {
             $stmt->bindParam(':id', $clientId, PDO::PARAM_INT);
 
             if ($stmt->execute()) {
-                $message = '<p style="color: green;">Client modifié avec succès !</p>';
+                $message = '<div class="alert alert-success">Client modifié avec succès !</div>';
                 // Recharger les données du client après modification
                 $sql = "SELECT ID, nom, prenom, adresse1, adresse2, cp, ville, telephone, portable, mail FROM clients WHERE ID = :id";
                 $stmt = $pdo->prepare($sql);
@@ -88,10 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo) && $client) {
                 $stmt->execute();
                 $client = $stmt->fetch();
             } else {
-                $message = '<p style="color: red;">Erreur lors de la modification du client.</p>';
+                $message = '<div class="alert alert-error">Erreur lors de la modification du client.</div>';
             }
         } catch (PDOException $e) {
-            $message = '<p style="color: red;">Erreur de base de données : ' . htmlspecialchars($e->getMessage()) . '</p>';
+            $message = '<div class="alert alert-error">Erreur de base de données : ' . htmlspecialchars($e->getMessage()) . '</div>';
         }
     }
 }
@@ -100,161 +100,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo) && $client) {
 <!-- Lien vers Awesomplete CSS -->
 <link rel="stylesheet" href="../css/awesomplete.css" />
 
-<style>
-/* Modern Purple Theme for Edit Client */
-.client-page {
-    background: var(--bg-color);
-    color: var(--text-color);
-}
+<!-- Style interne supprimé - Utilisation de style.css global -->
 
-.page-header {
-    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-
-.page-header h1 {
-    margin: 0;
-    font-size: 1.4em;
-    font-weight: 400;
-    display: flex;
-    align-items: center;
-   gap: 10px;
-}
-
-.form-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    border: 1px solid var(--border-color);
-    max-width: 700px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.form-row .form-group {
-    margin-bottom: 0;
-}
-
-@media (max-width: 768px) {
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    font-size: 0.95em;
-}
-
-.form-control, .form-control.awesomplete {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 12px 15px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 1em;
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: #8e44ad;
-    box-shadow: 0 0 0 4px rgba(142, 68, 173, 0.1);
-}
-
-.form-actions {
-    display: flex;
-    gap: 12px;
-    padding-top: 15px;
-    border-top: 1px solid var(--border-color);
-    margin-top: 25px;
-    flex-wrap: wrap;
-}
-
-.btn {
-    padding: 12px 24px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: none;
-    font-size: 1em;
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-    color: white;
-}
-
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(142, 68, 173, 0.3);
-}
-
-.btn-secondary {
-    background: var(--input-bg);
-    color: var(--text-color);
-    border: 2px solid var(--border-color);
-}
-
-.btn-secondary:hover {
-    background: var(--hover-bg);
-    text-decoration: none;
-}
-
-.alert {
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    animation: slideIn 0.3s ease;
-}
-
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.alert-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-</style>
-
-<div class="client-page">
+<div>
     <div class="page-header">
         <h1>
             <span>✏️</span>
@@ -270,13 +118,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo) && $client) {
         $cleanMessage = strip_tags($message, '<a><br>');
         ?>
         <div class="alert <?= $alertClass ?>">
-            <span style="font-size: 1.5em;"><?= $alertIcon ?></span>
+            <span class="alert-icon"><?= $alertIcon ?></span>
             <div><?= $cleanMessage ?></div>
         </div>
     <?php endif; ?>
 
     <?php if ($client): ?>
-        <div style="margin-bottom: 20px; display: flex; gap: 10px;">
+        <div class="header-controls" style="margin-bottom: 20px;">
             <a href="index.php?page=clients" class="btn btn-secondary">
                 <span>←</span>
                 Retour à la liste des clients
@@ -287,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo) && $client) {
             </a>
         </div>
 
-        <div class="form-card">
+        <div class="card" style="max-width: 700px;">
             <form id="editClientForm" action="index.php?page=edit_client&id=<?= htmlspecialchars($client['ID']) ?>" method="POST">
                 <!-- Nom et Prénom sur la même ligne -->
                 <div class="form-row">
@@ -355,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo) && $client) {
                 </div>
             </form>
         </div>
-        <div id="formJsErrors" style="color: red; margin-top: 10px;"></div>
+        <div id="formJsErrors" class="alert alert-error" style="display: none; margin-top: 10px;"></div>
 
     <?php else: ?>
         <div>
@@ -404,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!errorSpan) {
             errorSpan = document.createElement('span');
             errorSpan.id = errorSpanId;
-            errorSpan.style.color = 'red';
+            errorSpan.style.color = 'var(--danger-color, red)';
             errorSpan.style.fontSize = '0.8em';
             errorSpan.style.display = 'block';
             errorSpan.style.marginTop = '2px';
@@ -412,10 +260,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (value.length > 0 && value.length !== 10) {
-            inputElement.style.borderColor = 'red';
+            inputElement.classList.add('error');
+            inputElement.style.borderColor = 'var(--danger-color, red)';
             errorSpan.textContent = 'Le numéro doit contenir 10 chiffres.';
         } else {
-            inputElement.style.borderColor = '#ccc'; // Couleur par défaut
+            inputElement.classList.remove('error');
+            inputElement.style.borderColor = ''; // Default handled by CSS
             errorSpan.textContent = '';
         }
     }
@@ -523,32 +373,36 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (nom === '') {
                 jsErrors.push('Le nom est obligatoire.');
-                nomInput.style.borderColor = 'red';
+                nomInput.classList.add('error');
+                nomInput.style.borderColor = 'var(--danger-color, red)';
             } else {
-                nomInput.style.borderColor = '#ccc';
+                nomInput.classList.remove('error');
+                nomInput.style.borderColor = '';
             }
 
             if (telephone === '' && portable === '') {
                 jsErrors.push('Au moins un numéro de téléphone (fixe ou portable) est obligatoire.');
-                telInput.style.borderColor = 'red';
-                portableInput.style.borderColor = 'red';
+                telInput.style.borderColor = 'var(--danger-color, red)';
+                portableInput.style.borderColor = 'var(--danger-color, red)';
             } else {
-                if (telephone !== '') telInput.style.borderColor = '#ccc';
-                if (portable !== '') portableInput.style.borderColor = '#ccc';
+                if (telephone !== '') telInput.style.borderColor = '';
+                if (portable !== '') portableInput.style.borderColor = '';
             }
             
             // Valider l'email s'il est rempli
             const emailVal = mailInput.value.trim();
             if (emailVal !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
                  jsErrors.push('L\'adresse email fournie n\'est pas valide.');
-                 mailInput.style.borderColor = 'red';
+                 mailInput.style.borderColor = 'var(--danger-color, red)';
             } else if (emailVal !== '') {
-                 mailInput.style.borderColor = '#ccc';
+                 mailInput.style.borderColor = '';
             }
 
             if (jsErrors.length > 0) {
                 event.preventDefault(); // Empêche la soumission du formulaire
-                document.getElementById('formJsErrors').innerHTML = jsErrors.join('<br>');
+                const errorDiv = document.getElementById('formJsErrors');
+                errorDiv.innerHTML = jsErrors.join('<br>');
+                errorDiv.style.display = 'block';
                 return false;
             }
         });

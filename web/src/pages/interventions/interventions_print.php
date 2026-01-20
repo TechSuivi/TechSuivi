@@ -59,164 +59,11 @@ if (empty($intervention_id)) {
 <head>
     <meta charset="UTF-8">
     <title>Fiche d'intervention - <?= htmlspecialchars($intervention_id) ?></title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            color: #333;
-            background: white;
-        }
-        
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #2A4F9C;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            color: #2A4F9C;
-            margin: 0;
-            font-size: 24px;
-        }
-        
-        .header h2 {
-            color: #666;
-            margin: 5px 0 0 0;
-            font-size: 16px;
-            font-weight: normal;
-        }
-        
-        .section {
-            margin-bottom: 25px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-        }
-        
-        .section h3 {
-            margin: 0 0 15px 0;
-            color: #2A4F9C;
-            font-size: 16px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-        }
-        
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        
-        .info-item {
-            margin-bottom: 10px;
-        }
-        
-        .info-item label {
-            font-weight: bold;
-            color: #555;
-            display: block;
-            margin-bottom: 3px;
-        }
-        
-        .info-item span {
-            display: block;
-            padding: 5px;
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 3px;
-            min-height: 20px;
-        }
-        
-        .status {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        
-        .status.en-cours {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-        
-        .status.cloturee {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .description {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 15px;
-            margin-top: 10px;
-            white-space: pre-wrap;
-            min-height: 100px;
-        }
-        
-        .footer {
-            margin-top: 40px;
-            border-top: 1px solid #ddd;
-            padding-top: 20px;
-            text-align: center;
-            color: #666;
-            font-size: 12px;
-        }
-        
-        .signature-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-top: 40px;
-        }
-        
-        .signature-box {
-            border: 1px solid #ddd;
-            padding: 20px;
-            text-align: center;
-            min-height: 80px;
-        }
-        
-        .signature-box h4 {
-            margin: 0 0 10px 0;
-            color: #555;
-        }
-        
-        @media print {
-            body {
-                margin: 0;
-            }
-            
-            .no-print {
-                display: none;
-            }
-        }
-        
-        .print-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #2A4F9C;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .print-button:hover {
-            background-color: #1e3a7a;
-        }
-    </style>
+    <link rel="stylesheet" href="css/intervention_print.css">
 </head>
 <body>
     <?php if (!empty($errorMessage)): ?>
-        <div style="color: red; text-align: center; padding: 20px;">
+        <div class="error-container">
             <h2>Erreur</h2>
             <p><?= $errorMessage ?></p>
         </div>
@@ -296,11 +143,11 @@ if (empty($intervention_id)) {
         <div class="signature-section">
             <div class="signature-box">
                 <h4>Signature du technicien</h4>
-                <div style="border-bottom: 1px solid #ccc; margin-top: 50px;"></div>
+                <div class="signature-separator"></div>
             </div>
             <div class="signature-box">
                 <h4>Signature du client</h4>
-                <div style="border-bottom: 1px solid #ccc; margin-top: 50px;"></div>
+                <div class="signature-separator"></div>
             </div>
         </div>
         

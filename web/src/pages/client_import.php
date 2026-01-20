@@ -200,139 +200,62 @@ elseif (isset($_POST['action']) && $_POST['action'] === 'import') {
 
 ?>
 
-<style>
-/* Reusing styles from clients.php roughly */
-.page-header {
-    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 12px;
-    margin-bottom: 25px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-}
-.card {
-    background: var(--card-bg, white);
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    margin-bottom: 20px;
-    border: 1px solid var(--border-color, #eee);
-}
-.btn {
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: none;
-    font-weight: 500;
-    color: white;
-    background: linear-gradient(135deg, #8e44ad 0%, #7d3c98 100%);
-    text-decoration: none;
-    display: inline-block;
-}
-.btn-secondary {
-    background: #6c757d;
-}
-.alert {
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-.alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-.alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-.alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
-
-table.mapping-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-table.mapping-table th, table.mapping-table td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-}
-select.mapping-select {
-    width: 100%;
-    padding: 8px;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-}
-.step-indicator {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 30px;
-    padding: 0 50px;
-}
-.step-item {
-    position: relative;
-    font-weight: bold;
-    color: #ccc;
-}
-.step-item.active {
-    color: #8e44ad;
-}
-.preview-section h3 {
-    border-bottom: 2px solid #8e44ad;
-    padding-bottom: 10px;
-    margin-top: 30px;
-}
-</style>
-
 <div class="page-header">
-    <h1 style="margin:0;">📥 Importation des Clients</h1>
+    <h1 class="m-0 text-dark">📥 Importation des Clients</h1>
 </div>
 
 <?php if ($message): ?>
-    <div class="alert alert-<?= $messageType ?>">
+    <div class="alert alert-<?= $messageType ?> mb-20 font-bold">
         <?= htmlspecialchars($message) ?>
     </div>
 <?php endif; ?>
 
-<div class="step-indicator">
-    <div class="step-item <?= $step == 'upload' ? 'active' : '' ?>">1. Upload</div>
-    <div class="step-item <?= $step == 'mapping' ? 'active' : '' ?>">2. Mapping</div>
-    <div class="step-item <?= $step == 'preview' ? 'active' : '' ?>">3. Validation</div>
+<div class="flex justify-between px-50 mb-30 text-lg font-medium text-muted">
+    <div class="<?= $step == 'upload' ? 'text-primary border-b-2 border-primary' : '' ?> p-10">1. Upload</div>
+    <div class="<?= $step == 'mapping' ? 'text-primary border-b-2 border-primary' : '' ?> p-10">2. Mapping</div>
+    <div class="<?= $step == 'preview' ? 'text-primary border-b-2 border-primary' : '' ?> p-10">3. Validation</div>
 </div>
 
-<div class="card">
+<div class="card p-25 bg-white border shadow-sm">
     <?php if ($step === 'upload'): ?>
-        <h2>Sélectionnez votre fichier Excel (.xlsx)</h2>
-        <p>Le fichier doit contenir une ligne d'en-tête.</p>
+        <h2 class="mt-0 text-dark">Sélectionnez votre fichier Excel (.xlsx)</h2>
+        <p class="mb-20 text-muted">Le fichier doit contenir une ligne d'en-tête.</p>
         
         <form action="index.php?page=client_import" method="post" enctype="multipart/form-data">
             <input type="hidden" name="action" value="upload">
-            <div style="margin: 30px 0; border: 2px dashed #ccc; padding: 40px; text-align: center; border-radius: 10px;">
-                <input type="file" name="import_file" accept=".xlsx" required style="font-size: 1.2em;">
+            <div class="my-30 p-40 text-center border-2 border-dashed border-border rounded hover:border-primary transition-colors cursor-pointer bg-light">
+                <input type="file" name="import_file" accept=".xlsx" required class="text-lg text-dark">
             </div>
             
-            <div style="text-align: right;">
-                <button type="submit" class="btn">Continuer ➜</button>
+            <div class="text-right">
+                <button type="submit" class="btn btn-primary font-bold">Continuer ➜</button>
             </div>
         </form>
 
     <?php elseif ($step === 'mapping'): ?>
-        <h2>Correspondance des colonnes</h2>
-        <p>Associez les colonnes de votre fichier Excel aux champs de la base de données. <br>
+        <h2 class="mt-0 text-dark">Correspondance des colonnes</h2>
+        <p class="mb-20 text-muted">Associez les colonnes de votre fichier Excel aux champs de la base de données. <br>
         <strong>Astuce :</strong> Vous pouvez sélectionner le même champ destination plusieurs fois (ex: "Nom") pour concaténer les valeurs (utile pour Raison Sociale + Forme Juridique).</p>
         
         <form action="index.php?page=client_import" method="post">
             <input type="hidden" name="action" value="preview">
             <input type="hidden" name="uploaded_file" value="<?= htmlspecialchars($uploadedFile) ?>">
             
-            <table class="mapping-table">
-                <thead>
+            <table class="w-full mb-20 border-collapse">
+                <thead class="bg-light">
                     <tr>
-                        <th>Colonne Excel (En-tête)</th>
-                        <th>Exemple de donnée (Ligne 1)</th>
-                        <th>Champ Destination</th>
+                        <th class="p-10 border-b border-border text-left font-bold text-dark">Colonne Excel (En-tête)</th>
+                        <th class="p-10 border-b border-border text-left font-bold text-dark">Exemple de donnée (Ligne 1)</th>
+                        <th class="p-10 border-b border-border text-left font-bold text-dark">Champ Destination</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($headerRow as $index => $colName): ?>
-                        <tr>
-                            <td><strong><?= htmlspecialchars($colName) ?></strong></td>
-                            <td style="color: #666; font-style: italic;"><?= htmlspecialchars($firstDataRow[$index] ?? '') ?></td>
-                            <td>
-                                <select name="mapping[<?= $index ?>]" class="mapping-select">
+                        <tr class="hover:bg-hover transition-colors">
+                            <td class="p-10 border-b border-border font-medium text-dark"><?= htmlspecialchars($colName) ?></td>
+                            <td class="p-10 border-b border-border text-muted italic text-sm"><?= htmlspecialchars($firstDataRow[$index] ?? '') ?></td>
+                            <td class="p-10 border-b border-border">
+                                <select name="mapping[<?= $index ?>]" class="form-control w-full p-8 border rounded bg-input text-dark">
                                     <option value="ignore">-- Ignorer --</option>
                                     <?php foreach ($availableFields as $fieldKey => $fieldLabel): ?>
                                         <?php 
@@ -353,14 +276,14 @@ select.mapping-select {
                 </tbody>
             </table>
             
-            <div style="margin-top: 20px; display: flex; justify-content: space-between;">
+            <div class="flex justify-between mt-20">
                 <a href="index.php?page=client_import" class="btn btn-secondary">Annuler</a>
-                <button type="submit" class="btn">Prévisualiser ➜</button>
+                <button type="submit" class="btn btn-primary font-bold">Prévisualiser ➜</button>
             </div>
         </form>
 
     <?php elseif ($step === 'preview'): ?>
-        <h2>Validation avant import</h2>
+        <h2 class="mt-0 text-dark">Validation avant import</h2>
         
         <form id="importForm" action="index.php?page=client_import" method="post">
             <input type="hidden" name="action" value="import">
@@ -368,25 +291,27 @@ select.mapping-select {
             <input type="hidden" name="uploaded_file" value="<?= htmlspecialchars($uploadedFile) ?>">
 
             <?php if (!empty($newClients)): ?>
-                <div class="preview-section">
-                    <h3 style="color: #27ae60;">✅ Nouveaux clients prêts à être importés (<?= count($newClients) ?>)</h3>
-                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee;">
-                        <table class="mapping-table" style="font-size: 0.9em;">
-                            <thead>
+                <div class="mb-30">
+                    <h3 class="text-success border-b border-success pb-10 mt-30 text-xl font-bold flex items-center gap-10">
+                        <span>✅</span> Nouveaux clients prêts à être importés (<?= count($newClients) ?>)
+                    </h3>
+                    <div class="border border-border rounded overflow-y-auto max-h-300">
+                        <table class="w-full text-xs box-border">
+                            <thead class="sticky top-0 bg-light shadow-sm">
                                 <tr>
-                                    <th>Nom</th>
-                                    <th>Prénom</th>
-                                    <th>Email</th>
-                                    <th>Ville</th>
+                                    <th class="p-10 border-b border-border text-left font-bold text-dark">Nom</th>
+                                    <th class="p-10 border-b border-border text-left font-bold text-dark">Prénom</th>
+                                    <th class="p-10 border-b border-border text-left font-bold text-dark">Email</th>
+                                    <th class="p-10 border-b border-border text-left font-bold text-dark">Ville</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($newClients as $c): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($c['nom']) ?></td>
-                                        <td><?= htmlspecialchars($c['prenom']) ?></td>
-                                        <td><?= htmlspecialchars($c['mail']) ?></td>
-                                        <td><?= htmlspecialchars($c['ville']) ?></td>
+                                    <tr class="hover:bg-white transition-colors">
+                                        <td class="p-10 border-b border-border text-dark"><?= htmlspecialchars($c['nom']) ?></td>
+                                        <td class="p-10 border-b border-border text-dark"><?= htmlspecialchars($c['prenom']) ?></td>
+                                        <td class="p-10 border-b border-border text-dark"><?= htmlspecialchars($c['mail']) ?></td>
+                                        <td class="p-10 border-b border-border text-dark"><?= htmlspecialchars($c['ville']) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -396,28 +321,30 @@ select.mapping-select {
             <?php endif; ?>
 
             <?php if (!empty($duplicates)): ?>
-                <div class="preview-section">
-                    <h3 style="color: #c0392b;">⚠️ Doublons détectés (<?= count($duplicates) ?>) - Ne seront PAS importés par défaut</h3>
-                    <p>Cochez les cases pour forcer l'importation (créera un doublon).</p>
-                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid #eee;">
-                        <table class="mapping-table" style="font-size: 0.9em; background: #fff5f5;">
-                            <thead>
+                <div class="mb-30">
+                    <h3 class="text-danger border-b border-danger pb-10 text-xl font-bold flex items-center gap-10">
+                        <span>⚠️</span> Doublons détectés (<?= count($duplicates) ?>) - Ne seront PAS importés par défaut
+                    </h3>
+                    <p class="mb-10 text-muted">Cochez les cases pour forcer l'importation (créera un doublon).</p>
+                    <div class="border border-danger rounded overflow-y-auto max-h-300">
+                        <table class="w-full text-xs bg-red-50">
+                            <thead class="sticky top-0 bg-red-100 shadow-sm">
                                 <tr>
-                                    <th><input type="checkbox" onclick="toggleAllDuplicates(this)"></th>
-                                    <th>Nom</th>
-                                    <th>Prénom</th>
-                                    <th>Email</th>
-                                    <th>Existe déjà (ID)</th>
+                                    <th class="p-10 border-b border-danger text-left px-15"><input type="checkbox" onclick="toggleAllDuplicates(this)" class="cursor-pointer size-4"></th>
+                                    <th class="p-10 border-b border-danger text-left font-bold text-danger-dark">Nom</th>
+                                    <th class="p-10 border-b border-danger text-left font-bold text-danger-dark">Prénom</th>
+                                    <th class="p-10 border-b border-danger text-left font-bold text-danger-dark">Email</th>
+                                    <th class="p-10 border-b border-danger text-left font-bold text-danger-dark">Existe déjà (ID)</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($duplicates as $index => $c): ?>
-                                    <tr>
-                                        <td><input type="checkbox" class="duplicate-checkbox" data-index="<?= $index ?>"></td>
-                                        <td><?= htmlspecialchars($c['nom']) ?></td>
-                                        <td><?= htmlspecialchars($c['prenom']) ?></td>
-                                        <td><?= htmlspecialchars($c['mail']) ?></td>
-                                        <td><?= htmlspecialchars($c['duplicate_id']) ?></td>
+                                    <tr class="hover:bg-red-100 transition-colors">
+                                        <td class="p-10 border-b border-danger-light px-15"><input type="checkbox" class="duplicate-checkbox cursor-pointer size-4" data-index="<?= $index ?>"></td>
+                                        <td class="p-10 border-b border-danger-light text-danger-dark"><?= htmlspecialchars($c['nom']) ?></td>
+                                        <td class="p-10 border-b border-danger-light text-danger-dark"><?= htmlspecialchars($c['prenom']) ?></td>
+                                        <td class="p-10 border-b border-danger-light text-danger-dark"><?= htmlspecialchars($c['mail']) ?></td>
+                                        <td class="p-10 border-b border-danger-light text-danger-dark font-mono"><?= htmlspecialchars($c['duplicate_id']) ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -426,9 +353,9 @@ select.mapping-select {
                 </div>
             <?php endif; ?>
 
-            <div style="margin-top: 30px; text-align: right;">
-                <a href="index.php?page=client_import" class="btn btn-secondary">Recommencer</a>
-                <button type="button" onclick="submitImport()" class="btn">
+            <div class="text-right mt-30">
+                <a href="index.php?page=client_import" class="btn btn-secondary mr-10">Recommencer</a>
+                <button type="button" onclick="submitImport()" class="btn btn-primary font-bold">
                     Importer <span id="totalImportCount"><?= count($newClients) ?></span> clients
                 </button>
             </div>

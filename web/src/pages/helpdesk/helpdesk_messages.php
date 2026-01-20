@@ -84,458 +84,117 @@ if (isset($pdo)) {
 }
 ?>
 
-<style>
-:root {
-    --emerald-start: #2ecc71;
-    --emerald-end: #27ae60;
-    --emerald-shadow: rgba(46, 204, 113, 0.3);
-}
+<div class="container container-center max-w-1200">
+    <div class="page-header">
+        <h1>
+            <span>💬</span>
+            Messages Helpdesk
+        </h1>
+        <?php if (!empty($selectedCategory) && !empty($selectedCategoryName)): ?>
+            <button id="addMessageBtn" class="btn btn-success flex items-center gap-10">
+                <span>➕</span>
+                Nouveau message
+            </button>
+        <?php endif; ?>
+    </div>
 
-/* Page Header */
-.page-header {
-    background: linear-gradient(135deg, var(--emerald-start) 0%, var(--emerald-end) 100%);
-    padding: 25px 30px;
-    border-radius: 12px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 15px var(--emerald-shadow);
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.page-title {
-    margin: 0;
-    font-size: 1.8em;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-/* Controls Card */
-.controls-card {
-    background: var(--card-bg);
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-bottom: 25px;
-    border: 1px solid var(--border-color);
-}
-
-.controls-row {
-    display: flex;
-    gap: 20px;
-    align-items: flex-end;
-    flex-wrap: wrap;
-}
-
-.form-group {
-    margin-bottom: 0;
-    flex: 1;
-    min-width: 200px;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-    color: var(--text-muted);
-}
-
-.form-control {
-    width: 100%;
-    padding: 10px 15px;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: var(--input-bg);
-    color: var(--text-color);
-    font-size: 0.95em;
-    transition: all 0.2s;
-    box-sizing: border-box;
-}
-
-textarea.form-control {
-    resize: vertical;
-    min-height: 100px;
-    font-family: inherit;
-}
-
-.form-control:focus {
-    border-color: var(--emerald-start);
-    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
-    outline: none;
-}
-
-/* Dark Mode Overrides */
-body.dark .form-control {
-    background-color: #2b2b2b;
-    border-color: #444;
-    color: #ecf0f1;
-}
-
-body.dark .form-control option {
-    background-color: #2b2b2b;
-    color: #ecf0f1;
-}
-
-body.dark .controls-card,
-body.dark .stat-badge,
-body.dark .message-card,
-body.dark .page-btn {
-    background-color: #2b2b2b;
-    border-color: #444;
-}
-
-body.dark .page-title,
-body.dark .form-label,
-body.dark .stat-label,
-body.dark .message-title,
-body.dark .message-content {
-    color: #ecf0f1;
-}
-
-body.dark .text-muted,
-body.dark .message-meta {
-    color: #bdc3c7;
-}
-
-body.dark .page-btn:not(.active) {
-    color: #ecf0f1;
-}
-
-body.dark .page-btn:hover:not(.active):not(:disabled) {
-    background-color: #3e3e3e;
-}
-
-/* Stats Badges */
-.stats-container {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.stat-badge {
-    flex: 1;
-    background: var(--card-bg);
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-    transition: transform 0.2s;
-}
-
-.stat-badge:hover {
-    transform: translateY(-2px);
-}
-
-.stat-number {
-    font-size: 1.8em;
-    font-weight: 700;
-    color: var(--emerald-end);
-    line-height: 1.2;
-}
-
-.stat-label {
-    font-size: 0.85em;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Message Cards */
-.message-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 15px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-}
-
-.message-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    border-color: var(--emerald-start);
-}
-
-.message-card.done {
-    border-left: 5px solid var(--emerald-end);
-}
-
-.message-card:not(.done) {
-    border-left: 5px solid #e67e22; /* Orange for todo */
-}
-
-.message-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 12px;
-}
-
-.message-title {
-    font-size: 1.1em;
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 0;
-}
-
-.message-meta {
-    font-size: 0.85em;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.message-content {
-    color: var(--text-color);
-    line-height: 1.6;
-    margin-bottom: 15px;
-    white-space: pre-wrap;
-}
-
-.message-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    border-top: 1px solid var(--border-color);
-    padding-top: 15px;
-}
-
-.replies-container {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px dashed var(--border-color);
-}
-
-.reply-card {
-    background: var(--input-bg);
-    border-radius: 8px;
-    padding: 12px;
-    margin-bottom: 10px;
-    border: 1px solid var(--border-color);
-}
-
-.reply-meta {
-    font-size: 0.8em;
-    color: var(--text-muted);
-    margin-bottom: 5px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.reply-content {
-    font-size: 0.95em;
-    color: var(--text-color);
-    white-space: pre-wrap;
-}
-
-.reply-form {
-    display: none;
-}
-
-/* Buttons */
-.btn-modern {
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: none;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
-    font-size: 0.9em;
-}
-
-/* Header Button Specifics */
-.page-header .btn-primary {
-    background: white;
-    color: var(--emerald-end);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.page-header .btn-primary:hover {
-    background: #f8f9fa;
-    color: var(--emerald-start);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.btn-status-todo {
-    background: #fff3cd;
-    color: #e67e22;
-    border: 1px solid #ffeeba;
-}
-
-.btn-status-done {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.btn-delete-icon {
-    background: transparent;
-    border: none;
-    color: #e74c3c;
-    font-size: 1.2em;
-    cursor: pointer;
-    opacity: 0.6;
-    transition: all 0.2s;
-    padding: 5px;
-}
-
-.btn-delete-icon:hover {
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-/* Pagination */
-.pagination {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 30px;
-}
-
-.page-btn {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background: var(--card-bg);
-    color: var(--text-color);
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.page-btn.active {
-    background: var(--emerald-end);
-    color: white;
-    border-color: var(--emerald-end);
-}
-
-.page-btn:hover:not(.active):not(:disabled) {
-    background: var(--hover-bg);
-    border-color: var(--emerald-start);
-}
-</style>
-
-<div class="page-header">
-    <h1 class="page-title">💬 Messages Helpdesk</h1>
-    <?php if (!empty($selectedCategory) && !empty($selectedCategoryName)): ?>
-        <button id="addMessageBtn" class="btn-modern btn-primary">
-            <span>➕</span> Nouveau message
-        </button>
+    <?php if (!empty($sessionMessage)): ?>
+        <div class="alert alert-success mb-20">
+            <?= $sessionMessage ?>
+        </div>
     <?php endif; ?>
-</div>
 
-<?php if (!empty($sessionMessage)): ?>
-    <div class="alert alert-success">
-        <?= $sessionMessage ?>
-    </div>
-<?php endif; ?>
+    <?php if (!empty($errorMessage)): ?>
+        <div class="alert alert-danger mb-20">
+            <?= $errorMessage ?>
+        </div>
+    <?php endif; ?>
 
-<?php if (!empty($errorMessage)): ?>
-    <div class="alert alert-error">
-        <?= $errorMessage ?>
-    </div>
-<?php endif; ?>
-
-<?php if (empty($categories)): ?>
-    <div class="controls-card" style="text-align: center;">
-        <p>Aucune catégorie trouvée. <a href="index.php?page=helpdesk_categories">Créer des catégories</a> pour commencer.</p>
-    </div>
-<?php else: ?>
-    
-    <div class="controls-card">
-        <div class="controls-row">
-            <div class="form-group">
-                <label class="form-label" for="categorySelect">Catégorie</label>
-                <select id="categorySelect" class="form-control" onchange="window.location.href='index.php?page=messages&category=' + this.value">
-                    <option value="">-- Choisir une catégorie --</option>
-                    <option value="all" <?= $selectedCategory === 'all' ? 'selected' : '' ?>>Tous</option>
-                    <?php foreach ($categories as $category): ?>
-                        <option value="<?= $category['ID'] ?>" <?= $selectedCategory == $category['ID'] ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($category['CATEGORIE']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+    <?php if (empty($categories)): ?>
+        <div class="card bg-secondary border text-center p-20">
+            <p>Aucune catégorie trouvée. <a href="index.php?page=helpdesk_categories" class="text-primary underline">Créer des catégories</a> pour commencer.</p>
+        </div>
+    <?php else: ?>
+        
+        <div class="card bg-secondary border p-20 rounded-12 shadow-sm mb-25">
+            <div class="flex flex-wrap gap-20 items-end">
+                <div class="flex-1 min-w-200">
+                    <label class="block mb-8 font-bold text-muted" for="categorySelect">Catégorie</label>
+                    <select id="categorySelect" class="form-control w-full p-10 border rounded-8 bg-input text-dark" onchange="window.location.href='index.php?page=messages&category=' + this.value">
+                        <option value="">-- Choisir une catégorie --</option>
+                        <option value="all" <?= $selectedCategory === 'all' ? 'selected' : '' ?>>Tous</option>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?= $category['ID'] ?>" <?= $selectedCategory == $category['ID'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($category['CATEGORIE']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <?php if (!empty($selectedCategory)): ?>
+                <div class="flex-2 min-w-300">
+                    <label class="block mb-8 font-bold text-muted" for="searchInput">Recherche</label>
+                    <div class="flex gap-10 items-center">
+                        <input type="text" id="searchInput" class="form-control flex-1 p-10 border rounded-8 bg-input text-dark" placeholder="Rechercher dans les messages...">
+                        <label class="cursor-pointer flex items-center gap-6 whitespace-nowrap m-0">
+                            <input type="checkbox" id="searchAllCategories" class="w-auto m-0"> 
+                            <span class="font-normal text-sm">Toutes catégories</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="w-100 flex-shrink-0">
+                    <label class="block mb-8 font-bold text-muted" for="limitSelect">Affichage</label>
+                    <select id="limitSelect" class="form-control w-full p-10 border rounded-8 bg-input text-dark">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+                <?php endif; ?>
             </div>
-            
-            <?php if (!empty($selectedCategory)): ?>
-            <div class="form-group" style="flex: 2; min-width: 300px;">
-                <label class="form-label" for="searchInput">Recherche</label>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" id="searchInput" class="form-control" placeholder="Rechercher dans les messages..." style="flex: 1;">
-                    <label class="form-label" style="margin: 0; white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <input type="checkbox" id="searchAllCategories" style="width: auto; margin: 0;"> 
-                        <span style="font-weight: normal; font-size: 0.9em;">Toutes catégories</span>
-                    </label>
+        </div>
+
+        <?php if (!empty($selectedCategory) && !empty($selectedCategoryName)): ?>
+
+            <!-- Statistiques -->
+            <div id="statsContainer" class="flex gap-15 mb-25 hidden">
+                <div class="card bg-secondary border flex-1 p-15 rounded-10 shadow-sm flex flex-col items-center hover:translate-y-2 transition-transform">
+                    <div class="text-3xl font-bold text-success leading-tight" id="statTotal">0</div>
+                    <div class="text-xs text-muted uppercase tracking-wide">Total</div>
+                </div>
+                <div class="card bg-secondary border flex-1 p-15 rounded-10 shadow-sm flex flex-col items-center hover:translate-y-2 transition-transform">
+                    <div class="text-3xl font-bold text-secondary leading-tight" id="statTodo">0</div>
+                    <div class="text-xs text-muted uppercase tracking-wide">À faire</div>
+                </div>
+                <div class="card bg-secondary border flex-1 p-15 rounded-10 shadow-sm flex flex-col items-center hover:translate-y-2 transition-transform">
+                    <div class="text-3xl font-bold text-success leading-tight" id="statDone">0</div>
+                    <div class="text-xs text-muted uppercase tracking-wide">Terminés</div>
                 </div>
             </div>
+
+            <!-- Zone de chargement -->
+            <div id="loadingIndicator" class="text-center p-40 hidden">
+                <div class="text-4xl animate-pulse">⏳</div>
+                <p class="text-muted mt-10">Chargement des messages...</p>
+            </div>
+
+            <!-- Liste des messages -->
+            <div id="messagesContainer" class="flex flex-col gap-15">
+                <!-- Les messages seront chargés ici via AJAX -->
+            </div>
+
+
+            <!-- Pagination -->
+            <div id="paginationContainer" class="flex justify-center gap-8 mt-30 hidden">
+                <!-- La pagination sera générée ici -->
+            </div>
             
-            <div class="form-group" style="flex: 0 0 100px;">
-                <label class="form-label" for="limitSelect">Affichage</label>
-                <select id="limitSelect" class="form-control">
-                    <option value="10">10</option>
-                    <option value="20" selected>20</option>
-                    <option value="50">50</option>
-                    <option value="100">100</option>
-                </select>
-            </div>
-            <?php endif; ?>
-        </div>
-    </div>
-
-    <?php if (!empty($selectedCategory) && !empty($selectedCategoryName)): ?>
-
-        <!-- Statistiques -->
-        <div id="statsContainer" class="stats-container" style="display: none;">
-            <div class="stat-badge">
-                <div class="stat-number" id="statTotal">0</div>
-                <div class="stat-label">Total</div>
-            </div>
-            <div class="stat-badge">
-                <div class="stat-number" id="statTodo" style="color: #e67e22;">0</div>
-                <div class="stat-label">À faire</div>
-            </div>
-            <div class="stat-badge">
-                <div class="stat-number" id="statDone" style="color: #27ae60;">0</div>
-                <div class="stat-label">Terminés</div>
-            </div>
-        </div>
-
-        <!-- Zone de chargement -->
-        <div id="loadingIndicator" style="text-align: center; padding: 40px; display: none;">
-            <div style="font-size: 2em;">⏳</div>
-            <p style="color: var(--text-muted);">Chargement des messages...</p>
-        </div>
-
-        <!-- Liste des messages -->
-        <div id="messagesContainer">
-            <!-- Les messages seront chargés ici via AJAX -->
-        </div>
-
-        <!-- Pagination -->
-        <div id="paginationContainer" class="pagination" style="display: none;">
-            <!-- La pagination sera générée ici -->
-        </div>
+        <?php endif; ?>
         
     <?php endif; ?>
-    
-<?php endif; ?>
+</div>
 
 <!-- Modal de réponse (Shared) -->
 <?php include 'includes/modals/reply_message.php'; ?>
@@ -545,14 +204,14 @@ body.dark .page-btn:hover:not(.active):not(:disabled) {
 <?php include 'includes/modals/add_client.php'; ?>
 
 <!-- Modal de confirmation -->
-<div id="confirmationModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content" style="max-width: 400px; text-align: center;">
-        <div style="font-size: 3em; margin-bottom: 15px;">⚠️</div>
-        <h3 style="margin-top: 0; color: var(--text-color);">Confirmation</h3>
-        <p id="confirmMessage" style="color: var(--text-muted); margin-bottom: 25px;">Êtes-vous sûr ?</p>
-        <div style="display: flex; gap: 10px; justify-content: center;">
-            <button onclick="closeConfirmModal()" class="btn-modern" style="background: var(--input-bg); border: 1px solid var(--border-color);">Annuler</button>
-            <button id="confirmActionBtn" class="btn-modern btn-primary" style="background: #e74c3c;">Confirmer</button>
+<div id="confirmationModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
+    <div class="modal-content bg-card rounded-12 shadow-2xl w-90 max-w-400 border border-border animate-slide-up overflow-hidden text-center p-20">
+        <div class="text-5xl mb-15">⚠️</div>
+        <h3 class="mt-0 text-dark mb-10">Confirmation</h3>
+        <p id="confirmMessage" class="text-muted mb-25">Êtes-vous sûr ?</p>
+        <div class="flex gap-10 justify-center">
+            <button onclick="closeConfirmModal()" class="btn btn-secondary border border-border">Annuler</button>
+            <button id="confirmActionBtn" class="btn btn-danger">Confirmer</button>
         </div>
     </div>
 </div>
@@ -620,9 +279,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Close modals on outside click
     window.addEventListener('click', (e) => {
+        /* DISABLED as per user request
         if (e.target === addMessageModal) closeModal(addMessageModal);
         if (e.target === replyMessageModal) closeModal(replyMessageModal);
         if (e.target === confirmModal) closeConfirmModal();
+        */
         
         // Hide suggestions
         const suggestions = document.getElementById('msg_add_client_suggestions');
@@ -663,13 +324,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (data.length > 0) {
                         data.forEach(client => {
                             const div = document.createElement('div');
-                            div.style.padding = '8px 12px';
-                            div.style.cursor = 'pointer';
-                            div.style.borderBottom = '1px solid var(--border-color)';
-                            div.style.fontSize = '0.9em';
+                            div.className = 'p-10 cursor-pointer border-b border-border text-sm hover:bg-hover';
                             div.textContent = client.label;
-                            div.onmouseover = function() { this.style.backgroundColor = 'var(--hover-bg)'; };
-                            div.onmouseout = function() { this.style.backgroundColor = 'transparent'; };
                             div.onclick = function() {
                                 clientSearch.value = client.value;
                                 clientId.value = client.id;
@@ -731,6 +387,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function openModal(modal) {
         if (modal) {
             modal.style.display = 'flex';
+            modal.classList.remove('hidden');
             // Reset alerts
             const alert = modal.querySelector('#msg_add_alert');
             if (alert) alert.innerHTML = '';
@@ -738,17 +395,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function closeModal(modal) {
-        if (modal) modal.style.display = 'none';
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+        }
     }
 
     // Global functions for inline onclick handlers
     window.closeReplyMessageModal = function() {
         const modal = document.getElementById('replyMessageModal');
-        if (modal) modal.style.display = 'none';
+        closeModal(modal);
     };
 
     window.closeConfirmModal = function() {
-        document.getElementById('confirmationModal').style.display = 'none';
+        const modal = document.getElementById('confirmationModal');
+        closeModal(modal);
         pendingAction = null;
     };
 
@@ -761,11 +422,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (action === 'delete') {
             msg.textContent = 'Êtes-vous sûr de vouloir supprimer ce message ?';
             btn.textContent = 'Supprimer';
-            btn.style.background = '#e74c3c';
+            btn.className = 'btn btn-danger';
             btn.onclick = executeDelete;
         }
         
-        modal.style.display = 'flex';
+        openModal(modal);
         return false; // Prevent default link behavior
     };
 
@@ -800,425 +461,204 @@ document.addEventListener('DOMContentLoaded', function() {
         if(alertDiv) alertDiv.innerHTML = '';
         
         const modal = document.getElementById('replyMessageModal');
-        openModal(modal); // Use openModal helper
-        
-        // Focus textarea
-        setTimeout(() => {
-            document.getElementById('msg_reply_content').focus();
-        }, 100);
-    };
-
-    window.toggleStatus = function(id, currentStatus) {
-        const newStatus = currentStatus ? 0 : 1;
-        
-        fetch('actions/helpdesk_messages_status.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `id=${id}&fait=${newStatus}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                loadMessages();
-            } else {
-                alert('Erreur: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Erreur de communication');
-        });
-    };
-    
-    window.changePage = function(page) {
-        currentPage = page;
-        loadMessages();
+        openModal(modal);
     };
 
     function loadMessages() {
-        if (!selectedCategory && !searchAllCategories) return;
+        const container = document.getElementById('messagesContainer');
+        const loading = document.getElementById('loadingIndicator');
+        const stats = document.getElementById('statsContainer');
+        const pagination = document.getElementById('paginationContainer');
         
-        showLoading(true);
+        loading.style.display = 'block';
+        loading.classList.remove('hidden');
+        container.style.display = 'none';
         
-        const params = new URLSearchParams({
-            page: currentPage,
-            limit: currentLimit
-        });
+        let url = `ajax/helpdesk_messages_ajax.php?category=${selectedCategory}`;
+        url += `&page=${currentPage}`;
+        url += `&limit=${currentLimit}`;
+        if (currentSearch) url += `&search=${encodeURIComponent(currentSearch)}`;
+        if (searchAllCategories) url += `&all_categories=1`;
         
-        if (selectedCategory === 'all') {
-             params.append('search_all', 'true');
-        } else if (!searchAllCategories) {
-            params.append('category', selectedCategory);
-        }
-        
-        if (currentSearch) {
-            params.append('search', currentSearch);
-        }
-        
-        if (searchAllCategories && selectedCategory !== 'all') {
-            params.append('search_all', 'true');
-        }
-        
-        fetch(`api/search_messages.php?${params}`)
+        fetch(url)
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    displayMessages(data.data);
-                    updateStats(data.stats);
-                    updatePagination(data.pagination);
-                } else {
-                    showError('Erreur: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Erreur:', error);
-                showError('Erreur de communication avec le serveur');
-            })
-            .finally(() => {
-                showLoading(false);
-            });
-    }
-    
-    function showLoading(show) {
-        const loadingIndicator = document.getElementById('loadingIndicator');
-        const statsContainer = document.getElementById('statsContainer');
-        const messagesContainer = document.getElementById('messagesContainer');
-        const paginationContainer = document.getElementById('paginationContainer');
-        
-        if (show) {
-            loadingIndicator.style.display = 'block';
-            statsContainer.style.display = 'none';
-            messagesContainer.innerHTML = '';
-            paginationContainer.style.display = 'none';
-        } else {
-            loadingIndicator.style.display = 'none';
-        }
-    }
-    
-    function showError(msg) {
-        const container = document.getElementById('messagesContainer');
-        container.innerHTML = `<div class="alert alert-error">${msg}</div>`;
-    }
-    
-    function displayMessages(messages) {
-        const container = document.getElementById('messagesContainer');
-        
-        if (messages.length === 0) {
-            container.innerHTML = `
-                <div class="controls-card" style="text-align: center; padding: 40px;">
-                    <div style="font-size: 3em; margin-bottom: 10px; opacity: 0.5;">📭</div>
-                    <p style="color: var(--text-muted);">Aucun message trouvé.</p>
-                </div>`;
-            return;
-        }
-        
-        container.innerHTML = messages.map(message => {
-            const messageDate = new Date(message.DATE);
-            const isDone = message.FAIT == 1;
-            
-            const dateFaitHtml = isDone && message.DATE_FAIT ?
-                `<span style="color: #27ae60; margin-left: 10px;">✓ Terminé le ${new Date(message.DATE_FAIT).toLocaleString('fr-FR')}</span>` : '';
-            
-            const categoryHtml = searchAllCategories && message.CATEGORIE_NOM ?
-                `<div style="font-size: 0.85em; color: ${message.CATEGORIE_COULEUR || 'var(--emerald-end)'}; margin-bottom: 8px; font-weight: 600;">
-                    📁 ${escapeHtml(message.CATEGORIE_NOM)}
-                 </div>` : '';
-            
-            const clientHtml = message.id_client ?
-                `<div style="font-size: 0.85em; color: var(--text-muted); margin-bottom: 8px;">
-                    👤 <a href="index.php?page=clients_view&id=${message.id_client}" style="color: inherit; text-decoration: none; border-bottom: 1px dotted var(--text-muted); transition: color 0.2s;">${escapeHtml(message.client_nom || 'Inconnu')} ${escapeHtml(message.client_prenom || '')}</a>
-                    ${message.client_telephone ? `<span style="margin-left: 8px;">📞 ${escapeHtml(message.client_telephone)}</span>` : ''}
-                    ${message.client_portable ? `<span style="margin-left: 8px;">📱 ${escapeHtml(message.client_portable)}</span>` : ''}
-                 </div>` : '';
-
-            const repliesHtml = message.REPLIES && message.REPLIES.length > 0 ? 
-                `<div class="replies-container">
-                    <h4 style="margin: 0 0 10px 0; font-size: 0.9em; color: var(--text-muted);">Réponses (${message.REPLIES.length})</h4>
-                    ${message.REPLIES.map(reply => `
-                        <div class="reply-card">
-                            <div class="reply-meta">
-                                <span>📅 ${new Date(reply.DATE_REPONSE).toLocaleString('fr-FR')}</span>
-                            </div>
-                            <div class="reply-content">${escapeHtml(reply.MESSAGE).replace(/\n/g, '<br>')}</div>
-                        </div>
-                    `).join('')}
-                </div>` : '';
-
-            return `
-                <div class="message-card ${isDone ? 'done' : ''}" data-id="${message.ID}">
-                    ${categoryHtml}
-                    <div class="message-header">
-                        <h3 class="message-title">${escapeHtml(message.TITRE)}</h3>
-                        <div class="message-meta">
-                            <span>📅 ${messageDate.toLocaleString('fr-FR')}</span>
-                            ${dateFaitHtml}
-                        </div>
-                    </div>
-                    ${clientHtml}
-                    <div class="message-content">${escapeHtml(message.MESSAGE).replace(/\n/g, '<br>')}</div>
-                    
-                    ${repliesHtml}
-
-                    <div class="message-actions">
-                        <button class="btn-modern" style="background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-color);"
-                                onclick="openReplyModal(${message.ID}, '${escapeHtml(message.TITRE).replace(/\\/g, '\\\\').replace(/'/g, "\\'")}', '${escapeHtml(message.MESSAGE).substring(0, 50).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, ' ')}...')">
-                            ↩️ Répondre
-                        </button>
-                        <button class="btn-modern ${isDone ? 'btn-status-done' : 'btn-status-todo'}"
-                                onclick="toggleStatus(${message.ID}, ${message.FAIT})">
-                            ${isDone ? '✅ Marquer comme à faire' : '⏳ Marquer comme fait'}
-                        </button>
-                        <button class="btn-delete-icon" title="Supprimer"
-                                onclick="confirmAction('delete', ${message.ID}, ${message.CATEGORIE})">
-                            &times;
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-    }
-    
-    function updateStats(stats) {
-        document.getElementById('statTotal').textContent = stats.total || 0;
-        document.getElementById('statTodo').textContent = stats.todo || 0;
-        document.getElementById('statDone').textContent = stats.done || 0;
-        document.getElementById('statsContainer').style.display = 'flex';
-    }
-    
-    function updatePagination(pagination) {
-        const container = document.getElementById('paginationContainer');
-        
-        if (pagination.total_pages <= 1) {
-            container.style.display = 'none';
-            return;
-        }
-        
-        let html = '';
-        
-        // Prev
-        html += `<button class="page-btn" ${!pagination.has_prev ? 'disabled' : ''} 
-                 onclick="changePage(${pagination.current_page - 1})">«</button>`;
-        
-        // Pages
-        const startPage = Math.max(1, pagination.current_page - 2);
-        const endPage = Math.min(pagination.total_pages, pagination.current_page + 2);
-        
-        if (startPage > 1) {
-            html += `<button class="page-btn" onclick="changePage(1)">1</button>`;
-            if (startPage > 2) html += `<span style="padding: 0 5px;">...</span>`;
-        }
-        
-        for (let i = startPage; i <= endPage; i++) {
-            html += `<button class="page-btn ${i === pagination.current_page ? 'active' : ''}" 
-                     onclick="changePage(${i})">${i}</button>`;
-        }
-        
-        if (endPage < pagination.total_pages) {
-            if (endPage < pagination.total_pages - 1) html += `<span style="padding: 0 5px;">...</span>`;
-            html += `<button class="page-btn" onclick="changePage(${pagination.total_pages})">${pagination.total_pages}</button>`;
-        }
-        
-        // Next
-        html += `<button class="page-btn" ${!pagination.has_next ? 'disabled' : ''} 
-                 onclick="changePage(${pagination.current_page + 1})">»</button>`;
-        
-        container.innerHTML = html;
-        container.style.display = 'flex';
-    }
-    
-    function escapeHtml(text) {
-        if (!text) return '';
-        return text
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    // Client Search Logic
-    let messageSearchInitialized = false;
-    function initMessageClientSearch() {
-        if (messageSearchInitialized) return;
-        
-        const clientSearch = document.getElementById('msg_add_client_search');
-        const clientId = document.getElementById('msg_add_id_client');
-        const suggestions = document.getElementById('msg_add_client_suggestions');
-        let searchTimeout;
-        
-        if (clientSearch) {
-            clientSearch.addEventListener('input', function() {
-                const term = this.value;
-                clearTimeout(searchTimeout);
+                loading.style.display = 'none';
+                loading.classList.add('hidden');
                 
-                if (term.length === 0) {
-                     clientId.value = '';
-                     suggestions.style.display = 'none';
-                     return;
-                }
-                
-                if (term.length < 2) {
-                    suggestions.style.display = 'none';
+                if (data.error) {
+                    container.innerHTML = `<div class='alert alert-danger'>${data.error}</div>`;
+                    container.style.display = 'block';
                     return;
                 }
                 
-                searchTimeout = setTimeout(() => {
-                    const url = `api/search_clients.php?term=${encodeURIComponent(term)}`;
-                    fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        suggestions.innerHTML = '';
-                        if (data.length > 0) {
-                            data.forEach(client => {
-                                const div = document.createElement('div');
-                                div.className = 'client-suggestion-item';
-                                div.style.padding = '8px 12px';
-                                div.style.cursor = 'pointer';
-                                div.style.borderBottom = '1px solid var(--border-color)';
-                                div.onmouseover = function() { this.style.backgroundColor = 'var(--input-bg)'; };
-                                div.onmouseout = function() { this.style.backgroundColor = 'transparent'; };
-                                
-                                div.textContent = client.label;
-                                div.onclick = function() {
-                                    clientSearch.value = client.value;
-                                    clientId.value = client.id;
-                                    suggestions.style.display = 'none';
-                                };
-                                suggestions.appendChild(div);
-                            });
-                            suggestions.style.display = 'block';
-                        } else {
-                            suggestions.style.display = 'none';
-                        }
-                    })
-                    .catch(err => console.error("Search error:", err));
-                }, 300);
-            });
-            
-            // Hide suggestions on click outside
-            document.addEventListener('click', function(e) {
-                if (e.target !== clientSearch && e.target !== suggestions) {
-                    suggestions.style.display = 'none';
-                }
-            });
-            
-            messageSearchInitialized = true;
-        }
-    }
-    // initMessageClientSearch ends here
-
-    // Global function for Shared Modal
-    window.submitAddMessageForm = function() {
-        const form = document.getElementById('msg_add_form');
-        if (!form) return;
-        
-        const formData = new FormData(form);
-        const submitBtn = form.querySelector('button[onclick="submitAddMessageForm()"]');
-        const originalText = submitBtn ? submitBtn.textContent : 'Ajouter';
-        
-        if(submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Envoi...';
-        }
-        
-        // Clear previous alerts
-        const alertDiv = document.getElementById('msg_add_alert');
-        if(alertDiv) alertDiv.innerHTML = '';
-        
-        fetch('actions/helpdesk_messages_add.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.text())
-        .then(text => {
-            try {
-                // Robust JSON parsing: clean BOM and find JSON object
-                let cleanText = text.trim();
-                // Remove BOM if present
-                if (cleanText.charCodeAt(0) === 0xFEFF) {
-                    cleanText = cleanText.slice(1);
+                // Update stats
+                document.getElementById('statTotal').textContent = data.stats.total;
+                document.getElementById('statTodo').textContent = data.stats.todo;
+                document.getElementById('statDone').textContent = data.stats.done;
+                stats.style.display = 'flex';
+                stats.classList.remove('hidden');
+                
+                if (data.messages.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state text-center p-40">
+                            <div class="text-4xl opacity-50 mb-10">📭</div>
+                            <h3>Aucun message trouvé</h3>
+                            <p class="text-muted">Essayez de modifier vos critères de recherche.</p>
+                        </div>
+                    `;
+                    container.style.display = 'block';
+                    pagination.style.display = 'none';
+                    return;
                 }
                 
-                // Extract JSON part if there is noise
-                const firstBrace = cleanText.indexOf('{');
-                const lastBrace = cleanText.lastIndexOf('}');
-                if (firstBrace !== -1 && lastBrace !== -1) {
-                    cleanText = cleanText.substring(firstBrace, lastBrace + 1);
-                }
+                // Render messages
+                let html = '';
+                data.messages.forEach(msg => {
+                    const statusClass = msg.FAIT == 1 ? 'done border-l-4 border-l-success' : 'border-l-4 border-l-secondary';
+                    const statusText = msg.FAIT == 1 ? 'Terminé' : 'À faire';
+                    const statusBtnClass = msg.FAIT == 1 ? 'btn-success' : 'btn-secondary';
+                    const toggleAction = msg.FAIT == 1 ? 0 : 1;
+                    const toggleLabel = msg.FAIT == 1 ? 'Marquer à faire' : 'Marquer fait';
+                    const toggleIcon = msg.FAIT == 1 ? '↩️' : '✅';
+                    
+                    // Client Info
+                    let clientHtml = '';
+                    if (msg.client_nom) {
+                        clientHtml = `
+                            <div class="text-xs text-muted mb-5 flex items-center gap-5">
+                                👤 <a href="index.php?page=clients_view&id=${msg.id_client}" class="text-primary hover:underline">${msg.client_nom} ${msg.client_prenom}</a>
+                                ${msg.client_telephone ? `📞 ${msg.client_telephone}` : ''}
+                            </div>
+                        `;
+                    }
+                    
+                    // Replies
+                    let repliesHtml = '';
+                    if (msg.replies && msg.replies.length > 0) {
+                        repliesHtml = '<div class="mt-15 pt-15 border-t border-dashed border-border">';
+                        msg.replies.forEach(reply => {
+                            repliesHtml += `
+                                <div class="bg-input rounded-8 p-12 mb-10 border border-border">
+                                    <div class="flex justify-between text-xs text-muted mb-5">
+                                        <span>👤 ${reply.auteur || 'Utilisateur'}</span>
+                                        <span>${reply.date_formatted}</span>
+                                    </div>
+                                    <div class="whitespace-pre-wrap text-sm text-dark">${reply.message}</div>
+                                </div>
+                            `;
+                        });
+                        repliesHtml += '</div>';
+                    }
+                    
+                    html += `
+                        <div class="card bg-secondary border p-20 rounded-12 shadow-sm transition-all hover:translate-y-2 hover:shadow-md ${statusClass}">
+                            <div class="flex justify-between items-start mb-12">
+                                <h3 class="m-0 text-lg font-bold text-dark">${msg.TITRE}</h3>
+                                <div class="text-xs text-muted flex items-center gap-10">
+                                    <span>📅 ${msg.date_formatted}</span>
+                                </div>
+                            </div>
+                            
+                            ${clientHtml}
+                            
+                            <div class="whitespace-pre-wrap text-dark leading-normal mb-15">${msg.MESSAGE}</div>
+                            
+                            <div class="flex justify-between gap-10 border-t border-border pt-15">
+                                <div class="flex gap-5">
+                                    <button onclick="changeStatus(${msg.ID}, ${toggleAction})" class="btn btn-xs ${statusBtnClass} flex items-center gap-5">
+                                        <span>${toggleIcon}</span> ${statusText}
+                                    </button>
+                                </div>
+                                <div class="flex gap-5">
+                                    <button onclick="openReplyModal(${msg.ID}, '${msg.TITRE.replace(/'/g, "\\'")}', '${msg.MESSAGE.substring(0, 50).replace(/'/g, "\\'").replace(/\n/g, ' ')}...')" class="btn btn-xs btn-primary flex items-center gap-5">
+                                        <span>↩️</span> Répondre
+                                    </button>
+                                    <button onclick="return confirmAction('delete', ${msg.ID}, ${selectedCategory})" class="btn btn-xs btn-danger bg-transparent border-0 text-danger hover:scale-110 transition-transform p-5" title="Supprimer">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            ${repliesHtml}
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+                container.style.display = 'flex';
+                container.classList.remove('hidden');
+                
+                // Render Pagination
+                renderPagination(data.pagination);
+                pagination.style.display = 'flex';
+                pagination.classList.remove('hidden');
+            })
+            .catch(err => {
+                loading.style.display = 'none';
+                console.error("Fetch error:", err);
+                container.innerHTML = `<div class='alert alert-danger'>Erreur de chargement. Vérifiez la console.</div>`;
+                container.style.display = 'block';
+            });
+    }
 
-                const data = JSON.parse(cleanText);
-                if (data.success) {
-                    document.getElementById('addMessageModal').style.display = 'none';
-                    form.reset();
+    function renderPagination(paginationData) {
+        const container = document.getElementById('paginationContainer');
+        container.innerHTML = '';
+        
+        if (paginationData.total_pages <= 1) return;
+        
+        const createBtn = (page, text, active = false, disabled = false) => {
+            const btn = document.createElement('button');
+            btn.className = `w-36 h-36 flex items-center justify-center rounded-8 border border-border bg-card text-dark cursor-pointer transition-all hover:bg-hover ${active ? 'bg-success text-white border-success' : ''}`;
+            if (active) {
+                btn.style.backgroundColor = 'var(--success-color)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--success-color)';
+            }
+            btn.innerHTML = text;
+            btn.disabled = disabled;
+            if (!disabled && !active) {
+                btn.onclick = () => {
+                    currentPage = page;
                     loadMessages();
-                    if(document.getElementById('msg_add_id_client')) document.getElementById('msg_add_id_client').value = '';
-                } else {
-                    if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">${data.message}</div>`;
-                }
-            } catch (e) {
-                console.error('JS Error:', e);
-                console.log('Raw Response:', text);
-                if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">Erreur JS: ${e.message}</div>`;
+                };
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">Erreur de communication</div>`;
-        })
-        .finally(() => {
-            if(submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+            return btn;
+        };
+        
+        // Prev
+        container.appendChild(createBtn(currentPage - 1, '«', false, currentPage === 1));
+        
+        // Pages
+        for (let i = 1; i <= paginationData.total_pages; i++) {
+            // Show first, last, current, and surrounding
+            if (i === 1 || i === paginationData.total_pages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                container.appendChild(createBtn(i, i, i === currentPage));
+            } else if (i === currentPage - 2 || i === currentPage + 2) {
+                const dots = document.createElement('span');
+                dots.textContent = '...';
+                dots.className = 'flex items-center justify-center w-20 text-muted';
+                container.appendChild(dots);
             }
-        });
-    };
-
-    window.submitReplyMessageForm = function() {
-        const form = document.getElementById('msg_reply_form');
-        if (!form) return;
-        
-        const formData = new FormData(form);
-        const submitBtn = form.querySelector('button[onclick="submitReplyMessageForm()"]');
-        const originalText = submitBtn ? submitBtn.textContent : 'Envoyer';
-        
-        if(submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Envoi...';
         }
         
-        const alertDiv = document.getElementById('msg_reply_alert');
-        if(alertDiv) alertDiv.innerHTML = '';
-        
-        fetch('actions/helpdesk_reponses_add.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('replyMessageModal').style.display = 'none';
-                form.reset();
-                loadMessages();
-            } else {
-                if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">${data.message}</div>`;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            if(alertDiv) alertDiv.innerHTML = `<div class="alert alert-error">Erreur de communication</div>`;
-        })
-        .finally(() => {
-            if(submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            }
-        });
-    };
+        // Next
+        container.appendChild(createBtn(currentPage + 1, '»', false, currentPage === paginationData.total_pages));
+    }
     
-    // ===== GESTION MODAL CLIENT NESTED (Via Shared add_client.php) =====
-    // La logique a été déplacée dans 'includes/modals/add_client.php'
-
+    // Add these to global scope for onclick handlers in generated HTML
+    window.changeStatus = function(id, newStatus) {
+        fetch(`actions/helpdesk_messages_status.php?id=${id}&status=${newStatus}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadMessages();
+                } else {
+                    alert('Erreur: ' + (data.error || 'Impossible de changer le statut'));
+                }
+            })
+            .catch(err => console.error("Status error:", err));
+    };
 });
 </script>

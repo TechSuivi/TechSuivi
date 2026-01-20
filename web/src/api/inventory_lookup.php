@@ -16,7 +16,7 @@ try {
     // 1. Get the most recent product details (designation, latest price)
     $sqlRecent = "SELECT designation, prix_achat_ht 
                   FROM Stock 
-                  WHERE ean_code = :ean 
+                  WHERE (ean_code = :ean OR SN = :ean)
                   ORDER BY date_ajout DESC 
                   LIMIT 1";
             
@@ -37,7 +37,7 @@ try {
         // We group by price and get the max date to know when it was last used
         $sqlHistory = "SELECT prix_achat_ht, MAX(date_ajout) as last_date 
                        FROM Stock 
-                       WHERE ean_code = :ean 
+                       WHERE (ean_code = :ean OR SN = :ean)
                        GROUP BY prix_achat_ht 
                        ORDER BY last_date DESC";
         

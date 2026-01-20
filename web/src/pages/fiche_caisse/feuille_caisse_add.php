@@ -269,394 +269,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$modification_autorisee) {
 }
 ?>
 
-<style>
-/* Styles spécifiques pour la feuille de caisse - VERSION COMPACTE */
-.feuille-caisse-container {
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 15px;
-}
 
-.feuille-caisse-input {
-    width: 100%;
-    padding: 4px 6px;
-    border: 1px solid var(--border-color, #ddd);
-    border-radius: 3px;
-    background-color: var(--input-bg, white);
-    color: var(--text-color);
-    font-size: 13px;
-    height: 28px;
-    box-sizing: border-box;
-}
-
-.feuille-caisse-label {
-    display: block;
-    margin-bottom: 2px;
-    font-weight: 600;
-    color: var(--text-color);
-    font-size: 11px;
-    line-height: 1.2;
-}
-
-.feuille-caisse-section {
-    border-bottom: 2px solid var(--accent-color);
-    padding-bottom: 8px;
-    margin-bottom: 12px;
-    color: var(--accent-color);
-    font-size: 16px;
-}
-
-.feuille-caisse-total {
-    background-color: var(--secondary-bg, #f8f9fa);
-    padding: 8px;
-    border-radius: 4px;
-    margin-top: 10px;
-}
-
-.feuille-caisse-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-}
-
-.feuille-caisse-grid-compact {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 6px;
-}
-
-.field-group {
-    display: flex;
-    flex-direction: column;
-    min-height: 50px;
-}
-
-.cheque-item {
-    background-color: var(--secondary-bg, #f8f9fa);
-    padding: 15px;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    border: 1px solid var(--border-color, #ddd);
-}
-
-.btn-add-cheque {
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.btn-remove-cheque {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-/* Mode sombre spécifique */
-body.dark .feuille-caisse-input {
-    background-color: #2b2b2b;
-    border-color: #444444;
-    color: #dddddd;
-}
-
-body.dark .feuille-caisse-total {
-    background-color: #333333;
-}
-
-body.dark .cheque-item {
-    background-color: #333333;
-    border-color: #444444;
-}
-
-body.dark .feuille-caisse-container {
-    background-color: #2b2b2b;
-    color: #dddddd;
-}
-
-body.dark .feuille-caisse-label {
-    color: #dddddd;
-}
-
-body.dark .feuille-caisse-section {
-    color: var(--accent-color);
-}
-
-/* Styles d'impression simplifiés */
-@media print {
-    /* Masquer tous les éléments non essentiels */
-    .no-print, .sidebar, header, .menu, nav, button, .btn-add-cheque, .btn-remove-cheque {
-        display: none !important;
-    }
-    
-    /* Réinitialiser le body pour l'impression */
-    body {
-        background: white !important;
-        color: black !important;
-        font-family: Arial, sans-serif !important;
-        font-size: 9pt !important;
-        margin: 0 !important;
-        padding: 10px !important;
-        line-height: 1.2 !important;
-    }
-    
-    /* Masquer le contenu principal et afficher seulement la feuille */
-    .content {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
-    }
-    
-    /* Styles pour les conteneurs */
-    .feuille-caisse-container {
-        background: white !important;
-        color: black !important;
-        box-shadow: none !important;
-        border: 1px solid #000 !important;
-        margin-bottom: 5px !important;
-        padding: 5px !important;
-        page-break-inside: avoid;
-    }
-    
-    /* Styles pour les champs de saisie */
-    .feuille-caisse-input {
-        border: 1px solid #000 !important;
-        background: white !important;
-        color: black !important;
-        font-weight: bold !important;
-    }
-    
-    /* Styles pour les chèques */
-    .cheque-item {
-        background: white !important;
-        border: 1px solid #000 !important;
-        margin-bottom: 5px !important;
-    }
-    
-    /* Titres et sections */
-    h1, h2, h3 {
-        color: black !important;
-        page-break-after: avoid;
-        margin: 5px 0 !important;
-        font-size: 11pt !important;
-    }
-    
-    /* Réduire les espacements */
-    div, p {
-        margin: 2px 0 !important;
-        padding: 2px !important;
-    }
-    
-    /* Grilles compactes */
-    .feuille-caisse-grid {
-        gap: 3px !important;
-    }
-    
-    /* Labels compacts */
-    .feuille-caisse-label {
-        margin-bottom: 2px !important;
-        font-size: 8pt !important;
-    }
-    
-    /* Inputs compacts */
-    .feuille-caisse-input {
-        padding: 2px !important;
-        font-size: 8pt !important;
-    }
-    
-    /* Totaux */
-    .feuille-caisse-total {
-        background: #f0f0f0 !important;
-        border: 1px solid #000 !important;
-        font-weight: bold !important;
-    }
-    
-    /* Afficher le titre d'impression */
-    .print-only {
-        display: block !important;
-    }
-}
-
-/* Amélioration du mode sombre */
-body.dark {
-    background-color: #121212 !important;
-    color: #dddddd !important;
-}
-
-body.dark .feuille-caisse-container {
-    background-color: #2b2b2b !important;
-    color: #dddddd !important;
-}
-
-body.dark div[style*="background-color: var(--secondary-bg, #f8f9fa)"],
-body.dark div[style*="background-color: #f8f9fa"],
-body.dark div[style*="background-color: var(--card-bg)"] {
-    background-color: #333333 !important;
-    color: #dddddd !important;
-}
-
-body.dark div[style*="background-color: #e7f3ff"] {
-    background-color: #1a365d !important;
-    color: #dddddd !important;
-}
-
-body.dark h1, body.dark h2, body.dark h3 {
-    color: #dddddd !important;
-}
-
-body.dark p, body.dark span, body.dark div, body.dark label {
-    color: #dddddd !important;
-}
-
-body.dark small {
-    color: #999999 !important;
-}
-
-body.dark strong {
-    color: #dddddd !important;
-}
-
-/* Forcer les couleurs pour les montants dans le récapitulatif */
-body.dark div[style*="color: #2196F3"] {
-    color: #63b3ed !important;
-}
-
-body.dark div[style*="color: #FF9800"] {
-    color: #f6ad55 !important;
-}
-
-body.dark div[style*="color: #4CAF50"] {
-    color: #68d391 !important;
-}
-
-body.dark div[style*="color: var(--accent-color)"] {
-    color: var(--accent-color) !important;
-}
-
-/* Conteneurs avec bordures spéciales */
-body.dark div[style*="border: 2px solid #4CAF50"] {
-    background-color: #2d3748 !important;
-    border-color: #68d391 !important;
-}
-
-body.dark div[style*="border-left: 4px solid #2196F3"] {
-    background-color: #2a4a6b !important;
-    border-left-color: #63b3ed !important;
-}
-
-/* Champs de saisie en mode sombre */
-body.dark .feuille-caisse-input {
-    background-color: #374151 !important;
-    border-color: #4a5568 !important;
-    color: #e2e8f0 !important;
-}
-
-body.dark .feuille-caisse-input:focus {
-    border-color: var(--accent-color) !important;
-    box-shadow: 0 0 0 2px rgba(var(--accent-color-rgb), 0.2) !important;
-}
-
-body.dark .feuille-caisse-input[readonly] {
-    background-color: #2d3748 !important;
-    color: #a0aec0 !important;
-}
-
-/* Éléments de chèques */
-body.dark .cheque-item {
-    background-color: #374151 !important;
-    border-color: #4a5568 !important;
-}
-
-/* Boutons */
-body.dark .btn-add-cheque {
-    background-color: var(--accent-color) !important;
-}
-
-body.dark .btn-remove-cheque {
-    background-color: #dc3545 !important;
-}
-
-/* Totaux et affichages */
-body.dark .feuille-caisse-total {
-    background-color: #374151 !important;
-}
-
-/* Cases grisées en mode sombre */
-body.dark div[style*="background-color: #f5f5f5"] {
-    background-color: #2b2b2b !important;
-    color: #666666 !important;
-}
-
-/* Améliorer la lisibilité des titres retrait en mode sombre */
-body.dark div[style*="background-color: #fff3e0"] {
-    background-color: #4a3728 !important;
-    color: #fbbf24 !important;
-}
-
-body.dark div[style*="background-color: #fce4ec"] {
-    background-color: #4c1d3d !important;
-    color: #f472b6 !important;
-}
-
-/* Masquer les flèches d'incrémentation des champs numériques */
-.feuille-caisse-input::-webkit-outer-spin-button,
-.feuille-caisse-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-body.dark .feuille-caisse-input[type=number] {
-    -moz-appearance: textfield;
-}
-
-/* Surcharges pour les styles inline en mode sombre */
-body.dark div[style*="background-color: #d4edda"] {
-    background-color: #1c4532 !important;
-    color: #9ae6b4 !important;
-    border-color: #276749 !important;
-}
-
-body.dark div[style*="background-color: #f8d7da"] {
-    background-color: #63171b !important;
-    color: #feb2b2 !important;
-    border-color: #9b2c2c !important;
-}
-
-body.dark div[style*="background-color: #fff3cd"] {
-    background-color: #744210 !important;
-    color: #fbd38d !important;
-    border-color: #975a16 !important;
-}
-
-body.dark div[style*="background-color: #e7f3ff"] {
-    background-color: #2a4a6b !important;
-    color: #bee3f8 !important;
-    border-color: #2b6cb0 !important;
-}
-
-body.dark div[style*="background-color: #e3f2fd"] {
-    background-color: #2a4365 !important;
-    color: #63b3ed !important;
-}
-
-body.dark div[style*="background-color: #e8f5e8"] {
-    background-color: #22543d !important;
-    color: #68d391 !important;
-}
-
-body.dark input[style*="background-color: #f0f0f0"] {
-    background-color: #2d3748 !important;
-    color: #a0aec0 !important;
-}
-</style>
 
 <h1 class="no-print">📊 Nouvelle Feuille de Caisse</h1>
 
@@ -668,18 +281,18 @@ body.dark input[style*="background-color: #f0f0f0"] {
 </div>
 
 <?php if ($message): ?>
-    <div style="background-color: #d4edda; color: #155724; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #c3e6cb;">
+    <div class="alert alert-success">
         <?= htmlspecialchars($message) ?>
     </div>
 <?php endif; ?>
 
 <?php if ($error): ?>
-    <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+    <div class="alert alert-error">
         <?= htmlspecialchars($error) ?>
         <?php if (strpos($error, "n'existe pas encore") !== false): ?>
             <br><br>
             <a href="index.php?page=create_feuille_caisse_table" 
-               style="background-color: #28a745; color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px;">
+               class="btn btn-success">
                 🔧 Créer la table maintenant
             </a>
         <?php endif; ?>
@@ -687,7 +300,7 @@ body.dark input[style*="background-color: #f0f0f0"] {
 <?php endif; ?>
 
 <?php if ($feuille_existante): ?>
-    <div style="background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #ffeaa7;">
+    <div class="alert alert-warning">
         <strong>⚠️ Une feuille de caisse existe déjà pour cette date.</strong><br>
         Total actuel : <?= number_format($feuille_existante['total_caisse'], 2) ?> €<br>
         <?php if ($modification_autorisee): ?>
@@ -699,15 +312,15 @@ body.dark input[style*="background-color: #f0f0f0"] {
 <?php endif; ?>
 
 <?php if (!$modification_autorisee && $date_defaut !== $date_aujourd_hui): ?>
-    <div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; margin-bottom: 20px; border: 1px solid #f5c6cb;">
+    <div class="alert alert-error">
         <strong>🔒 Mode consultation uniquement</strong><br>
         Cette feuille de caisse est en lecture seule car elle ne correspond pas à la date d'aujourd'hui.<br>
         Seule la feuille du jour (<?= date('d/m/Y') ?>) peut être modifiée.
         <br><br>
-        <button onclick="window.print()" class="no-print" style="background-color: #17a2b8; color: white; padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+        <button onclick="window.print()" class="no-print btn btn-info mr-10">
             🖨️ Imprimer cette feuille
         </button>
-        <a href="index.php?page=feuille_caisse_add" class="no-print" style="background-color: var(--accent-color); color: white; padding: 8px 15px; text-decoration: none; border-radius: 4px;">
+        <a href="index.php?page=feuille_caisse_add" class="no-print btn btn-accent">
             📊 Feuille du jour
         </a>
     </div>
@@ -726,9 +339,9 @@ body.dark input[style*="background-color: #f0f0f0"] {
         <h3 class="feuille-caisse-section">🔍 Contrôle avec la feuille précédente</h3>
         
         <?php if ($feuille_precedente): ?>
-            <div style="background-color: #e7f3ff; padding: 15px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid #2196F3;">
+            <div class="header-count-blue mb-15">
                 <strong>📅 Feuille précédente (<?= date('d/m/Y', strtotime($feuille_precedente['date_comptage'])) ?>) :</strong>
-                <span style="font-size: 16px; font-weight: bold; color: #2196F3; margin-left: 10px;">
+                <span class="ml-10 text-lg font-bold text-blue">
                     <?= number_format($solde_precedent_auto, 2) ?> € en espèces
                 </span>
             </div>
@@ -782,19 +395,20 @@ body.dark input[style*="background-color: #f0f0f0"] {
         <h3 class="feuille-caisse-section">💰 Espèces - Comptage et Retraits</h3>
         
         <!-- En-têtes des colonnes -->
+        <!-- En-têtes des colonnes -->
         <div style="display: grid; grid-template-columns: 80px 1fr 1fr 80px 1fr 1fr; gap: 8px; margin-bottom: 10px; font-weight: bold; text-align: center; font-size: 12px;">
             <div style="font-weight: bold;">Billets</div>
-            <div style="background-color: #e3f2fd; padding: 6px; border-radius: 4px; border: 2px solid #2196F3;">
+            <div class="header-count-blue">
                 📊 Comptage
             </div>
-            <div style="background-color: #fff3e0; padding: 6px; border-radius: 4px; border: 2px solid #FF9800;">
+            <div class="header-withdrawal-orange">
                 🏦 Retrait
             </div>
             <div style="font-weight: bold;">Pièces</div>
-            <div style="background-color: #e8f5e8; padding: 6px; border-radius: 4px; border: 2px solid #4CAF50;">
+            <div class="header-count-green">
                 📊 Comptage
             </div>
-            <div style="background-color: #fce4ec; padding: 6px; border-radius: 4px; border: 2px solid #E91E63;">
+            <div class="header-withdrawal-pink">
                 🏦 Retrait
             </div>
         </div>

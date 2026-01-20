@@ -34,130 +34,108 @@ foreach ($items as $item) {
 $isClosed = $session['status'] === 'CLOSED';
 ?>
 
-<div class="container" style="padding: 20px; max-width: 1200px;">
+<div class="container container-center max-w-1200 p-20">
     <!-- En-tête -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="flex-between-center mb-20">
         <div>
-            <a href="index.php?page=inventory_list" style="color: var(--text-muted); text-decoration: none;">&larr; Retour</a>
-            <h1 style="margin: 5px 0; color: var(--text-color);">📦 <?= htmlspecialchars($session['name']) ?></h1>
-            <span style="color: var(--text-muted); font-size: 0.9em;"><?= ($isClosed ? '🔒 CLÔTURÉ' : '🔓 OUVERT') ?> - Créé le <?= date('d/m/Y', strtotime($session['created_at'])) ?></span>
+            <a href="index.php?page=inventory_list" class="text-muted no-underline hover:text-color transition-colors">&larr; Retour</a>
+            <h1 class="my-5 text-color flex items-center gap-10">
+                📦 <?= htmlspecialchars($session['name']) ?>
+            </h1>
+            <span class="text-muted text-sm flex items-center gap-5">
+                <span class="badge <?= $isClosed ? 'badge-danger' : 'badge-success' ?>"><?= ($isClosed ? '🔒 CLÔTURÉ' : '🔓 OUVERT') ?></span>
+                <span>- Créé le <?= date('d/m/Y', strtotime($session['created_at'])) ?></span>
+            </span>
         </div>
-        <div style="background-color: #28a745; color: white; padding: 15px 25px; border-radius: 8px; text-align: right;">
-            <div style="font-size: 0.8em; opacity: 0.9;">VALEUR TOTALE</div>
-            <div style="font-size: 1.5em; font-weight: bold;" id="display_total"><?= number_format($grandTotal, 2, ',', ' ') ?> €</div>
+        <div class="bg-gradient-success text-white p-15 rounded-12 text-right shadow-md">
+            <div class="text-xs opacity-80 uppercase tracking-wilder font-bold">VALEUR TOTALE</div>
+            <div class="text-2xl font-bold" id="display_total"><?= number_format($grandTotal, 2, ',', ' ') ?> €</div>
         </div>
     </div>
 
     <!-- Zone de Saisie (Scan) -->
     <?php if (!$isClosed): ?>
-    <style>
-        .scan-form-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px; /* Espace réduit pour densifier */
-            align-items: flex-end;
-        }
-        .scan-group {
-            display: flex;
-            flex-direction: column;
-            min-width: 0; /* Important pour le flex-shrink */
-        }
-        /* Style des inputs/boutons pour garantir l'alignement */
-        .scan-group .form-control, 
-        .scan-group button {
-            height: 42px; /* Hauteur fixe pour tout le monde */
-            box-sizing: border-box;
-        }
-        .scan-group label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: var(--text-color);
-            font-size: 0.9em;
-            white-space: nowrap;
-        }
-        
-        /* Mobile first : tout en 100% large ou 50% */
-        .scan-group { flex: 1 1 100%; }
+    <div class="card p-15 mb-20">
+        <div class="flex flex-wrap gap-10 items-end">
+            <!-- Code EAN -->
+            <div class="flex-none w-full md:w-160">
+                <label for="scan_ean" class="block font-bold mb-5 text-color text-sm">Code EAN / SN (Scan)</label>
+                <input type="text" id="scan_ean" class="form-control w-full p-10 text-lg border-2 border-primary rounded bg-input text-color focus:border-primary-dark outline-none" placeholder="Scanner..." autofocus autocomplete="off">
+            </div>
+            
+            <!-- Désignation -->
+            <div class="flex-1 min-w-200">
+                <label for="scan_designation" class="block font-bold mb-5 text-color text-sm">Désignation</label>
+                <input type="text" id="scan_designation" class="form-control w-full p-10 border rounded bg-input text-color" placeholder="Nom du produit">
+            </div>
 
-        /* Tablette et + : on commence à aligner */
-        @media (min-width: 768px) {
-            .group-ean { flex: 0 0 160px; }
-            .group-des { flex: 1 1 auto; min-width: 200px; } /* Prend la place restante mais pas moins de 200px */
-            .group-price { flex: 0 0 100px; }
-            .group-qty { flex: 0 0 70px; }
-            .group-btn { flex: 0 0 auto; }
-        }
-    </style>
-    <div class="card" style="background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-color); box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <div class="scan-form-container">
-            <div class="scan-group group-ean">
-                <label style="font-weight: bold; margin-bottom: 5px; color: var(--text-color);">Code EAN (Scan)</label>
-                <input type="text" id="scan_ean" class="form-control" placeholder="Scanner ici..." style="width: 100%; padding: 10px; font-size: 1.1em; border: 2px solid #2196f3; border-radius: 4px; background: var(--bg-color); color: var(--text-color);" autofocus autocomplete="off">
-            </div>
-            <div class="scan-group group-des">
-                <label style="font-weight: bold; margin-bottom: 5px; color: var(--text-color);">Désignation</label>
-                <input type="text" id="scan_designation" class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-color); color: var(--text-color);" placeholder="Nom du produit">
-            </div>
-            <div class="scan-group group-price">
-                <label style="font-weight: bold; margin-bottom: 5px; color: var(--text-color);">Prix HT</label>
-                <input type="number" id="scan_price" step="0.01" class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-color); color: var(--text-color);">
+            <!-- Prix HT -->
+            <div class="flex-none w-full md:w-100">
+                <label for="scan_price" class="block font-bold mb-5 text-color text-sm">Prix HT</label>
+                <input type="number" id="scan_price" step="0.01" class="form-control w-full p-10 border rounded bg-input text-color">
                 <!-- Selecteur d'historique (caché par défaut) -->
-                <select id="price_history" style="display:none; margin-top: 5px; width: 100%; padding: 5px; border-radius: 4px; background: var(--accent-color); color: white; border: none; font-size: 0.9em; cursor: pointer;">
+                <select id="price_history" class="hidden mt-5 w-full p-5 rounded bg-info text-white border-none text-xs cursor-pointer">
                     <option value="">Historique...</option>
                 </select>
             </div>
-            <div class="scan-group group-qty">
-                <label style="font-weight: bold; margin-bottom: 5px; color: var(--text-color);">Qté</label>
-                <input type="number" id="scan_qty" value="1" min="1" class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 4px; font-weight: bold; background: var(--bg-color); color: var(--text-color);">
+
+            <!-- Quantité -->
+            <div class="flex-none w-full md:w-70">
+                <label for="scan_qty" class="block font-bold mb-5 text-color text-sm">Qté</label>
+                <input type="number" id="scan_qty" value="1" min="1" class="form-control w-full p-10 border rounded font-bold bg-input text-color">
             </div>
-            <div class="scan-group group-btn">
-                <button onclick="addItem()" style="padding: 11px 25px; background-color: #2196f3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; white-space: nowrap;">AJOUTER</button>
+
+            <!-- Bouton Ajouter -->
+            <div class="flex-none w-full md:w-auto">
+                <button onclick="addItem()" class="btn btn-primary h-full px-25 py-11 font-bold whitespace-nowrap w-full md:w-auto">AJOUTER</button>
             </div>
         </div>
-        <div id="scan_message" style="margin-top: 10px; min-height: 20px; font-style: italic; color: var(--text-muted);"></div>
+        <div id="scan_message" class="mt-10 min-h-20 text-muted italic text-sm"></div>
     </div>
     <?php endif; ?>
 
     <!-- Liste des articles -->
-    <div class="card" style="background: var(--card-bg); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); color: var(--text-color);">
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead style="background: rgba(0,0,0,0.05); border-bottom: 2px solid var(--border-color);">
-                <tr>
-                    <th style="padding: 12px; text-align: left; color: var(--text-color);">Désignation</th>
-                    <th style="padding: 12px; text-align: left; color: var(--text-color);">EAN</th>
-                    <th style="padding: 12px; text-align: right; color: var(--text-color);">Prix HT</th>
-                    <th style="padding: 12px; text-align: center; color: var(--text-color);">Qté</th>
-                    <th style="padding: 12px; text-align: right; color: var(--text-color);">Total</th>
-                    <th style="padding: 12px; text-align: right;"></th>
-                </tr>
-            </thead>
-            <tbody id="inventory_table_body">
-                <?php foreach ($items as $item): ?>
-                <tr id="row_<?= $item['id'] ?>" style="border-bottom: 1px solid var(--border-light);">
-                    <td style="padding: 12px; font-weight: 500;"><?= htmlspecialchars($item['designation']) ?></td>
-                    <td style="padding: 12px; color: var(--text-muted); font-family: monospace;"><?= htmlspecialchars($item['ean_code']) ?></td>
-                    <td style="padding: 12px; text-align: right;"><?= number_format($item['prix_achat_ht'], 2) ?> €</td>
-                    <td style="padding: 12px; text-align: center;">
-                        <?php if (!$isClosed): ?>
-                        <input type="number" value="<?= $item['quantity'] ?>" 
-                               onchange="updateItem(<?= $item['id'] ?>, this.value, <?= $item['prix_achat_ht'] ?>)"
-                               style="width: 60px; text-align: center; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-color); color: var(--text-color);">
-                        <?php else: ?>
-                            <b><?= $item['quantity'] ?></b>
-                        <?php endif; ?>
-                    </td>
-                    <td style="padding: 12px; text-align: right; font-weight: bold;">
-                        <?= number_format($item['prix_achat_ht'] * $item['quantity'], 2) ?> €
-                    </td>
-                    <td style="padding: 12px; text-align: right;">
-                        <?php if (!$isClosed): ?>
-                        <button onclick="deleteItem(<?= $item['id'] ?>)" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 1.2em;">&times;</button>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+    <div class="card p-0 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-input border-b border-border text-muted uppercase text-xs font-bold">
+                        <th class="p-12 text-left">Désignation</th>
+                        <th class="p-12 text-left">EAN</th>
+                        <th class="p-12 text-right">Prix HT</th>
+                        <th class="p-12 text-center">Qté</th>
+                        <th class="p-12 text-right">Total</th>
+                        <th class="p-12 text-right w-50"></th>
+                    </tr>
+                </thead>
+                <tbody id="inventory_table_body">
+                    <?php foreach ($items as $item): ?>
+                    <tr id="row_<?= $item['id'] ?>" class="border-b border-border hover:bg-hover transition-colors">
+                        <td class="p-12 font-medium text-dark"><?= htmlspecialchars($item['designation']) ?></td>
+                        <td class="p-12 text-muted font-mono text-sm"><?= htmlspecialchars($item['ean_code']) ?></td>
+                        <td class="p-12 text-right text-dark"><?= number_format($item['prix_achat_ht'], 2) ?> €</td>
+                        <td class="p-12 text-center">
+                            <?php if (!$isClosed): ?>
+                            <input type="number" value="<?= $item['quantity'] ?>" 
+                                   onchange="updateItem(<?= $item['id'] ?>, this.value, <?= $item['prix_achat_ht'] ?>)"
+                                   class="w-60 text-center p-5 border rounded bg-input text-dark focus:border-primary outline-none">
+                            <?php else: ?>
+                                <b class="text-dark"><?= $item['quantity'] ?></b>
+                            <?php endif; ?>
+                        </td>
+                        <td class="p-12 text-right font-bold text-dark">
+                            <?= number_format($item['prix_achat_ht'] * $item['quantity'], 2) ?> €
+                        </td>
+                        <td class="p-12 text-right">
+                            <?php if (!$isClosed): ?>
+                            <button onclick="deleteItem(<?= $item['id'] ?>)" class="bg-transparent border-none text-danger cursor-pointer text-lg hover:text-danger-dark transition-colors" title="Supprimer">&times;</button>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -201,10 +179,10 @@ $isClosed = $session['status'] === 'CLOSED';
 
     function lookupProduct(ean) {
         msgDiv.textContent = 'Recherche...';
-        msgDiv.style.color = 'var(--text-muted)';
+        msgDiv.className = 'mt-10 min-h-20 text-muted italic text-sm';
         
         // Reset Selector
-        historySelect.style.display = 'none';
+        historySelect.classList.add('hidden');
         historySelect.innerHTML = '<option value="">▼ Historique Prix</option>';
 
         fetch(`api/inventory_lookup.php?ean=${encodeURIComponent(ean)}`)
@@ -213,11 +191,11 @@ $isClosed = $session['status'] === 'CLOSED';
                 if (data.found) {
                     desInput.value = data.designation;
                     priceInput.value = data.prix_achat_ht;
-                    msgDiv.innerHTML = '<span style="color: green;">✓ Produit connu trouvé</span>';
+                    msgDiv.innerHTML = '<span class="text-success font-bold">✓ Produit connu trouvé</span>';
                     
                     // Gestion de l'historique des prix
                     if (data.history && data.history.length > 1) {
-                        historySelect.style.display = 'block';
+                        historySelect.classList.remove('hidden');
                         data.history.forEach(h => {
                             // Convertir date SQL en format court
                             const dateObj = new Date(h.date);
@@ -234,12 +212,12 @@ $isClosed = $session['status'] === 'CLOSED';
                     qtyInput.focus();
                     qtyInput.select();
                 } else {
-                    msgDiv.innerHTML = '<span style="color: orange;">⚠ Nouveau produit (inconnu en base)</span>';
+                    msgDiv.innerHTML = '<span class="text-warning font-bold">⚠ Nouveau produit (inconnu en base)</span>';
                     desInput.focus();
                 }
             })
             .catch(err => {
-                msgDiv.innerHTML = '<span style="color: red;">Erreur recherche</span>';
+                msgDiv.innerHTML = '<span class="text-danger font-bold">Erreur recherche</span>';
             });
     }
 
