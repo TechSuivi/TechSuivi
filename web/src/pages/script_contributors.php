@@ -10,8 +10,8 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '5.0.0',
-    'release_date' => '2026-01-20',
+    'current_version' => '5.0.1',
+    'release_date' => '2026-01-21',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
@@ -22,6 +22,16 @@ $projectInfo = [
 
 // Historique des versions (Data structure preserved)
 $versionHistory = [
+    [
+        'version' => '5.0.1',
+        'date' => '2026-01-21',
+        'type' => 'Patch',
+        'changes' => [
+            'UI : Changement de l\'accent de couleur principal (Violet -> Vert)',
+            'UI : Harmonisation des tons verts sur l\'ensemble des composants (Badges, boutons, liens)',
+            'UI : Amélioration du contraste et de la lisibilité du thème vert'
+        ]
+    ],
     [
         'version' => '5.0.0',
         'date' => '2026-01-20',

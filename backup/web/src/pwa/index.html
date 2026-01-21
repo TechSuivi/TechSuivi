@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechSuivi Photos</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Application pour ajouter des photos aux interventions TechSuivi">
+    <meta name="theme-color" content="#2c5aa0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TechSuivi Photos">
+
+    <!-- Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="../img/logo_techsuivi_light_banniere.png">
+    <link rel="apple-touch-icon" href="../img/logo_techsuivi_light_banniere.png">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📷 TechSuivi Photos</h1>
+            <p>Ajoutez des photos à vos interventions</p>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="login-screen" class="card hidden">
+            <h3 style="text-align: center; color: #1976d2; margin-bottom: 20px;">🔐 Connexion Requise</h3>
+            <div class="form-group">
+                <label for="login-username">Utilisateur</label>
+                <input type="text" id="login-username" class="form-control" placeholder="Identifiant">
+            </div>
+            <div class="form-group">
+                <label for="login-password">Mot de passe</label>
+                <input type="password" id="login-password" class="form-control" placeholder="Mot de passe">
+            </div>
+            <button id="login-btn" class="btn btn-primary" style="margin-top: 10px;">Se connecter</button>
+            <div id="login-error" style="color: red; text-align: center; margin-top: 10px;"></div>
+        </div>
+
+        <!-- App Content (Wrapper) -->
+        <div id="app-content" class="hidden">
+            <!-- Messages de statut -->
+            <div id="status-messages"></div>
+
+            <!-- Formulaire de sélection d'intervention -->
+            <div class="card" id="intervention-selector">
+                <div class="form-group">
+                    <label for="intervention-id">ID de l'intervention :</label>
+                    <input type="text" id="intervention-id" class="form-control"
+                        placeholder="Saisissez l'ID de l'intervention">
+                </div>
+                <button type="button" id="load-intervention" class="btn btn-primary">Charger l'intervention</button>
+            </div>
+
+            <!-- Informations de l'intervention -->
+            <div class="card hidden" id="intervention-info">
+                <h3>Intervention</h3>
+                <div id="intervention-details"></div>
+            </div>
+
+            <!-- Mode Upload Fournisseur (QR Code) -->
+            <div class="card hidden" id="supplier-upload-mode">
+                <div class="supplier-info-box"
+                    style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #2196f3;">
+                    <h3 style="margin-top: 0; color: #1976d2; margin-bottom: 5px;">📄 Envoi Document Stock</h3>
+                    <div id="supplier-info" style="font-size: 1.1em;"></div>
+                </div>
+
+                <div class="photo-upload-area" id="supplier-upload-area">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">Prendre une photo du document</div>
+                </div>
+                <input type="file" id="supplier-camera-input" accept="image/*" capture="environment"
+                    style="display: none;">
+
+                <div id="supplier-preview-container" class="hidden" style="margin-top: 20px;">
+                    <img id="supplier-preview-img"
+                        style="max-width: 100%; border-radius: 8px; border: 2px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button id="supplier-send-btn" class="btn btn-success">✅ Envoyer</button>
+                        <button id="supplier-cancel-btn" class="btn btn-secondary">❌ Annuler</button>
+                    </div>
+                </div>
+                <div id="supplier-status" style="margin-top: 15px; font-weight: bold;"></div>
+            </div>
+
+            <!-- Zone d'upload de photos (Interventions) -->
+            <div class="card hidden" id="photo-upload-section">
+                <div class="photo-upload-area" id="upload-area">
+                    <div class="upload-icon">📷</div>
+                    <div class="upload-text">Cliquez ou glissez vos photos ici</div>
+                    <div class="upload-hint">Formats acceptés: JPG, PNG, GIF, WebP (max 10MB)</div>
+                </div>
+
+                <input type="file" id="photo-input" accept="image/*" multiple style="display: none;">
+
+                <div class="form-group">
+                    <label for="photo-description">Description (optionnelle) :</label>
+                    <textarea id="photo-description" class="form-control" rows="3"
+                        placeholder="Décrivez les photos..."></textarea>
+                </div> <!-- End app-content -->
+            </div>
+
+            <button type="button" id="upload-photos" class="btn btn-success" disabled>Envoyer les photos</button>
+
+            <!-- Barre de progression -->
+            <div class="progress-bar hidden" id="progress-container">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div id="upload-status" class="hidden"></div>
+
+            <!-- Aperçu des photos -->
+            <div class="photo-preview" id="photo-preview"></div>
+        </div>
+
+        <!-- Photos existantes -->
+        <div class="card hidden" id="existing-photos-section">
+            <h3>Photos existantes</h3>
+            <div class="photo-preview" id="existing-photos"></div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading hidden" id="loading">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

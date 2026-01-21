@@ -84,7 +84,7 @@ if (isset($pdo)) {
 }
 ?>
 
-<div class="container container-center max-w-1200">
+<div class="list-page">
     <div class="page-header">
         <h1>
             <span>💬</span>

@@ -1,0 +1,57 @@
+# Configuration Apache pour optimiser les uploads de photos
+# Spécialement conçu pour améliorer les performances sur mobile
+
+# Augmenter les limites d'upload
+php_value upload_max_filesize 2048M
+php_value post_max_size 2048M
+php_value max_execution_time 600
+php_value max_input_time 600
+php_value memory_limit 2048M
+
+# Optimisations pour les connexions mobiles
+php_value max_input_vars 3000
+
+# Compression gzip pour réduire la bande passante
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# Headers pour améliorer la compatibilité mobile
+<IfModule mod_headers.c>
+    # CORS pour PWA
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+    
+    # Cache pour les ressources statiques
+    <FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg)$">
+        Header set Cache-Control "max-age=31536000, public"
+    </FilesMatch>
+    
+    # Pas de cache pour les API
+    <FilesMatch "\.(php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# Sécurité
+<Files ".env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Redirection HTTPS (optionnel, décommenter si nécessaire)
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

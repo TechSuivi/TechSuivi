@@ -273,6 +273,127 @@ try {
 ?>
 
 
+<style>
+/* Modern Cyber Session Layout */
+.cost-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    background: var(--secondary-bg, rgba(0,0,0,0.03));
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    align-items: center;
+    border: 1px solid var(--border-color);
+}
+
+.payment-methods-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.payment-box, .credit-box, .success-box, .empty-box {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.05));
+    height: 100%;
+    transition: transform 0.3s ease;
+}
+
+.empty-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.payment-box:hover, .credit-box:hover, .success-box:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md, 0 4px 8px rgba(0,0,0,0.1));
+}
+
+.payment-box { border-top: 4px solid var(--accent-color, #10b981); }
+.credit-box { border-top: 4px solid var(--info-color, #3b82f6); }
+.success-box { border-top: 4px solid var(--success-color, #28a745); }
+
+.box-title, .box-title-info, .box-title-success {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.box-title { color: var(--accent-color); }
+.box-title-info { color: var(--info-color); }
+.box-title-success { color: var(--success-color); }
+
+.info-bubble {
+    background: var(--bg-color, #f8f9fa);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    border-left: 3px solid var(--border-color);
+}
+
+.info-bubble div {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.info-bubble div:last-child {
+    margin-bottom: 0;
+}
+
+.form-control-sm {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 0.9rem;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Custom grid for the form fields */
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+@media (max-width: 992px) {
+    .form-grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .cost-summary-grid, .payment-methods-grid, .form-grid-3 {
+        grid-template-columns: 1fr;
+    }
+    .cost-summary-grid .border-l {
+        border-left: none;
+        border-top: 1px solid var(--border-color);
+        padding-top: 10px;
+        padding-left: 0;
+    }
+}
+</style>
+
 <h1><?= $editData ? 'Modifier la session' : 'Nouvelle session cyber' ?></h1>
 
 <p><a href="index.php?page=cyber_list" style="color: var(--accent-color);">← Retour à la liste</a></p>
@@ -298,8 +419,9 @@ try {
     
     
     <!-- Informations principales -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-15 mb-15">
+    <div class="form-grid-3 mb-15">
         <div>
+            <label for="nom">Nom / Référence :</label>
             <div style="position: relative;">
                 <input type="text" id="nom" name="nom"
                        value="<?= htmlspecialchars($editData['nom'] ?? $_POST['nom'] ?? 'CYBER') ?>"
@@ -329,7 +451,7 @@ try {
     </div>
     
     <!-- Impressions et tarif -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-15 mb-15">
+    <div class="payment-methods-grid mb-15">
         <div>
             <label for="imp_nb">Pages N&B :</label>
             <input type="number" id="imp_nb" name="imp_nb" min="0"
@@ -402,7 +524,7 @@ try {
     </div>
     
     <!-- Sections de paiement et gestion crédit -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-15 mb-15">
+    <div class="payment-methods-grid mb-15">
         <!-- Paiement classique -->
         <div id="paiement_classique" class="payment-box">
             <h4 class="box-title">💰 Paiement classique</h4>

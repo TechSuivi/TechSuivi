@@ -1,0 +1,13 @@
+{
+    "require": {
+        "phpmailer/phpmailer": "^6.8",
+        "league/oauth2-client": "^2.7",
+        "league/oauth2-google": "^4.0",
+        "thenetworg/oauth2-azure": "^2.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "TechSuivi\\": "src/"
+        }
+    }
+}

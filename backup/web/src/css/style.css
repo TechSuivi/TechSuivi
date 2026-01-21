@@ -1,0 +1,2854 @@
+/* Variables thème clair/sombre */
+:root {
+    --bg-color-light: #f5f7fa;
+    --text-color-light: #2c2c2c;
+    --bg-color-dark: #0F172A;
+    /* Spec: #0F172A */
+    --text-color-dark: #F8FAFC;
+    --sidebar-bg-dark: #1E293B;
+    /* Spec: #1E293B */
+    --sidebar-text-dark: #94A3B8;
+    --sidebar-hover-dark: rgba(255, 255, 255, 0.05);
+    --accent-color: #10B981;
+    /* Emerald Green */
+    /* Cyan style Pro */
+    --accent-glow: rgba(16, 185, 129, 0.2);
+    /* bleu principal */
+    --accent-green: #10B981;
+    /* vert check */
+    --accent-gray: #94A3B8;
+    /* gris clé */
+
+    /* Variables pour l'autocomplétion */
+    --bg-color: var(--bg-color-light);
+    --text-color: var(--text-color-light);
+    --border-color: #d0d0d0;
+    --border-light: #e8e8e8;
+    --text-muted: #666;
+    --hover-color: #f5f5f5;
+    --error-color: red;
+}
+
+body.light {
+    background-color: var(--bg-color-light);
+    color: var(--text-color-light);
+
+    /* Variables pour l'autocomplétion en mode clair */
+    --bg-color: var(--bg-color-light);
+    --text-color: var(--text-color-light);
+    --border-color: #d0d0d0;
+    --border-light: #e8e8e8;
+    --text-muted: #666;
+    --hover-color: #f5f5f5;
+    --error-color: red;
+    --card-bg: #f8fafb;
+}
+
+body.dark {
+    background-color: var(--bg-color-dark);
+    color: var(--text-color-dark);
+
+    /* Variables pour l'autocomplétion en mode sombre */
+    --bg-color: var(--bg-color-dark);
+    --text-color: var(--text-color-dark);
+    --border-color: #555;
+    --border-light: #444;
+    --text-muted: #999;
+    --hover-color: #383838;
+    --error-color: #ff7b7b;
+    --card-bg: #2b2b2b;
+}
+
+/* Layout */
+body {
+    margin: 0;
+    font-family: 'Open Sans', sans-serif;
+    display: flex;
+}
+
+.sidebar {
+    width: 260px !important;
+    /* Fixed width per specs */
+    background-color: var(--sidebar-bg-dark) !important;
+    color: var(--sidebar-text-dark);
+    height: 100vh;
+    position: fixed;
+    overflow-y: auto;
+    transition: width 0.3s;
+    padding-top: 60px;
+    padding-top: 60px;
+    padding-top: 60px;
+    z-index: 1000;
+    box-sizing: border-box !important;
+    /* Fix height overflow */
+    scrollbar-width: thin;
+    /* Firefox */
+    scrollbar-color: #334155 transparent;
+}
+
+/* Reset Lists in Sidebar */
+.sidebar ul {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.sidebar li {
+    list-style: none !important;
+}
+
+/* Custom Scrollbar for Sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background-color: #334155;
+    border-radius: 3px;
+}
+
+/* SaaS Enterprise Quick Actions (Split Tile) */
+.saas-quick-action {
+    display: flex !important;
+    background: #1E293B !important;
+    border: 1px solid #334155 !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    height: 48px !important;
+    transition: transform 0.2s, box-shadow 0.2s !important;
+}
+
+.saas-quick-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    border-color: #10B981 !important;
+}
+
+.saas-action-main {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 16px !important;
+    text-decoration: none !important;
+    color: #F8FAFC !important;
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    border-right: 1px solid #334155 !important;
+    white-space: nowrap !important;
+    /* Prevent text wrapping */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    /* Fine separator */
+}
+
+.saas-icon {
+    margin-right: 10px !important;
+    font-size: 1.2em !important;
+}
+
+.saas-action-add {
+    width: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    color: #10B981 !important;
+    /* Accent color */
+    font-size: 1.2em !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer !important;
+}
+
+.saas-action-add:hover {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Legacy styles removed for SaaS Enterprise compliance */
+
+/* Espace réservé pour future bannière */
+.banner-placeholder {
+    height: 80px;
+    margin: 0 10px 20px 10px;
+    border: 2px dashed #444;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 12px;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.banner-placeholder:hover {
+    border-color: var(--accent-color);
+    background-color: rgba(42, 79, 156, 0.1);
+}
+
+/* Mode light pour la bannière */
+body.light .banner-placeholder {
+    border-color: #d0d0d0;
+    background-color: rgba(0, 0, 0, 0.02);
+    color: #999;
+}
+
+body.light .banner-placeholder:hover {
+    border-color: var(--accent-color);
+    background-color: rgba(42, 79, 156, 0.05);
+}
+
+/* Sidebar en mode light */
+/* Sidebar en mode light */
+body.light .sidebar {
+    background-color: #f5f5f5 !important;
+    /* Force light background */
+    color: #2c2c2c !important;
+    border-right: 1px solid #e0e0e0 !important;
+}
+
+/* Dark Pro Sidebar Style */
+body.dark .sidebar {
+    background-color: var(--sidebar-bg-dark);
+    padding: 20px 15px;
+    /* More padding */
+    border-right: 1px solid #2d2d2d;
+}
+
+/* Base Menu Item Style */
+.menu-item>a {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    margin: 5px 10px;
+    /* Floating margin */
+    color: #94a3b8;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    font-size: 0.9em;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+
+/* Hover State */
+/* Hover State */
+.menu-item>a:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ecf0f1 !important;
+    transform: none !important;
+    border-color: #10B981 !important;
+    /* Green border on hover */
+}
+
+/* Active State - Dark Pro Floating Capsule */
+/* Active State - SaaS Enterprise (Left Border) */
+.menu-item>a.active {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-left: 4px solid #10B981 !important;
+    /* Emerald Green Border */
+    border-top: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-radius: 0 4px 4px 0 !important;
+    /* Only right rounded */
+    color: #F8FAFC !important;
+    font-weight: 600 !important;
+    padding-left: 11px !important;
+    /* Compensate for border */
+}
+
+/* Submenu Styles */
+.sidebar .submenu {
+    display: none !important;
+    /* Force hide by default */
+    padding-left: 20px !important;
+    /* Restore indentation */
+    margin-top: 5px !important;
+    /* Restore spacing */
+    position: relative;
+    background: transparent !important;
+}
+
+/* Open state for submenu */
+.menu-item.open .submenu {
+    display: block !important;
+    /* Force show when open */
+}
+
+/* Connective line for submenu */
+.submenu::before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 5px;
+    bottom: 5px;
+    bottom: 5px;
+    width: 2px;
+    background: transparent;
+    /* Hiding the bar as requested */
+}
+
+.submenu li a {
+    padding: 10px 10px 10px 20px;
+    margin: 0 10px 2px 10px;
+    /* Match parent menu item margins */
+    color: #64748b;
+    /* Muted text */
+    border-radius: 8px;
+    /* Match parent menu item radius */
+    font-size: 0.9em;
+    position: relative;
+    border-left: none !important;
+    opacity: 0.8;
+    display: block !important;
+    /* Force block to fill width */
+    text-decoration: none !important;
+    /* Never underline */
+    border: 1px solid transparent;
+    /* Reserve space for border */
+}
+
+.submenu li a:hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    opacity: 1 !important;
+    text-decoration: none !important;
+    /* No padding shift for consistency */
+    border-color: #10B981 !important;
+    /* Green border on hover */
+    border-left: 1px solid #10B981 !important;
+    /* Ensure left border also shows color */
+}
+
+.submenu li a.active {
+    background-color: rgba(42, 79, 156, 0.25) !important;
+    border-left: 4px solid var(--accent-color) !important;
+    font-weight: bold !important;
+    color: #ffffff !important;
+    padding-left: 23px !important;
+    text-decoration: none !important;
+}
+
+/* Active dot indicator for submenu */
+/* Active dot indicator for submenu - Disabled */
+.submenu li a.active::before {
+    content: none !important;
+}
+
+/* Styles spécifiques pour les séparateurs en mode sombre */
+body.dark .submenu-separator {
+    color: #666 !important;
+    border-top-color: #2d2d2d;
+    background: var(--sidebar-bg-dark) !important;
+    /* Fix background */
+}
+
+/* Badge Agenda Style */
+.badge-agenda {
+    background: #eee;
+    color: #333;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+body.dark .badge-agenda {
+    background: #444;
+    color: #ddd;
+    border: 1px solid #555;
+}
+
+/* Agenda Status Colors */
+.status-planned {
+    background: #3498db !important;
+    color: white !important;
+}
+
+.status-progress {
+    background: #f39c12 !important;
+    color: white !important;
+}
+
+.status-completed {
+    background: #27ae60 !important;
+    color: white !important;
+}
+
+.status-postponed {
+    background: #e67e22 !important;
+    color: white !important;
+}
+
+.status-cancelled {
+    background: #e74c3c !important;
+    color: white !important;
+}
+
+/* Agenda Priority Colors */
+.priority-urgent {
+    background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%) !important;
+    color: white !important;
+}
+
+.priority-high {
+    background: linear-gradient(90deg, #f39c12 0%, #e67e22 100%) !important;
+    color: white !important;
+}
+
+.priority-normal {
+    background: linear-gradient(90deg, #3498db 0%, #2980b9 100%) !important;
+    color: white !important;
+}
+
+.priority-low {
+    background: linear-gradient(90deg, #95a5a6 0%, #7f8c8d 100%) !important;
+    color: white !important;
+}
+
+
+/* Amélioration de l'espacement des éléments du sous-menu */
+.submenu li {
+    margin: 2px 0;
+}
+
+.submenu li:not(.submenu-separator) a {
+    border-radius: 0 4px 4px 0;
+    margin: 1px 8px 1px 0;
+}
+
+/* Nouveau header avec logo à gauche et contrôles à droite */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+body.dark header {
+    border-bottom-color: #444;
+}
+
+body.light header {
+    border-bottom-color: #dee2e6;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.welcome-message {
+    font-size: 14px;
+    color: #888;
+    font-weight: 500;
+}
+
+body.light .welcome-message {
+    color: #666;
+}
+
+.header-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.header-controls button,
+.header-controls a {
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#theme-toggle {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#theme-toggle:hover {
+    background-color: #23428a;
+    transform: translateY(-1px);
+}
+
+.logout-btn {
+    background-color: #dc3545;
+    color: white !important;
+    border: 1px solid #dc3545;
+}
+
+.settings-btn {
+    background-color: #6c757d;
+    color: white !important;
+    border: 1px solid #6c757d;
+}
+
+.settings-btn:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+.logout-btn:hover {
+    background-color: #c82333;
+    border-color: #c82333;
+    transform: translateY(-1px);
+}
+
+body.dark #theme-toggle {
+    background-color: var(--accent-color);
+}
+
+body.dark .settings-btn {
+    background-color: #6c757d;
+    color: white !important;
+}
+
+body.dark .logout-btn {
+    background-color: #dc3545;
+    color: white !important;
+}
+
+.content {
+    margin-left: 250px;
+    padding: 20px;
+    width: calc(100% - 250px);
+}
+
+header h1 {
+    margin: 0;
+}
+
+/* Login page */
+.login-container {
+    max-width: 400px;
+    margin: 100px auto;
+    background-color: var(--sidebar-bg-dark);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.login-container h2 {
+    color: var(--sidebar-text-dark);
+    text-align: center;
+}
+
+.login-container label {
+    display: block;
+    margin-top: 10px;
+    color: var(--sidebar-text-dark);
+}
+
+.login-container input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid var(--accent-color);
+    border-radius: 4px;
+    background-color: #f8fafb;
+}
+
+.login-container button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background-color: var(--accent-color);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .sidebar {
+        width: 60px !important;
+    }
+
+    .sidebar .logo img {
+        max-width: 40px;
+    }
+
+    .sidebar .menu-item>a {
+        padding: 15px 10px;
+        font-size: 14px;
+        justify-content: center;
+        /* Center icons */
+        padding-left: 10px !important;
+        /* Reset padding override */
+        border-left: none !important;
+        /* Remove SaaS border on mobile */
+    }
+
+    .sidebar .menu-item>a span:not(.icon) {
+        display: none;
+        /* Hide text on mobile */
+    }
+
+    .content {
+        margin-left: 60px !important;
+        width: calc(100% - 60px) !important;
+    }
+}
+
+/* Styles pour la table des clients dans .content */
+.content table {
+    width: 100%;
+    border-collapse: collapse;
+    /* Fusionne les bordures des cellules */
+    margin-top: 20px;
+    /* Espace au-dessus de la table */
+    font-size: 0.9em;
+    /* Taille de police légèrement réduite pour plus de contenu */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    /* Ombre légère pour la table */
+}
+
+.content th,
+.content td {
+    border: 1px solid #ddd;
+    /* Bordure grise claire pour les cellules */
+    padding: 10px 12px;
+    /* Augmentation du padding pour plus d'aération */
+    text-align: left;
+    /* Alignement du texte à gauche */
+    vertical-align: middle;
+    /* Alignement vertical au milieu */
+}
+
+.content th {
+    background-color: #f0f3f5;
+    /* Fond gris clair pour les en-têtes */
+    color: #333;
+    /* Couleur de texte foncée pour les en-têtes */
+    font-weight: bold;
+    /* Texte en gras pour les en-têtes */
+}
+
+/* Style pour les lignes paires (meilleure lisibilité) */
+.content tbody tr:nth-child(even) {
+    background-color: #f8fafb;
+}
+
+/* Style au survol des lignes */
+.content tbody tr:hover {
+    background-color: #f0f3f5;
+}
+
+/* Style pour les liens de tri dans les en-têtes */
+.content th a {
+    text-decoration: none;
+    color: inherit;
+    /* Hérite de la couleur du parent (th) */
+    display: block;
+    /* Pour que le lien prenne toute la cellule */
+}
+
+.content th a:hover {
+    text-decoration: underline;
+    /* Soulignement au survol */
+}
+
+/* Styles pour la pagination */
+.pagination {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.pagination a,
+.pagination strong {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 3px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: var(--accent-color);
+    /* Utilise la variable de couleur d'accentuation */
+    border-radius: 4px;
+    /* Coins arrondis */
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.pagination a:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+}
+
+.pagination strong {
+    background-color: var(--accent-color);
+    color: #fff;
+    border-color: var(--accent-color);
+    cursor: default;
+}
+
+.pagination span {
+    /* Pour les ellipses "..." */
+    padding: 8px 12px;
+    margin: 0 3px;
+}
+
+/* Styles pour le formulaire de recherche */
+.content form {
+    margin-bottom: 20px;
+}
+
+.content form input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 5px;
+    width: auto;
+    /* Ajustement de la largeur */
+    min-width: 250px;
+}
+
+.content form input[type="submit"],
+.content form a {
+    /* Style pour le bouton "Effacer la recherche" */
+    padding: 10px 18px;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 0.95em;
+}
+
+.content form input[type="submit"] {
+    background-color: var(--accent-color);
+    color: white;
+    border: 1px solid var(--accent-color);
+}
+
+.content form input[type="submit"]:hover {
+    background-color: #23428a;
+    /* Un peu plus foncé au survol */
+}
+
+.content form a {
+    /* Bouton "Effacer la recherche" */
+    background-color: #6c757d;
+    color: white;
+    border: 1px solid #6c757d;
+    display: inline-block;
+    /* Pour que le padding s'applique correctement */
+    vertical-align: middle;
+    /* Pour aligner avec les inputs */
+}
+
+.content form a:hover {
+    background-color: #5a6268;
+}
+
+/* Styles spécifiques au mode sombre pour la table des clients, pagination, formulaire */
+body.dark .content table {
+    box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+    /* Ombre plus subtile pour le mode sombre */
+}
+
+body.dark .content th,
+body.dark .content td {
+    border-color: #444;
+    /* Bordure plus foncée pour le mode sombre */
+}
+
+body.dark .content th {
+    background-color: #2c2c2c;
+    /* Fond d'en-tête plus foncé */
+    color: var(--text-color-dark);
+    /* Utilise la variable de texte du mode sombre */
+}
+
+body.dark .content tbody tr:nth-child(even) {
+    background-color: #252525;
+    /* Ligne paire un peu plus claire que le fond */
+}
+
+body.dark .content tbody tr:hover {
+    background-color: #383838;
+    /* Survol un peu plus clair */
+}
+
+/* Styles pour les liens dans les cellules de tableau en mode sombre */
+body.dark .content td a {
+    color: #8ab4f8;
+    /* Un bleu clair lisible sur fond sombre */
+    text-decoration: none;
+}
+
+body.dark .content td a:hover {
+    text-decoration: underline;
+    color: #99c7ff;
+    /* Un peu plus clair au survol */
+}
+
+/* Style spécifique pour les liens de suppression pour qu'ils restent rouges */
+body.dark .content td a[style*="color: red"] {
+    color: #ff7b7b !important;
+    /* Un rouge plus clair et visible, avec !important pour surcharger */
+}
+
+body.dark .content td a[style*="color: red"]:hover {
+    color: #ff9c9c !important;
+}
+
+
+body.dark .content th a {
+    color: var(--text-color-dark);
+    /* Liens de tri en mode sombre */
+}
+
+body.dark .pagination a,
+body.dark .pagination strong {
+    border-color: #555;
+    color: var(--accent-color);
+    /* Garde la couleur d'accentuation pour les liens actifs/survolés */
+}
+
+body.dark .pagination a:hover {
+    background-color: var(--accent-color);
+    color: #fff;
+    /* Texte blanc sur fond d'accentuation */
+    border-color: var(--accent-color);
+}
+
+body.dark .pagination strong {
+    background-color: var(--accent-color);
+    color: #fff;
+    /* Texte blanc sur fond d'accentuation */
+    border-color: var(--accent-color);
+}
+
+body.dark .pagination span {
+    /* Ellipses */
+    color: #777;
+}
+
+body.dark .content form input[type="text"] {
+    background-color: #333;
+    /* Fond de champ de saisie plus foncé */
+    color: var(--text-color-dark);
+    border-color: #555;
+}
+
+body.dark .content form input[type="submit"] {
+    /* Le style existant avec var(--accent-color) devrait bien fonctionner */
+    /* On peut s'assurer que la bordure est visible */
+    border: 1px solid var(--accent-color);
+}
+
+body.dark .content form input[type="submit"]:hover {
+    background-color: #23428a;
+    /* Un peu plus foncé au survol */
+}
+
+
+body.dark .content form a {
+    /* Bouton "Effacer la recherche" */
+    background-color: #5a6268;
+    /* Un gris un peu plus clair que le précédent */
+    color: white;
+    border: 1px solid #5a6268;
+}
+
+body.dark .content form a:hover {
+    background-color: #494f54;
+}
+
+/* Styles pour la Popup de Confirmation (Mode Clair par défaut) */
+#confirmationModal>div {
+    /* Conteneur interne de la modal */
+    background-color: #fefefe;
+    /* Fond blanc par défaut pour le mode clair */
+    color: var(--text-color-light);
+    /* Couleur de texte par défaut pour le mode clair */
+}
+
+/* Styles pour la Popup de Confirmation en Mode Sombre */
+/* Cible le conteneur interne direct de la modal */
+body.dark #confirmationModal>div {
+    background-color: #2b2b2b !important;
+    /* Fond plus foncé pour la modal, !important pour forcer si conflit */
+    color: var(--text-color-dark) !important;
+    border-color: #555 !important;
+}
+
+/* Assurer que l'overlay reste semi-transparent */
+body.dark #confirmationModal {
+    background-color: rgba(0, 0, 0, 0.75);
+    /* Un peu plus opaque pour mieux contraster */
+}
+
+
+body.dark #confirmationModal #closeModal {
+    color: #bbb;
+    /* Couleur de la croix pour fermer */
+}
+
+body.dark #confirmationModal #closeModal:hover {
+    color: #fff;
+}
+
+body.dark #confirmationModal h2,
+body.dark #confirmationModal h3,
+body.dark #confirmationModal h4 {
+    color: var(--text-color-dark);
+    /* Titres dans la modal */
+}
+
+body.dark #confirmationModal #clientSummary ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+body.dark #confirmationModal #clientSummary ul li {
+    padding: 3px 0;
+}
+
+body.dark #confirmationModal #clientSummary ul li strong {
+    color: #ccc;
+    /* Labels en gras un peu plus clairs */
+}
+
+
+body.dark #duplicateClientsTableContainer table {
+    background-color: #333;
+    /* Fond de la table des doublons */
+    color: var(--text-color-dark);
+}
+
+body.dark #duplicateClientsTableContainer th,
+body.dark #duplicateClientsTableContainer td {
+    border-color: #555;
+    /* Bordures de cellules dans la table des doublons */
+}
+
+body.dark #duplicateClientsTableContainer th {
+    background-color: #404040;
+    /* Fond d'en-tête de la table des doublons */
+}
+
+body.dark #duplicateClientsTableContainer tbody tr:nth-child(even) {
+    background-color: #3a3a3a;
+}
+
+body.dark #duplicateClientsTableContainer tbody tr:hover {
+    background-color: #454545;
+}
+
+body.dark #confirmationModal button#cancelAddClient {
+    background-color: #5a6268;
+    border-color: #5a6268;
+    color: white;
+}
+
+body.dark #confirmationModal button#cancelAddClient:hover {
+    background-color: #494f54;
+}
+
+/* Le bouton de confirmation utilise déjà var(--accent-color), ce qui devrait être ok. */
+/* On peut s'assurer que sa bordure est visible si elle est définie par défaut */
+body.dark #confirmationModal button#confirmAddClient {
+    border: 1px solid var(--accent-color);
+}
+
+/* Styles pour les sections d'information dans les formulaires */
+.content .info-section {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    color: #495057;
+    margin-top: 30px;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.content .info-section h3 {
+    margin-top: 0;
+    color: #495057;
+}
+
+.content .info-section ul {
+    margin-bottom: 0;
+    color: #495057;
+}
+
+.content .info-section li {
+    color: #495057;
+}
+
+/* Styles pour les sections d'information en mode sombre */
+body.dark .content .info-section {
+    background-color: #2c2c2c !important;
+    border: 1px solid #444 !important;
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .content .info-section h3 {
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .content .info-section ul {
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .content .info-section li {
+    color: var(--text-color-dark) !important;
+}
+
+/* Styles pour la section fournisseur */
+.content div[style*="background-color: #e3f2fd"] {
+    background-color: #e3f2fd;
+    border: 1px solid #2196f3;
+}
+
+.content div[style*="background-color: #e3f2fd"] h3 {
+    color: #1976d2;
+}
+
+/* Styles pour la section fournisseur en mode sombre */
+body.dark .content div[style*="background-color: #e3f2fd"] {
+    background-color: #1a237e !important;
+    border: 1px solid #3f51b5 !important;
+}
+
+body.dark .content div[style*="background-color: #e3f2fd"] h3 {
+    color: #90caf9 !important;
+}
+
+body.dark .content div[style*="background-color: #e3f2fd"] label {
+    color: var(--text-color-dark) !important;
+}
+
+/* Styles pour les champs en lecture seule */
+.content input[readonly] {
+    background-color: #f5f5f5 !important;
+    cursor: not-allowed;
+}
+
+body.dark .content input[readonly] {
+    background-color: #333 !important;
+    color: var(--text-color-dark) !important;
+    border-color: #555 !important;
+}
+
+/* Styles pour la section de recherche de produits */
+.content div[style*="background-color: #fff3cd"] {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+}
+
+.content div[style*="background-color: #fff3cd"] h3 {
+    color: #856404;
+}
+
+/* Styles pour la section de recherche en mode sombre */
+body.dark .content div[style*="background-color: #fff3cd"] {
+    background-color: #3d3d00 !important;
+    border: 1px solid #ffeb3b !important;
+}
+
+body.dark .content div[style*="background-color: #fff3cd"] h3 {
+    color: #fff176 !important;
+}
+
+body.dark .content div[style*="background-color: #fff3cd"] h4 {
+    color: #fff176 !important;
+}
+
+body.dark .content div[style*="background-color: #fff3cd"] label {
+    color: var(--text-color-dark) !important;
+}
+
+/* Styles pour les résultats de recherche */
+body.dark .content #results_container {
+    background-color: #2c2c2c !important;
+    border-color: #555 !important;
+}
+
+body.dark .content #results_container>div {
+    background-color: #333 !important;
+    border-bottom-color: #555 !important;
+    color: var(--text-color-dark) !important;
+}
+
+/* Styles pour les résultats de recherche cliquables */
+.content .product-result:hover {
+    background-color: #e9ecef !important;
+}
+
+body.dark .content .product-result {
+    background-color: #333 !important;
+}
+
+body.dark .content .product-result:hover {
+    background-color: #404040 !important;
+}
+
+/* Styles pour l'historique des statuts en mode sombre */
+body.dark .detail-section {
+    background-color: #2b2b2b !important;
+    border-color: #555 !important;
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .detail-section h3 {
+    color: var(--accent-color) !important;
+    border-bottom-color: var(--accent-color) !important;
+}
+
+/* Styles pour les entrées d'historique en mode sombre */
+body.dark .detail-section div[style*="background-color: var(--bg-secondary"] {
+    background-color: #333 !important;
+    border-color: #555 !important;
+}
+
+/* Amélioration de la lisibilité des textes dans l'historique */
+body.dark .detail-section div[style*="color: var(--text-color"] {
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .detail-section div[style*="color: var(--text-muted"] {
+    color: #aaa !important;
+}
+
+/* Styles spécifiques pour les badges "ACTUEL" */
+body.dark .detail-section span[style*="background-color: #28a745"] {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+/* Amélioration des contrastes pour les textes de durée */
+body.dark .detail-section span[style*="font-weight: 500"] {
+    color: #ccc !important;
+}
+
+/* Styles pour les sections de contenu texte */
+body.dark .text-content {
+    background-color: #1a1a1a !important;
+    border-color: #444 !important;
+    color: var(--text-color-dark) !important;
+}
+
+/* Styles pour l'en-tête d'intervention */
+body.dark .intervention-header {
+    background-color: #2b2b2b !important;
+    border-color: #555 !important;
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .intervention-date {
+    color: #aaa !important;
+}
+
+/* Styles pour les informations client */
+body.dark .client-field strong {
+    color: #ccc !important;
+}
+
+/* Styles pour les éléments de nettoyage */
+body.dark .logiciel-item {
+    background-color: #1a1a1a !important;
+    border-color: #444 !important;
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .logiciel-item.passe {
+    background-color: #0f2419 !important;
+}
+
+body.dark .logiciel-item.non-passe {
+    background-color: #2a0f0f !important;
+}
+
+body.dark .logiciel-info {
+    color: #aaa !important;
+}
+
+/* Styles spécifiques pour l'historique des statuts */
+.historique-entry {
+    transition: background-color 0.2s ease;
+}
+
+.historique-entry:hover {
+    background-color: var(--hover-color, #f0f0f0) !important;
+}
+
+body.dark .historique-entry {
+    background-color: #333 !important;
+    border-color: #555 !important;
+}
+
+body.dark .historique-entry:hover {
+    background-color: #3a3a3a !important;
+}
+
+body.dark .statut-nom {
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .badge-actuel {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+body.dark .historique-details {
+    color: #aaa !important;
+}
+
+body.dark .date-historique {
+    color: #ccc !important;
+}
+
+body.dark .duree-statut {
+    color: #bbb !important;
+}
+
+body.dark .statut-description {
+    color: #999 !important;
+}
+
+/* Amélioration des bordures des cercles de statut en mode sombre */
+body.dark .historique-entry span[style*="border-radius: 50%"] {
+    border-color: var(--bg-color-dark) !important;
+}
+
+/* Styles pour les sections d'actions rapides améliorées */
+.actions-section h3 {
+    font-size: 14px !important;
+    color: #888 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px !important;
+    border-bottom: 1px solid #333 !important;
+    padding-bottom: 5px !important;
+}
+
+body.dark .actions-section h3 {
+    color: #666 !important;
+    border-bottom-color: #444 !important;
+}
+
+/* Amélioration des boutons d'actions rapides */
+.button-like {
+    transition: all 0.2s ease !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.button-like:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.dark .button-like {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark .button-like:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Variables CSS pour les cartes */
+:root {
+    --card-bg: #f8fafb;
+}
+
+body.dark {
+    --card-bg: #2b2b2b;
+}
+
+/* Amélioration des bordures des cercles de statut en mode sombre */
+body.dark .historique-entry span[style*="border-radius: 50%"] {
+    border-color: var(--bg-color-dark) !important;
+}
+
+/* ===== STYLES POUR LE GESTIONNAIRE DE FICHIERS ET SAUVEGARDE DB ===== */
+
+/* Styles pour les cartes et sections en mode sombre */
+body.dark .files-stats,
+body.dark .backup-section,
+body.dark .restore-section {
+    background-color: #2b2b2b !important;
+    border-color: #555 !important;
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .files-stats h3,
+body.dark .backup-section h3,
+body.dark .restore-section h3 {
+    color: var(--text-color-dark) !important;
+    border-bottom-color: #555 !important;
+}
+
+/* Styles pour les tableaux de fichiers en mode sombre */
+body.dark .files-table {
+    background-color: #2b2b2b !important;
+    border-color: #555 !important;
+}
+
+body.dark .files-table th {
+    background-color: #333 !important;
+    color: var(--text-color-dark) !important;
+    border-color: #555 !important;
+}
+
+body.dark .files-table td {
+    background-color: #2b2b2b !important;
+    color: var(--text-color-dark) !important;
+    border-color: #555 !important;
+}
+
+body.dark .files-table tr:nth-child(even) td {
+    background-color: #333 !important;
+}
+
+body.dark .files-table tr:hover td {
+    background-color: #404040 !important;
+}
+
+/* Styles pour les liens d'actions de fichiers */
+body.dark .files-table a {
+    color: #8ab4f8 !important;
+}
+
+body.dark .files-table a:hover {
+    color: #99c7ff !important;
+}
+
+body.dark .files-table .delete-link {
+    color: #ff7b7b !important;
+}
+
+body.dark .files-table .delete-link:hover {
+    color: #ff9c9c !important;
+}
+
+/* Styles pour les formulaires en mode sombre */
+body.dark .content form {
+    background-color: #2b2b2b !important;
+    border-color: #555 !important;
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .content form h3 {
+    color: var(--text-color-dark) !important;
+    border-bottom-color: #555 !important;
+}
+
+body.dark .content form label {
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .content form input[type="text"],
+body.dark .content form input[type="password"],
+body.dark .content form input[type="email"],
+body.dark .content form input[type="url"],
+body.dark .content form textarea,
+body.dark .content form select {
+    background-color: #333 !important;
+    color: var(--text-color-dark) !important;
+    border-color: #555 !important;
+}
+
+body.dark .content form input[type="text"]:focus,
+body.dark .content form input[type="password"]:focus,
+body.dark .content form input[type="email"]:focus,
+body.dark .content form input[type="url"]:focus,
+body.dark .content form textarea:focus,
+body.dark .content form select:focus {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 2px rgba(42, 79, 156, 0.2) !important;
+}
+
+/* Styles pour les boutons en mode sombre */
+body.dark .content button,
+body.dark .content input[type="submit"],
+body.dark .content .btn {
+    background-color: var(--accent-color) !important;
+    color: white !important;
+    border-color: var(--accent-color) !important;
+}
+
+body.dark .content button:hover,
+body.dark .content input[type="submit"]:hover,
+body.dark .content .btn:hover {
+    background-color: #23428a !important;
+    border-color: #23428a !important;
+}
+
+body.dark .content .btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+}
+
+body.dark .content .btn-secondary:hover {
+    background-color: #5a6268 !important;
+    border-color: #5a6268 !important;
+}
+
+body.dark .content .btn-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+body.dark .content .btn-danger:hover {
+    background-color: #c82333 !important;
+    border-color: #c82333 !important;
+}
+
+/* Styles pour les messages d'alerte en mode sombre */
+body.dark .alert {
+    background-color: #2b2b2b !important;
+    border-color: #555 !important;
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .alert-success {
+    background-color: #0f2419 !important;
+    border-color: #28a745 !important;
+    color: #d4edda !important;
+}
+
+body.dark .alert-error,
+body.dark .alert-danger {
+    background-color: #2a0f0f !important;
+    border-color: #dc3545 !important;
+    color: #f8d7da !important;
+}
+
+body.dark .alert-warning {
+    background-color: #3d3d00 !important;
+    border-color: #ffc107 !important;
+    color: #fff3cd !important;
+}
+
+body.dark .alert-info {
+    background-color: #1a237e !important;
+    border-color: #17a2b8 !important;
+    color: #d1ecf1 !important;
+}
+
+/* Styles pour les sections de navigation des paramètres */
+body.dark .settings-nav {
+    background-color: #2b2b2b !important;
+    border-color: #555 !important;
+}
+
+body.dark .settings-nav a {
+    color: var(--text-color-dark) !important;
+    border-color: #555 !important;
+}
+
+body.dark .settings-nav a:hover {
+    background-color: #404040 !important;
+}
+
+body.dark .settings-nav a.active {
+    background-color: var(--accent-color) !important;
+    color: white !important;
+    border-color: var(--accent-color) !important;
+}
+
+/* Styles pour les logs et zones de texte préformatées */
+body.dark .log-output,
+body.dark pre,
+body.dark code {
+    background-color: #1a1a1a !important;
+    color: #f8f8f2 !important;
+    border-color: #555 !important;
+}
+
+/* Styles pour les barres de progression */
+body.dark .progress {
+    background-color: #333 !important;
+    border-color: #555 !important;
+}
+
+body.dark .progress-bar {
+    background-color: var(--accent-color) !important;
+}
+
+/* Styles pour les tooltips et popups */
+body.dark .tooltip,
+body.dark .popup {
+    background-color: #2b2b2b !important;
+    color: var(--text-color-dark) !important;
+    border-color: #555 !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Styles pour les checkboxes et radios personnalisés */
+body.dark input[type="checkbox"],
+body.dark input[type="radio"] {
+    accent-color: var(--accent-color) !important;
+}
+
+/* Styles pour les sections de statistiques */
+body.dark .stats-grid {
+    background-color: #2b2b2b !important;
+    border-color: #555 !important;
+}
+
+body.dark .stat-item {
+    background-color: #333 !important;
+    border-color: #555 !important;
+    color: var(--text-color-dark) !important;
+}
+
+body.dark .stat-value {
+    color: var(--accent-color) !important;
+}
+
+body.dark .stat-label {
+    color: #aaa !important;
+}
+
+/* Styles spécifiques pour les listes de tables de sauvegarde */
+body.dark .table-list,
+body.dark .backup-table-list {
+    background-color: #1a1a1a !important;
+    border: 1px solid #555 !important;
+    border-radius: 4px !important;
+    padding: 15px !important;
+    margin: 10px 0 !important;
+}
+
+body.dark .table-list-item,
+body.dark .backup-table-item {
+    color: #e0e0e0 !important;
+    padding: 4px 0 !important;
+    border-bottom: 1px solid #333 !important;
+    font-family: 'Courier New', monospace !important;
+    font-size: 13px !important;
+}
+
+body.dark .table-list-item:last-child,
+body.dark .backup-table-item:last-child {
+    border-bottom: none !important;
+}
+
+body.dark .table-name {
+    color: #8ab4f8 !important;
+    font-weight: bold !important;
+}
+
+body.dark .table-stats {
+    color: #aaa !important;
+    font-size: 12px !important;
+}
+
+/* Styles pour les sections de sauvegarde avec fond contrasté */
+body.dark .backup-section-content {
+    background-color: #1e1e1e !important;
+    border: 1px solid #444 !important;
+    border-radius: 6px !important;
+    padding: 20px !important;
+    margin: 15px 0 !important;
+}
+
+body.dark .backup-section-content h4 {
+    color: #fff !important;
+    border-bottom: 2px solid #555 !important;
+    padding-bottom: 8px !important;
+    margin-bottom: 15px !important;
+}
+
+/* Amélioration des checkboxes dans les listes */
+body.dark .table-checkbox {
+    margin-right: 8px !important;
+    accent-color: var(--accent-color) !important;
+}
+
+/* Styles pour les éléments de liste avec icônes */
+body.dark .backup-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 8px 12px !important;
+    margin: 4px 0 !important;
+    background-color: #2a2a2a !important;
+    border: 1px solid #444 !important;
+    border-radius: 4px !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark .backup-item:hover {
+    background-color: #333 !important;
+    border-color: var(--accent-color) !important;
+}
+
+body.dark .backup-item-icon {
+    margin-right: 10px !important;
+    font-size: 16px !important;
+    color: var(--accent-color) !important;
+}
+
+body.dark .backup-item-text {
+    flex: 1 !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark .backup-item-stats {
+    color: #aaa !important;
+    font-size: 11px !important;
+    margin-left: 10px !important;
+}
+
+/* Styles pour les sections avec bordures */
+body.dark .bordered-section {
+    border: 2px solid #555 !important;
+    border-radius: 8px !important;
+    background-color: #1a1a1a !important;
+    padding: 20px !important;
+    margin: 15px 0 !important;
+}
+
+body.dark .bordered-section h3 {
+    color: #fff !important;
+    margin-top: 0 !important;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid #555 !important;
+}
+
+/* ===== STYLES SPÉCIFIQUES POUR L'EXPLORATEUR DE FICHIERS ===== */
+
+/* Styles spécifiques pour l'explorateur de fichiers */
+body.dark .files-explorer {
+    background-color: #1e1e1e !important;
+    border-color: #555 !important;
+}
+
+body.dark .files-explorer h3 {
+    color: #fff !important;
+}
+
+body.dark .files-navigation {
+    background-color: #2a2a2a !important;
+    border-color: #555 !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark .files-table-container {
+    background-color: #1a1a1a !important;
+    border-color: #555 !important;
+}
+
+body.dark .files-table {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark .files-table th {
+    background-color: #333 !important;
+    color: #fff !important;
+    border-color: #555 !important;
+}
+
+body.dark .files-table td {
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+body.dark .files-table tr:nth-child(even) {
+    background-color: #252525 !important;
+}
+
+body.dark .files-table tr:hover {
+    background-color: #333 !important;
+}
+
+body.dark .files-table a {
+    color: #8ab4f8 !important;
+}
+
+body.dark .files-table a:hover {
+    color: #99c7ff !important;
+}
+
+/* Styles pour les boutons d'action dans les fichiers */
+body.dark .files-table a[style*="background-color: #28a745"] {
+    background-color: #28a745 !important;
+    color: white !important;
+}
+
+body.dark .files-table a[style*="background-color: #dc3545"] {
+    background-color: #dc3545 !important;
+    color: white !important;
+}
+
+body.dark .files-table a[style*="background-color: #17a2b8"] {
+    background-color: #17a2b8 !important;
+    color: white !important;
+}
+
+/* Styles pour la navigation des fichiers */
+body.dark .files-navigation span[style*="background-color: #e9ecef"] {
+    background-color: #444 !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark .files-navigation a[style*="background-color: #6c757d"] {
+    background-color: #6c757d !important;
+    color: white !important;
+}
+
+/* Styles pour les statistiques de fichiers */
+body.dark .files-stats {
+    background-color: #2a2a2a !important;
+    color: #e0e0e0 !important;
+}
+
+/* Amélioration des contrastes pour les icônes et textes */
+body.dark .files-table td span {
+    color: #e0e0e0 !important;
+}
+
+body.dark .files-table td[style*="font-family: monospace"] {
+    color: #ccc !important;
+}
+
+body.dark .files-table td[style*="font-size: 12px"] {
+    color: #aaa !important;
+}
+
+/* ===== STYLES POUR LA SECTION SAUVEGARDE DES FICHIERS ===== */
+
+/* Section principale de sauvegarde des fichiers */
+.files-backup-section {
+    flex: 1;
+    background-color: #e8f5e8;
+    border: 1px solid #4caf50;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.files-backup-section h3 {
+    margin-top: 0;
+    color: #2e7d32;
+}
+
+/* Sections de contenu de sauvegarde avec variantes */
+.backup-section-info {
+    background-color: #e3f2fd !important;
+    border-color: #2196f3 !important;
+}
+
+.backup-section-info h4 {
+    color: #1976d2 !important;
+}
+
+/* Description des sauvegardes */
+.backup-description {
+    font-size: 13px;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+
+/* Boutons de sauvegarde */
+.backup-button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    width: 100%;
+    color: white;
+    font-weight: 500;
+}
+
+.backup-button-success {
+    background-color: #28a745;
+}
+
+.backup-button-success:hover {
+    background-color: #218838;
+}
+
+.backup-button-info {
+    background-color: #2196f3;
+}
+
+.backup-button-info:hover {
+    background-color: #1976d2;
+}
+
+/* Historique des sauvegardes */
+.backup-empty-message {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 13px;
+    margin: 0;
+}
+
+.backup-history-list {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.backup-history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 12px;
+}
+
+.backup-history-item:last-child {
+    border-bottom: none;
+}
+
+.backup-info strong {
+    font-weight: 600;
+}
+
+.backup-details {
+    color: #6c757d;
+}
+
+.backup-download-btn {
+    background-color: #17a2b8;
+    color: white;
+    padding: 2px 6px;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 10px;
+}
+
+.backup-download-btn:hover {
+    background-color: #138496;
+    color: white;
+}
+
+/* ===== STYLES DARK MODE POUR LA SAUVEGARDE DES FICHIERS ===== */
+
+body.dark .files-backup-section {
+    background-color: #1e1e1e !important;
+    border-color: #4caf50 !important;
+}
+
+body.dark .files-backup-section h3 {
+    color: #4caf50 !important;
+}
+
+body.dark .backup-section-info {
+    background-color: #1a2332 !important;
+    border-color: #2196f3 !important;
+}
+
+body.dark .backup-section-info h4 {
+    color: #64b5f6 !important;
+}
+
+body.dark .backup-description {
+    color: #aaa !important;
+}
+
+body.dark .backup-empty-message {
+    color: #aaa !important;
+}
+
+body.dark .backup-history-item {
+    border-color: #444 !important;
+}
+
+body.dark .backup-details {
+    color: #aaa !important;
+}
+
+body.dark .backup-info strong {
+    color: #e0e0e0 !important;
+}
+
+body.dark .backup-download-btn {
+    background-color: #17a2b8 !important;
+}
+
+body.dark .backup-download-btn:hover {
+    background-color: #138496 !important;
+}
+
+/* ===== STYLES POUR LES SECTIONS PRINCIPALES DE SAUVEGARDE DB ===== */
+
+/* Sections principales de sauvegarde */
+.backup-section-main {
+    flex: 1;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid;
+}
+
+.backup-section-main h3 {
+    margin-top: 0;
+}
+
+/* Variante succès (sauvegarde) */
+.backup-section-success {
+    background-color: #e8f5e8;
+    border-color: #4caf50;
+}
+
+.backup-section-success h3 {
+    color: #2e7d32;
+}
+
+.backup-section-description {
+    margin-bottom: 15px;
+}
+
+.backup-section-success .backup-section-description {
+    color: #2e7d32;
+}
+
+/* Variante warning (restauration) */
+.backup-section-warning {
+    background-color: #fff3e0;
+    border-color: #ff9800;
+}
+
+.backup-section-warning h3 {
+    color: #f57c00;
+}
+
+.backup-warning-text {
+    color: #f57c00;
+    font-weight: 500;
+}
+
+/* ===== STYLES DARK MODE POUR LES SECTIONS PRINCIPALES ===== */
+
+body.dark .backup-section-success {
+    background-color: #1a2e1a !important;
+    border-color: #4caf50 !important;
+}
+
+body.dark .backup-section-success h3 {
+    color: #4caf50 !important;
+}
+
+body.dark .backup-section-success .backup-section-description {
+    color: #81c784 !important;
+}
+
+body.dark .backup-section-warning {
+    background-color: #2e2416 !important;
+    border-color: #ff9800 !important;
+}
+
+body.dark .backup-section-warning h3 {
+    color: #ffb74d !important;
+}
+
+body.dark .backup-warning-text {
+    color: #ffb74d !important;
+}
+
+/* ================================
+   Modern Cyber Session Page Styling
+   ================================ */
+
+/* Main cyber page heading */
+body h1:has-text('session'),
+body h1:has-text('cyber') {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    color: white !important;
+    padding: 20px 30px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    font-size: 1.6em;
+    font-weight: 500;
+}
+
+/* Cyber session forms */
+form[action*="cyber_add"],
+form[method="POST"][style*="background-color"] {
+    background: var(--card-bg) !important;
+    padding: 30px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+form[action*="cyber_add"] label,
+form[method="POST"][style*="background-color"] label {
+    font-weight: 600 !important;
+    color: var(--text-color) !important;
+    margin-bottom: 6px;
+    display: block;
+    font-size: 0.95em;
+}
+
+form[action*="cyber_add"] input[type="text"],
+form[action*="cyber_add"] input[type="time"],
+form[action*="cyber_add"] input[type="number"],
+form[action*="cyber_add"] select,
+form[method="POST"][style*="background-color"] input[type="text"],
+form[method="POST"][style*="background-color"] input[type="time"],
+form[method="POST"][style*="background-color"] input[type="number"],
+form[method="POST"][style*="background-color"] select {
+    padding: 10px 14px !important;
+    border: 2px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    background: var(--input-bg) !important;
+    color: var(--text-color) !important;
+    font-size: 14px !important;
+    transition: all 0.3s !important;
+    box-sizing: border-box;
+}
+
+form[action*="cyber_add"] input:focus,
+form[action*="cyber_add"] select:focus,
+form[method="POST"][style*="background-color"] input:focus,
+form[method="POST"][style*="background-color"] select:focus {
+    outline: none !important;
+    border-color: #9b59b6 !important;
+    box-shadow: 0 0 0 4px rgba(155, 89, 182, 0.1) !important;
+}
+
+/* Cyber buttons styling */
+#recalculer_tarif {
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%) !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+}
+
+#recalculer_tarif:hover {
+    box-shadow: 0 4px 12px rgba(52, 73, 94, 0.3) !important;
+    transform: translateY(-2px) !important;
+}
+
+#payer_maintenant {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%) !important;
+    color: white !important;
+    width: 100%;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+}
+
+#payer_maintenant:hover {
+    box-shadow: 0 6px 20px rgba(155, 89, 182, 0.3) !important;
+    transform: translateY(-2px) !important;
+}
+
+#payer_par_credit {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+    color: white !important;
+    width: 100%;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    border: none !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+}
+
+#payer_par_credit:hover {
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3) !important;
+    transform: translateY(-2px) !important;
+}
+
+#gerer_credit {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+    border: none !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+}
+
+#gerer_credit:hover {
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.3) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Price summary boxes */
+form div[style*="border-left: 3px solid"] {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.1) 0%, rgba(142, 68, 173, 0.05) 100%) !important;
+    border-left: 4px solid #9b59b6 !important;
+    border-radius: 10px !important;
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+}
+
+form div[style*="border-left: 3px solid"] strong {
+    color: #9b59b6 !important;
+    font-size: 1.05em;
+}
+
+/* Payment section cards */
+form div[style*="border: 1px solid"] {
+    border: 2px solid var(--border-color) !important;
+    border-radius: 10px !important;
+    padding: 18px !important;
+    transition: all 0.3s !important;
+}
+
+form div[style*="border: 1px solid"]:hover {
+    border-color: #9b59b6 !important;
+    box-shadow: 0 4px 12px rgba(155, 89, 182, 0.15) !important;
+}
+
+form div[style*="border: 1px solid"] h4 {
+    font-weight: 600 !important;
+    margin: 0 0 15px 0 !important;
+    font-size: 1.05em !important;
+}
+
+/* Credit info boxes */
+#credit_info,
+#credit_gestion_info {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
+    border: 1px solid #90caf9 !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+}
+
+/* Modal styling for cyber */
+#confirmModal>div {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+#confirmOk {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
+    border: none !important;
+    color: white !important;
+    padding: 12px 25px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+}
+
+#confirmOk:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3) !important;
+}
+
+#confirmCancel {
+    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%) !important;
+    border: none !important;
+    color: white !important;
+    padding: 12px 25px !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+}
+
+#confirmCancel:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(127, 140, 141, 0.3);
+}
+
+/* Dark mode adjustments for cyber page */
+body.dark form div[style*="border-left: 3px solid"] {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.15) 0%, rgba(142, 68, 173, 0.08) 100%) !important;
+}
+
+body.dark #credit_info,
+body.dark #credit_gestion_info {
+    background: linear-gradient(135deg, #1a3a52 0%, #0d2b3e 100%) !important;
+    border-color: #2980b9 !important;
+}
+
+/* ================================
+   Cyber List & Credits List Pages
+   ================================ */
+
+/* Headers for cyber pages */
+h1:has-text('Fiche de Caisse'),
+h1:has-text('Sessions Cyber'),
+h1:has-text('Crédits Clients') {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    font-size: 1.6em;
+    font-weight: 500;
+}
+
+/* Button improvements */
+a.button-like,
+a[class="button-like"] {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%) !important;
+    color: white !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: all 0.3s !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+a.button-like:hover,
+a[class="button-like"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(155, 89, 182, 0.3) !important;
+}
+
+/* Success messages */
+div.session-message,
+div[style*="background-color: #e6ffe6"] {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%) !important;
+    border: 1px solid #28a745 !important;
+    border-left: 4px solid #28a745 !important;
+    color: #155724 !important;
+    padding: 15px 20px !important;
+    border-radius: 8px !important;
+    animation: slideIn 0.3s ease;
+}
+
+/* Table  in cyber pages */
+body table tbody tr:hover {
+    background-color: var(--hover-bg) !important;
+    transform: scale(1.001);
+    transition: all 0.2s;
+}
+
+/* Tfoot styling for totals */
+body table tfoot tr {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+body table tfoot tr td {
+    padding: 15px 12px !important;
+    font-size: 1.05em !important;
+}
+
+/* Action buttons in tables */
+body table td a[style*="color: var(--accent-color)"],
+body table td a[href*="edit"],
+body table td a[href*="modifier"] {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    color: white !important;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s;
+    display: inline-block;
+    font-size: 13px;
+}
+
+body table td a[style*="color: var(--accent-color)"]:hover,
+body table td a[href*="edit"]:hover,
+body table td a[href*="modifier"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* Delete buttons */
+body table td a[style*="color: red"],
+body table td a[onclick*="confirm"] {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white !important;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s;
+    display: inline-block;
+    font-size: 13px;
+}
+
+body table td a[style*="color: red"]:hover,
+body table td a[onclick*="confirm"]:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+/* Credits list specific buttons */
+a[href*="cyber_credits_history"],
+a[title="Historique"] {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%) !important;
+    color: white !important;
+}
+
+a[href*="cyber_credits_history"]:hover,
+a[title="Historique"]:hover {
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3) !important;
+}
+
+a[href*="cyber_add"][style*="success-color"],
+a[title="Utiliser le crédit"] {
+    background: linear-gradient(135deg, #27ae60 0%, #229954 100%) !important;
+    color: white !important;
+}
+
+a[href*="cyber_add"][style*="success-color"]:hover,
+a[title="Utiliser le crédit"]:hover {
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3) !important;
+}
+
+/* Statistics cards */
+div[style*="grid-template-columns"]>div[style*="text-align: center"] {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+    transition: all 0.3s !important;
+}
+
+div[style*="grid-template-columns"]>div[style*="text-align: center"]:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Tarifs box at bottom */
+div[style*="margin-top: 30px"][style*="padding: 20px"] {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 12px !important;
+    padding: 25px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+div[style*="margin-top: 30px"][style*="padding: 20px"] h3 {
+    color: #9b59b6 !important;
+    font-weight: 600 !important;
+    margin-top: 0 !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+div[style*="margin-top: 30px"][style*="padding: 20px"] h3:before {
+    content: '💡';
+    font-size: 1.2em;
+}
+
+/* Empty state */
+div[style*="text-align: center"][style*="padding: 40px"] {
+    background: linear-gradient(135deg, rgba(155, 89, 182, 0.05) 0%, rgba(142, 68, 173, 0.02) 100%) !important;
+    border: 2px dashed #9b59b6 !important;
+    border-radius: 12px !important;
+}
+
+/* Dark mode fixes for cyber pages */
+body.dark div.session-message,
+body.dark div[style*="background-color: #e6ffe6"] {
+    background: linear-gradient(135deg, #1a4d2e 0%, #153d25 100%) !important;
+    border-color: #28a745 !important;
+    color: #90ee90 !important;
+}
+
+body.dark h1:has-text('Fiche de Caisse'),
+body.dark h1:has-text('Sessions Cyber'),
+body.dark h1:has-text('Crédits Clients') {
+    box-shadow: 0 8px 32px rgba(155, 89, 182, 0.3);
+}
+
+/* ================================
+   Dashboard Cyber Button Protection
+   ================================ */
+
+/* Protect the cyber button on dashboard - should stay green/turquoise */
+.dashboard-container .btn-cyber,
+.quick-actions-grid .btn-cyber,
+a.action-btn.btn-cyber {
+    background: linear-gradient(135deg, #1abc9c, #16a085) !important;
+}
+
+.dashboard-container .btn-cyber:hover,
+.quick-actions-grid .btn-cyber:hover,
+a.action-btn.btn-cyber:hover {
+    background: linear-gradient(135deg, #16a085, #138d75) !important;
+    box-shadow: 0 5px 12px rgba(26, 188, 156, 0.3) !important;
+}
+
+/* Make sure other cyber page buttons remain purple */
+a.button-like[href*="cyber"],
+a[href*="cyber_add"]:not(.btn-cyber):not(.action-btn) {
+    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%) !important;
+}
+
+/* ================================
+   Cyber Pages - GREEN Theme Override
+   All cyber pages should use green/turquoise colors like the dashboard button
+   ================================ */
+
+/* Cyber page headers - GREEN instead of purple */
+h1:has-text('session'),
+h1:has-text('cyber'),
+h1:has-text('Fiche de Caisse'),
+h1:has-text('Sessions Cyber'),
+h1:has-text('Crédits Clients') {
+    background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%) !important;
+}
+
+/* Cyber buttons - GREEN theme */
+a.button-like[href*="cyber"]:not(.sidebar *):not(.saas-action-main):not(.saas-action-add),
+a[href*="cyber_add"]:not(.btn-cyber):not(.action-btn):not(.sidebar *):not(.submenu *):not(.saas-action-main):not(.saas-action-add),
+#payer_maintenant,
+form[action*="cyber_add"] button[type="submit"] {
+    background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%) !important;
+}
+
+a.button-like[href*="cyber"]:not(.sidebar *):not(.saas-action-main):not(.saas-action-add):hover,
+a[href*="cyber_add"]:not(.btn-cyber):not(.action-btn):not(.sidebar *):not(.submenu *):not(.saas-action-main):not(.saas-action-add):hover,
+#payer_maintenant:hover {
+    box-shadow: 0 6px 20px rgba(26, 188, 156, 0.3) !important;
+}
+
+/* Price summary boxes - GREEN theme */
+form div[style*="border-left: 3px solid"],
+form div[style*="border-left: 4px solid"] {
+    background: linear-gradient(135deg, rgba(26, 188, 156, 0.1) 0%, rgba(22, 160, 133, 0.05) 100%) !important;
+    border-left: 4px solid #1abc9c !important;
+}
+
+form div[style*="border-left: 3px solid"] strong,
+form div[style*="border-left: 4px solid"] strong {
+    color: #16a085 !important;
+}
+
+/* Payment section hover - GREEN theme */
+form div[style*="border: 1px solid"]:hover,
+form div[style*="border: 2px solid"]:hover {
+    border-color: #1abc9c !important;
+    box-shadow: 0 4px 12px rgba(26, 188, 156, 0.15) !important;
+}
+
+/* Tarifs box title - GREEN */
+div[style*="margin-top: 30px"][style*="padding: 20px"] h3,
+div[style*="margin-top: 30px"][style*="padding: 25px"] h3 {
+    color: #16a085 !important;
+}
+
+/* Table footer totals - GREEN */
+body table tfoot tr {
+    background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%) !important;
+}
+
+/* Empty state border - GREEN */
+div[style*="text-align: center"][style*="padding: 40px"] {
+    border-color: #1abc9c !important;
+    background: linear-gradient(135deg, rgba(26, 188, 156, 0.05) 0%, rgba(22, 160, 133, 0.02) 100%) !important;
+}
+
+/* Dark mode - GREEN theme */
+body.dark h1:has-text('Fiche de Caisse'),
+body.dark h1:has-text('Sessions Cyber'),
+body.dark h1:has-text('Crédits Clients'),
+body.dark h1:has-text('session'),
+body.dark h1:has-text('cyber') {
+    box-shadow: 0 8px 32px rgba(26, 188, 156, 0.3);
+}
+
+body.dark form div[style*="border-left: 3px solid"],
+body.dark form div[style*="border-left: 4px solid"] {
+    background: linear-gradient(135deg, rgba(26, 188, 156, 0.15) 0%, rgba(22, 160, 133, 0.08) 100%) !important;
+}
+
+/* Recalc button should stay dark gray */
+#recalculer_tarif {
+    background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%) !important;
+}
+
+/* Credit info boxes stay blue */
+#credit_info,
+#credit_gestion_info {
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%) !important;
+}
+
+body.dark #credit_info,
+body.dark #credit_gestion_info {
+    background: linear-gradient(135deg, #1a3a52 0%, #0d2b3e 100%) !important;
+}
+
+/* ================================
+   Sidebar Menu Protection
+   Prevent cyber styles from affecting sidebar menu links
+   ================================ */
+
+/* Sidebar links should NOT be affected by cyber button styles */
+/* Sidebar links should NOT be affected by cyber button styles */
+.sidebar a:not(.active),
+.sidebar .menu-item a:not(.active),
+.sidebar .submenu a:not(.active),
+.menu a:not(.active),
+.submenu a:not(.active) {
+    background: none !important;
+    background-color: transparent !important;
+}
+
+.sidebar a:not(.active):hover,
+.sidebar .submenu a:not(.active):hover {
+    background-color: var(--sidebar-hover-dark) !important;
+    background: var(--sidebar-hover-dark) !important;
+}
+
+body.light .sidebar a:hover,
+body.light .sidebar .submenu a:hover {
+    background-color: #eeeeee !important;
+    background: #eeeeee !important;
+}
+
+/* Active menu items keep their accent color */
+.sidebar .menu-item>a.active,
+.sidebar .submenu li a.active {
+    background-color: rgba(42, 79, 156, 0.25) !important;
+    background: rgba(42, 79, 156, 0.25) !important;
+}
+
+body.light .sidebar .menu-item>a.active,
+body.light .sidebar .submenu li a.active {
+    background-color: rgba(42, 79, 156, 0.2) !important;
+    background: rgba(42, 79, 156, 0.2) !important;
+}
+
+/* ================================
+   IMPORTANT: Sidebar exclusion from cyber styles
+   Sidebar links must NEVER have cyber button styles
+   ================================ */
+
+/* Override all cyber button styles for sidebar links */
+.sidebar a[href*="cyber"],
+.sidebar .submenu a[href*="cyber"],
+.menu a[href*="cyber"],
+.submenu a[href*="cyber"],
+nav a[href*="cyber"] {
+    background: none !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: var(--sidebar-text-dark) !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 10px 20px !important;
+    border-radius: 0 !important;
+}
+
+.sidebar a[href*="cyber"]:hover,
+.sidebar .submenu a[href*="cyber"]:hover,
+.menu a[href*="cyber"]:hover,
+.submenu a[href*="cyber"]:hover {
+    background: var(--sidebar-hover-dark) !important;
+    background-color: var(--sidebar-hover-dark) !important;
+    background-image: none !important;
+    transform: none !important;
+}
+
+/* Light mode sidebar */
+body.light .sidebar a[href*="cyber"],
+body.light .menu a[href*="cyber"],
+body.light .submenu a[href*="cyber"] {
+    color: #2c2c2c !important;
+}
+
+body.light .sidebar a[href*="cyber"]:hover,
+body.light .menu a[href*="cyber"]:hover,
+body.light .submenu a[href*="cyber"]:hover {
+    background-color: #eeeeee !important;
+    background: #eeeeee !important;
+}
+
+/* Only apply cyber green styling to content area buttons, NOT sidebar */
+.content a[href*="cyber_add"],
+.content a.button-like[href*="cyber"],
+form[action*="cyber"] button,
+.dashboard-container a[href*="cyber"]:not(.view-all) {
+    background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%) !important;
+}
+
+/* ================================
+   FINAL FIX: Sidebar cyber links must be NORMAL
+   This must override ALL previous cyber button styles for sidebar
+   ================================ */
+
+/* Complete reset for any cyber link in sidebar - highest priority */
+.sidebar a[href*="cyber_add"],
+.sidebar .menu a[href*="cyber_add"],
+.sidebar .submenu a[href*="cyber_add"],
+.sidebar .menu-item a[href*="cyber_add"],
+.sidebar .submenu li a[href*="cyber_add"] {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    color: var(--sidebar-text-dark) !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+    font-weight: normal !important;
+    transform: none !important;
+    transition: background-color 0.2s !important;
+}
+
+.sidebar a[href*="cyber_add"]:hover,
+.sidebar .menu a[href*="cyber_add"]:hover,
+.sidebar .submenu a[href*="cyber_add"]:hover {
+    background: var(--sidebar-hover-dark) !important;
+    background-color: var(--sidebar-hover-dark) !important;
+    background-image: none !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Light mode sidebar cyber links */
+body.light .sidebar a[href*="cyber_add"],
+body.light .sidebar .menu a[href*="cyber_add"],
+body.light .sidebar .submenu a[href*="cyber_add"] {
+    color: #2c2c2c !important;
+}
+
+body.light .sidebar a[href*="cyber_add"]:hover,
+body.light .sidebar .menu a[href*="cyber_add"]:hover,
+body.light .sidebar .submenu a[href*="cyber_add"]:hover {
+    background: #eeeeee !important;
+    background-color: #eeeeee !important;
+}
+
+/* ================================
+   ABSOLUTE FINAL: Remove ALL green effects from sidebar cyber links
+   ================================ */
+
+/* Force NO box-shadow on hover for sidebar cyber links */
+.sidebar a[href*="cyber"]:hover,
+.sidebar .menu a[href*="cyber"]:hover,
+.sidebar .submenu a[href*="cyber"]:hover,
+.sidebar .menu-item a[href*="cyber"]:hover,
+.sidebar .submenu li a[href*="cyber"]:hover {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    -moz-box-shadow: none !important;
+    background: var(--sidebar-hover-dark) !important;
+    background-color: var(--sidebar-hover-dark) !important;
+    background-image: none !important;
+    border-left: 3px solid transparent !important;
+    transform: none !important;
+}
+
+/* Light mode */
+body.light .sidebar a[href*="cyber"]:hover,
+body.light .sidebar .menu a[href*="cyber"]:hover,
+body.light .sidebar .submenu a[href*="cyber"]:hover {
+    background: #eeeeee !important;
+    background-color: #eeeeee !important;
+    box-shadow: none !important;
+}
+
+/* Submenu specific hover */
+.sidebar .submenu li a[href*="cyber"]:hover {
+    background-color: var(--sidebar-hover-dark) !important;
+    border-left-color: var(--accent-color) !important;
+    padding-left: 20px !important;
+    /* Was 23px - fixed to prevent shift */
+}
+
+body.light .sidebar .submenu li a[href*="cyber"]:hover {
+    background-color: #eeeeee !important;
+    border-left-color: var(--accent-color) !important;
+}
+
+/* ==========================================================================
+   FORCE SIDEBAR STYLE FOR CYBER LINKS
+   This overrides any generic "Cyber Button" styles that might leak into the sidebar
+   ========================================================================== */
+.sidebar .menu-item>a[href*="cyber"],
+.sidebar .submenu li a[href*="cyber"] {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: 1px solid transparent;
+    /* Default border - 1px transparent to prevent shift on hover */
+}
+
+/* Parent Menu Item Active State */
+.sidebar .menu-item>a[href*="cyber"].active {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-left: 4px solid #10B981 !important;
+    /* Green Border */
+    border-radius: 0 4px 4px 0 !important;
+    /* Keep square left for active indent look? Or round? */
+    /* User asked for rounded on hover. Let's try matching active to rounded too? */
+    /* Actually parent active is 0 4px 4px 0. User said submenu hover is square. */
+    /* Let's set hover to 8px and active to 0 8px 8px 0 or just 8px? */
+    /* Parent active has 0 4px 4px 0. Submenu Active has ... */
+    color: #F8FAFC !important;
+    font-weight: 600 !important;
+}
+
+/* Submenu Item Active State */
+.sidebar .submenu li a[href*="cyber"].active {
+    background-color: rgba(42, 79, 156, 0.25) !important;
+    border-left: 4px solid #10B981 !important;
+    border-radius: 0 8px 8px 0 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    padding-left: 23px !important;
+}
+
+/* Clean Hover State */
+.sidebar .menu-item>a[href*="cyber"]:hover,
+.sidebar .submenu li a[href*="cyber"]:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #ecf0f1 !important;
+    box-shadow: none !important;
+    transform: none !important;
+    /* Ensure no text shadow or other effects from button styles */
+    text-shadow: none !important;
+    border-color: #10B981 !important;
+    /* Force Green border color on hover, preserve width */
+    /* Force Green border on hover */
+    border-radius: 8px !important;
+    /* Ensure rounded on hover */
+}
+
+/* ==========================================================================
+   LIGHT MODE FIXES
+   Overrides for alignment and text contrast in Light Mode
+   ========================================================================== */
+
+/* Fix 1: Alignment (Match Dark Mode) */
+body.light .sidebar {
+    padding: 20px 15px;
+    /* Consistent padding */
+}
+
+/* Fix 2: Readability for Menu Items in Light Mode */
+body.light .sidebar .menu-item>a {
+    color: #1e293b;
+    /* Slate 800 - Very dark blue-grey */
+    font-weight: 500;
+}
+
+body.light .sidebar .menu-item>a:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: #0f172a !important;
+    /* Slate 900 - Almost black */
+}
+
+body.light .sidebar .menu-item>a.active {
+    background: rgba(16, 185, 129, 0.1) !important;
+    /* Green tint */
+    border-left: 4px solid #10B981 !important;
+    color: #0f172a !important;
+    /* Slate 900 */
+    font-weight: 600 !important;
+}
+
+/* Fix 3: Readability for Submenu Items in Light Mode */
+body.light .sidebar .submenu li a {
+    color: #334155;
+    /* Slate 700 - Dark grey */
+}
+
+body.light .sidebar .submenu li a:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: #0f172a !important;
+}
+
+body.light .sidebar .submenu li a.active {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    border-left: 4px solid #10B981 !important;
+    color: #0f172a !important;
+}
+
+/* Override for Cyber links in Light Mode to ensure they follow above rules */
+body.light .sidebar .menu-item>a[href*="cyber"].active,
+body.light .sidebar .submenu li a[href*="cyber"].active {
+    color: #0f172a !important;
+    background: rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Force Cyber Quick Action to be transparent (inherit dark blue from parent) */
+.saas-quick-action .saas-action-main[href*="cyber"],
+.saas-quick-action .saas-action-add[href*="cyber"] {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Ensure hover doesn't bring back green shadow/bg */
+.saas-quick-action:hover .saas-action-main[href*="cyber"] {
+    background: transparent !important;
+}
+
+/* ==========================================================================
+   QUICK ACTIONS - LIGHT MODE & FIXES
+   ========================================================================== */
+
+/* Fix: Light Mode for Quick Actions */
+body.light .saas-quick-action {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+
+body.light .saas-action-main {
+    color: #1e293b !important;
+    /* Dark Slate Text */
+    border-right-color: #e2e8f0 !important;
+}
+
+body.light .saas-icon {
+    /* Icons usually inherit color or have specific colors via classes */
+}
+
+body.light .saas-action-add {
+    color: #10B981 !important;
+    /* Keep accent color */
+}
+
+body.light .saas-action-add:hover {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+body.light .saas-quick-action:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+    border-color: #cbd5e1 !important;
+}
+
+/* FIX: Start with a clean slate for Cyber button in Quick Actions */
+/* FIX: Start with a clean slate for Cyber button in Quick Actions */
+/* This MUST be last to override any global "Cyber Green Theme" rules */
+.saas-quick-action a[href*="cyber"],
+.saas-quick-action a[href*="cyber"]:hover,
+.saas-quick-action a.saas-action-main[href*="cyber"],
+.saas-quick-action a.saas-action-add[href*="cyber"],
+body .saas-quick-action .saas-action-add[href*="cyber"] {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    /* Ensure no border leaks */
+}
+
+/* Re-apply Light Mode transparency for Cyber if needed (covered by above generally, but just in case) */
+body.light .saas-quick-action a[href*="cyber"],
+body.light .saas-quick-action a[href*="cyber"]:hover {
+    background: transparent !important;
+}

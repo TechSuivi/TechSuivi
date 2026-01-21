@@ -59,16 +59,16 @@ if (isset($pdo)) {
     <?php endif; ?>
 
     <?php if (empty($liens) && empty($errorMessage)): ?>
-        <div class="empty-state">
-            <div class="empty-icon">🔗</div>
-            <h3>Aucun lien trouvé</h3>
-            <p>Commencez par ajouter votre premier lien utile</p>
+        <div class="card text-center p-30 border-dashed">
+            <div class="text-4xl mb-20 opacity-50">🔗</div>
+            <h3 class="mt-0 text-dark">Aucun lien trouvé</h3>
+            <p class="text-muted">Commencez par ajouter votre premier lien utile</p>
             <button onclick="openAddLinkModal()" class="btn btn-success mt-15">
                 <span>➕</span> Ajouter un lien
             </button>
         </div>
     <?php else: ?>
-        <div class="links-container">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-15">
             <?php foreach ($liens as $lien): ?>
                 <div class="card border flex flex-col justify-between transition-transform hover:translate-y-2 hover:shadow-lg">
                     <div class="mb-15">
@@ -126,13 +126,11 @@ if (isset($pdo)) {
 <!-- ========================================== -->
 <!-- MODAL AJOUT LIEN (POPUP) -->
 <!-- ========================================== -->
-<!-- Modal CSS Removed for Audit -->
-
-<div id="addLinkModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
+<div id="addLinkModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
-        <div class="modal-header bg-gradient-primary">
-            <h2 class="modal-title"><span>🔗</span> Nouveau lien</h2>
-            <span class="close-modal" onclick="closeAddLinkModal()">&times;</span>
+        <div class="modal-header">
+            <h3 class="modal-title">🔗 Nouveau lien</h3>
+            <span class="modal-close" onclick="closeAddLinkModal()">&times;</span>
         </div>
         
         <div class="modal-body">
@@ -140,30 +138,26 @@ if (isset($pdo)) {
             
             <form id="addLinkForm">
                 <div class="form-group">
-                    <label for="link_nom">Nom du lien <span class="required">*</span></label>
+                    <label for="link_nom" class="form-label">Nom du lien *</label>
                     <input type="text" id="link_nom" name="nom" class="form-control" required placeholder="Ex: Documentation...">
                 </div>
 
                 <div class="form-group">
-                    <label for="link_url">URL <span class="required">*</span></label>
+                    <label for="link_url" class="form-label">URL *</label>
                     <input type="url" id="link_url" name="url" class="form-control" required placeholder="https://...">
                 </div>
 
                 <div class="form-group">
-                    <label for="link_desc">Description</label>
+                    <label for="link_desc" class="form-label">Description</label>
                     <textarea id="link_desc" name="description" class="form-control" rows="3" placeholder="Description optionnelle..."></textarea>
                 </div>
 
-                <div class="form-group">
-                    <div class="checkbox-wrapper">
-                        <label class="checkbox-label">
-                            <input type="checkbox" name="show_on_login" value="1">
-                            <div>
-                                <div class="checkbox-title">Afficher sur la page de login</div>
-                                <div class="checkbox-description">Visible pour tous les visiteurs (public)</div>
-                            </div>
-                        </label>
-                    </div>
+                <div class="checkbox-group mb-20">
+                    <input type="checkbox" id="add_link_login" name="show_on_login" value="1">
+                    <label for="add_link_login" class="form-label">
+                        <strong>Afficher sur la page de login</strong><br>
+                        <small class="text-muted">Visible pour tous les visiteurs (public)</small>
+                    </label>
                 </div>
             </form>
         </div>
@@ -177,13 +171,13 @@ if (isset($pdo)) {
 
 
 <!-- ========================================== -->
-<!-- MODAL MODIFICATION LIEN -->
+<!-- MODAL MODIFICATION TÉLÉCHARGEMENT -->
 <!-- ========================================== -->
-<div id="editLinkModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
+<div id="editLinkModal" class="modal-overlay" style="display: none;">
     <div class="modal-content">
-        <div class="modal-header bg-gradient-info">
-            <h2 class="modal-title"><span>✏️</span> Modifier le lien</h2>
-            <span class="close-modal" onclick="closeEditLinkModal()">&times;</span>
+        <div class="modal-header">
+            <h3 class="modal-title">✏️ Modifier le lien</h3>
+            <span class="modal-close" onclick="closeEditLinkModal()">&times;</span>
         </div>
         
         <div class="modal-body">
@@ -193,37 +187,33 @@ if (isset($pdo)) {
                 <input type="hidden" id="edit_link_id" name="id">
                 
                 <div class="form-group">
-                    <label for="edit_link_nom">Nom du lien <span class="required">*</span></label>
+                    <label for="edit_link_nom" class="form-label">Nom du lien *</label>
                     <input type="text" id="edit_link_nom" name="nom" class="form-control" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="edit_link_url">URL <span class="required">*</span></label>
+                    <label for="edit_link_url" class="form-label">URL *</label>
                     <input type="url" id="edit_link_url" name="url" class="form-control" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="edit_link_desc">Description</label>
+                    <label for="edit_link_desc" class="form-label">Description</label>
                     <textarea id="edit_link_desc" name="description" class="form-control" rows="3"></textarea>
                 </div>
 
-                <div class="form-group">
-                    <div class="checkbox-wrapper">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="edit_link_login" name="show_on_login" value="1">
-                            <div>
-                                <div class="checkbox-title">Afficher sur la page de login</div>
-                                <div class="checkbox-description">Visible pour tous les visiteurs (public)</div>
-                            </div>
-                        </label>
-                    </div>
+                <div class="checkbox-group mb-20">
+                    <input type="checkbox" id="edit_link_login" name="show_on_login" value="1">
+                    <label for="edit_link_login" class="form-label">
+                        <strong>Afficher sur la page de login</strong><br>
+                        <small class="text-muted">Visible pour tous les visiteurs (public)</small>
+                    </label>
                 </div>
             </form>
         </div>
         
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeEditLinkModal()">Annuler</button>
-            <button type="button" class="btn btn-info" onclick="submitEditLinkForm()">Enregistrer</button>
+            <button type="button" class="btn btn-primary" onclick="submitEditLinkForm()">Enregistrer</button>
         </div>
     </div>
 </div>
@@ -231,15 +221,15 @@ if (isset($pdo)) {
 <!-- ========================================== -->
 <!-- MODAL CONFIRMATION SUPPRESSION -->
 <!-- ========================================== -->
-<div id="deleteConfirmModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
-    <div class="modal-content" style="max-width: 400px;">
-        <div class="modal-header bg-gradient-danger">
-            <h2 class="modal-title"><span>⚠️</span> Confirmation</h2>
-            <span class="close-modal" onclick="closeDeleteConfirm()">&times;</span>
+<div id="deleteConfirmModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-header" style="background: var(--danger-color);">
+            <h3 class="modal-title">⚠️ Confirmation</h3>
+            <span class="modal-close" onclick="closeDeleteConfirm()">&times;</span>
         </div>
         <div class="modal-body">
             <p>Êtes-vous sûr de vouloir supprimer ce lien ?</p>
-            <p style="font-size:0.9em; color:var(--text-muted);">Cette action est irréversible.</p>
+            <p class="text-sm text-muted mt-15">Cette action est irréversible.</p>
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirm()">Annuler</button>

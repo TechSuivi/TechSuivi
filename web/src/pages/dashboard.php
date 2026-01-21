@@ -84,9 +84,12 @@ if (isset($pdo)) {
                 i.pass_vnc,
                 CONCAT(c.nom, ' ', c.prenom) as client_nom,
                 c.telephone as client_telephone,
-                c.portable as client_portable
+                c.portable as client_portable,
+                s.nom as statut_nom,
+                s.couleur as statut_couleur
             FROM inter i
             LEFT JOIN clients c ON i.id_client = c.ID
+            LEFT JOIN intervention_statuts s ON i.statut_id = s.id
             WHERE i.en_cours = 1
             ORDER BY i.date DESC
             LIMIT 5
@@ -289,7 +292,15 @@ if (isset($pdo)) {
                                             <tr>
                                                 <td>
                                                     <div class="flex flex-col gap-5">
-                                                        <div><span class="badge badge-blue">En cours</span></div>
+                                                        <div>
+                                                            <?php if (!empty($inter['statut_nom'])): ?>
+                                                                <span class="badge" style="background-color: <?= htmlspecialchars($inter['statut_couleur'] . '26') ?>; color: <?= htmlspecialchars($inter['statut_couleur']) ?>;">
+                                                                    <?= htmlspecialchars($inter['statut_nom']) ?>
+                                                                </span>
+                                                            <?php else: ?>
+                                                                <span class="badge badge-blue">En cours</span>
+                                                            <?php endif; ?>
+                                                        </div>
                                                         <div class="text-xs text-muted">
                                                             📅 <?= date('d/m H:i', strtotime($inter['date'])) ?>
                                                         </div>

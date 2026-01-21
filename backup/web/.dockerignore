@@ -1,0 +1,22 @@
+# Fichiers à ignorer lors de la construction Docker
+node_modules/
+npm-debug.log
+.git/
+.gitignore
+README.md
+Dockerfile
+.dockerignore
+
+# Fichiers de développement
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Fichiers de configuration locale
+.env.local
+composer.lock
+
+# Dossiers temporaires
+temp/
+tmp/

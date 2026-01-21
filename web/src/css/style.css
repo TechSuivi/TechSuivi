@@ -993,7 +993,7 @@ tbody tr:hover {
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #10B981 0%, #2980b9 100%);
     color: white;
     padding: 15px 20px;
     display: flex;
@@ -1041,13 +1041,13 @@ tbody tr:hover {
 }
 
 .modal-footer .btn-primary {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #10B981 0%, #2980b9 100%);
     color: white;
 }
 
 .modal-footer .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
 }
 
 .modal-footer .btn-secondary {
@@ -1085,8 +1085,8 @@ tbody tr:hover {
 
 .modal-body .form-control:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+    border-color: #10B981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
 }
 
 .modal-body .checkbox-group {
@@ -1473,7 +1473,7 @@ body.dark .bg-light {
     background: linear-gradient(135deg, var(--info-color), #2980b9);
 }
 
-.bg-gradient-purple {
+.bg-gradient-green {
     background: linear-gradient(135deg, #a855f7, #7e22ce);
 }
 
@@ -1502,7 +1502,7 @@ body.dark .bg-light {
 }
 
 .text-info {
-    color: #3498db;
+    color: #10B981;
 }
 
 .text-muted {
@@ -1525,7 +1525,7 @@ body.dark .bg-light {
 }
 
 .bg-info {
-    background-color: #3498db;
+    background-color: #10B981;
     color: white;
 }
 
@@ -1579,8 +1579,8 @@ body.dark .bg-light {
     margin-top: 0;
     margin-bottom: 15px;
     font-size: 1.1em;
-    color: #3498db;
-    border-bottom: 2px solid #3498db;
+    color: #10B981;
+    border-bottom: 2px solid #10B981;
     padding-bottom: 12px;
     display: flex;
     align-items: center;
@@ -1787,7 +1787,7 @@ body.dark .bg-light {
 
 .btn-create-first {
     padding: 10px 20px;
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: linear-gradient(135deg, #10B981 0%, #2980b9 100%);
     color: white;
     border: none;
     border-radius: 8px;
@@ -1840,15 +1840,15 @@ body.dark .bg-light {
 }
 
 .text-blue {
-    color: #3498db;
+    color: #10B981;
 }
 
 .text-orange {
     color: #f39c12;
 }
 
-.text-purple {
-    color: #9b59b6;
+.text-green {
+    color: #10B981;
 }
 
 .text-red {
@@ -1860,15 +1860,15 @@ body.dark .bg-light {
 }
 
 .border-left-blue {
-    border-left: 4px solid #3498db;
+    border-left: 4px solid #10B981;
 }
 
 .border-left-orange {
     border-left: 4px solid #f39c12;
 }
 
-.border-left-purple {
-    border-left: 4px solid #9b59b6;
+.border-left-green {
+    border-left: 4px solid #10B981;
 }
 
 .border-left-red {
@@ -1960,11 +1960,11 @@ body.dark .bg-light {
     background-color: #795548;
 }
 
-.bg-purple {
-    background-color: #9b59b6;
+.bg-green {
+    background-color: #10B981;
 }
 
-.bg-deep-purple {
+.bg-deep-green {
     background-color: #673ab7;
 }
 
@@ -2715,7 +2715,7 @@ body.dark .bg-light {
 }
 
 .status-planned {
-    background: #3498db;
+    background: #10B981;
     color: white;
 }
 
@@ -3452,12 +3452,12 @@ body.dark .header-withdrawal-pink {
     color: #FF9800;
 }
 
-.summary-card.purple {
+.summary-card.green {
     border-left-color: #9C27B0;
     background-color: var(--secondary-bg);
 }
 
-.summary-card.purple .summary-card-value {
+.summary-card.green .summary-card-value {
     color: #9C27B0;
 }
 
@@ -3836,7 +3836,7 @@ body.dark .page-header-gradient {
 }
 
 .text-primary-dark {
-    color: #8e44ad;
+    color: #059669;
 }
 
 .line-clamp-2 {

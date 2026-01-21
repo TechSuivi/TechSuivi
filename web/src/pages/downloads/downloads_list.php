@@ -30,7 +30,7 @@ if (isset($pdo)) {
 }
 ?>
 
-<div class="container container-center max-w-1200">
+<div class="list-page">
     <div class="page-header">
         <h1>
             <span>📥</span>
@@ -124,25 +124,25 @@ if (isset($pdo)) {
 <!-- ========================================== -->
 <!-- MODAL AJOUT TÉLÉCHARGEMENT (POPUP) -->
 <!-- ========================================== -->
-<div id="addDownloadModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
-    <div class="modal-content bg-card rounded-12 shadow-2xl w-90 max-w-600 border border-border animate-slide-up overflow-hidden">
-        <div class="modal-header bg-gradient-primary text-white p-20 flex justify-between items-center">
-            <h2 class="m-0 text-lg font-bold flex items-center gap-10"><span>📥</span> Nouveau téléchargement</h2>
-            <span class="cursor-pointer text-2xl opacity-80 hover:opacity-100" onclick="closeAddDownloadModal()">&times;</span>
+<div id="addDownloadModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">📥 Nouveau téléchargement</h3>
+            <span class="modal-close" onclick="closeAddDownloadModal()">&times;</span>
         </div>
         
-        <div class="modal-body p-20 max-h-70vh overflow-y-auto">
+        <div class="modal-body">
             <div id="downloadAlerts"></div>
             
             <form id="addDownloadForm">
-                <div class="mb-20">
-                    <label for="dl_nom" class="block mb-8 font-bold text-dark">Nom du fichier <span class="text-danger">*</span></label>
-                    <input type="text" id="dl_nom" name="nom" class="form-control w-full p-10 border rounded-8 bg-input text-dark" required placeholder="Ex: Manuel utilisateur...">
+                <div class="form-group">
+                    <label for="dl_nom" class="form-label">Nom du fichier *</label>
+                    <input type="text" id="dl_nom" name="nom" class="form-control" required placeholder="Ex: Manuel utilisateur...">
                 </div>
 
-                <div class="mb-20">
-                    <label class="block mb-8 font-bold text-dark">Source du fichier <span class="text-danger">*</span></label>
-                    <div class="flex gap-20 mb-10 bg-input p-10 rounded-8 border border-border">
+                <div class="form-group">
+                    <label class="form-label">Source du fichier *</label>
+                    <div class="flex gap-20 mb-10 bg-light p-10 rounded-8 border border-border">
                         <label class="flex items-center gap-8 cursor-pointer m-0">
                             <input type="radio" name="source_type" value="url" checked onclick="toggleSourceType('url')">
                             <span>Lien externe (URL)</span>
@@ -154,37 +154,33 @@ if (isset($pdo)) {
                     </div>
                 </div>
 
-                <div id="source_url_group" class="mb-20">
-                    <label for="dl_url" class="block mb-8 font-bold text-dark">URL du téléchargement <span class="text-danger">*</span></label>
-                    <input type="url" id="dl_url" name="url" class="form-control w-full p-10 border rounded-8 bg-input text-dark" placeholder="https://...">
+                <div id="source_url_group" class="form-group">
+                    <label for="dl_url" class="form-label">URL du téléchargement *</label>
+                    <input type="url" id="dl_url" name="url" class="form-control" placeholder="https://...">
                 </div>
 
-                <div id="source_upload_group" class="mb-20 hidden">
-                    <label for="dl_file" class="block mb-8 font-bold text-dark">Choisir un fichier <span class="text-danger">*</span></label>
-                    <input type="file" id="dl_file" name="file" class="form-control w-full p-8 border rounded-8 bg-input text-dark">
+                <div id="source_upload_group" class="form-group hidden">
+                    <label for="dl_file" class="form-label">Choisir un fichier *</label>
+                    <input type="file" id="dl_file" name="file" class="form-control" style="padding: 8px;">
                     <p class="text-xs text-muted mt-5">Taille max: <?= ini_get('upload_max_filesize') ?></p>
                 </div>
 
-                <div class="mb-20">
-                    <label for="dl_desc" class="block mb-8 font-bold text-dark">Description</label>
-                    <textarea id="dl_desc" name="description" class="form-control w-full p-10 border rounded-8 bg-input text-dark" rows="3" placeholder="Description optionnelle..."></textarea>
+                <div class="form-group">
+                    <label for="dl_desc" class="form-label">Description</label>
+                    <textarea id="dl_desc" name="description" class="form-control" rows="3" placeholder="Description optionnelle..."></textarea>
                 </div>
 
-                <div class="mb-20">
-                    <div class="bg-input border border-border rounded-8 p-12">
-                        <label class="flex gap-10 cursor-pointer items-start">
-                            <input type="checkbox" name="show_on_login" value="1">
-                            <div>
-                                <div class="font-bold text-sm">Afficher sur la page de login</div>
-                                <div class="text-xs text-muted">Visible pour tous les visiteurs (public)</div>
-                            </div>
-                        </label>
-                    </div>
+                <div class="checkbox-group mb-20">
+                    <input type="checkbox" id="add_dl_login" name="show_on_login" value="1">
+                    <label for="add_dl_login" class="form-label">
+                        <strong>Afficher sur la page de login</strong><br>
+                        <small class="text-muted">Visible pour tous les visiteurs (public)</small>
+                    </label>
                 </div>
             </form>
         </div>
         
-        <div class="modal-footer p-20 bg-input border-t border-border flex justify-end gap-10">
+        <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeAddDownloadModal()">Annuler</button>
             <button type="button" class="btn btn-success" onclick="submitAddDownloadForm()">Ajouter</button>
         </div>
@@ -195,49 +191,45 @@ if (isset($pdo)) {
 <!-- ========================================== -->
 <!-- MODAL MODIFICATION TÉLÉCHARGEMENT -->
 <!-- ========================================== -->
-<div id="editDownloadModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
-    <div class="modal-content bg-card rounded-12 shadow-2xl w-90 max-w-600 border border-border animate-slide-up overflow-hidden">
-        <div class="modal-header bg-gradient-primary text-white p-20 flex justify-between items-center">
-            <h2 class="m-0 text-lg font-bold flex items-center gap-10"><span>✏️</span> Modifier le téléchargement</h2>
-            <span class="cursor-pointer text-2xl opacity-80 hover:opacity-100" onclick="closeEditDownloadModal()">&times;</span>
+<div id="editDownloadModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">✏️ Modifier le téléchargement</h3>
+            <span class="modal-close" onclick="closeEditDownloadModal()">&times;</span>
         </div>
         
-        <div class="modal-body p-20">
+        <div class="modal-body">
             <div id="editDownloadAlerts"></div>
             
             <form id="editDownloadForm">
                 <input type="hidden" id="edit_dl_id" name="id">
                 
-                <div class="mb-20">
-                    <label for="edit_dl_nom" class="block mb-8 font-bold text-dark">Nom du fichier <span class="text-danger">*</span></label>
-                    <input type="text" id="edit_dl_nom" name="nom" class="form-control w-full p-10 border rounded-8 bg-input text-dark" required>
+                <div class="form-group">
+                    <label for="edit_dl_nom" class="form-label">Nom du fichier *</label>
+                    <input type="text" id="edit_dl_nom" name="nom" class="form-control" required>
                 </div>
 
-                <div class="mb-20">
-                    <label for="edit_dl_url" class="block mb-8 font-bold text-dark">URL du téléchargement <span class="text-danger">*</span></label>
-                    <input type="url" id="edit_dl_url" name="url" class="form-control w-full p-10 border rounded-8 bg-input text-dark" required>
+                <div class="form-group">
+                    <label for="edit_dl_url" class="form-label">URL du téléchargement *</label>
+                    <input type="url" id="edit_dl_url" name="url" class="form-control" required>
                 </div>
 
-                <div class="mb-20">
-                    <label for="edit_dl_desc" class="block mb-8 font-bold text-dark">Description</label>
-                    <textarea id="edit_dl_desc" name="description" class="form-control w-full p-10 border rounded-8 bg-input text-dark" rows="3"></textarea>
+                <div class="form-group">
+                    <label for="edit_dl_desc" class="form-label">Description</label>
+                    <textarea id="edit_dl_desc" name="description" class="form-control" rows="3"></textarea>
                 </div>
 
-                <div class="mb-20">
-                    <div class="bg-input border border-border rounded-8 p-12">
-                        <label class="flex gap-10 cursor-pointer items-start">
-                            <input type="checkbox" id="edit_dl_login" name="show_on_login" value="1">
-                            <div>
-                                <div class="font-bold text-sm">Afficher sur la page de login</div>
-                                <div class="text-xs text-muted">Visible pour tous les visiteurs (public)</div>
-                            </div>
-                        </label>
-                    </div>
+                <div class="checkbox-group mb-20">
+                    <input type="checkbox" id="edit_dl_login" name="show_on_login" value="1">
+                    <label for="edit_dl_login" class="form-label">
+                        <strong>Afficher sur la page de login</strong><br>
+                        <small class="text-muted">Visible pour tous les visiteurs (public)</small>
+                    </label>
                 </div>
             </form>
         </div>
         
-        <div class="modal-footer p-20 bg-input border-t border-border flex justify-end gap-10">
+        <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeEditDownloadModal()">Annuler</button>
             <button type="button" class="btn btn-primary" onclick="submitEditDownloadForm()">Enregistrer</button>
         </div>
@@ -247,28 +239,28 @@ if (isset($pdo)) {
 <!-- ========================================== -->
 <!-- MODAL CONFIRMATION SUPPRESSION -->
 <!-- ========================================== -->
-<div id="deleteConfirmModal" class="modal-overlay fixed inset-0 z-50 bg-black-opacity items-center justify-center backdrop-blur-sm" style="display: none;">
-    <div class="modal-content bg-card rounded-12 shadow-2xl w-90 max-w-400 border border-border animate-slide-up overflow-hidden">
-        <div class="modal-header bg-danger text-white p-20 flex justify-between items-center">
-            <h2 class="m-0 text-lg font-bold flex items-center gap-10"><span>⚠️</span> Confirmation</h2>
-            <span class="cursor-pointer text-2xl opacity-80 hover:opacity-100" onclick="closeDeleteConfirm()">&times;</span>
+<div id="deleteConfirmModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-header" style="background: var(--danger-color);">
+            <h3 class="modal-title">⚠️ Confirmation</h3>
+            <span class="modal-close" onclick="closeDeleteConfirm()">&times;</span>
         </div>
-        <div class="modal-body p-20">
+        <div class="modal-body">
             <p>Êtes-vous sûr de vouloir supprimer ce téléchargement ?</p>
             
             <div id="delete_file_option" class="mt-15 p-12 bg-light border border-danger-subtle rounded-8 hidden">
-                <label class="flex items-start gap-10 cursor-pointer text-danger font-bold">
+                <div class="checkbox-group">
                     <input type="checkbox" id="confirm_delete_file" name="delete_file" value="1">
-                    <div>
-                        <div>Supprimer également le fichier sur le disque</div>
-                        <div class="text-xs font-normal text-danger opacity-80">Ceci supprimera définitivement le fichier dans /uploads/downloads/</div>
-                    </div>
-                </label>
+                    <label for="confirm_delete_file" class="form-label text-danger">
+                        <strong>Supprimer également le fichier sur le disque</strong><br>
+                        <small class="opacity-80">Ceci supprimera définitivement le fichier dans /uploads/downloads/</small>
+                    </label>
+                </div>
             </div>
             
             <p class="text-sm text-muted mt-15">Cette action est irréversible.</p>
         </div>
-        <div class="modal-footer p-20 bg-input border-t border-border flex justify-end gap-10">
+        <div class="modal-footer">
             <button type="button" class="btn btn-secondary" onclick="closeDeleteConfirm()">Annuler</button>
             <button type="button" class="btn btn-danger" onclick="confirmDeleteAction()">Supprimer</button>
         </div>

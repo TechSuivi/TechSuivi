@@ -200,8 +200,8 @@ select.form-control option {
 
 .form-control:focus {
     outline: none;
-    border-color: #8e44ad;
-    box-shadow: 0 0 0 4px rgba(142, 68, 173, 0.1);
+    border-color: #10B981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
 }
 
 .alert {
