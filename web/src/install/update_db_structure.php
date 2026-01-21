@@ -28,9 +28,16 @@ try {
         if ($exists) {
             echo "<p style='color:green'>✅ La table <strong>$table</strong> contient déjà la colonne <strong>$column</strong>.</p>";
         } else {
-            // Tentative d'ajout
+            // Déterminer le type de colonne
+            $columnType = 'INT DEFAULT NULL';
+            if ($column === 'commentaire') {
+                $columnType = 'TEXT';
+            } elseif ($column === 'show_on_login') {
+                $columnType = 'TINYINT(1) NOT NULL DEFAULT 0';
+            }
+            
             try {
-                $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$column` INT DEFAULT NULL");
+                $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$column` $columnType");
                 echo "<p style='color:blue'>🛠️ Ajout de la colonne <strong>$column</strong> à la table <strong>$table</strong>...</p>";
                 
                 // Vérification après ajout
@@ -42,6 +49,34 @@ try {
                 }
             } catch (PDOException $e) {
                 echo "<p style='color:red'>❌ Erreur SQL lors de l'ajout : " . htmlspecialchars($e->getMessage()) . "</p>";
+            }
+        }
+        
+        // Correction spécifique si la colonne commentaire est en INT au lieu de TEXT
+        if ($table === 'clients' && $column === 'commentaire') {
+            $stmtType = $pdo->query("SHOW COLUMNS FROM `clients` LIKE 'commentaire'");
+            $colInfo = $stmtType->fetch();
+            if ($colInfo && strpos(strtolower($colInfo['Type']), 'int') !== false) {
+                echo "<p style='color:orange'>🔶 Correction du type pour <strong>commentaire</strong> (passage de INT à TEXT)...</p>";
+                $pdo->exec("ALTER TABLE `clients` MODIFY COLUMN `commentaire` TEXT");
+                echo "<p style='color:green'>✅ Type corrigé avec succès.</p>";
+            }
+        }
+    }
+
+    // Gestion des nouvelles tables
+    $newTables = $schemaConfig['tables'] ?? [];
+    foreach ($newTables as $tableName => $sql) {
+        $stmt = $pdo->query("SHOW TABLES LIKE '$tableName'");
+        if ($stmt->fetch()) {
+            echo "<p style='color:green'>✅ La table <strong>$tableName</strong> existe déjà.</p>";
+        } else {
+            try {
+                $pdo->exec($sql);
+                echo "<p style='color:blue'>🛠️ Création de la table <strong>$tableName</strong>...</p>";
+                echo "<p style='color:green'>✅ Table créée avec succès.</p>";
+            } catch (PDOException $e) {
+                echo "<p style='color:red'>❌ Erreur SQL lors de la création de la table <strong>$tableName</strong> : " . htmlspecialchars($e->getMessage()) . "</p>";
             }
         }
     }

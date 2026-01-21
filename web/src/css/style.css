@@ -267,15 +267,16 @@ h6 {
 }
 
 .btn-primary {
-    background: var(--accent-gradient);
+    background: var(--accent-color);
     color: white;
     border: none;
-    box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-primary:hover {
+    filter: brightness(1.1);
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.4);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .btn-success {

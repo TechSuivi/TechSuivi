@@ -11,7 +11,9 @@ return [
     // Format: 'NomTable' => 'NomColonne'
     'columns' => [
         'FC_cyber' => 'id_client',
-        'FC_cyber_credits' => 'id_client'
+        'FC_cyber_credits' => 'id_client',
+        'clients' => 'commentaire',
+        'notes_globales' => 'show_on_login'
     ],
     
     // Futures évolutions possibles (ex: nouvelles tables)
@@ -30,6 +32,18 @@ return [
             report_recipients TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+        'notes_globales' => "CREATE TABLE IF NOT EXISTS notes_globales (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            titre VARCHAR(255) NOT NULL,
+            contenu TEXT NOT NULL,
+            date_note TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            id_client INT DEFAULT NULL,
+            fichier_path VARCHAR(255) DEFAULT NULL,
+            show_on_login BOOLEAN NOT NULL DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            FOREIGN KEY (id_client) REFERENCES clients(ID) ON DELETE SET NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;"
     ]
 ];

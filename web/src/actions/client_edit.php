@@ -43,6 +43,7 @@ $ville = trim($_POST['ville'] ?? '');
 $telephone = trim($_POST['telephone'] ?? '');
 $portable = trim($_POST['portable'] ?? '');
 $mail = trim($_POST['mail'] ?? '');
+$commentaire = trim($_POST['commentaire'] ?? '');
 
 // Validation des champs obligatoires
 $errors = [];
@@ -77,7 +78,7 @@ try {
 
     // Mise à jour du client
     $sql = "UPDATE clients SET nom = :nom, prenom = :prenom, adresse1 = :adresse1, adresse2 = :adresse2, 
-            cp = :cp, ville = :ville, telephone = :telephone, portable = :portable, mail = :mail 
+            cp = :cp, ville = :ville, telephone = :telephone, portable = :portable, mail = :mail, commentaire = :commentaire 
             WHERE ID = :id";
     $stmt = $pdo->prepare($sql);
 
@@ -90,6 +91,7 @@ try {
     $stmt->bindParam(':telephone', $telephone);
     $stmt->bindParam(':portable', $portable);
     $stmt->bindParam(':mail', $mail);
+    $stmt->bindParam(':commentaire', $commentaire);
     $stmt->bindParam(':id', $clientId, PDO::PARAM_INT);
 
     if ($stmt->execute()) {
@@ -106,7 +108,8 @@ try {
                 'ville' => $ville,
                 'telephone' => $telephone,
                 'portable' => $portable,
-                'mail' => $mail
+                'mail' => $mail,
+                'commentaire' => $commentaire
             ]
         ]);
     } else {

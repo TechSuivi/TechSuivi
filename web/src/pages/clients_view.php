@@ -173,6 +173,12 @@ if ($clientId <= 0) {
                 usort($cyberHistory, function($a, $b) {
                     return strtotime($b['date']) - strtotime($a['date']);
                 });
+
+                // Récupérer les notes liées au client
+                $sqlNotes = "SELECT * FROM notes_globales WHERE id_client = :id ORDER BY date_note DESC";
+                $stmtNotes = $pdo->prepare($sqlNotes);
+                $stmtNotes->execute([':id' => $clientId]);
+                $clientNotes = $stmtNotes->fetchAll(PDO::FETCH_ASSOC);
             }
 
         } catch (PDOException $e) {
@@ -267,6 +273,23 @@ if ($clientId <= 0) {
             </div>
         </div>
 
+        <!-- Bloc Commentaire -->
+        <div class="details-card" style="margin-top: 20px; border-left: 5px solid #2ecc71;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                <h2 style="font-size: 1.25em; margin: 0; color: var(--text-color); display: flex; align-items: center; gap: 10px;">
+                    <span>📝</span> Commentaire
+                </h2>
+                <button type="button" class="btn btn-secondary" 
+                        onclick="openEditCommentModal(<?= (int)$client['ID'] ?>, `<?= addslashes($client['commentaire'] ?? '') ?>`)" 
+                        style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); color: white; border: none; font-size: 0.85em; padding: 5px 10px;">
+                    <span>✏️</span> Modifier / Ajouter
+                </button>
+            </div>
+            <div style="white-space: pre-wrap; color: var(--text-color); min-height: 40px; font-style: <?= empty($client['commentaire']) ? 'italic' : 'normal' ?>; color: <?= empty($client['commentaire']) ? 'var(--text-muted)' : 'var(--text-color)' ?>; font-size: 1.05em; line-height: 1.5;">
+                <?= !empty($client['commentaire']) ? htmlspecialchars($client['commentaire']) : 'Aucun commentaire pour ce client.' ?>
+            </div>
+        </div>
+
         <div class="dashboard-grid">
             
             <!-- Row 1: Agenda & Messages (Side by Side) -->
@@ -284,11 +307,11 @@ if ($clientId <= 0) {
                     <table>
                         <thead>
                             <tr>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 14%;">Date</th>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 50%;">Titre</th>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 12%;">Statut</th>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 14%;">Priorité</th>
-                                <th style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%); width: 10%; text-align: center;">Actions</th>
+                                <th style="background: #34495e; width: 14%;">Date</th>
+                                <th style="background: #34495e; width: 50%;">Titre</th>
+                                <th style="background: #34495e; width: 12%;">Statut</th>
+                                <th style="background: #34495e; width: 14%;">Priorité</th>
+                                <th style="background: #34495e; width: 10%; text-align: center;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -333,8 +356,7 @@ if ($clientId <= 0) {
                                         </span>
                                     </td>
                                     <td style="text-align: center;">
-                                        <div style="display: flex; justify-content: center; gap: 5px;">
-                                            <button type="button" class="btn-action" style="background-color: #3498db; border: none; cursor: pointer;"
+                                            <button type="button" class="btn-action" style="background-color: #3498db; display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; margin-right: 5px; border: none; cursor: pointer;"
                                                 onclick="openViewAgendaModal(this)"
                                                 data-titre="<?= htmlspecialchars($item['titre']) ?>"
                                                 data-date="<?= date('d/m/Y H:i', strtotime($item['date_planifiee'])) ?>"
@@ -344,10 +366,9 @@ if ($clientId <= 0) {
                                                 title="Voir le détail">
                                                 👁️
                                             </button>
-                                            <a href="index.php?page=agenda_edit&id=<?= $item['id'] ?>" class="btn-action" style="background-color: #e67e22;" title="Modifier">
+                                            <a href="index.php?page=agenda_edit&id=<?= $item['id'] ?>" class="btn-action" style="background-color: #e67e22; display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer;" title="Modifier">
                                                 ✏️
                                             </a>
-                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -374,11 +395,11 @@ if ($clientId <= 0) {
                     <table>
                         <thead>
                             <tr>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 14%;">Date</th>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 14%;">Catégorie</th>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 50%;">Titre</th>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 12%;">Statut</th>
-                                <th style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); width: 10%; text-align: center;">Actions</th>
+                                <th style="background: #34495e; width: 14%;">Date</th>
+                                <th style="background: #34495e; width: 14%;">Catégorie</th>
+                                <th style="background: #34495e; width: 50%;">Titre</th>
+                                <th style="background: #34495e; width: 12%;">Statut</th>
+                                <th style="background: #34495e; width: 10%; text-align: center;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -406,7 +427,7 @@ if ($clientId <= 0) {
                                         <?php endif; ?>
                                     </td>
                                     <td style="text-align: center;">
-                                        <button type="button" class="btn-action" style="background-color: #3498db; border: none; cursor: pointer;" 
+                                        <button type="button" class="btn-action" style="background-color: #3498db; display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; border: none; cursor: pointer;" 
                                             onclick="openViewMessageModal(this)"
                                             data-title="<?= htmlspecialchars($msg['TITRE']) ?>"
                                             data-date="<?= date('d/m/Y H:i', strtotime($msg['DATE'])) ?>"
@@ -428,6 +449,57 @@ if ($clientId <= 0) {
         
         <!-- DEBUG: Interventions count = <?= count($interventions ?? []) ?>, Transactions count = <?= count($transactionsHistory ?? []) ?> -->
 
+        <?php if (!empty($clientNotes)): ?>
+        <div class="full-width-section">
+            <div class="notes-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 class="section-title" style="margin-bottom: 0; border-bottom: none;">
+                        <span>📓</span> Notes Associées
+                    </h2>
+                </div>
+                <div class="interventions-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="background: #34495e; width: 15%;">Date</th>
+                                <th style="background: #34495e; width: 20%;">Titre</th>
+                                <th style="background: #34495e; width: 50%;">Contenu</th>
+                                <th style="background: #34495e; width: 15%;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($clientNotes as $note): ?>
+                                <tr>
+                                    <td><?= date('d/m/Y H:i', strtotime($note['date_note'])) ?></td>
+                                    <td><strong><?= htmlspecialchars($note['titre']) ?></strong></td>
+                                    <td>
+                                        <div style="font-size: 0.9em; color: var(--text-color);">
+                                            <?= htmlspecialchars(mb_strimwidth(strip_tags($note['contenu']), 0, 150, "...")) ?>
+                                        </div>
+                                    </td>
+                                    <td style="text-align: center; white-space: nowrap;">
+                                        <?php 
+                                        $noteForJs = $note;
+                                        $noteForJs['client_nom'] = $client['nom'];
+                                        $noteForJs['client_prenom'] = $client['prenom'];
+                                        ?>
+                                        <button onclick='openViewNoteModal(<?= json_encode($noteForJs, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)' class="btn-action" style="background-color: #3498db; display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; margin-right: 5px; border: none; cursor: pointer;" title="Voir la note">👁️</button>
+                                        <button onclick='openEditNoteModal(<?= json_encode($noteForJs, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)' class="btn-action" style="background-color: #f39c12; display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; margin-right: 5px; border: none; cursor: pointer;" title="Modifier">✏️</button>
+                                        <button onclick="confirmDeleteNote(<?= $note['id'] ?>)" class="btn-action" style="background-color: #e74c3c; display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px; margin-right: 5px; border: none; cursor: pointer;" title="Supprimer">🗑️</button>
+                                        
+                                        <?php if ($note['fichier_path']): ?>
+                                            <a href="<?= htmlspecialchars($note['fichier_path']) ?>" download target="_blank" class="btn-action" style="background-color: #7f8c8d; display: inline-block; padding: 5px 10px; color: white; text-decoration: none; border-radius: 4px;" title="Télécharger le fichier">📥</a>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <?php if (!empty($interventions)): ?>
         <div class="full-width-section">
         <div class="interventions-section">
@@ -442,11 +514,11 @@ if ($clientId <= 0) {
                     <table>
                         <thead>
                             <tr>
-                                <th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 8%;">ID</th>
-<th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 14%;">Date</th>
-<th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 12%;">Statut</th>
-<th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 56%;">Description</th>
-<th style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); width: 10%;">Actions</th>
+                                <th style="background: #34495e; width: 8%;">ID</th>
+<th style="background: #34495e; width: 14%;">Date</th>
+<th style="background: #34495e; width: 12%;">Statut</th>
+<th style="background: #34495e; width: 56%;">Description</th>
+<th style="background: #34495e; width: 10%;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -502,11 +574,11 @@ if ($clientId <= 0) {
                     <table>
                         <thead>
                             <tr>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 14%;">Date</th>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 44%;">Description</th>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 14%;">Type</th>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 14%;">Montant</th>
-                                <th style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%); width: 14%;">Acompte/Solde</th>
+                                <th style="background: #34495e; width: 14%;">Date</th>
+                                <th style="background: #34495e; width: 44%;">Description</th>
+                                <th style="background: #34495e; width: 14%;">Type</th>
+                                <th style="background: #34495e; width: 14%;">Montant</th>
+                                <th style="background: #34495e; width: 14%;">Acompte/Solde</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -565,10 +637,10 @@ if ($clientId <= 0) {
                     <table>
                         <thead>
                             <tr>
-                                <th style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); width: 14%;">Date</th>
-                                <th style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); width: 14%;">Type</th>
-                                <th style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); width: 58%;">Description</th>
-                                <th style="background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%); width: 14%;">Montant</th>
+                                <th style="background: #34495e; width: 14%;">Date</th>
+                                <th style="background: #34495e; width: 14%;">Type</th>
+                                <th style="background: #34495e; width: 58%;">Description</th>
+                                <th style="background: #34495e; width: 14%;">Montant</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -629,6 +701,7 @@ function openEditClientModal() {
     document.getElementById('client_edit_ville').value = "<?= htmlspecialchars($client['ville'] ?? '') ?>";
     document.getElementById('client_edit_telephone').value = "<?= htmlspecialchars($client['telephone'] ?? '') ?>";
     document.getElementById('client_edit_portable').value = "<?= htmlspecialchars($client['portable'] ?? '') ?>";
+    document.getElementById('client_edit_commentaire').value = `<?= htmlspecialchars_decode($client['commentaire'] ?? '', ENT_QUOTES) ?>`.trim();
     
     // Focus sur le champ nom
     setTimeout(() => {
@@ -872,6 +945,9 @@ function submitEditClientForm() {
 <!-- Modal Visualisation Agenda -->
 <?php include 'includes/modals/view_agenda.php'; ?>
 
+<!-- Modal Modification rapide Commentaire -->
+<?php include 'includes/modals/edit_client_comment.php'; ?>
+
 
 <!-- Modal Visualisation Message -->
 <?php include 'includes/modals/view_message.php'; ?>
@@ -976,3 +1052,264 @@ window.addEventListener('click', function(event) {
 });
 </script>
 <?php endif; ?>
+
+<!-- Modal Visualisation Note -->
+<div id="viewNoteModal" class="modal-overlay" style="display: none; z-index: 2000;">
+    <div class="modal-content" style="max-width: 600px; width: 95%;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="viewNoteTitle">📓 Détail de la note</h3>
+            <span class="modal-close" onclick="closeViewNoteModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <span id="viewNoteDate" style="color: var(--text-muted); font-size: 0.9em;"></span>
+            </div>
+            
+            <div id="viewNoteContent" style="white-space: pre-wrap; line-height: 1.6; background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);"></div>
+            
+            <div id="viewNoteFile" style="margin-top: 20px; display: none;">
+                <a href="#" target="_blank" download class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 5px;">
+                    📥 Télécharger la pièce jointe
+                </a>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeViewNoteModal()">Fermer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openViewNoteModal(note) {
+    document.getElementById('viewNoteTitle').textContent = note.titre;
+    document.getElementById('viewNoteDate').textContent = '📅 ' + new Date(note.date_note).toLocaleString('fr-FR');
+    document.getElementById('viewNoteContent').textContent = note.contenu;
+    
+    const fileDiv = document.getElementById('viewNoteFile');
+    const fileLink = fileDiv.querySelector('a');
+    
+    if (note.fichier_path) {
+        fileDiv.style.display = 'block';
+        fileLink.href = note.fichier_path;
+    } else {
+        fileDiv.style.display = 'none';
+    }
+    
+    document.getElementById('viewNoteModal').style.display = 'flex';
+}
+
+function closeViewNoteModal() {
+    document.getElementById('viewNoteModal').style.display = 'none';
+}
+
+// Close on outside click
+window.addEventListener('click', function(event) {
+    const noteModal = document.getElementById('viewNoteModal');
+    if (event.target === noteModal) closeViewNoteModal();
+});
+</script>
+
+<!-- INCLUDE NOTE MODAL AND JS -->
+<!-- Modal Ajout/Edition Note (Copied from notes_list.php) -->
+<div id="noteModal" class="modal-overlay" style="display: none; z-index: 2000;">
+    <div class="modal-content" style="max-width: 800px; width: 95%;">
+        <div class="modal-header">
+            <h3 class="modal-title" id="noteModalTitle">📓 Nouvelle Note</h3>
+            <span class="modal-close" onclick="closeNoteModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="noteAlerts"></div>
+            <form id="noteForm" enctype="multipart/form-data">
+                <input type="hidden" id="note_id" name="id">
+                
+                <div class="form-row" style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 2;">
+                        <label class="form-label">Titre *</label>
+                        <input type="text" id="note_titre" name="titre" class="form-control" required placeholder="Titre de la note...">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label class="form-label">Date</label>
+                        <input type="datetime-local" id="note_date" name="date_note" class="form-control" value="<?= date('Y-m-d\TH:i') ?>">
+                    </div>
+                </div>
+
+                <div class="form-group client-search-container" style="position: relative;">
+                    <label class="form-label">Client associé</label>
+                    <div class="flex gap-10">
+                        <div class="flex-grow relative" style="position: relative;">
+                            <input type="text" id="client_search_note" class="form-control" placeholder="Rechercher un client..." autocomplete="off">
+                            <input type="hidden" id="note_id_client" name="id_client">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contenu *</label>
+                    <textarea id="note_contenu" name="contenu" class="form-control" rows="12" required placeholder="Votre note ici..."></textarea>
+                </div>
+
+                <div class="form-row items-center" style="display: flex; gap: 15px; align-items: center;">
+                    <div class="form-group" style="flex: 2;">
+                        <label class="form-label">Fichier joint</label>
+                        <input type="file" name="fichier" class="form-control">
+                        <div id="current_file_info" class="text-xs text-muted mt-5"></div>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <div class="checkbox-group" style="margin-top: 25px;">
+                            <input type="checkbox" id="note_show_on_login" name="show_on_login" value="1">
+                            <label for="note_show_on_login" class="form-label">Afficher sur le login</label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeNoteModal()">Annuler</button>
+            <button type="button" class="btn btn-success" id="noteSaveBtn" onclick="submitNoteForm()">💾 Enregistrer</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let awesompleteClient;
+
+document.addEventListener('DOMContentLoaded', function() {
+    initClientSearchNote();
+});
+
+function initClientSearchNote() {
+    const input = document.getElementById('client_search_note');
+    const hiddenInput = document.getElementById('note_id_client');
+    
+    // Only init if elements exist
+    if (!input || !hiddenInput) return;
+
+    awesompleteClient = new Awesomplete(input, {
+        minChars: 2,
+        maxItems: 15,
+        autoFirst: true,
+        filter: function() { return true; },
+        item: function(text, input) {
+            const itemLabel = text.label || text; 
+            const li = document.createElement("li");
+            li.innerHTML = `<div style="padding: 5px 10px;">
+                <div style="font-weight: 600;">${itemLabel.split(' - ')[0]}</div>
+                <div style="font-size: 0.85em; color: var(--text-muted);">${itemLabel.split(' - ').slice(1).join(' - ')}</div>
+            </div>`;
+            return li;
+        }
+    });
+
+    let lastSearchResults = [];
+    let debounceTimer;
+
+    input.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const query = this.value;
+        if (query.length < 2) return;
+        
+        debounceTimer = setTimeout(() => {
+            fetch(`api/search_clients.php?term=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(data => {
+                    lastSearchResults = data;
+                    awesompleteClient.list = data.map(item => ({
+                        label: item.label,
+                        value: item.value,
+                        id: item.id,
+                        original: item
+                    }));
+                    awesompleteClient.evaluate();
+                })
+                .catch(err => console.error("Search error:", err));
+        }, 300);
+    });
+
+    input.addEventListener('awesomplete-selectcomplete', function(e) {
+        const match = lastSearchResults.find(item => 
+            item.label === e.text.label || item.value === e.text.value
+        );
+        
+        if (match) {
+            hiddenInput.value = match.id;
+            input.value = match.value;
+        } else if (e.text && e.text.id) {
+             hiddenInput.value = e.text.id;
+             input.value = e.text.value || e.text;
+        }
+    });
+
+    input.addEventListener('input', function() {
+        if (!this.value) {
+             hiddenInput.value = '';
+        }
+    });
+}
+
+function openEditNoteModal(note) {
+    document.getElementById('noteModalTitle').textContent = '✏️ Modifier la Note';
+    document.getElementById('note_id').value = note.id;
+    document.getElementById('note_titre').value = note.titre;
+    document.getElementById('note_date').value = note.date_note.replace(' ', 'T').slice(0, 16);
+    document.getElementById('note_id_client').value = note.id_client || '';
+    document.getElementById('client_search_note').value = note.id_client ? (note.client_nom + ' ' + (note.client_prenom || '')) : '';
+    document.getElementById('note_contenu').value = note.contenu;
+    document.getElementById('note_show_on_login').checked = note.show_on_login == 1;
+    document.getElementById('current_file_info').innerHTML = note.fichier_path ? `Fichier actuel : ${note.fichier_path}` : '';
+    document.getElementById('noteAlerts').innerHTML = '';
+    document.getElementById('noteModal').style.display = 'flex';
+    document.getElementById('noteSaveBtn').disabled = false;
+}
+
+function closeNoteModal() {
+    document.getElementById('noteModal').style.display = 'none';
+}
+
+function submitNoteForm() {
+    const form = document.getElementById('noteForm');
+    const formData = new FormData(form);
+    const alerts = document.getElementById('noteAlerts');
+    const btn = document.getElementById('noteSaveBtn');
+    
+    btn.disabled = true;
+    btn.innerHTML = '⌛ Sauvegarde...';
+    
+    fetch('actions/notes_save.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            alerts.innerHTML = `<div class="alert alert-success">✅ ${data.message}</div>`;
+            setTimeout(() => location.reload(), 800);
+        } else {
+            alerts.innerHTML = `<div class="alert alert-danger">⚠️ ${data.error}</div>`;
+            btn.disabled = false;
+            btn.innerHTML = '💾 Enregistrer';
+        }
+    })
+    .catch(e => {
+        alerts.innerHTML = `<div class="alert alert-danger">⚠️ Erreur réseau ou serveur.</div>`;
+        btn.disabled = false;
+        btn.innerHTML = '💾 Enregistrer';
+    });
+}
+
+function confirmDeleteNote(id) {
+    if (confirm('Supprimer cette note définitivement ?')) {
+        fetch('actions/notes_delete.php?id=' + id)
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) location.reload();
+            else alert(data.error);
+        });
+    }
+}
+</script>
+<style>
+/* Adjust z-index for awesomplete in this modal if needed */
+#noteModal .awesomplete > ul {
+    z-index: 2100 !important;
+}
+</style>

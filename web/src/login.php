@@ -62,9 +62,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_first_user']))
     }
 }
 
-// Récupérer les liens et téléchargements à afficher sur la page de login
+// Récupérer les liens, téléchargements et notes à afficher sur la page de login
 $publicLinks = [];
 $publicDownloads = [];
+$publicNotes = [];
 
 try {
     $pdo = getDatabaseConnection();
@@ -84,6 +85,11 @@ try {
     $stmt = $pdo->prepare("SELECT NOM, DESCRIPTION, URL FROM download WHERE show_on_login = 1 ORDER BY NOM ASC");
     $stmt->execute();
     $publicDownloads = $stmt->fetchAll();
+
+    // Récupérer les notes publiques
+    $stmt = $pdo->prepare("SELECT titre, contenu, fichier_path, date_note FROM notes_globales WHERE show_on_login = 1 ORDER BY date_note DESC");
+    $stmt->execute();
+    $publicNotes = $stmt->fetchAll();
 } catch (Exception $e) {
     // En cas d'erreur, continuer sans afficher les liens/téléchargements
     error_log("Erreur lors de la récupération des données : " . $e->getMessage());
@@ -127,7 +133,8 @@ try {
 
         @media (min-width: 768px) {
             .has-info-column {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 400px 1fr;
+                max-width: 1350px;
             }
         }
 
@@ -255,8 +262,101 @@ try {
             background: rgba(255,255,255,0.03);
             border-left: 1px solid var(--border-color, #333);
             padding: 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            align-content: start;
+        }
+        
+        @media (min-width: 1200px) {
+            .info-column {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        .info-section {
             display: flex;
             flex-direction: column;
+        }
+
+        /* Styles pour les notes extensibles */
+        .note-content-wrapper {
+            position: relative;
+            max-height: 100px;
+            overflow: hidden;
+            text-align: left !important;
+        }
+        .note-content-wrapper.expanded {
+            max-height: 1000px;
+        }
+        .btn-read-more {
+            background: none;
+            border: none;
+            color: var(--accent-color-light, #4dabf7);
+            font-size: 0.8em;
+            cursor: pointer;
+            padding: 5px 0;
+            text-align: left;
+            font-weight: 500;
+        }
+        .btn-read-more:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal Styles */
+        .note-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+        .note-modal-content {
+            background-color: var(--card-bg, #1e1e1e);
+            margin: auto;
+            padding: 30px;
+            border: 1px solid var(--border-color, #333);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+        }
+        .note-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color, #333);
+        }
+        .note-modal-title {
+            margin: 0;
+            font-size: 1.4em;
+            color: var(--text-color, #fff);
+        }
+        .note-modal-close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .note-modal-close:hover {
+            color: #fff;
+        }
+        .note-modal-body {
+            color: var(--text-color, #eee);
+            line-height: 1.6;
+            white-space: pre-wrap;
         }
         
         .info-header {
@@ -276,27 +376,30 @@ try {
 
         .link-item {
             display: block;
-            padding: 12px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 8px;
+            padding: 15px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
             text-decoration: none;
             color: var(--accent-color-light, #4dabf7);
             font-size: 0.9em;
             transition: all 0.2s;
-            border: 1px solid transparent;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: left; /* Force l'alignement à gauche */
         }
 
         .link-item:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.06);
             border-color: rgba(255,255,255,0.1);
-            transform: translateX(5px);
+            transform: translateY(-2px);
         }
-        
+
         .link-desc {
             display: block;
-            color: var(--text-color-muted, #888);
+            color: var(--text-color-muted, #999);
             font-size: 0.85em;
             margin-top: 5px;
+            text-align: left !important;
+            width: 100%;
         }
         
         @media (max-width: 767px) {
@@ -305,15 +408,53 @@ try {
             }
             
             .info-column {
-                border-left: none;
                 border-top: 1px solid var(--border-color, #333);
             }
+        }
+        
+        .view-all-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--text-color-muted, #888);
+            font-size: 0.85em;
+            text-decoration: none;
+            padding: 8px;
+            border: 1px dashed var(--border-color, #444);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .view-all-link:hover {
+            background: rgba(255,255,255,0.05);
+            color: var(--accent-color-light, #4dabf7);
+            border-color: var(--accent-color-light, #4dabf7);
+        }
+        
+        /* Attachment Button in Modal */
+        .modal-attachment-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 15px;
+            background: rgba(77, 171, 247, 0.1);
+            color: #4dabf7;
+            text-decoration: none;
+            border-radius: 6px;
+            border: 1px solid rgba(77, 171, 247, 0.3);
+            transition: all 0.2s;
+            margin-left: 10px;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+        
+        .modal-attachment-btn:hover {
+            background: rgba(77, 171, 247, 0.2);
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body class="dark">
     <?php 
-       $hasInfo = !empty($publicDownloads) || !empty($publicLinks);
+       $hasInfo = !empty($publicDownloads) || !empty($publicLinks) || !empty($publicNotes);
        $wrapperClass = $hasInfo ? 'login-wrapper has-info-column' : 'login-wrapper';
     ?>
     <div class="<?= $wrapperClass ?>">
@@ -393,36 +534,112 @@ try {
         <!-- Colonne Droite: Info (si contenu) -->
         <?php if ($hasInfo): ?>
         <div class="info-column">
+            <?php if (!empty($publicNotes)): ?>
+                <div class="info-section">
+                    <div class="info-header">Notes & Informations</div>
+                    <div class="link-grid">
+                        <?php foreach (array_slice($publicNotes, 0, 5) as $index => $note): ?>
+                            <div class="link-item" onclick="showNote(<?= $index ?>)" style="cursor: pointer; display: flex; flex-direction: column; gap: 5px;">
+                                <div style="font-weight: 600; color: var(--text-color); display: flex; justify-content: space-between; align-items: start;">
+                                    <span>📓 <?= htmlspecialchars($note['titre']) ?></span>
+                                    <span style="font-size: 0.75em; opacity: 0.5; font-weight: normal;"><?= date('d/m/Y', strtotime($note['date_note'])) ?></span>
+                                </div>
+                                <div style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.85em; color: var(--text-color-muted, #999); opacity: 0.9;">
+                                    <?= htmlspecialchars(strip_tags($note['contenu'])) ?>
+                                </div>
+                                <?php if ($note['fichier_path']): ?>
+                                    <div class="text-xs" style="color: var(--accent-color-light); opacity: 0.8; font-size: 0.8em;">📎 Pièce jointe incluse</div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                        <?php if (count($publicNotes) > 5): ?>
+                            <a href="public_info.php" class="view-all-link">Voir toutes les notes (<?= count($publicNotes) ?>)</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
             <?php if (!empty($publicDownloads)): ?>
-                <div class="info-header">Téléchargements</div>
-                <div class="link-grid">
-                    <?php foreach ($publicDownloads as $download): ?>
-                        <a href="<?= htmlspecialchars($download['URL']) ?>" target="_blank" class="link-item">
-                            <span>📥 <?= htmlspecialchars($download['NOM']) ?></span>
-                            <?php if (!empty($download['DESCRIPTION'])): ?>
-                                <span class="link-desc"><?= htmlspecialchars($download['DESCRIPTION']) ?></span>
-                            <?php endif; ?>
-                        </a>
-                    <?php endforeach; ?>
+                <div class="info-section">
+                    <div class="info-header">Téléchargements</div>
+                    <div class="link-grid">
+                        <?php foreach (array_slice($publicDownloads, 0, 5) as $download): ?>
+                            <a href="<?= htmlspecialchars($download['URL']) ?>" target="_blank" class="link-item">
+                                <span>📥 <?= htmlspecialchars($download['NOM']) ?></span>
+                                <?php if (!empty($download['DESCRIPTION'])): ?>
+                                    <span class="link-desc"><?= htmlspecialchars($download['DESCRIPTION']) ?></span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                        <?php if (count($publicDownloads) > 5): ?>
+                            <a href="public_info.php" class="view-all-link">Voir tous les téléchargements (<?= count($publicDownloads) ?>)</a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($publicLinks)): ?>
-                <div class="info-header">Liens Utiles</div>
-                <div class="link-grid">
-                    <?php foreach ($publicLinks as $link): ?>
-                        <a href="<?= htmlspecialchars($link['URL']) ?>" target="_blank" class="link-item">
-                            <span>🔗 <?= htmlspecialchars($link['NOM']) ?></span>
-                            <?php if (!empty($link['DESCRIPTION'])): ?>
-                                <span class="link-desc"><?= htmlspecialchars($link['DESCRIPTION']) ?></span>
-                            <?php endif; ?>
-                        </a>
-                    <?php endforeach; ?>
+                <div class="info-section">
+                    <div class="info-header">Liens Utiles</div>
+                    <div class="link-grid">
+                        <?php foreach (array_slice($publicLinks, 0, 5) as $link): ?>
+                            <a href="<?= htmlspecialchars($link['URL']) ?>" target="_blank" class="link-item">
+                                <span>🔗 <?= htmlspecialchars($link['NOM']) ?></span>
+                                <?php if (!empty($link['DESCRIPTION'])): ?>
+                                    <span class="link-desc"><?= htmlspecialchars($link['DESCRIPTION']) ?></span>
+                                <?php endif; ?>
+                            </a>
+                        <?php endforeach; ?>
+                        <?php if (count($publicLinks) > 5): ?>
+                            <a href="public_info.php" class="view-all-link">Voir tous les liens (<?= count($publicLinks) ?>)</a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endif; ?>
         </div>
         <?php endif; ?>
         
     </div>
+
+    <!-- Note Modal -->
+    <div id="publicNoteModal" class="note-modal" onclick="closeNoteModal(event)">
+        <div class="note-modal-content" onclick="event.stopPropagation()">
+            <div class="note-modal-header">
+                <h3 class="note-modal-title" id="noteModalTitle">📓 Note</h3>
+                <span class="note-modal-close" onclick="closeNoteModal()">&times;</span>
+            </div>
+            <div class="note-modal-body" id="noteModalBody"></div>
+            <div id="noteModalFooter" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color, #333); font-size: 0.85em; opacity: 0.7; text-align: right;"></div>
+        </div>
+    </div>
+
+    <script>
+        const publicNotes = <?= json_encode($publicNotes) ?>;
+
+        function showNote(index) {
+            const note = publicNotes[index];
+            document.getElementById('noteModalTitle').textContent = '📓 ' + note.titre;
+            document.getElementById('noteModalBody').textContent = note.contenu;
+            
+            let footerHtml = '<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">';
+            footerHtml += '<span>Posté le ' + new Date(note.date_note).toLocaleDateString('fr-FR') + '</span>';
+            
+            if (note.fichier_path) {
+                // Bouton plus visible pour la pièce jointe
+                footerHtml += '<a href="' + note.fichier_path + '" target="_blank" class="modal-attachment-btn">📎 Télécharger la pièce jointe</a>';
+            }
+            footerHtml += '</div>';
+            document.getElementById('noteModalFooter').innerHTML = footerHtml;
+            
+            document.getElementById('publicNoteModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Empêcher le scroll
+        }
+
+        function closeNoteModal(event) {
+            document.getElementById('publicNoteModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+    </script>
 </body>
 </html>

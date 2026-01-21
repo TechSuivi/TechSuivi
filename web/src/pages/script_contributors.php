@@ -10,7 +10,7 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '5.0.1',
+    'current_version' => '5.0.2',
     'release_date' => '2026-01-21',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
@@ -22,6 +22,19 @@ $projectInfo = [
 
 // Historique des versions (Data structure preserved)
 $versionHistory = [
+    [
+        'version' => '5.0.2',
+        'date' => '2026-01-21',
+        'type' => 'Patch',
+        'changes' => [
+            'Feature : Gestion des notes associées directement sur la fiche client (Vue, Edition, Suppression)',
+            'UI : Amélioration bouton "Voir note" (Modale lecture seule) et icône téléchargement fichier (📥)',
+            'UI : Harmonisation des boutons d\'action sur l\'ensemble des listes (Agenda, Messages, Notes)',
+            'UI : Suppression des dégradés "Arc-en-ciel" sur les entêtes de tableaux (Remplacement par Gris Neutre)',
+            'UI : Passage des boutons primaires en "Flat Design" (Suppression du dégradé)',
+            'Bugfix : Correction de l\'enregistrement des modifications de liens (Sélecteur JS incorrect)'
+        ]
+    ],
     [
         'version' => '5.0.1',
         'date' => '2026-01-21',

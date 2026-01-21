@@ -1,6 +1,6 @@
 <!-- Modal d'édition de client -->
 <div id="editClientModal" class="modal-overlay" style="display: none;">
-    <div class="modal-content shadow-sm">
+    <div class="modal-content shadow-sm" style="max-width: 800px; width: 90%;">
         <div class="modal-header">
             <h3 class="modal-title">✏️ Modifier le client</h3>
             <span class="modal-close" onclick="closeEditClientModal()">&times;</span>
@@ -56,6 +56,10 @@
                         <label for="client_edit_portable" class="form-label">Portable</label>
                         <input type="tel" id="client_edit_portable" name="portable" class="form-control">
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="client_edit_commentaire" class="form-label">Commentaire</label>
+                    <textarea id="client_edit_commentaire" name="commentaire" class="form-control" rows="4" style="resize: vertical;"></textarea>
                 </div>
             </form>
         </div>

@@ -109,7 +109,7 @@ $allowedPages = [
     'dashboard', 'interventions_list', 'interventions_add', 'interventions_view',
     'interventions_edit', 'interventions_print', 'clients', 'add_client', 'edit_client', 'clients_view',
     'downloads_list', 'downloads_add', 'downloads_edit', 'liens_list',
-    'liens_add', 'liens_edit', 'helpdesk_categories', 'messages',
+    'liens_add', 'liens_edit', 'helpdesk_categories', 'messages', 'notes_list',
     'liens_add', 'liens_edit', 'helpdesk_categories', 'messages',
     'stock_list', 'orders_list', 'orders_edit', 'stock_add', 'inventory_list', 'inventory_view', 'fournisseurs_list', 'catalog_import',
     'dashboard_caisse', 'moyens_paiement', 'cyber_list', 'cyber_add',
@@ -197,6 +197,9 @@ if (!in_array($page, $allowedPages)) {
                 <ul class="submenu" id="messages-submenu">
                     <!-- Les catégories seront chargées dynamiquement -->
                 </ul>
+            </li>
+            <li class="menu-item">
+                <a href="index.php?page=notes_list" <?php echo ($page === 'notes_list') ? 'class="active"' : ''; ?>>📓 Notes</a>
             </li>
             <li class="menu-item">
                 <a href="index.php?page=downloads_list" <?php echo isMenuActive('downloads', $page) ? 'class="active"' : ''; ?>>📥 Téléchargements</a>
@@ -361,7 +364,13 @@ if (!in_array($page, $allowedPages)) {
                 if ($pdo) {
                     include 'pages/helpdesk/helpdesk_messages.php';
                 } else {
-                     echo "<p style='color: red;'>Les messages ne peuvent pas être affichés car la connexion à la base de données a échoué.</p>";
+                     echo "<p style='color: red;'>Les messages ne peuvent pas être affichés car la connexion à la base de données n'est pas disponible.</p>";
+                }
+            } elseif ($page === 'notes_list') {
+                if ($pdo) {
+                    include 'pages/notes/notes_list.php';
+                } else {
+                     echo "<p style='color: red;'>La page des notes ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
                 }
             } elseif ($page === 'stock_list') {
                 if ($pdo) {

@@ -327,7 +327,7 @@ function submitEditLinkForm() {
     
     alertsDiv.innerHTML = '';
     
-    const btn = document.querySelector('#editLinkModal .btn-info');
+    const btn = document.querySelector('#editLinkModal .btn-primary');
     const originalText = btn.innerHTML;
     btn.innerHTML = 'Enregistrement...';
     btn.disabled = true;
