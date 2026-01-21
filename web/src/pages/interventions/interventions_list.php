@@ -462,6 +462,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const itemsPerPageSelect = document.getElementById('items-per-page');
     const hideClosedCheckbox = document.getElementById('hide-closed');
     
+    let currentSearchTerm = <?= json_encode($searchTerm) ?>;
+    let currentItemsPerPage = <?= json_encode($itemsPerPage) ?>;
+    let currentHideClosed = <?= json_encode($hideClosed) ?>;
     let searchTimeout;
     
     // Focus si recherche
@@ -482,7 +485,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Assuming api/search_interventions.php returns JSON data that the previous JS manual builder used.
         // I need to update the JS builder to match the new Table structure.
         
-        fetch(`api/search_interventions.php?search=${encodeURIComponent(searchTerm)}`)
+        const hideClosedParam = hideClosedCheckbox.checked ? '&hide_closed=1' : '';
+        fetch(`api/search_interventions.php?search=${encodeURIComponent(searchTerm)}${hideClosedParam}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -494,6 +498,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     else url.searchParams.delete('search');
                     window.history.replaceState({}, '', url);
                     
+                    // Update internal state
+                    currentSearchTerm = searchTerm;
+                    currentHideClosed = hideClosedCheckbox.checked;
+
                     // UI Updates
                     if (searchTerm) {
                         if (searchIndicator) searchIndicator.style.display = 'block';

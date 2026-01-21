@@ -29,7 +29,10 @@ $versionHistory = [
         'changes' => [
             'UI : Changement de l\'accent de couleur principal (Violet -> Vert)',
             'UI : Harmonisation des tons verts sur l\'ensemble des composants (Badges, boutons, liens)',
-            'UI : Amélioration du contraste et de la lisibilité du thème vert'
+            'UI : Amélioration du contraste et de la lisibilité du thème vert',
+            'UI : Correction de la lisibilité en Dark Mode sur la feuille de caisse',
+            'UX : Champ "Solde de départ" modifiable sur la feuille de caisse',
+            'Bugfix : Correction du filtre "Masquer clôturées" dans la liste des interventions (JS/AJAX)'
         ]
     ],
     [

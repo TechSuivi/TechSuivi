@@ -355,7 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$modification_autorisee) {
                 </label>
                 <input type="number" id="solde_base" step="0.01"
                        value="<?= $solde_precedent_auto ?>"
-                       class="feuille-caisse-input" readonly style="background-color: #f0f0f0;">
+                       class="feuille-caisse-input" style="background-color: var(--secondary-bg); color: var(--text-color);" onchange="calculerTotaux()">
             </div>
             <div class="field-group">
                 <label for="ajustement_especes" class="feuille-caisse-label">
@@ -602,10 +602,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$modification_autorisee) {
             <div style="display: flex; align-items: center; justify-content: center; padding: 8px;">
                 <!-- Colonne vide sous les billets -->
             </div>
-            <div style="background-color: #f5f5f5; border-radius: 3px; padding: 4px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px;">
+            <div style="background-color: var(--secondary-bg); border-radius: 3px; padding: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 12px;">
                 -
             </div>
-            <div style="background-color: #f5f5f5; border-radius: 3px; padding: 4px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px;">
+            <div style="background-color: var(--secondary-bg); border-radius: 3px; padding: 4px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 12px;">
                 -
             </div>
             <div style="display: flex; align-items: center; font-weight: bold; font-size: 14px; padding: 8px;">0,01 €</div>
@@ -624,22 +624,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$modification_autorisee) {
         <!-- Totaux compacts -->
         <div style="display: grid; grid-template-columns: 80px 1fr 1fr 80px 1fr 1fr; gap: 8px; margin-top: 15px; font-weight: bold;">
             <div style="display: flex; align-items: center; font-size: 12px;">TOTAUX</div>
-            <div class="feuille-caisse-total" style="background-color: #e3f2fd; border: 2px solid #2196F3; padding: 6px; text-align: center; font-size: 12px;">
+            <div class="feuille-caisse-total" style="background-color: rgba(59, 130, 246, 0.1); border: 2px solid var(--info-color); padding: 6px; text-align: center; font-size: 12px;">
                 <div style="margin-bottom: 2px;">BILLETS</div>
-                <span id="total_billets_display">0,00 €</span>
+                <span id="total_billets_display" style="color: var(--info-color);">0,00 €</span>
             </div>
-            <div class="feuille-caisse-total" style="background-color: #fff3e0; border: 2px solid #FF9800; padding: 6px; text-align: center; font-size: 12px;">
+            <div class="feuille-caisse-total" style="background-color: rgba(243, 156, 18, 0.1); border: 2px solid var(--warning-color); padding: 6px; text-align: center; font-size: 12px;">
                 <div style="margin-bottom: 2px;">RETRAIT B.</div>
-                <span id="total_retrait_billets_display">0,00 €</span>
+                <span id="total_retrait_billets_display" style="color: var(--warning-color);">0,00 €</span>
             </div>
             <div style="display: flex; align-items: center; font-size: 12px;">TOTAUX</div>
-            <div class="feuille-caisse-total" style="background-color: #e8f5e8; border: 2px solid #4CAF50; padding: 6px; text-align: center; font-size: 12px;">
+            <div class="feuille-caisse-total" style="background-color: rgba(16, 185, 129, 0.1); border: 2px solid var(--accent-color); padding: 6px; text-align: center; font-size: 12px;">
                 <div style="margin-bottom: 2px;">PIÈCES</div>
-                <span id="total_pieces_display">0,00 €</span>
+                <span id="total_pieces_display" style="color: var(--accent-color);">0,00 €</span>
             </div>
-            <div class="feuille-caisse-total" style="background-color: #fce4ec; border: 2px solid #E91E63; padding: 6px; text-align: center; font-size: 12px;">
+            <div class="feuille-caisse-total" style="background-color: rgba(231, 76, 60, 0.1); border: 2px solid var(--danger-color); padding: 6px; text-align: center; font-size: 12px;">
                 <div style="margin-bottom: 2px;">RETRAIT P.</div>
-                <span id="total_retrait_pieces_display">0,00 €</span>
+                <span id="total_retrait_pieces_display" style="color: var(--danger-color);">0,00 €</span>
             </div>
         </div>
     </div>
