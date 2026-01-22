@@ -58,6 +58,7 @@ try {
             '/../uploads/documents',
             '/../uploads/interventions',
             '/../uploads/stock',
+            '/../uploads/notes',
             '/../uploads/backups',
             '/../uploads/autoit/logiciels',
             '/../uploads/autoit/nettoyage',

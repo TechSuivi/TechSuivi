@@ -30,7 +30,8 @@ $versionHistory = [
             'Bugfix : Résolution de l\'erreur de table manquante `notes_globales` lors de la mise à jour BDD',
             'Bugfix : Correction de l\'ordre d\'exécution du script `update_db_structure.php` (Création tables avant Ajout colonnes)',
             'UI : Correction du style CSS de la page VNC (Overlay plein écran, grilles, espacements)',
-            'Infra : Ajout des utilitaires CSS manquants spécifiques à la page VNC'
+            'Infra : Ajout des utilitaires CSS manquants spécifiques à la page VNC',
+            'Infra : Correction des permissions Docker pour le dossier `uploads/notes` (Upload pièces jointes)'
         ]
     ],
     [
