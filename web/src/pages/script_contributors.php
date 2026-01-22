@@ -10,7 +10,7 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '5.0.2',
+    'current_version' => '5.0.3',
     'release_date' => '2026-01-21',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
@@ -22,6 +22,17 @@ $projectInfo = [
 
 // Historique des versions (Data structure preserved)
 $versionHistory = [
+    [
+        'version' => '5.0.3',
+        'date' => '2026-01-22',
+        'type' => 'Patch',
+        'changes' => [
+            'Bugfix : Résolution de l\'erreur de table manquante `notes_globales` lors de la mise à jour BDD',
+            'Bugfix : Correction de l\'ordre d\'exécution du script `update_db_structure.php` (Création tables avant Ajout colonnes)',
+            'UI : Correction du style CSS de la page VNC (Overlay plein écran, grilles, espacements)',
+            'Infra : Ajout des utilitaires CSS manquants spécifiques à la page VNC'
+        ]
+    ],
     [
         'version' => '5.0.2',
         'date' => '2026-01-21',

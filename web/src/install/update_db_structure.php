@@ -18,6 +18,25 @@ try {
     
     // Chargement de la configuration centralisée
     $schemaConfig = require __DIR__ . '/../config/db_schema.php';
+    // 1. D'ABORD : Gestion des nouvelles tables
+    // Il est crucial de créer les tables AVANT d'essayer de modifier leurs colonnes
+    $newTables = $schemaConfig['tables'] ?? [];
+    foreach ($newTables as $tableName => $sql) {
+        $stmt = $pdo->query("SHOW TABLES LIKE '$tableName'");
+        if ($stmt->fetch()) {
+            echo "<p style='color:green'>✅ La table <strong>$tableName</strong> existe déjà.</p>";
+        } else {
+            try {
+                $pdo->exec($sql);
+                echo "<p style='color:blue'>🛠️ Création de la table <strong>$tableName</strong>...</p>";
+                echo "<p style='color:green'>✅ Table créée avec succès.</p>";
+            } catch (PDOException $e) {
+                echo "<p style='color:red'>❌ Erreur SQL lors de la création de la table <strong>$tableName</strong> : " . htmlspecialchars($e->getMessage()) . "</p>";
+            }
+        }
+    }
+
+    // 2. ENSUITE : Liste des colonnes à vérifier/ajouter
     $updates = $schemaConfig['columns'] ?? [];
     
     foreach ($updates as $table => $column) {
@@ -60,23 +79,6 @@ try {
                 echo "<p style='color:orange'>🔶 Correction du type pour <strong>commentaire</strong> (passage de INT à TEXT)...</p>";
                 $pdo->exec("ALTER TABLE `clients` MODIFY COLUMN `commentaire` TEXT");
                 echo "<p style='color:green'>✅ Type corrigé avec succès.</p>";
-            }
-        }
-    }
-
-    // Gestion des nouvelles tables
-    $newTables = $schemaConfig['tables'] ?? [];
-    foreach ($newTables as $tableName => $sql) {
-        $stmt = $pdo->query("SHOW TABLES LIKE '$tableName'");
-        if ($stmt->fetch()) {
-            echo "<p style='color:green'>✅ La table <strong>$tableName</strong> existe déjà.</p>";
-        } else {
-            try {
-                $pdo->exec($sql);
-                echo "<p style='color:blue'>🛠️ Création de la table <strong>$tableName</strong>...</p>";
-                echo "<p style='color:green'>✅ Table créée avec succès.</p>";
-            } catch (PDOException $e) {
-                echo "<p style='color:red'>❌ Erreur SQL lors de la création de la table <strong>$tableName</strong> : " . htmlspecialchars($e->getMessage()) . "</p>";
             }
         }
     }

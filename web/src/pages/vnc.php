@@ -77,6 +77,52 @@ if ($pdo) {
 }
 ?>
 
+<style>
+/* Utilitaires manquants pour la page VNC */
+.p-20 { padding: 20px; }
+.px-20 { padding-left: 20px; padding-right: 20px; }
+.py-10 { padding-top: 10px; padding-bottom: 10px; }
+.p-15 { padding: 15px; }
+.mb-25 { margin-bottom: 25px; }
+.mt-15 { margin-top: 15px; }
+.gap-30 { gap: 30px; }
+.gap-10 { gap: 10px; }
+.gap-5 { gap: 5px; }
+.rounded-4 { border-radius: 4px; }
+.rounded-50 { border-radius: 50px; }
+.text-white { color: white; }
+.text-success { color: #10b981; }
+.text-warning { color: #f59e0b; }
+.bg-transparent { background-color: transparent; }
+.bg-muted { background-color: #6c757d; }
+.bg-black { background-color: #000; }
+.opacity-70 { opacity: 0.7; }
+.cursor-pointer { cursor: pointer; }
+.no-underline { text-decoration: none; }
+.flex-col { flex-direction: column; }
+.justify-start { justify-content: flex-start; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.min-h-420 { min-height: 420px; }
+.h-400 { height: 400px; }
+.max-w-700 { max-width: 700px; }
+.w-full { width: 100%; }
+.max-w-full { max-width: 100%; }
+.fixed { position: fixed; }
+.absolute { position: absolute; }
+.top-0 { top: 0; }
+.left-0 { left: 0; }
+.top-20 { top: 20px; }
+.right-30 { right: 30px; }
+.z-50 { z-index: 50; }
+.bg-black-opacity { background: rgba(0,0,0,0.9); }
+.w-90vw { width: 90vw; }
+.h-90vh { height: 90vh; }
+.select-none { user-select: none; }
+.vnc-grid { display: grid; }
+</style>
+
 <div class="container w-full max-w-full px-20">
     <div class="page-header flex justify-between items-center text-white p-15 mb-25 rounded-4 shadow-sm bg-gradient-primary">
         <h1 class="m-0 text-xl font-normal flex items-center gap-10">
