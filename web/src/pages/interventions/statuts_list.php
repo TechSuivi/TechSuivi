@@ -104,87 +104,117 @@ if (isset($pdo)) {
 }
 ?>
 
-<h1>Gestion des Statuts d'Intervention</h1>
+<style>
+.grid-layout-custom {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+@media (min-width: 768px) {
+    .grid-layout-custom {
+        grid-template-columns: 1fr 2fr;
+    }
+}
+</style>
 
-<?php echo $message; ?>
+<div class="container max-w-1600">
+    <div class="page-header">
+        <h1>
+            <span>🏷️</span>
+            Gestion des Statuts d'Intervention
+        </h1>
+    </div>
 
-<!-- Formulaire d'ajout -->
-<div class="add-status-form" style="padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-    <h2>Ajouter un nouveau statut</h2>
-    <form method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; align-items: end;">
-        <input type="hidden" name="action" value="add">
-        
-        <div>
-            <label for="nom" class="form-label">Nom du statut :</label>
-            <input type="text" id="nom" name="nom" required class="form-input">
-        </div>
-        
-        <div>
-            <label for="couleur" class="form-label">Couleur :</label>
-            <input type="color" id="couleur" name="couleur" value="#007bff" class="form-input color-input">
-        </div>
-        
-        <div>
-            <label for="description" class="form-label">Description :</label>
-            <input type="text" id="description" name="description" class="form-input">
-        </div>
-        
-        <div>
-            <label for="ordre_affichage" class="form-label">Ordre d'affichage :</label>
-            <input type="number" id="ordre_affichage" name="ordre_affichage" value="0" class="form-input">
-        </div>
-        
-        <div style="grid-column: span 2;">
-            <button type="submit" class="btn-primary">
-                Ajouter le statut
-            </button>
-        </div>
-    </form>
-</div>
+    <?php echo $message; ?>
 
-<!-- Liste des statuts -->
-<div>
-    <h2>Statuts existants</h2>
-    
-    <?php if (empty($statuts)): ?>
-        <p>Aucun statut trouvé.</p>
-    <?php else: ?>
-        <div style="display: grid; gap: 15px;">
-            <?php foreach ($statuts as $statut): ?>
-                <div style="background-color: var(--bg-color, white); border: 1px solid var(--border-color, #ddd); border-radius: 8px; padding: 20px;">
-                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 15px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background-color: <?= htmlspecialchars($statut['couleur']) ?>; border: 2px solid var(--border-color, #ddd);"></span>
-                            <h3 style="margin: 0; color: var(--text-color, #333);"><?= htmlspecialchars($statut['nom']) ?></h3>
-                            <?php if (!$statut['actif']): ?>
-                                <span style="background-color: #dc3545; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px;">Inactif</span>
-                            <?php endif; ?>
-                        </div>
-                        <div>
-                            <button onclick="editStatut(<?= $statut['id'] ?>)" style="padding: 5px 10px; background-color: #ffc107; color: #212529; border: none; border-radius: 4px; cursor: pointer; margin-right: 5px;">
-                                Modifier
-                            </button>
-                            <button onclick="deleteStatut(<?= $statut['id'] ?>, '<?= htmlspecialchars($statut['nom']) ?>')" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
-                                Supprimer
-                            </button>
-                        </div>
+    <div class="grid-layout-custom">
+        <!-- Colonne Gauche : Formulaire -->
+        <div>
+            <div class="add-status-form sticky top-20" style="padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                <h2 style="margin-top: 0; margin-bottom: 20px;">➕ Ajouter un statut</h2>
+                <form method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+                    <input type="hidden" name="action" value="add">
+                    
+                    <div>
+                        <label for="nom" class="form-label">Nom du statut :</label>
+                        <input type="text" id="nom" name="nom" required class="form-input">
                     </div>
                     
-                    <?php if (!empty($statut['description'])): ?>
-                        <p style="margin: 0 0 10px 0; color: var(--text-muted, #666);"><?= htmlspecialchars($statut['description']) ?></p>
-                    <?php endif; ?>
-                    
-                    <div style="display: flex; gap: 20px; font-size: 14px; color: var(--text-muted, #666);">
-                        <span>Ordre: <?= $statut['ordre_affichage'] ?></span>
-                        <span>Créé: <?= date('d/m/Y H:i', strtotime($statut['created_at'])) ?></span>
-                        <?php if ($statut['updated_at'] !== $statut['created_at']): ?>
-                            <span>Modifié: <?= date('d/m/Y H:i', strtotime($statut['updated_at'])) ?></span>
-                        <?php endif; ?>
+                    <div>
+                        <label for="couleur" class="form-label">Couleur :</label>
+                        <input type="color" id="couleur" name="couleur" value="#007bff" class="form-input color-input">
                     </div>
+                    
+                    <div>
+                        <label for="description" class="form-label">Description :</label>
+                        <input type="text" id="description" name="description" class="form-input">
+                    </div>
+                    
+                    <div>
+                        <label for="ordre_affichage" class="form-label">Ordre d'affichage :</label>
+                        <input type="number" id="ordre_affichage" name="ordre_affichage" value="0" class="form-input">
+                    </div>
+                    
+                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+                        Ajouter le statut
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Colonne Droite : Liste -->
+        <div>
+            <?php if (empty($statuts)): ?>
+                <div style="text-align: center; padding: 40px; border: 2px dashed #ddd; border-radius: 8px; color: #666;">
+                    <p>Aucun statut trouvé.</p>
                 </div>
-            <?php endforeach; ?>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table style="width: 100%; border-collapse: separate; border-spacing: 0; background-color: var(--card-bg, #fff); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border-color, #ddd);">
+                        <thead style="background-color: var(--bg-color, #f8f9fa);">
+                            <tr>
+                                <th style="padding: 12px 15px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-color, #ddd);">Nom (Couleur)</th>
+                                <th style="padding: 12px 15px; text-align: left; font-weight: 600; border-bottom: 1px solid var(--border-color, #ddd);">Description</th>
+                                <th style="padding: 12px 15px; text-align: center; font-weight: 600; border-bottom: 1px solid var(--border-color, #ddd); width: 80px;">Ordre</th>
+                                <th style="padding: 12px 15px; text-align: right; font-weight: 600; border-bottom: 1px solid var(--border-color, #ddd); width: 150px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($statuts as $statut): ?>
+                                <tr style="border-bottom: 1px solid var(--border-color, #eee);">
+                                    <td style="padding: 12px 15px; border-bottom: 1px solid var(--border-color, #eee);">
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <span style="display: inline-block; width: 24px; height: 24px; border-radius: 50%; background-color: <?= htmlspecialchars($statut['couleur']) ?>; border: 2px solid rgba(0,0,0,0.1);"></span>
+                                            <span style="font-weight: bold;"><?= htmlspecialchars($statut['nom']) ?></span>
+                                            <?php if (!$statut['actif']): ?>
+                                                <span style="background-color: #dc3545; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; margin-left: 5px;">Inactif</span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td style="padding: 12px 15px; border-bottom: 1px solid var(--border-color, #eee); color: var(--text-muted, #666);">
+                                        <?= htmlspecialchars($statut['description']) ?>
+                                    </td>
+                                    <td style="padding: 12px 15px; border-bottom: 1px solid var(--border-color, #eee); text-align: center;">
+                                        <?= $statut['ordre_affichage'] ?>
+                                    </td>
+                                    <td style="padding: 12px 15px; border-bottom: 1px solid var(--border-color, #eee); text-align: right;">
+                                        <div style="display: flex; gap: 5px; justify-content: flex-end;">
+                                            <button onclick="editStatut(<?= $statut['id'] ?>)" class="btn-sm-action text-info border-info hover:bg-info hover:text-white" title="Modifier">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </button>
+                                            <button onclick="deleteStatut(<?= $statut['id'] ?>, '<?= htmlspecialchars($statut['nom']) ?>')" class="btn-sm-action text-danger border-danger hover:bg-danger hover:text-white" title="Supprimer">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
-    <?php endif; ?>
+    </div>
 </div>
 
 <!-- Modal de modification -->

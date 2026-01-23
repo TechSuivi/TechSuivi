@@ -619,7 +619,7 @@ try {
         function showNote(index) {
             const note = publicNotes[index];
             document.getElementById('noteModalTitle').textContent = '📓 ' + note.titre;
-            document.getElementById('noteModalBody').textContent = note.contenu;
+            document.getElementById('noteModalBody').innerHTML = linkify(note.contenu);
             
             let footerHtml = '<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">';
             footerHtml += '<span>Posté le ' + new Date(note.date_note).toLocaleDateString('fr-FR') + '</span>';
@@ -638,6 +638,14 @@ try {
         function closeNoteModal(event) {
             document.getElementById('publicNoteModal').style.display = 'none';
             document.body.style.overflow = 'auto';
+        }
+
+        function linkify(text) {
+            if (!text) return '';
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function(url) {
+                return '<a href="' + url + '" target="_blank" style="color: var(--accent-color-light, #4dabf7); text-decoration: none;">' + url + '</a>';
+            });
         }
 
     </script>

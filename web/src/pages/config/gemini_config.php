@@ -110,6 +110,7 @@ function testGeminiApi($apiKey, $modelName) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $gemini_api_key = $_POST['gemini_api_key'] ?? '';
     $gemini_model = $_POST['gemini_model'] ?? '';
+    $stirling_pdf_url = $_POST['stirling_pdf_url'] ?? '';
 
     if (isset($_POST['save_config'])) {
         try {
@@ -134,6 +135,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                  if (!$check->fetch()) {
                      $insert = $pdo->prepare("INSERT INTO configuration (config_key, config_value, config_type, description, category) VALUES ('gemini_model', ?, 'text', 'Modèle Google Gemini AI utilisé', 'ai')");
                      $insert->execute([$gemini_model]);
+                 }
+            }
+            
+            // Sauvegarde STIRLING PDF URL
+            $stmt = $pdo->prepare("UPDATE configuration SET config_value = ?, updated_at = NOW() WHERE config_key = 'stirling_pdf_url'");
+            $stmt->execute([$stirling_pdf_url]);
+            if ($stmt->rowCount() === 0) {
+                 $check = $pdo->prepare("SELECT id FROM configuration WHERE config_key = 'stirling_pdf_url'");
+                 $check->execute();
+                 if (!$check->fetch()) {
+                     $insert = $pdo->prepare("INSERT INTO configuration (config_key, config_value, config_type, description, category) VALUES ('stirling_pdf_url', ?, 'text', 'URL du serveur Stirling PDF pour OCR', 'ai')");
+                     $insert->execute([$stirling_pdf_url]);
                  }
             }
             
@@ -167,10 +180,18 @@ try {
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     if ($result) $gemini_model = $result['config_value'];
 
+    // STIRLING PDF URL
+    $stirling_pdf_url = '';
+    $stmt = $pdo->prepare("SELECT config_value FROM configuration WHERE config_key = 'stirling_pdf_url'");
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($result) $stirling_pdf_url = $result['config_value'];
+
     // Override from POST (pour ne pas perdre la sélection lors d'un test ou erreur)
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (isset($_POST['gemini_api_key'])) $gemini_api_key = $_POST['gemini_api_key'];
         if (isset($_POST['gemini_model'])) $gemini_model = $_POST['gemini_model'];
+        if (isset($_POST['stirling_pdf_url'])) $stirling_pdf_url = $_POST['stirling_pdf_url'];
     }
 
 } catch (Exception $e) {
@@ -257,6 +278,34 @@ if (!empty($gemini_model) && !in_array($gemini_model, $available_models)) {
                 <small class="form-help">
                     Le modèle utilisé pour les réponses (ex: gemini-1.5-flash est rapide et économique).
                 </small>
+            </div>
+
+            <!-- Stirling PDF URL -->
+            <div class="form-group">
+                <label for="stirling_pdf_url">📄 URL Stirling PDF (OCR)</label>
+                <div class="input-group">
+                    <input type="text" 
+                           id="stirling_pdf_url" 
+                           name="stirling_pdf_url" 
+                           value="<?= htmlspecialchars($stirling_pdf_url) ?>" 
+                           class="form-control"
+                           placeholder="http://192.168.x.x:8080">
+                </div>
+                <small class="form-help">
+                    L'URL de votre instance Stirling PDF locale. Si renseigné, l'OCR passera par ce serveur avant d'être analysé par l'IA.
+                </small>
+                
+                <!-- Zone de test OCR -->
+                <div style="margin-top: 10px; padding: 10px; background: #e9ecef; border-radius: 4px;">
+                    <label style="font-size: 0.9em;">🧬 Tester la connexion Stirling OCR</label>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
+                        <input type="file" id="ocr_test_file" class="form-control" style="width: auto;">
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="testStirlingStats()">
+                            Tester l'extraction
+                        </button>
+                    </div>
+                    <div id="ocr_test_result" style="margin-top: 10px; font-family: monospace; font-size: 0.85em; white-space: pre-wrap; max-height: 100px; overflow-y: auto; background: white; padding: 5px; border: 1px solid #ccc; display: none;"></div>
+                </div>
             </div>
             
             <!-- Boutons d'action -->
@@ -772,5 +821,44 @@ function togglePasswordVisibility() {
     } else {
         input.type = 'password';
     }
+}
+
+function testStirlingStats() {
+    const url = document.getElementById('stirling_pdf_url').value;
+    const fileInput = document.getElementById('ocr_test_file');
+    const resultDiv = document.getElementById('ocr_test_result');
+    
+    if (!url) {
+        alert("Veuillez entrer une URL Stirling PDF d'abord.");
+        return;
+    }
+    if (fileInput.files.length === 0) {
+        alert("Veuillez sélectionner un fichier pour le test.");
+        return;
+    }
+    
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = '⏳ Envoi au serveur OCR...';
+    
+    const formData = new FormData();
+    formData.append('action', 'test_ocr');
+    formData.append('stirling_url', url);
+    formData.append('test_file', fileInput.files[0]);
+    
+    fetch('api/ai_actions.php', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+        if(data.success) {
+            resultDiv.style.color = 'green';
+            resultDiv.innerText = "✅ SUCCÈS - Texte extrait :\n\n" + data.text.substring(0, 500) + (data.text.length > 500 ? '...' : '');
+        } else {
+            resultDiv.style.color = 'red';
+            resultDiv.innerText = "❌ ERREUR : " + data.message;
+        }
+    })
+    .catch(e => {
+        resultDiv.style.color = 'red';
+        resultDiv.innerText = "❌ ERREUR JS : " + e.message;
+    });
 }
 </script>

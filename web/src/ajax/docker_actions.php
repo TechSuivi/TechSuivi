@@ -230,19 +230,21 @@ switch ($action) {
                                             -
                                         <?php endif; ?>
                                     </td>
-                                    <td class="p-10 text-right whitespace-nowrap flex justify-end gap-5">
-                                        <?php if ($isRunning): ?>
-                                            <?php if (!$isSelf): ?>
-                                            <button class="btn-sm-action text-danger border-danger hover:bg-danger hover:text-white" onclick="dockerAction('stop', '<?= htmlspecialchars($c['name']) ?>')" title="Arrêter">⏹️</button>
+                                    <td class="p-10 text-right whitespace-nowrap">
+                                        <div class="flex justify-end gap-5 items-center h-full">
+                                            <?php if ($isRunning): ?>
+                                                <?php if (!$isSelf): ?>
+                                                <button class="btn-sm-action text-danger border-danger hover:bg-danger hover:text-white" onclick="dockerAction('stop', '<?= htmlspecialchars($c['name']) ?>')" title="Arrêter">⏹️</button>
+                                                <?php endif; ?>
+                                                <button class="btn-sm-action text-orange border-orange hover:bg-orange hover:text-white" onclick="dockerAction('restart', '<?= htmlspecialchars($c['name']) ?>', <?= $isSelf ? 1 : 0 ?>)" title="Redémarrer">🔄</button>
+                                                <button class="btn-sm-action text-info border-info hover:bg-info hover:text-white" onclick="showDockerLogs('<?= htmlspecialchars($c['name']) ?>')" title="Logs">📄</button>
+                                            <?php else: ?>
+                                                <?php if (!$isSelf): ?>
+                                                <button class="btn-sm-action text-success border-success hover:bg-success hover:text-white" onclick="dockerAction('start', '<?= htmlspecialchars($c['name']) ?>')" title="Démarrer">▶️</button>
+                                                <?php endif; ?>
+                                                <button class="btn-sm-action text-info border-info hover:bg-info hover:text-white" onclick="showDockerLogs('<?= htmlspecialchars($c['name']) ?>')" title="Logs">📄</button>
                                             <?php endif; ?>
-                                            <button class="btn-sm-action text-orange border-orange hover:bg-orange hover:text-white" onclick="dockerAction('restart', '<?= htmlspecialchars($c['name']) ?>', <?= $isSelf ? 1 : 0 ?>)" title="Redémarrer">🔄</button>
-                                            <button class="btn-sm-action text-info border-info hover:bg-info hover:text-white" onclick="showDockerLogs('<?= htmlspecialchars($c['name']) ?>')" title="Logs">📄</button>
-                                        <?php else: ?>
-                                            <?php if (!$isSelf): ?>
-                                            <button class="btn-sm-action text-success border-success hover:bg-success hover:text-white" onclick="dockerAction('start', '<?= htmlspecialchars($c['name']) ?>')" title="Démarrer">▶️</button>
-                                            <?php endif; ?>
-                                            <button class="btn-sm-action text-info border-info hover:bg-info hover:text-white" onclick="showDockerLogs('<?= htmlspecialchars($c['name']) ?>')" title="Logs">📄</button>
-                                        <?php endif; ?>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

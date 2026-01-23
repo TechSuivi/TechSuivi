@@ -9,96 +9,95 @@ if (!defined('TECHSUIVI_INCLUDED')) {
 
 ?>
 
-<div class="ai-assistant-container">
-    <div class="page-header assistant-header">
-        <h1 class="assistant-title">
-            <span>🤖</span> Assistant Rédaction IA
-        </h1>
-        <div class="assistant-controls">
-            <div class="mode-toggle-wrapper">
-                <button class="mode-btn active" onclick="switchMode('draft')" id="btn-mode-draft" title="Mode Rédaction">
-                    <span class="colored-emoji">✍️</span> Rédaction
-                </button>
-                <button class="mode-btn" onclick="switchMode('chat')" id="btn-mode-chat" title="Mode Chat">
-                    <span class="colored-emoji">💬</span> Chat
-                </button>
-            </div>
-            <div class="rule-selector-wrapper">
-                <span class="rule-icon">📋</span>
-                <select class="form-select rule-select" id="ai_rule">
-                    <option value="">Ton / Règle (Défaut)</option>
-                    <!-- Chargé via JS -->
-                </select>
-            </div>
-        </div>
-    </div>
 
+<div class="flex-between-center mb-20">
+
+    <h1 class="m-0 text-xl font-bold text-color flex items-center gap-10">
+        🤖 Assistant Rédaction IA
+    </h1>
+    <div class="flex gap-10">
+
+        <div class="btn-group">
+            <button class="btn btn-primary active" onclick="switchMode('draft')" id="btn-mode-draft" title="Mode Rédaction">
+                ✍️ Rédaction
+            </button>
+            <button class="btn btn-secondary" onclick="switchMode('chat')" id="btn-mode-chat" title="Mode Chat">
+                💬 Chat
+            </button>
+        </div>
+        
+        <select class="form-select w-auto" id="ai_rule">
+            <option value="">📋 Ton / Règle (Défaut)</option>
+            <!-- Chargé via JS -->
+        </select>
+    </div>
+</div>
+
+<div class="row">
     <!-- Mode RÉDACTION (Défaut) -->
-    <div id="workspace-draft" class="assistant-workspace">
+    <div id="workspace-draft" class="col-12 flex gap-20">
         <!-- Zone Prompt (Gauche) -->
-        <div class="workspace-panel prompt-panel">
-            <div class="panel-header">
-                <h5>✍️ Votre demande</h5>
+        <div class="card p-0 flex-1 flex flex-col h-full" style="min-height: 600px;">
+            <div class="p-15 border-b flex-between-center bg-light-gray rounded-t-lg">
+                <h5 class="m-0 font-bold">✍️ Votre demande</h5>
             </div>
-            <div class="panel-body">
-                <textarea class="form-control assistant-textarea" id="ai_prompt" 
+            <div class="p-0 flex-1 flex flex-col relative">
+                <textarea class="form-control border-0 h-full p-20 resize-none focus-visible-none" id="ai_prompt" 
                     placeholder="Examinez ce texte...&#10;Rédigez un mail pour...&#10;Traduisez en anglais..."
-                    spellcheck="false"></textarea>
-                
-                <div class="action-bar">
-                    <button type="button" class="btn-generate" id="btn-generate-ai" onclick="generateAiText()">
-                        ✨ Générer le texte
-                    </button>
-                    <small class="text-muted hint-text">Ctrl + Enter</small>
-                </div>
+                    spellcheck="false" style="min-height: 400px;"></textarea>
+            </div>
+            <div class="p-15 border-t bg-light-gray rounded-b-lg flex-between-center">
+                <small class="text-muted">Ctrl + Enter pour générer</small>
+                <button type="button" class="btn btn-primary" id="btn-generate-ai" onclick="generateAiText()">
+                    ✨ Générer le texte
+                </button>
             </div>
         </div>
 
         <!-- Zone Résultat (Droite) -->
-        <div class="workspace-panel result-panel">
-            <div class="panel-header">
-                <h5>📄 Résultat</h5>
-                <button type="button" class="btn-copy-icon" onclick="copyAiText()" id="btn-copy" title="Copier le résultat">
-                    <span class="icon">📋</span>
-                    <span class="label">Copier</span>
+        <div class="card p-0 flex-1 flex flex-col h-full" style="min-height: 600px;">
+            <div class="p-15 border-b flex-between-center bg-light-gray rounded-t-lg">
+                <h5 class="m-0 font-bold">📄 Résultat</h5>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyAiText()" id="btn-copy" title="Copier le résultat">
+                    📋 Copier
                 </button>
             </div>
-            <div class="panel-body">
-                <textarea class="form-control assistant-textarea result-textarea" id="ai_result" 
+            <div class="p-0 flex-1 flex flex-col">
+                <textarea class="form-control border-0 h-full p-20 resize-none bg-light" id="ai_result" 
                     placeholder="Le résultat apparaîtra ici..."
-                    readonly></textarea>
+                    readonly style="min-height: 400px;"></textarea>
             </div>
         </div>
     </div>
 
     <!-- Mode CHAT -->
-    <div id="workspace-chat" class="assistant-workspace" style="display: none;">
+    <div id="workspace-chat" class="col-12 flex gap-20" style="display: none;">
         <!-- Chat Main Area (Left) -->
-        <div class="workspace-panel chat-panel">
-            <div class="chat-history" id="chat-history">
+        <div class="card p-0 flex-1 flex flex-col" style="height: 600px;">
+            <div class="flex-1 overflow-y-auto p-20 flex flex-col gap-15" id="chat-history">
                 <div class="chat-message ai">
-                    <div class="bubble">Bonjour ! Je suis votre assistant. Comment puis-je vous aider aujourd'hui ? 👋</div>
+                    <div class="bubble">Bonjour ! Je suis votre assistant. Comment puis-je vous aider ? 👋</div>
                 </div>
             </div>
-            <div class="chat-input-area">
-                <textarea class="form-control chat-textarea" id="chat_input" 
+            <div class="p-15 border-t bg-white rounded-b-lg flex gap-10">
+                <textarea class="form-control flex-1 resize-none" id="chat_input" 
                     placeholder="Posez votre question..." rows="1"
                     onkeydown="handleChatKey(event)"></textarea>
-                <button class="btn-send-chat" onclick="sendChatMessage()">
+                <button class="btn btn-primary w-50 flex-center" onclick="sendChatMessage()">
                     🚀
                 </button>
             </div>
         </div>
 
         <!-- History Sidebar (Right) -->
-        <div class="workspace-panel history-sidebar">
-            <div class="panel-header">
-                <h5>📁 Historique</h5>
-                <button class="btn-new-chat" onclick="startNewChat()" title="Nouvelle conversation">
+        <div class="card p-0 w-300 flex flex-col" style="height: 600px;">
+            <div class="p-15 border-b flex-between-center bg-light-gray">
+                <h5 class="m-0 font-bold">📁 Historique</h5>
+                <button class="btn btn-sm btn-primary" onclick="startNewChat()" title="Nouvelle conversation">
                     ➕
                 </button>
             </div>
-            <div class="history-list" id="history-list">
+            <div class="flex-1 overflow-y-auto p-10" id="history-list">
                 <!-- Chargé via JS -->
             </div>
         </div>
@@ -106,291 +105,7 @@ if (!defined('TECHSUIVI_INCLUDED')) {
 </div>
 
 <style>
-/* Layout Global */
-.ai-assistant-container {
-    height: calc(100vh - 140px);
-    display: flex;
-    flex-direction: column;
-    padding: 0 10px 10px 10px;
-    gap: 10px;
-}
-
-/* Header Spécifique */
-.assistant-header {
-    background: linear-gradient(135deg, #a855f7 0%, #d8b4fe 100%);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-.assistant-title {
-    margin: 0;
-    font-size: 1.25em;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.assistant-controls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-/* Toggle Mode */
-.mode-toggle-wrapper {
-    padding: 3px;
-    border-radius: 30px;
-    display: flex;
-    border: 1px solid rgba(255,255,255,0.2);
-}
-
-/* High Specificity Overrides to kill the Blue */
-#btn-mode-draft, #btn-mode-chat {
-    background-color: transparent !important;
-    background-image: none !important;
-    background: transparent !important;
-    border: none !important;
-    color: rgba(255,255,255,0.8) !important;
-    padding: 6px 15px;
-    border-radius: 25px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.9em;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: none !important;
-}
-
-#btn-mode-draft:hover, #btn-mode-chat:hover {
-    background-color: rgba(255,255,255,0.1) !important;
-    color: white !important;
-}
-
-#btn-mode-draft.active, #btn-mode-chat.active {
-    background-color: white !important;
-    background: white !important;
-    color: #a855f7 !important;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
-}
-
-/* Hack to colorize Emojis */
-.colored-emoji {
-    color: transparent;
-    text-shadow: 0 0 0 white; /* Default white for inactive */
-    transition: text-shadow 0.2s;
-}
-
-.mode-btn.active .colored-emoji {
-    text-shadow: 0 0 0 #a855f7; /* Purple for active */
-}
-
-/* Sélecteur de Règle */
-.rule-selector-wrapper {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(5px);
-    border-radius: 50px;
-    padding: 4px 15px 4px 10px;
-    display: flex;
-    align-items: center;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.rule-icon {
-    font-size: 1.1em;
-    margin-right: 8px;
-}
-
-.rule-select {
-    background: transparent;
-    border: none;
-    color: white;
-    font-weight: 600;
-    padding: 5px;
-    cursor: pointer;
-    min-width: 200px;
-}
-
-.rule-select:focus {
-    background: #a855f7;
-    box-shadow: none;
-    color: white;
-}
-
-.rule-select option {
-    background: white;
-    color: #333;
-}
-
-/* Workspace Split View */
-.assistant-workspace {
-    display: flex;
-    flex: 1;
-    gap: 20px;
-    min-height: 0;
-}
-
-.workspace-panel {
-    flex: 1;
-    background: var(--card-bg, #fff);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1px solid rgba(0,0,0,0.05);
-}
-
-/* Headers */
-.panel-header {
-    height: 55px;
-    padding: 0 20px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
-    background: rgba(0,0,0,0.02);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.panel-header h5 {
-    margin: 0;
-    font-weight: 600;
-    color: var(--accent-color, #a855f7);
-}
-
-.panel-body {
-    padding: 0;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    background: transparent; 
-}
-
-.result-textarea, .assistant-textarea {
-    flex: 1;
-    border: none;
-    padding: 20px;
-    resize: none;
-    font-size: 1.1em;
-    line-height: 1.6;
-    background: transparent;
-    color: inherit;
-    width: 100%;
-}
-
-.assistant-textarea:focus {
-    box-shadow: none;
-    outline: none;
-}
-
-.result-textarea {
-    background: #fafafa;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-}
-
-/* Barre d'action */
-.action-bar {
-    padding: 15px 20px;
-    background: white;
-    border-top: 1px solid rgba(0,0,0,0.05);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-/* Dark Mode Overrides */
-body.dark .workspace-panel {
-    background: #2c2c2c;
-    color: #e0e0e0;
-}
-body.dark .panel-header {
-    border-bottom-color: rgba(255,255,255,0.05);
-    background: rgba(255,255,255,0.02);
-}
-body.dark .panel-header h5 {
-    color: #d8b4fe;
-}
-body.dark .result-textarea {
-    background: #333;
-    color: #e0e0e0;
-}
-body.dark .action-bar {
-    background: #2c2c2c;
-    border-top-color: rgba(255,255,255,0.05);
-}
-body.dark .assistant-textarea:focus {
-    background: rgba(255,255,255,0.02);
-}
-
-/* Boutons */
-.btn-generate {
-    background: linear-gradient(135deg, #a855f7 0%, #c084fc 100%);
-    color: white;
-    border: none;
-    padding: 10px 25px;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 1.05em;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-generate:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
-}
-
-.btn-copy-icon {
-    background: transparent;
-    border: 1px solid #e0e0e0;
-    color: #666;
-    padding: 6px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9em;
-    font-weight: 500;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.btn-copy-icon:hover {
-    background: #f0f0f0;
-    color: #333;
-    border-color: #ccc;
-}
-.btn-copy-icon.success {
-    background: #dcfce7;
-    color: #166534;
-    border-color: #bbf7d0;
-}
-
-/* Chat UI */
-.chat-panel {
-    background: #f4f6f8;
-}
-.chat-history {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
+/* Chat Messages Layout */
 .chat-message {
     display: flex;
     max-width: 80%;
@@ -401,187 +116,78 @@ body.dark .assistant-textarea:focus {
 .chat-message.ai {
     align-self: flex-start;
 }
+
+/* Chat Bubbles Styling */
 .chat-message .bubble {
     padding: 12px 18px;
-    border-radius: 18px;
     font-size: 1em;
     line-height: 1.5;
     position: relative;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
+
 .chat-message.user .bubble {
-    background: #a855f7;
+    background: var(--primary-color, #0d6efd); 
     color: white;
-    border-bottom-right-radius: 4px;
+    border-radius: 15px 15px 0 15px;
 }
+
 .chat-message.ai .bubble {
-    background: white;
-    color: #333;
-    border-bottom-left-radius: 4px;
-}
-.chat-input-area {
-    padding: 15px;
-    background: white;
-    border-top: 1px solid #e0e0e0;
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-}
-.chat-textarea {
-    border-radius: 20px;
-    border: 1px solid #e0e0e0;
-    padding: 12px 15px;
-    resize: none;
-    max-height: 150px;
-}
-.chat-textarea:focus {
-    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
-    border-color: #a855f7;
-}
-.btn-send-chat {
-    background: #a855f7;
-    color: white;
-    border: none;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    font-size: 1.2em;
-    cursor: pointer;
-    transition: transform 0.2s;
-    flex-shrink: 0;
-}
-.btn-send-chat:hover {
-    transform: scale(1.1);
+    background: #f8f9fa;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    border-radius: 15px 15px 15px 0;
 }
 
-/* Dark Mode Chat */
-body.dark .chat-panel {
-    background: #1f1f1f;
-}
 body.dark .chat-message.ai .bubble {
-    background: #2c2c2c;
-    color: #e0e0e0;
-}
-body.dark .chat-input-area {
-    background: #2c2c2c;
-    border-top-color: #444;
-}
-body.dark .chat-textarea {
-    background: #333;
-    border-color: #444;
-    color: white;
-}
-/* Side Bar History */
-.history-sidebar {
-    flex: 1; /* Sidebar width */
-    max-width: 300px;
-    background: white;
-    display: flex;
-    flex-direction: column;
+    background: #343a40;
+    color: #f8f9fa;
+    border-color: #495057;
 }
 
-.history-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 10px;
-}
-
+/* History Sidebar Items */
 .history-item {
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background 0.2s;
-    margin-bottom: 5px;
-    border: 1px solid transparent;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.9em;
-    color: #555;
+    margin-bottom: 5px;
+    transition: background-color 0.2s;
 }
-
 .history-item:hover {
-    background: #f3f4f6;
+    background-color: rgba(0,0,0,0.05);
 }
-
 .history-item.active {
-    background: #f3e8ff;
-    color: #a855f7;
-    border-color: #d8b4fe;
-    font-weight: 600;
+    background-color: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-color, #0d6efd);
+    font-weight: bold;
 }
-
-.history-item .title {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
+body.dark .history-item:hover {
+    background-color: rgba(255,255,255,0.05);
 }
 
 .btn-delete-chat {
-    background: transparent;
     border: none;
-    color: #9ca3af;
+    background: none;
+    color: #adb5bd;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    margin-left: 5px;
-    opacity: 0;
-    transition: opacity 0.2s;
+    opacity: 0.5;
+    transition: opacity 0.2s, color 0.2s;
 }
-
 .history-item:hover .btn-delete-chat {
     opacity: 1;
 }
-
 .btn-delete-chat:hover {
-    color: #ef4444;
-    background: #fee2e2;
-}
-
-.btn-new-chat {
-    background: #a855f7;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.btn-new-chat:hover {
-    background: #9333ea;
-}
-
-/* Dark Mode Sidebar */
-body.dark .history-sidebar {
-    background: #2c2c2c;
-    border-color: #444;
-}
-body.dark .history-item {
-    color: #d1d5db;
-}
-body.dark .history-item:hover {
-    background: #374151;
-}
-body.dark .history-item.active {
-    background: #4c1d95; /* Darker purple */
-    color: #e9d5ff;
-    border-color: #6d28d9;
-}
-body.dark .btn-delete-chat:hover {
-    background: #7f1d1d;
+    color: #dc3545;
 }
 </style>
 
 <script>
 // Chat History Memory
 let currentConversationId = 0;
-let chatHistory = []; // Only for local display purpose now
-
+let chatHistory = []; 
 
 document.addEventListener('DOMContentLoaded', () => {
     loadRules();
@@ -590,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const savedMode = localStorage.getItem('ts_ai_mode');
     if (savedMode === 'chat') {
         switchMode('chat');
-        // Restore Conversation
         const savedConvId = localStorage.getItem('ts_ai_conversation_id');
         if (savedConvId) {
             loadConversation(savedConvId);
@@ -600,25 +205,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Mode Switching
 function switchMode(mode) {
-    // Save state
     localStorage.setItem('ts_ai_mode', mode);
 
-    // Buttons
-    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('btn-mode-' + mode).classList.add('active');
+    const btnDraft = document.getElementById('btn-mode-draft');
+    const btnChat = document.getElementById('btn-mode-chat');
     
-    // Workspaces
     if (mode === 'chat') {
+        btnDraft.classList.remove('btn-primary', 'active');
+        btnDraft.classList.add('btn-secondary');
+        
+        btnChat.classList.remove('btn-secondary');
+        btnChat.classList.add('btn-primary', 'active');
+
         document.getElementById('workspace-draft').style.display = 'none';
         document.getElementById('workspace-chat').style.display = 'flex';
-        // Only load list if we are not about to load a specific conversation (optimization optional, but let's just load it)
-        // If loadConversation is called immediately after, it will reload the list with active state
+        
         if (!localStorage.getItem('ts_ai_conversation_id')) {
             loadChatHistoryList(); 
         }
-        // Focus logic
         setTimeout(() => document.getElementById('chat_input').focus(), 100);
     } else {
+        btnChat.classList.remove('btn-primary', 'active');
+        btnChat.classList.add('btn-secondary');
+        
+        btnDraft.classList.remove('btn-secondary');
+        btnDraft.classList.add('btn-primary', 'active');
+
         document.getElementById('workspace-chat').style.display = 'none';
         document.getElementById('workspace-draft').style.display = 'flex';
     }
@@ -641,7 +253,7 @@ function loadChatHistoryList() {
                 item.onclick = () => loadConversation(conv.id);
                 
                 item.innerHTML = `
-                    <span class="title">${conv.title}</span>
+                    <span class="text-truncate flex-grow-1">${conv.title}</span>
                     <button class="btn-delete-chat" onclick="deleteConversation(event, ${conv.id})" title="Supprimer">
                         🗑️
                     </button>
@@ -652,10 +264,9 @@ function loadChatHistoryList() {
     });
 }
 
-
 function loadConversation(id) {
     currentConversationId = id;
-    localStorage.setItem('ts_ai_conversation_id', id); // Persist
+    localStorage.setItem('ts_ai_conversation_id', id);
     
     loadChatHistoryList(); // Update active class
     
@@ -671,13 +282,10 @@ function loadConversation(id) {
     .then(data => {
         if (data.success) {
             historyDiv.innerHTML = '';
-            chatHistory = []; // Reset local array
+            chatHistory = [];
             
-            // Restore rule/tone in UI
             const ruleSelect = document.getElementById('ai_rule');
             if (ruleSelect) {
-                // If the rule exists in the list, select it. If not (custom or deleted), it might defaupt to empty.
-                // Or we can try to set it value.
                 ruleSelect.value = data.rule || ""; 
             }
 
@@ -696,9 +304,8 @@ function loadConversation(id) {
 
 function startNewChat() {
     currentConversationId = 0;
-    localStorage.removeItem('ts_ai_conversation_id'); // Clear persistence
+    localStorage.removeItem('ts_ai_conversation_id');
     
-    // Reset Rule to default for new chat
     const ruleSelect = document.getElementById('ai_rule');
     if (ruleSelect) ruleSelect.value = "";
     
@@ -708,12 +315,12 @@ function startNewChat() {
             <div class="bubble">Nouvelle conversation démarrée ! Comment puis-je vous aider ? 👋</div>
         </div>
     `;
-    loadChatHistoryList(); // Clear active selection
+    loadChatHistoryList();
     document.getElementById('chat_input').focus();
 }
 
 function deleteConversation(e, id) {
-    e.stopPropagation(); // Prevent click on parent
+    e.stopPropagation();
     if (!confirm('Supprimer cette conversation ?')) return;
     
     const formData = new FormData();
@@ -739,7 +346,6 @@ function handleChatKey(e) {
         e.preventDefault();
         sendChatMessage();
     }
-    // Auto-resize textarea
     e.target.style.height = 'auto';
     e.target.style.height = (e.target.scrollHeight) + 'px';
 }
@@ -749,24 +355,18 @@ function sendChatMessage() {
     const message = input.value.trim();
     if (!message) return;
     
-    // 1. Add User Message
     addChatBubble(message, 'user');
     input.value = '';
-    input.style.height = 'auto'; // Reset height
+    input.style.height = 'auto';
     
-    // 2. Loading state
     const loadingId = addChatBubble('...', 'ai', true);
     
-    // 3. API Call
     const formData = new FormData();
     formData.append('prompt', message);
     if (currentConversationId > 0) {
         formData.append('conversation_id', currentConversationId);
     }
     
-    // Send rule only if it's the start (locally checked) or if we are starting new
-    // The backend now handles history so we don't send 'history' JSON anymore
-    // But we might want to send rule_content for the context
     const ruleVal = document.getElementById('ai_rule').value;
     if (ruleVal) formData.append('rule_content', ruleVal);
     
@@ -775,11 +375,10 @@ function sendChatMessage() {
         const isJson = r.headers.get('content-type')?.includes('application/json');
         const data = isJson ? await r.json() : null;
         
-        // If we have an ID even in error/success, grab it
         if (data && data.conversation_id && currentConversationId === 0) {
             currentConversationId = data.conversation_id;
             localStorage.setItem('ts_ai_conversation_id', currentConversationId);
-            loadChatHistoryList(); // Refresh list to show the new conv
+            loadChatHistoryList();
         }
 
         if (!r.ok) {
@@ -794,13 +393,14 @@ function sendChatMessage() {
         
         if (data.success) {
             addChatBubble(data.text, 'ai');
-            loadChatHistoryList(); // Refresh timestamp
+            loadChatHistoryList();
         } else {
             addChatBubble("Erreur: " + data.message, 'ai');
         }
     })
     .catch(e => {
-        document.getElementById(loadingId).remove();
+        const loader = document.getElementById(loadingId);
+        if(loader) loader.remove();
         addChatBubble("Erreur : " + e.message, 'ai');
     });
 }
@@ -813,7 +413,7 @@ function addChatBubble(text, role, isLoading = false) {
     msgDiv.className = `chat-message ${role}`;
     if (isLoading) msgDiv.id = id;
     
-    // Convert newlines to breaks for display
+    // Convert newlines
     const formattedText = text.replace(/\n/g, '<br>');
     
     msgDiv.innerHTML = `<div class="bubble">${isLoading ? '<i class="fas fa-spinner fa-spin"></i>' : formattedText}</div>`;
@@ -902,31 +502,30 @@ function generateAiText() {
 
 function copyAiText() {
     const resultOutput = document.getElementById('ai_result');
+    const btn = document.getElementById('btn-copy');
+    
     if (!resultOutput.value) return;
     
+    const originalText = btn.innerHTML;
+    
+    const successFeedback = () => {
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        btn.innerHTML = '✅ Copié !';
+        
+        setTimeout(() => { 
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+            btn.innerHTML = originalText;
+        }, 2000);
+    };
+
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(resultOutput.value).then(() => {
-            const btn = document.getElementById('btn-copy');
-            const iconSpan = btn.querySelector('.icon');
-            const labelSpan = btn.querySelector('.label');
-            
-            const originalIcon = iconSpan.innerHTML;
-            const originalLabel = labelSpan.innerHTML;
-            
-            btn.classList.add('success');
-            iconSpan.innerHTML = '✅';
-            labelSpan.innerHTML = 'Copié !';
-            
-            setTimeout(() => { 
-                btn.classList.remove('success');
-                iconSpan.innerHTML = originalIcon;
-                labelSpan.innerHTML = originalLabel;
-            }, 2000);
-        });
+        navigator.clipboard.writeText(resultOutput.value).then(successFeedback);
     } else {
         resultOutput.select();
         document.execCommand('copy');
-        alert('Texte copié !');
+        successFeedback();
     }
 }
 </script>

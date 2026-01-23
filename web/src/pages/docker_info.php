@@ -27,13 +27,15 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 </div>
 
 <!-- Modal Logs -->
-<div id="logsModal" class="modal fixed inset-0 z-50 hidden bg-black-opacity flex items-center justify-center">
-    <div class="modal-content bg-white p-20 border w-4-5 max-w-900 rounded-lg shadow-lg relative mx-auto my-auto max-h-screen-90 flex flex-col">
-        <div class="flex-between-center mb-10 shrink-0">
+<div id="logsModal" class="modal fixed inset-0 hidden bg-black-opacity items-center justify-center" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; background: rgba(0,0,0,0.5);">
+    <div class="modal-content bg-white p-20 border w-4-5 max-w-900 rounded-lg shadow-lg relative mx-auto my-auto" style="display: flex; flex-direction: column; height: 80vh; max-height: 80vh; overflow: hidden;">
+        <div class="flex-between-center mb-10 shrink-0" style="flex-shrink: 0;">
             <h3 id="logsTitle" class="m-0 text-primary">Logs du conteneur</h3>
             <span class="close-modal text-2xl font-bold cursor-pointer hover:text-dark text-muted" onclick="closeLogsModal()">&times;</span>
         </div>
-        <pre id="logsContent" class="bg-dark text-light p-15 overflow-auto flex-1 rounded font-mono m-0 text-xs">Chargement...</pre>
+        <div class="rounded" style="flex: 1; overflow: auto; min-height: 0; background-color: #1e1e1e; color: #d4d4d4; padding: 15px;">
+            <pre id="logsContent" class="font-mono m-0 text-xs" style="white-space: pre; color: inherit; background: transparent; margin: 0;">Chargement...</pre>
+        </div>
     </div>
 </div>
 
@@ -119,6 +121,10 @@ function showAlert(type, message) {
 function showDockerLogs(containerName) {
     // Force display flex directly via style or class if not managed by CSS completely yet for modal-open
     const modal = document.getElementById('logsModal');
+    // Déplacer le modal dans le body pour éviter les problèmes de z-index/overflow des parents
+    document.body.appendChild(modal);
+    
+    modal.style.display = 'flex'; // Force display style for safety
     modal.classList.remove('hidden');
     modal.classList.add('flex');
     
@@ -133,7 +139,10 @@ function showDockerLogs(containerName) {
             } else {
                 document.getElementById('logsContent').innerText = data.logs;
                 const pre = document.getElementById('logsContent');
-                pre.scrollTop = pre.scrollHeight;
+                // Scroll wrapper div
+                if (pre.parentElement) {
+                    pre.parentElement.scrollTop = pre.parentElement.scrollHeight;
+                }
             }
         })
         .catch(err => {
@@ -143,6 +152,7 @@ function showDockerLogs(containerName) {
 
 function closeLogsModal() {
     const modal = document.getElementById('logsModal');
+    modal.style.display = 'none';
     modal.classList.add('hidden');
     modal.classList.remove('flex');
 }

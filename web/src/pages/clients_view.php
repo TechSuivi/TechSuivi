@@ -1083,7 +1083,7 @@ window.addEventListener('click', function(event) {
 function openViewNoteModal(note) {
     document.getElementById('viewNoteTitle').textContent = note.titre;
     document.getElementById('viewNoteDate').textContent = '📅 ' + new Date(note.date_note).toLocaleString('fr-FR');
-    document.getElementById('viewNoteContent').textContent = note.contenu;
+    document.getElementById('viewNoteContent').innerHTML = linkify(note.contenu);
     
     const fileDiv = document.getElementById('viewNoteFile');
     const fileLink = fileDiv.querySelector('a');
@@ -1096,6 +1096,14 @@ function openViewNoteModal(note) {
     }
     
     document.getElementById('viewNoteModal').style.display = 'flex';
+}
+
+function linkify(text) {
+    if (!text) return '';
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function(url) {
+        return '<a href="' + url + '" target="_blank" class="text-primary hover:underline">' + url + '</a>';
+    });
 }
 
 function closeViewNoteModal() {

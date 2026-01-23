@@ -104,7 +104,20 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
 }
 ?>
 
-<div class="container container-center max-w-800">
+<style>
+    .grid-layout-custom {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    @media (min-width: 768px) {
+        .grid-layout-custom {
+            grid-template-columns: 1fr 2fr;
+        }
+    }
+</style>
+
+<div class="container max-w-1600">
     <div class="page-header">
         <h1>
             <span>📂</span>
@@ -126,91 +139,100 @@ if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
         </div>
     <?php endif; ?>
 
-    <!-- Formulaire d'ajout/modification -->
-    <div class="card bg-secondary border mb-30">
-        <h2 class="mt-0 mb-20 text-lg flex items-center gap-10">
-            <?= $editData ? '✏️ Modifier la catégorie' : '➕ Ajouter une catégorie' ?>
-        </h2>
-        <form method="POST">
-            <?php if ($editData): ?>
-                <input type="hidden" name="id" value="<?= htmlspecialchars($editData['ID']) ?>">
+    <div class="grid-layout-custom">
+        <!-- Colonne Gauche : Formulaire -->
+        <div>
+            <div class="card bg-secondary border sticky top-20">
+                <h2 class="mt-0 mb-20 text-lg flex items-center gap-10">
+                    <?= $editData ? '✏️ Modifier' : '➕ Ajouter' ?>
+                </h2>
+                <form method="POST">
+                    <?php if ($editData): ?>
+                        <input type="hidden" name="id" value="<?= htmlspecialchars($editData['ID']) ?>">
+                    <?php endif; ?>
+                    
+                    <div class="mb-20">
+                        <label for="categorie" class="block mb-8 font-bold">Nom</label>
+                        <input type="text" 
+                               id="categorie" 
+                               name="categorie" 
+                               class="form-control w-full p-10 border rounded-8 bg-input text-dark"
+                               required
+                               placeholder="Ex: Support..."
+                               value="<?= htmlspecialchars($editData['CATEGORIE'] ?? '') ?>">
+                    </div>
+
+                    <div class="mb-20">
+                        <label for="couleur" class="block mb-8 font-bold">Couleur</label>
+                        <div class="flex items-center gap-10">
+                            <input type="color" 
+                                   id="couleur" 
+                                   name="couleur" 
+                                   class="h-40 w-full p-2 cursor-pointer border rounded-4 bg-input"
+                                   value="<?= htmlspecialchars($editData['couleur'] ?? '#3498db') ?>">
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-15 pt-15 border-t border-border">
+                        <button type="submit" class="btn btn-primary w-full justify-center">
+                            <span><?= $editData ? '✅' : '➕' ?></span>
+                            <?= $editData ? 'Enregistrer' : 'Ajouter' ?>
+                        </button>
+                        <?php if ($editData): ?>
+                            <a href="index.php?page=helpdesk_categories" class="btn btn-secondary">
+                                ❌
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Colonne Droite : Liste -->
+        <div>
+            <?php if (empty($categories) && empty($errorMessage)): ?>
+                <div class="card text-center p-40 border-dashed">
+                    <div class="text-4xl mb-15 opacity-50">📂</div>
+                    <h3 class="mt-0">Aucune catégorie trouvée</h3>
+                    <p class="text-muted">Ajoutez votre première catégorie helpdesk ci-contre</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px;">ID</th>
+                                <th style="width: 50px;">Couleur</th>
+                                <th>Nom de la catégorie</th>
+                                <th class="text-right" style="width: 150px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($categories as $category): ?>
+                                <tr class="border-b border-border hover:bg-hover transition-colors">
+                                    <td class="p-10 font-mono text-muted text-sm text-center">#<?= htmlspecialchars((string)($category['ID'] ?? '')) ?></td>
+                                    <td class="p-10 text-center">
+                                        <div class="rounded-full shadow-sm border border-black-opacity-10 mx-auto" style="width: 20px; height: 20px; background-color: <?= htmlspecialchars($category['couleur'] ?? '#3498db') ?>;" title="Couleur: <?= htmlspecialchars($category['couleur'] ?? '#3498db') ?>"></div>
+                                    </td>
+                                    <td class="p-10 font-bold"><?= htmlspecialchars($category['CATEGORIE'] ?? '') ?></td>
+                                    <td class="p-10 text-right">
+                                        <div class="flex justify-end gap-10">
+                                            <a href="index.php?page=helpdesk_categories&edit=<?= htmlspecialchars((string)($category['ID'])) ?>" class="btn-sm-action text-info border-info hover:bg-info hover:text-white" title="Modifier">
+                                                <i class="fas fa-pencil-alt"></i>
+                                            </a>
+                                            <a href="actions/helpdesk_categories_delete.php?id=<?= htmlspecialchars((string)($category['ID'])) ?>" 
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?');" 
+                                               class="btn-sm-action text-danger border-danger hover:bg-danger hover:text-white" title="Supprimer">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
             <?php endif; ?>
-            
-            <div class="mb-20">
-                <label for="categorie" class="block mb-8 font-bold">Nom de la catégorie</label>
-                <input type="text" 
-                       id="categorie" 
-                       name="categorie" 
-                       class="form-control w-full p-10 border rounded-8 bg-input text-dark"
-                       required
-                       placeholder="Ex: Support technique, Facturation..."
-                       value="<?= htmlspecialchars($editData['CATEGORIE'] ?? '') ?>">
-            </div>
-
-            <div class="mb-20">
-                <label for="couleur" class="block mb-8 font-bold">Couleur</label>
-                <div class="flex items-center gap-10">
-                    <input type="color" 
-                           id="couleur" 
-                           name="couleur" 
-                           class="h-40 w-60 p-2 cursor-pointer border rounded-4 bg-input"
-                           value="<?= htmlspecialchars($editData['couleur'] ?? '#3498db') ?>">
-                    <span class="text-sm text-muted opacity-80">(Choisir une couleur pour l'affichage)</span>
-                </div>
-            </div>
-            
-            <div class="flex gap-15 pt-15 border-t border-border">
-                <button type="submit" class="btn btn-primary">
-                    <span><?= $editData ? '✅' : '➕' ?></span>
-                    <?= $editData ? 'Modifier' : 'Ajouter' ?>
-                </button>
-                <?php if ($editData): ?>
-                    <a href="index.php?page=helpdesk_categories" class="btn btn-secondary">
-                        <span>❌</span>
-                        Annuler
-                    </a>
-                <?php endif; ?>
-            </div>
-        </form>
-    </div>
-
-    <!-- Liste des catégories -->
-    <div class="flex justify-between items-center mb-20">
-        <div class="text-lg font-bold">Liste des catégories</div>
-        <div class="bg-light px-12 py-4 rounded-12 text-sm text-muted font-bold shadow-sm border border-border">
-            <?= count($categories) ?> catégorie<?= count($categories) > 1 ? 's' : '' ?>
         </div>
     </div>
-
-    <?php if (empty($categories) && empty($errorMessage)): ?>
-        <div class="card text-center p-40 border-dashed">
-            <div class="text-4xl mb-15 opacity-50">📂</div>
-            <h3 class="mt-0">Aucune catégorie trouvée</h3>
-            <p class="text-muted">Ajoutez votre première catégorie helpdesk ci-dessus</p>
-        </div>
-    <?php else: ?>
-        <div class="grid gap-12">
-            <?php foreach ($categories as $category): ?>
-                <div class="card p-15 flex items-center justify-between gap-15 hover:shadow-md transition-transform transform hover:translate-x-1 border">
-                    <div class="flex items-center gap-15 flex-1">
-                        <div class="bg-light px-10 py-4 rounded-6 text-sm text-muted min-w-40 text-center font-mono">#<?= htmlspecialchars((string)($category['ID'] ?? '')) ?></div>
-                        <div class="w-20 h-20 rounded-50 shadow-sm border border-black-opacity-10" style="background-color: <?= htmlspecialchars($category['couleur'] ?? '#3498db') ?>;" title="Couleur: <?= htmlspecialchars($category['couleur'] ?? '#3498db') ?>"></div>
-                        <div class="font-bold text-lg"><?= htmlspecialchars($category['CATEGORIE'] ?? '') ?></div>
-                    </div>
-                    <div class="flex gap-10">
-                        <a href="index.php?page=helpdesk_categories&edit=<?= htmlspecialchars((string)($category['ID'])) ?>" class="btn btn-sm btn-primary flex items-center gap-5">
-                            <span>✏️</span>
-                            <span class="hidden sm:inline">Modifier</span>
-                        </a>
-                        <a href="actions/helpdesk_categories_delete.php?id=<?= htmlspecialchars((string)($category['ID'])) ?>" 
-                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?');" 
-                           class="btn btn-sm btn-danger flex items-center gap-5">
-                            <span>🗑️</span>
-                            <span class="hidden sm:inline">Supprimer</span>
-                        </a>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
 </div>

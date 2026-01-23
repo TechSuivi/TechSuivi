@@ -31,6 +31,7 @@ function getActiveSettingsTab($currentPage) {
         // Onglet Configuration
         'intervention_sheet_config' => 'config',
         'cyber_pricing_config' => 'config',
+        'stock_config' => 'config',
         'acadia_config' => 'config',
         'gemini_config' => 'config',
         'theme_config' => 'config',
@@ -81,6 +82,7 @@ $tabs = [
         'items' => [
             ['url' => 'index.php?page=intervention_sheet_config', 'icon' => '📄', 'title' => 'Feuille d\'Intervention'],
             ['url' => 'index.php?page=cyber_pricing_config', 'icon' => '🖥️', 'title' => 'Tarifs Cyber'],
+            ['url' => 'index.php?page=stock_config', 'icon' => '📦', 'title' => 'Configuration Stock'],
             ['url' => 'index.php?page=acadia_config', 'icon' => '🔧', 'title' => 'Configuration Acadia'],
             ['url' => 'index.php?page=gemini_config', 'icon' => '🧠', 'title' => 'Configuration Gemini'],
             ['url' => 'index.php?page=theme_config', 'icon' => '🎨', 'title' => 'Thèmes & Apparence'],
@@ -173,7 +175,7 @@ $tabs = [
             </h4>
             <div class="quick-nav-buttons">
                 <?php foreach ($tabs[$activeTab]['items'] as $item): ?>
-                    <a href="<?= $item['url'] ?>" class="quick-nav-btn">
+                    <a href="<?= $item['url'] ?>" class="quick-nav-btn <?= strpos($item['url'], 'page=' . $currentPage) !== false ? 'active' : '' ?>">
                         <?= $item['icon'] ?> <?= $item['title'] ?>
                     </a>
                 <?php endforeach; ?>

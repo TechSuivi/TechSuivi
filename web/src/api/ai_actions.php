@@ -150,6 +150,222 @@ try {
             $stmt->execute();
             sendResponse(true, "Nouvelle conversation créée", ['id' => $pdo->lastInsertId()]);
         }
+        
+        // --- OCR / ANALYSE DOCUMENT ---
+        if ($action === 'analyze_document') {
+             $filePath = trim($_POST['file_path'] ?? '');
+             
+             // Sécurisation basique du chemin
+             if (empty($filePath) || strpos($filePath, '..') !== false) {
+                 throw new Exception("Chemin de fichier invalide");
+             }
+             
+             // Conversion URL relative -> Chemin absolu serveur
+             // Le chemin arrive souvent comme "uploads/..." ou "https://.../uploads/..."
+             // On suppose ici qu'il est relatif à la racine du site web ou absolu système.
+             
+             // Tentative de résolution
+             $docRoot = $_SERVER['DOCUMENT_ROOT']; // ex: /var/www/html
+             
+             // Si ça commence par http, on nettoie
+             if (strpos($filePath, 'http') === 0) {
+                 $urlParts = parse_url($filePath);
+                 $filePath = $urlParts['path']; // ex: /uploads/myfile.pdf
+             }
+             
+             // Enlever le slash initial si présent pour le combiner avec le docRoot
+             $relativePath = ltrim($filePath, '/');
+             $fullPath = $docRoot . '/' . $relativePath;
+             
+             // Si TechSuivi est dans un sous-dossier, il faut parfois ajuster. 
+             // Ici on va tester si le fichier existe
+             if (!file_exists($fullPath)) {
+                 // Fallback: Essayer d'ajouter 'src/' ou autre si besoin, mais standard c'est via docRoot
+                 // On tente direct relatif au script actuel (api/) -> remonter
+                 $altPath = __DIR__ . '/../../' . $relativePath;
+                 if (file_exists($altPath)) {
+                     $fullPath = $altPath;
+                 } else {
+                    throw new Exception("Fichier introuvable sur le serveur: " . $filePath);
+                 }
+             }
+
+             // Lecture du fichier
+             $fileData = file_get_contents($fullPath);
+             $mimeType = mime_content_type($fullPath);
+             $base64 = base64_encode($fileData);
+             
+             // Config Gemini & Stirling
+             $stmt = $pdo->prepare("SELECT config_key, config_value FROM configuration WHERE config_key IN ('gemini_api_key', 'stirling_pdf_url')");
+             $stmt->execute();
+             $config = [];
+             while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                 $config[$row['config_key']] = $row['config_value'];
+             }
+             
+             $apiKey = $config['gemini_api_key'] ?? '';
+             $stirlingUrl = trim($config['stirling_pdf_url'] ?? '');
+
+             if (empty($apiKey)) throw new Exception("Clé API Gemini non configurée");
+             $apiKey = trim($apiKey);
+
+             // Modèle vision
+             $modelName = 'gemini-flash-latest';
+             
+             $ocrText = "";
+
+             // Si Stirling est configuré, on l'utilise
+             if (!empty($stirlingUrl)) {
+                 // S'assurer que l'URL ne finit pas par /
+                 $stirlingUrl = rtrim($stirlingUrl, '/');
+                 // Endpoint OCR standard de Stirling PDF (v1)
+                 // Souvent /api/v1/misc/ocr ou juste utiliser l'URL de base si l'utilisateur a mis le path complet
+                 // On va supposer que l'utilisateur a mis l'URL de base (http://ip:port).
+                 $ocrEndpoint = $stirlingUrl . '/api/v1/misc/ocr';
+
+                 $cfile = new CURLFile($fullPath, $mimeType, basename($fullPath));
+                 $postData = [
+                    'fileInput' => $cfile,
+                     'languages' => 'fra,eng', // Français et Anglais par défaut
+                     'sidecar' => 'false',
+                     'outputFormat' => 'txt'
+                 ];
+
+                 $ch = curl_init();
+                 curl_setopt($ch, CURLOPT_URL, $ocrEndpoint);
+                 curl_setopt($ch, CURLOPT_POST, 1);
+                 curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                 curl_setopt($ch, CURLOPT_FAILONERROR, true);
+                 curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                 
+                 $response = curl_exec($ch);
+                 $error = curl_error($ch);
+                 curl_close($ch);
+
+                 if ($response !== false) {
+                     $ocrText = trim($response);
+                 } else {
+                     // Fallback silencieux ou log
+                     // error_log("Stirling OCR Failed: " . $error);
+                     // On continue avec Gemini Vision direct si OCR échoue
+                 }
+             }
+
+             // Construction du Prompt
+             // Si on a du texte OCR, on l'envoie comme contexte texte.
+             // Sinon on envoie l'image/PDF pour analyse vision directe.
+             
+             $promptText = "Analyze this document. Return a JSON array of all items/products found. Keys: 'name' (string), 'qty' (number), 'price' (number, unit price EXCLUDING TAX / Hors Taxe), 'ean' (string, optional, if present). Return ONLY valid JSON, no markdown formatting.";
+             
+             $parts = [];
+             
+             if (!empty($ocrText)) {
+                $promptText .= "\n\nHere is the OCR text extracted from the document:\n" . $ocrText;
+                // Si on a le texte, c'est suffisant, mais on peut laisser l'image pour validation visuelle si besoin.
+                // Pour économiser des tokens vision (si payant) ou accélérer, on pourrait n'envoyer que le texte.
+                // Par sécurité (qualité), envoyons les deux si possible, ou juste le texte.
+                // Gemini Flash est multimodal, envoyons les deux.
+             }
+             
+             $parts[] = ["text" => $promptText];
+             $parts[] = [
+                 "inline_data" => [
+                     "mime_type" => $mimeType,
+                     "data" => $base64
+                 ]
+             ];
+             
+             $url = "https://generativelanguage.googleapis.com/v1beta/models/{$modelName}:generateContent?key={$apiKey}";
+             
+             $requestData = [
+                 "contents" => [
+                     [
+                         "parts" => $parts
+                     ]
+                 ]
+             ];
+             
+             $options = [
+                'http' => [
+                    'header'  => "Content-type: application/json\r\n",
+                    'method'  => 'POST',
+                    'content' => json_encode($requestData),
+                    'timeout' => 60,
+                    'ignore_errors' => true
+                ]
+            ];
+            
+            $context  = stream_context_create($options);
+            $result = @file_get_contents($url, false, $context);
+            
+            if ($result === FALSE) {
+                 $error = error_get_last();
+                 throw new Exception("Erreur connexion API Gemini: " . $error['message']);
+            }
+            
+            $decoded = json_decode($result, true);
+            
+            // Gestion des erreurs retournées par l'API
+            if (isset($decoded['error'])) {
+                 $msg = $decoded['error']['message'] ?? 'Erreur inconnue';
+                 $code = $decoded['error']['code'] ?? 0;
+                 throw new Exception("Erreur API Gemini ($code): $msg");
+            }
+
+            $rawText = $decoded['candidates'][0]['content']['parts'][0]['text'] ?? '[]';
+            
+            // Nettoyage Markdown JSON si présent (```json ... ```)
+            $rawText = preg_replace('/^```json\s*/', '', $rawText);
+            $rawText = preg_replace('/^```\s*/', '', $rawText);
+            $rawText = preg_replace('/\s*```$/', '', $rawText);
+            
+            sendResponse(true, "Analyse terminée" . (!empty($ocrText) ? " (via Stirling OCR)" : ""), ['json' => json_decode($rawText), 'raw' => $rawText]);
+        }
+
+        // --- TEST STIRLING OCR ---
+        if ($action === 'test_ocr') {
+             $stirlingUrl = trim($_POST['stirling_url'] ?? '');
+             
+             if (empty($stirlingUrl)) throw new Exception("URL Stirling non fournie");
+             if (!isset($_FILES['test_file'])) throw new Exception("Aucun fichier envoyé");
+             
+             $file = $_FILES['test_file'];
+             if ($file['error'] !== UPLOAD_ERR_OK) throw new Exception("Erreur upload fichier");
+             
+             $tmpPath = $file['tmp_name'];
+             $mimeType = mime_content_type($tmpPath);
+             
+             $stirlingUrl = rtrim($stirlingUrl, '/');
+             $ocrEndpoint = $stirlingUrl . '/api/v1/misc/ocr';
+
+             $cfile = new CURLFile($tmpPath, $mimeType, $file['name']);
+             $postData = [
+                'fileInput' => $cfile,
+                 'languages' => 'fra,eng', 
+                 'sidecar' => 'false',
+                 'outputFormat' => 'txt'
+             ];
+
+             $ch = curl_init();
+             curl_setopt($ch, CURLOPT_URL, $ocrEndpoint);
+             curl_setopt($ch, CURLOPT_POST, 1);
+             curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+             curl_setopt($ch, CURLOPT_FAILONERROR, true);
+             curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+                 
+             $response = curl_exec($ch);
+             $error = curl_error($ch);
+             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+             curl_close($ch);
+
+             if ($response !== false && $httpCode == 200) {
+                 sendResponse(true, "OCR Réussi", ['text' => trim($response)]);
+             } else {
+                 throw new Exception("Erreur Stirling ($httpCode): " . ($error ?: $response));
+             }
+        }
     }
 
     // Récupérer la configuration Gemini

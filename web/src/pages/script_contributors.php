@@ -10,8 +10,8 @@ require_once __DIR__ . '/../components/settings_navigation.php';
 // Informations sur les versions et intervenants
 $projectInfo = [
     'name' => 'TechSuivi',
-    'current_version' => '5.0.3',
-    'release_date' => '2026-01-21',
+    'current_version' => '5.0.4',
+    'release_date' => '2026-01-23',
     'license' => 'Propriétaire',
     'repository' => 'Interne',
     'status' => 'En développement actif'
@@ -22,6 +22,19 @@ $projectInfo = [
 
 // Historique des versions (Data structure preserved)
 $versionHistory = [
+    [
+        'version' => '5.0.4',
+        'date' => '2026-01-23',
+        'type' => 'Patch',
+        'changes' => [
+            'UI : Refonte complète des Layouts (Fournisseurs, Helpdesk Catégories, Moyens de Paiement, Statuts)',
+            'UX : Mise en place du "Split View" (Formulaire à gauche, Liste à droite) sur les pages de configuration',
+            'UI : Harmonisation et Standardisation des boutons d\'action (Format Carré 34px, Info/Danger)',
+            'Infra : Ajout GLOBAL de FontAwesome dans le header pour correction des icônes manquantes',
+            'Fix : Correction de l\'indicateur de couleur (Arrondi parfait) sur les catégories Helpdesk',
+            'UI : Conversion de toutes les listes "Cards" en Tableaux pour meilleure densité d\'information'
+        ]
+    ],
     [
         'version' => '5.0.3',
         'date' => '2026-01-22',

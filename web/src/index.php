@@ -111,12 +111,13 @@ $allowedPages = [
     'downloads_list', 'downloads_add', 'downloads_edit', 'liens_list',
     'liens_add', 'liens_edit', 'helpdesk_categories', 'messages', 'notes_list',
     'liens_add', 'liens_edit', 'helpdesk_categories', 'messages',
-    'stock_list', 'orders_list', 'orders_edit', 'stock_add', 'inventory_list', 'inventory_view', 'fournisseurs_list', 'catalog_import',
+    'stock_list', 'orders_list', 'orders_edit', 'stock_add', 'inventory_list', 'inventory_view', 'fournisseurs_list', 'catalog_import', 'stock_categories_list',
     'dashboard_caisse', 'moyens_paiement', 'cyber_list', 'cyber_add',
     'cyber_edit', 'cyber_credits_list', 'cyber_credits_add', 'cyber_credits_history', 'transactions_list', 'transaction_add', 'transaction_edit',
     'feuille_caisse_add', 'feuille_caisse_list', 'feuille_caisse_view',
+    'feuille_caisse_add', 'feuille_caisse_list', 'feuille_caisse_view',
     'feuille_caisse_delete', 'resume_journalier',
-    'tableau_recapitulatif', 'photos_settings', 'settings', 'server_info', 'docker_info', 'script_contributors', 'intervention_sheet_config', 'cyber_pricing_config', 'acadia_config', 'api_keys_config', 'mail_config', 'oauth2_config', 'scheduled_tasks', 'reports_config',
+    'tableau_recapitulatif', 'photos_settings', 'settings', 'server_info', 'docker_info', 'script_contributors', 'intervention_sheet_config', 'cyber_pricing_config', 'stock_config', 'acadia_config', 'api_keys_config', 'mail_config', 'oauth2_config', 'scheduled_tasks', 'reports_config',
     'users_list', 'user_add', 'change_password', 'database_backup', 'files_manager',
     'statuts_list', 'timezone_settings', 'autoit_logiciels_list',
     'autoit_commandes_list', 'autoit_nettoyage_list', 'autoit_personnalisation_list', 'autoit_installeur_list',
@@ -160,6 +161,7 @@ if (!in_array($page, $allowedPages)) {
     ?>
     <link rel="stylesheet" href="css/themes/<?= htmlspecialchars($currentTheme) ?>/theme.css">
     <link rel="stylesheet" href="css/style.css?v=1.3">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/modals.css">
     <link rel="stylesheet" href="css/awesomplete.css?v=1.1"> <!-- Autocomplete CSS -->
     <link rel="icon" type="image/png" href="favicon.png">
@@ -621,6 +623,18 @@ if (!in_array($page, $allowedPages)) {
                 } else {
                      echo "<p style='color: red;'>La configuration des tarifs cyber ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
                 }
+            } elseif ($page === 'cyber_pricing_config') {
+                if ($pdo) {
+                    include 'pages/config/cyber_pricing_config.php';
+                } else {
+                     echo "<p style='color: red;'>La configuration des tarifs cyber ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
+                }
+            } elseif ($page === 'stock_config') {
+                if ($pdo) {
+                    include 'pages/config/stock_config.php';
+                } else {
+                     echo "<p style='color: red;'>La configuration stock ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
+                }
             } elseif ($page === 'acadia_config') {
                 if ($pdo) {
                     include 'pages/config/acadia_config.php';
@@ -718,6 +732,12 @@ if (!in_array($page, $allowedPages)) {
                     echo "<p style='color: red;'>La page VNC plein écran ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
                 }
 
+            } elseif ($page === 'stock_categories_list') {
+                if ($pdo) {
+                    include 'pages/stock/stock_categories_list.php';
+                } else {
+                     echo "<p style='color: red;'>La gestion des catégories de stock ne peut pas être affichée car la connexion à la base de données a échoué.</p>";
+                }
             } else {
                 // Default dashboard content
                 include 'pages/dashboard.php';

@@ -79,9 +79,92 @@ if (isset($pdo)) {
 }
 ?>
 
-<!-- Inline CSS Removed for Audit -->
+<style>
+.grid-layout-custom {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+@media (min-width: 768px) {
+    .grid-layout-custom {
+        grid-template-columns: 1fr 2fr;
+    }
+}
 
-<div class="list-page">
+.add-form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: var(--shadow-sm);
+}
+
+.add-form-card h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.add-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.list-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.count-badge {
+    background: var(--accent-color);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-muted);
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    border: 1px dashed var(--border-color);
+}
+.empty-icon {
+    font-size: 3rem;
+    opacity: 0.5;
+    margin-bottom: 10px;
+}
+</style>
+
+<div class="container max-w-1600">
     <div class="page-header">
         <h1>
             <span>🏢</span>
@@ -96,50 +179,61 @@ if (isset($pdo)) {
         </div>
     <?php endif; ?>
 
-    <!-- Formulaire d'ajout -->
-    <div class="add-form-card">
-        <h2>➕ Ajouter un nouveau fournisseur</h2>
-        <form method="POST" class="add-form">
-            <div class="form-group">
-                <label for="fournisseur">Nom du fournisseur</label>
-                <input type="text" id="fournisseur" name="fournisseur" class="form-control" required placeholder="Ex: Fournisseur XYZ">
-            </div>
-            <button type="submit" name="add_fournisseur" class="btn btn-primary">
-                <span>✅</span>
-                Ajouter
-            </button>
-        </form>
-    </div>
-
-    <!-- Liste des fournisseurs -->
-    <div class="list-header">
-        <div class="list-title">Liste des fournisseurs</div>
-        <div class="count-badge"><?= count($fournisseurs) ?> fournisseur<?= count($fournisseurs) > 1 ? 's' : '' ?></div>
-    </div>
-
-    <?php if (empty($fournisseurs)): ?>
-        <div class="empty-state">
-            <div class="empty-icon">🏢</div>
-            <h3>Aucun fournisseur trouvé</h3>
-            <p>Ajoutez votre premier fournisseur ci-dessus</p>
-        </div>
-    <?php else: ?>
-        <div class="suppliers-container">
-            <?php foreach ($fournisseurs as $fournisseur): ?>
-                <div class="supplier-card">
-                    <div class="supplier-info">
-                        <div class="supplier-id">#<?= htmlspecialchars($fournisseur['ID']) ?></div>
-                        <div class="supplier-name"><?= htmlspecialchars($fournisseur['Fournisseur']) ?></div>
+    <div class="grid-layout-custom">
+        <!-- Colonne Gauche : Formulaire -->
+        <div>
+            <div class="add-form-card sticky top-20">
+                <h2>➕ Ajouter un fournisseur</h2>
+                <form method="POST" class="add-form">
+                    <div class="form-group">
+                        <label for="fournisseur">Nom du fournisseur</label>
+                        <input type="text" id="fournisseur" name="fournisseur" class="form-control" required placeholder="Ex: Fournisseur XYZ">
                     </div>
-                    <form method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?');">
-                        <input type="hidden" name="fournisseur_id" value="<?= htmlspecialchars($fournisseur['ID']) ?>">
-                        <button type="submit" name="delete_fournisseur" class="btn-delete">
-                            <span>🗑️</span>
-                            Supprimer
-                        </button>
-                    </form>
-                </div>
-            <?php endforeach; ?>
+                    <button type="submit" name="add_fournisseur" class="btn btn-primary w-full justify-center">
+                        <span>✅</span>
+                        Ajouter
+                    </button>
+                </form>
+            </div>
         </div>
-    <?php endif; ?>
+
+        <!-- Colonne Droite : Liste -->
+        <div>
+            <?php if (empty($fournisseurs)): ?>
+                <div class="empty-state">
+                    <div class="empty-icon">🏢</div>
+                    <h3>Aucun fournisseur trouvé</h3>
+                    <p>Ajoutez votre premier fournisseur ci-contre</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">ID</th>
+                                <th>Nom du Fournisseur</th>
+                                <th class="text-right" style="width: 150px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($fournisseurs as $fournisseur): ?>
+                                <tr>
+                                    <td class="text-muted">#<?= htmlspecialchars($fournisseur['ID']) ?></td>
+                                    <td class="font-bold"><?= htmlspecialchars($fournisseur['Fournisseur']) ?></td>
+                                    <td class="text-right">
+                                        <form method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce fournisseur ?');">
+                                            <input type="hidden" name="fournisseur_id" value="<?= htmlspecialchars($fournisseur['ID']) ?>">
+                                            <button type="submit" name="delete_fournisseur" class="btn-sm-action text-danger border-danger hover:bg-danger hover:text-white" title="Supprimer">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>

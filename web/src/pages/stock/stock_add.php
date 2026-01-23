@@ -138,6 +138,33 @@ $preFillOrder = trim($_GET['order'] ?? '');
 
     <?php echo $message; ?>
 
+    <?php
+    // Récupérer les marges configurées
+    $stockMarginPresets = [20, 30, 40, 50]; // Défaut
+    if (isset($pdo)) {
+        try {
+            $stmt = $pdo->prepare("SELECT config_value FROM configuration WHERE config_key = 'stock_margin_presets'");
+            $stmt->execute();
+            $res = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($res && !empty($res['config_value'])) {
+                 $parts = explode(',', $res['config_value']);
+                 $stockMarginPresets = [];
+                 foreach ($parts as $p) {
+                     $val = trim($p);
+                     if (is_numeric($val)) {
+                         $stockMarginPresets[] = floatval($val);
+                     }
+                 }
+                 if (empty($stockMarginPresets)) $stockMarginPresets = [20, 30, 40, 50];
+            }
+        } catch (Exception $e) { }
+    }
+    
+    // Logique de tri et de défaut
+    $defaultMargin = $stockMarginPresets[0] ?? 30; // La première valeur est le défaut
+    sort($stockMarginPresets); // On trie pour l'affichage des boutons
+    ?>
+
     <form action="index.php?page=stock_add" method="POST" id="product_form">    <!-- Grille Principale (Bascule en côte-à-côte dès 768px) -->
         <div class="grid grid-cols-1 md-grid-cols-12 gap-20 items-start">
             
@@ -216,6 +243,15 @@ $preFillOrder = trim($_GET['order'] ?? '');
                         ✓ Produit unique
                     </div>
                 </div>
+
+                <!-- Section Résultats IA -->
+                <div id="ai_results_card" class="card p-15 border-l-4 border-l-info shadow-sm hidden">
+                    <div class="flex-between-center mb-10">
+                        <h4 class="m-0 text-info font-bold text-sm">🤖 Analyse IA</h4>
+                        <button type="button" class="btn btn-xs btn-secondary" onclick="localStorage.removeItem('stock_ai_results'); document.getElementById('ai_results_card').classList.add('hidden')">×</button>
+                    </div>
+                    <div id="ai_results_table" class="text-xs overflow-y-auto max-h-400"></div>
+                </div>
             </div>
 
             <!-- COLONNE DROITE (Formulaire Produit) -->
@@ -234,6 +270,7 @@ $preFillOrder = trim($_GET['order'] ?? '');
                         </div>
                     </div>
 
+
                     <div class="mb-20">
                         <label for="designation" class="block mb-8 font-bold text-color text-base">Désignation du produit * :</label>
                         <textarea id="designation" name="designation" required class="form-control w-full p-12 border rounded bg-input text-color text-lg min-h-60 resize-y font-bold"><?= htmlspecialchars($designation ?? '') ?></textarea>
@@ -246,40 +283,64 @@ $preFillOrder = trim($_GET['order'] ?? '');
                     </div>
 
                     <!-- Section Prix compacte (Horizontal) -->
-                    <div class="grid grid-cols-1 md-grid-cols-3 gap-15 mb-20 p-15 bg-card rounded-lg border-2 border-dashed border-border items-end">
-                        <div style="flex: 1; min-width: 0;">
-                            <label for="prix_achat_ht" class="block mb-5 font-bold text-color text-xs">Prix Achat HT *</label>
-                            <div class="relative">
-                                <input type="number" id="prix_achat_ht" name="prix_achat_ht" value="<?= htmlspecialchars($prix_achat_ht ?? '') ?>" step="0.01" min="0" required class="form-control w-full p-8 border rounded bg-input text-color font-bold text-lg pr-25">
-                                <span class="absolute right-8 top-8 text-muted">€</span>
+                    <!-- Section Prix compacte (Horizontal) -->
+                    <div class="mb-5 p-15 bg-card rounded-lg border-2 border-dashed border-border">
+                        <div class="grid grid-cols-1 md-grid-cols-3 gap-15 mb-15">
+                            <div style="flex: 1; min-width: 0;">
+                                <label for="prix_achat_ht" class="block mb-5 font-bold text-color text-xs">Prix Achat HT *</label>
+                                <div class="relative">
+                                    <input type="number" id="prix_achat_ht" name="prix_achat_ht" value="<?= htmlspecialchars($prix_achat_ht ?? '') ?>" step="0.01" min="0" required class="form-control w-full p-8 border rounded bg-input text-color font-bold text-lg pr-25">
+                                    <span class="absolute right-8 top-8 text-muted">€</span>
+                                </div>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <label for="prix_vente_ttc" class="block mb-5 font-bold text-color text-xs">Prix Vente TTC *</label>
+                                <div class="relative">
+                                    <input type="number" id="prix_vente_ttc" name="prix_vente_ttc" value="<?= htmlspecialchars($prix_vente_ttc ?? '') ?>" step="0.01" min="0" required class="form-control w-full p-8 border-2 border-success rounded bg-input text-success font-bold text-xl pr-25">
+                                    <span class="absolute right-8 top-8 text-success font-bold">€</span>
+                                </div>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <label class="block mb-5 font-bold text-color text-xs">Suggéré (Marge)</label>
+                                <div class="relative">
+                                    <input type="text" id="prix_suggere" readonly class="form-control w-full p-8 border rounded bg-input text-info font-bold text-lg opacity-80 pr-25" placeholder="...">
+                                    <span class="absolute right-8 top-8 text-info font-bold">€</span>
+                                </div>
                             </div>
                         </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <label for="prix_vente_ttc" class="block mb-5 font-bold text-color text-xs">Prix Vente TTC *</label>
-                            <div class="relative">
-                                <input type="number" id="prix_vente_ttc" name="prix_vente_ttc" value="<?= htmlspecialchars($prix_vente_ttc ?? '') ?>" step="0.01" min="0" required class="form-control w-full p-8 border-2 border-success rounded bg-input text-success font-bold text-xl pr-25">
-                                <span class="absolute right-8 top-8 text-success font-bold">€</span>
+                        
+                        <div class="pt-15 border-t border-dashed border-border flex flex-wrap justify-between items-end gap-15 w-full">
+                            <!-- Boutons d'action à gauche -->
+                            <div class="flex gap-15 mt-5">
+                                <button type="submit" class="btn btn-primary btn-lg px-40 shadow-md">Ajouter au Stock</button>
+                                <button type="reset" class="btn btn-secondary btn-lg opacity-50">Réinitialiser</button>
                             </div>
-                        </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <label class="block mb-5 font-bold text-color text-xs">Suggéré (Marge)</label>
-                            <div class="relative">
-                                <input type="text" id="prix_suggere" readonly class="form-control w-full p-8 border rounded bg-input text-info font-bold text-lg opacity-80 pr-25" placeholder="...">
-                                <span class="absolute right-8 top-8 text-info font-bold">€</span>
+
+                            <!-- Contrôles de marge à droite -->
+                            <div class="flex flex-col items-end gap-5">
+                                <span class="text-xs font-bold text-muted uppercase tracking-wide">Marge cible</span>
+                                <div class="flex items-center gap-5 flex-wrap justify-end">
+                                    <?php foreach ($stockMarginPresets as $preset): ?>
+                                        <button type="button" class="btn btn-xs btn-secondary margin-preset" onclick="setMargin(<?= $preset ?>)"><?= $preset ?>%</button>
+                                    <?php endforeach; ?>
+                                </div>
+                                <div class="flex items-center gap-5">
+                                    <span class="text-xs text-muted">Perso :</span>
+                                    <input type="number" id="margin_percent" value="<?= $defaultMargin ?>" class="w-50 border rounded text-center p-5 text-sm font-bold bg-input cursor-pointer hover:bg-white transition-colors" step="1" min="0">
+                                    <span class="text-xs font-bold text-muted">%</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div id="suggestion-details" class="text-sm text-muted mb-25 px-10 border-l-2 border-info italic"></div>
+
+                    <div id="suggestion-details" class="text-sm text-muted hidden px-10 border-l-2 border-info italic"></div>
 
                     <!-- Champs cachés pour les données fournisseur validées -->
                     <input type="hidden" id="fournisseur" name="fournisseur" value="<?= htmlspecialchars($fournisseur ?? '') ?>">
                     <input type="hidden" id="numero_commande" name="numero_commande" value="<?= htmlspecialchars($numero_commande ?? '') ?>">
                     <input type="hidden" id="date_commande" name="date_commande" value="<?= htmlspecialchars($date_commande ?? '') ?>">
 
-                    <div class="flex gap-15 mt-10 pt-25 border-t border-border">
-                        <button type="submit" class="btn btn-primary btn-lg px-40 shadow-md">Ajouter au Stock</button>
-                        <button type="reset" class="btn btn-secondary btn-lg opacity-50">Réinitialiser</button>
-                    </div>
+
                 </div>
             </div>
         </div>
@@ -673,7 +734,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         const div = document.createElement('div');
                         div.className = "flex justify-between items-center bg-light p-5 mb-2 rounded border border-border";
                         div.innerHTML = `
-                            <span>📄 <a href="${doc.file_path}" target="_blank" class="text-dark no-underline hover:text-primary">${doc.original_name}</a></span>
+                            <div class="flex items-center gap-5">
+                                <span>📄 <a href="${doc.file_path}" target="_blank" class="text-dark no-underline hover:text-primary">${doc.original_name}</a></span>
+                                <button type="button" class="btn btn-xs btn-warning flex items-center gap-2" onclick="analyzeDocument('${doc.file_path}', this)" title="Analyser avec l'IA">
+                                    🤖 <span class="hidden md:inline">Scan IA</span>
+                                </button>
+                            </div>
                             <span class="text-danger cursor-pointer font-bold px-5" onclick="deleteDocument(${doc.id}, '${fournisseur}', '${numeroCommande}')">×</span>
                         `;
                         documentsList.appendChild(div);
@@ -684,6 +750,40 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(err => console.error("Erreur chargement docs", err));
     }
+    
+    window.analyzeDocument = function(filePath, btn) {
+        if (!confirm('Lancer l\'analyse IA de ce document ?')) return;
+        
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳ Analyse...';
+        btn.disabled = true;
+        
+        const formData = new FormData();
+        formData.append('action', 'analyze_document');
+        formData.append('file_path', filePath);
+        
+        fetch('api/ai_actions.php', { method: 'POST', body: formData })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const items = data.json;
+                // Sauvegarde localStorage pour persistence
+                localStorage.setItem('stock_ai_results', JSON.stringify(items));
+                // Rendu propre via la fonction dédiée
+                renderAiResultsTable(items);
+            } else {
+                alert('Erreur IA: ' + data.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Erreur réseau lors de l\'analyse');
+        })
+        .finally(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    };
 
     window.deleteDocument = function(id, fournisseur, numeroCommande) {
         if (!confirm('Supprimer ce document ?')) return;
@@ -691,10 +791,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData();
         formData.append('id', id);
 
-        fetch('api/delete_order_document.php', {
-            method: 'POST',
-            body: formData
-        })
+        fetch('api/delete_order_document.php', { method: 'POST', body: formData })
         .then(res => res.json())
         .then(data => {
             if (data.success) {
@@ -704,6 +801,102 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     };
+    
+    // Fonction centralisée pour le rendu du tableau RESULTATS IA
+    function renderAiResultsTable(items) {
+        const resultCard = document.getElementById('ai_results_card');
+        const resultTable = document.getElementById('ai_results_table');
+        
+        if (!items || items.length === 0) {
+            resultCard.classList.add('hidden');
+            return;
+        }
+
+        let tableHtml = `
+            <div class="mb-5 pb-5 border-b border-border">
+                <span class="text-muted text-xs font-bold">Produits trouvés : ${items.length}</span>
+            </div>
+            <table class="table w-full">
+                <thead>
+                    <tr class="text-left border-b border-border">
+                        <th class="p-2">Produit</th>
+                        <th class="p-2 w-16 text-center">Q</th>
+                        <th class="p-2 w-24 text-right">Prix</th>
+                        <th class="p-2 text-right"></th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        items.forEach((item, index) => {
+            const eanDisplay = item.ean ? `<div class="text-[9px] text-muted font-mono mt-2">EAN: ${item.ean}</div>` : '';
+            
+            tableHtml += `
+                <tr class="border-b border-border hover:bg-light">
+                    <td class="p-2 leading-tight">
+                        <div class="font-bold text-[10px]">${item.name}</div>
+                        ${eanDisplay}
+                    </td>
+                    <td class="p-2 font-bold text-center">${item.qty}</td>
+                    <td class="p-2 text-right">${item.price}€</td>
+                    <td class="p-2">
+                        <div class="flex gap-3 justify-end items-center">
+                            <button type="button" class="btn btn-xs btn-success p-1 px-5 h-auto" title="Remplir" 
+                                    onclick='fillProductForm(${JSON.stringify(item)})'>
+                                ⬇️
+                            </button>
+                            <button type="button" class="btn btn-xs btn-danger p-1 px-5 h-auto" title="Supprimer la ligne" 
+                                    onclick='deleteAiResultItem(${index})'>
+                                ❌
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        tableHtml += `</tbody></table>`;
+        resultTable.innerHTML = tableHtml;
+        resultCard.classList.remove('hidden');
+        
+        // Scroll mobile
+        if(window.innerWidth < 768) {
+            resultCard.scrollIntoView({behavior: 'smooth'});
+        }
+    }
+    
+    // Fonction pour supprimer une ligne spécifique
+    window.deleteAiResultItem = function(index) {
+        const savedResults = localStorage.getItem('stock_ai_results');
+        if (savedResults) {
+            let items = JSON.parse(savedResults);
+            items.splice(index, 1); // Supprimer l'élément
+            
+            localStorage.setItem('stock_ai_results', JSON.stringify(items));
+            renderAiResultsTable(items); // Re-rendre le tableau
+            
+            // Si vide, cacher
+            if (items.length === 0) {
+                document.getElementById('ai_results_card').classList.add('hidden');
+            }
+        }
+    };
+    
+    // Fonction pour restaurer les résultats IA stockés
+    function restoreAiResults() {
+        const savedResults = localStorage.getItem('stock_ai_results');
+        if (savedResults) {
+            try {
+                const items = JSON.parse(savedResults);
+                if (Array.isArray(items) && items.length > 0) {
+                    renderAiResultsTable(items);
+                }
+            } catch(e) { console.error('Erreur restore AI', e); }
+        }
+    }
+    
+    // Appel au chargement
+    restoreAiResults();
 
     if (invoiceUpload) {
         invoiceUpload.addEventListener('change', function() {
@@ -716,6 +909,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 uploadStatus.innerHTML = '<span class="text-warning">Envoi...</span>';
 
                 const file = this.files[0];
+                
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('fournisseur', fournisseur);
@@ -796,17 +990,59 @@ document.addEventListener('DOMContentLoaded', function() {
         const prixAchat = parseFloat(prixAchatInput.value);
         const prixSuggereInput = document.getElementById('prix_suggere');
         const suggestionDetails = document.getElementById('suggestion-details');
+        const marginPercentInput = document.getElementById('margin_percent');
+        
+        let margin = 30; // Default
+        if (marginPercentInput) {
+            margin = parseFloat(marginPercentInput.value) || 0;
+        }
         
         if (!isNaN(prixAchat) && prixAchat > 0) {
             const prixAvecTVA = prixAchat * 1.2;
-            const prixSuggere = prixAvecTVA * 1.3;
+            const coeff = 1 + (margin / 100);
+            const prixSuggere = prixAvecTVA * coeff;
             
             prixSuggereInput.value = prixSuggere.toFixed(2);
-            suggestionDetails.textContent = `Détail: ${prixAchat.toFixed(2)}€ HT → ${prixAvecTVA.toFixed(2)}€ TTC → ${prixSuggere.toFixed(2)}€ avec marge`;
+            suggestionDetails.textContent = `Détail: ${prixAchat.toFixed(2)}€ HT → ${prixAvecTVA.toFixed(2)}€ TTC (+${margin}%) → ${prixSuggere.toFixed(2)}€ avec marge`;
+            suggestionDetails.classList.remove('hidden');
+            suggestionDetails.classList.add('mb-5');
         } else {
             prixSuggereInput.value = '';
             suggestionDetails.textContent = '';
+            suggestionDetails.classList.add('hidden');
+            suggestionDetails.classList.remove('mb-5');
         }
+    }
+
+    // Fonction globale pour les boutons, accessible depuis le HTML onclick
+    window.setMargin = function(value) {
+        const input = document.getElementById('margin_percent');
+        if(input) {
+            input.value = value;
+            // Update buttons style
+            document.querySelectorAll('.margin-preset').forEach(btn => {
+                btn.classList.remove('btn-outline-primary', 'font-bold');
+                btn.classList.add('btn-outline-secondary');
+                if(btn.textContent.includes(value + '%')) {
+                     btn.classList.remove('btn-outline-secondary');
+                     btn.classList.add('btn-outline-primary', 'font-bold');
+                }
+            });
+            calculateSuggestedPrice();
+        }
+    };
+
+    // Listener sur la marge
+    const marginPercentInput = document.getElementById('margin_percent');
+    if (marginPercentInput) {
+        marginPercentInput.addEventListener('input', function() {
+             calculateSuggestedPrice();
+             // Reset UI buttons state if custom value
+             document.querySelectorAll('.margin-preset').forEach(btn => {
+                btn.classList.remove('btn-outline-primary', 'font-bold');
+                btn.classList.add('btn-outline-secondary');
+             });
+        });
     }
 
     prixAchatInput.addEventListener('input', function() {
@@ -906,6 +1142,52 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+    // Nouvelle fonction pour remplir le formulaire
+    window.fillProductForm = function(item) {
+        // Remplissage Champs
+        document.getElementById('designation').value = item.name || '';
+        document.getElementById('ean_code').value = item.ean || '';
+        
+        // Prix : On convertit en nombre propre (virgule ou point)
+        let price = item.price;
+        if (typeof price === 'string') {
+            price = parseFloat(price.replace(',', '.').replace(/[^0-9.]/g, ''));
+        }
+        document.getElementById('prix_achat_ht').value = price || 0;
+        
+        // Réinitialiser TTC pour forcer le recalcul ou l'entrée utilisateur
+        document.getElementById('prix_vente_ttc').value = ''; 
+        
+        // Focus sur le prix vente pour inciter à compléter
+        document.getElementById('prix_vente_ttc').focus();
+        
+        // Animation de feedback visuel sur le formulaire
+        const formCard = document.getElementById('form_card');
+        formCard.classList.remove('border-t-primary');
+        formCard.classList.add('border-t-success');
+        setTimeout(() => {
+            formCard.classList.remove('border-t-success');
+            formCard.classList.add('border-t-primary');
+        }, 1000);
+        
+        // Petit toast/notif plus discret (overlay sur le formulaire)
+        const notif = document.createElement('div');
+        notif.style.position = 'absolute';
+        notif.style.top = '10px';
+        notif.style.right = '10px';
+        notif.className = 'bg-success text-white px-10 py-5 rounded shadow text-xs font-bold fade-in-out';
+        notif.innerHTML = '✓ Rempli';
+        document.getElementById('form_card').style.position = 'relative'; // Ensure relative positioning
+        document.getElementById('form_card').appendChild(notif);
+        
+        setTimeout(() => notif.remove(), 1500);
+        
+        // Auto-calcul marge si fonction dispo
+        if (typeof calculateSuggestedPrice === 'function') {
+            calculateSuggestedPrice();
+        }
+    };
+
 });
 
 function toggleSupplierSection() {

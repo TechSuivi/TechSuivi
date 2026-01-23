@@ -81,7 +81,7 @@ if (isset($pdo)) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($notes as $note): ?>
+                    <?php foreach ($notes as $index => $note): ?>
                         <tr class="hover:bg-hover transition-colors">
                             <td class="p-15 border-b text-sm whitespace-nowrap">
                                 <?= date('d/m/Y', strtotime($note['date_note'])) ?>
@@ -118,7 +118,8 @@ if (isset($pdo)) {
                                 <?php endif; ?>
                             </td>
                             <td class="p-15 border-b text-right whitespace-nowrap">
-                                <button onclick='openEditNoteModal(<?= json_encode($note) ?>)' class="btn btn-primary btn-sm" title="Modifier">✏️</button>
+                                <button onclick="openViewNoteModal(<?= $index ?>)" class="btn btn-info btn-sm" title="Voir">👁️</button>
+                                <button onclick="openEditNoteModal(<?= $index ?>)" class="btn btn-primary btn-sm" title="Modifier">✏️</button>
                                 <button onclick="confirmDeleteNote(<?= $note['id'] ?>)" class="btn btn-danger btn-sm" title="Supprimer">🗑️</button>
                             </td>
                         </tr>
@@ -187,10 +188,43 @@ if (isset($pdo)) {
             <button type="button" class="btn btn-success" id="noteSaveBtn" onclick="submitNoteForm()">💾 Enregistrer</button>
         </div>
     </div>
+    </div>
+</div>
+
+<!-- Modal Voir Note -->
+<div id="noteViewModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 800px; width: 95%;">
+        <div class="modal-header">
+            <h3 class="modal-title">👁️ Détails de la Note</h3>
+            <span class="modal-close" onclick="closeNoteViewModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div class="card bg-light p-20 mb-20 border">
+                <h2 id="view_note_titre" class="mt-0 mb-10 text-primary"></h2>
+                <div class="flex gap-20 text-sm text-muted border-b pb-10 mb-10">
+                    <div>📅 <span id="view_note_date"></span></div>
+                    <div>👤 <span id="view_note_client"></span></div>
+                </div>
+                <div id="view_note_contenu" class="text-dark" style="white-space: pre-wrap; line-height: 1.6;"></div>
+            </div>
+            
+            <div id="view_note_file_container" class="mt-20" style="display: none;">
+                <h4 class="text-muted mb-10">Pièce jointe</h4>
+                <a id="view_note_file_link" href="#" target="_blank" class="btn btn-secondary btn-sm flex items-center gap-10 inline-flex">
+                    📥 Télécharger le fichier
+                </a>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="closeNoteViewModal()">Fermer</button>
+        </div>
+    </div>
 </div>
 
 <script>
 let awesompleteClient;
+// Injection des données PHP vers JS pour éviter les problèmes d'échappement dans le HTML
+const notesData = <?= json_encode($notes) ?>;
 
 document.addEventListener('DOMContentLoaded', function() {
     initClientSearchNote();
@@ -289,7 +323,10 @@ function openAddNoteModal() {
     document.getElementById('noteSaveBtn').disabled = false;
 }
 
-function openEditNoteModal(note) {
+function openEditNoteModal(index) {
+    const note = notesData[index];
+    if (!note) return console.error('Note introuvable pour l\'index', index);
+
     document.getElementById('noteModalTitle').textContent = '✏️ Modifier la Note';
     document.getElementById('note_id').value = note.id;
     document.getElementById('note_titre').value = note.titre;
@@ -348,6 +385,52 @@ function confirmDeleteNote(id) {
             else alert(data.error);
         });
     }
+}
+
+function openViewNoteModal(index) {
+    const note = notesData[index];
+    if (!note) return console.error('Note introuvable pour l\'index', index);
+
+    document.getElementById('view_note_titre').textContent = note.titre;
+    
+    // Date formatting
+    const date = new Date(note.date_note);
+    document.getElementById('view_note_date').textContent = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0,5);
+    
+    // Client
+    const clientSpan = document.getElementById('view_note_client');
+    if (note.id_client) {
+        clientSpan.innerHTML = `<a href="index.php?page=clients_view&id=${note.id_client}" class="text-primary hover:underline">${note.client_nom} ${note.client_prenom || ''}</a>`;
+    } else {
+        clientSpan.textContent = 'Aucun client lié';
+    }
+
+    document.getElementById('view_note_contenu').innerHTML = linkify(note.contenu);
+
+    // File
+    const fileContainer = document.getElementById('view_note_file_container');
+    const fileLink = document.getElementById('view_note_file_link');
+    if (note.fichier_path) {
+        fileContainer.style.display = 'block';
+        fileLink.href = note.fichier_path;
+        fileLink.textContent = '📥 Télécharger ' + note.fichier_path.split('/').pop();
+    } else {
+        fileContainer.style.display = 'none';
+    }
+
+    document.getElementById('noteViewModal').style.display = 'flex';
+}
+
+function closeNoteViewModal() {
+    document.getElementById('noteViewModal').style.display = 'none';
+}
+
+function linkify(text) {
+    if (!text) return '';
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function(url) {
+        return '<a href="' + url + '" target="_blank" class="text-primary hover:underline">' + url + '</a>';
+    });
 }
 </script>
 
